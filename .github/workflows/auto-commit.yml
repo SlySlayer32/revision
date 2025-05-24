@@ -1,0 +1,70 @@
+name: Auto Commit on Successful Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # Allows manual triggering
+
+permissions:
+  contents: write
+
+jobs:
+  test-and-commit:
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Run Tests
+        id: tests
+        run: |
+          flutter test --coverage
+          if [ $? -eq 0 ]; then
+            echo "tests_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "tests_passed=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Setup Git Config
+        if: steps.tests.outputs.tests_passed == 'true'
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+      
+      - name: Check for Changes
+        if: steps.tests.outputs.tests_passed == 'true'
+        id: check_changes
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create Commit
+        if: steps.tests.outputs.tests_passed == 'true' && steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          COMMIT_MSG="feat: auto-commit after successful tests\n\n"
+          COMMIT_MSG+="- Test coverage report updated\n"
+          COMMIT_MSG+="- All tests passed\n"
+          COMMIT_MSG+="- Changes validated\n\n"
+          COMMIT_MSG+="[skip ci]"
+          
+          git commit -m "$COMMIT_MSG"
+          git pull --rebase
+          git push

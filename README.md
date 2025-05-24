@@ -20,6 +20,7 @@ This project includes automatic Git version control. To enable automatic commits
 ```
 
 The script will:
+
 - Watch for file changes in the project
 - Automatically commit changes when files are saved
 - Include the changed file name and timestamp in commit messages
@@ -59,7 +60,7 @@ _\*Revision works on iOS, Android, Web, and Windows._
 To run all unit and widget tests use the following command:
 
 ```sh
-$ flutter test --coverage --test-randomize-ordering-seed random
+flutter test --coverage --test-randomize-ordering-seed random
 ```
 
 To view the generated coverage report you can use [lcov](https://github.com/linux-test-project/lcov).
@@ -128,10 +129,10 @@ Update the `CFBundleLocalizations` array in the `Info.plist` at `ios/Runner/Info
     ...
 
     <key>CFBundleLocalizations</key>
-	<array>
-		<string>en</string>
-		<string>es</string>
-	</array>
+ <array>
+  <string>en</string>
+  <string>es</string>
+ </array>
 
     ...
 ```
