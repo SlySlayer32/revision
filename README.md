@@ -10,6 +10,25 @@ A Very Good Project created by Very Good CLI.
 
 ---
 
+## Version Control 🔄
+
+This project includes automatic Git version control. To enable automatic commits on file saves:
+
+```powershell
+# Start the auto-git watcher
+.\auto-git.ps1
+```
+
+The script will:
+- Watch for file changes in the project
+- Automatically commit changes when files are saved
+- Include the changed file name and timestamp in commit messages
+- Try to push changes to remote (if available)
+
+To stop the automatic commits, press Ctrl+C in the PowerShell window.
+
+---
+
 ## Getting Started 🚀
 
 This project contains 3 flavors:
