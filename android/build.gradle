@@ -1,0 +1,59 @@
+buildscript {
+    ext {
+        agp_version = '8.2.1'
+        kotlin_version = '2.0.0'
+        java_version = JavaVersion.VERSION_17
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:${agp_version}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.google.gms:google-services:4.4.2'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    // Add namespace and Java/Kotlin configuration for all modules
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                if (project.android.hasProperty('libraryVariants')) {
+                    namespace project.group ?: "com.sly.revision.${project.name}"
+                }
+                compileOptions {
+                    sourceCompatibility java_version
+                    targetCompatibility java_version
+                }
+            }
+            if (project.plugins.hasPlugin('kotlin-android')) {
+                project.kotlin {
+                    jvmToolchain(17)
+                }
+                project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                    kotlinOptions {
+                        jvmTarget = "17"
+                    }
+                }
+            }
+        }
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
