@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:revision/features/authentication/presentation/widgets/signup_form.dart';
 
+/// Page that displays the sign up UI
 class SignUpPage extends StatelessWidget {
+  /// Creates a new [SignUpPage]
   const SignUpPage({super.key});
+
+  /// Creates a [Route] for this page
+  static Route<void> route() {
+    return MaterialPageRoute<void>(
+      builder: (_) => const SignUpPage(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

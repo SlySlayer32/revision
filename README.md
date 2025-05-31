@@ -30,6 +30,92 @@ To stop the automatic commits, press Ctrl+C in the PowerShell window.
 
 ---
 
+## Dependency Management 📦
+
+This project uses **GitHub Dependabot** for automated dependency management and security updates with manual trigger control.
+
+### Dependabot Configuration
+
+Dependabot is configured to:
+
+- **Flutter/Dart packages**: Weekly schedule + Manual triggers for rapid updates
+- **Android Gradle**: Weekly schedule + Manual triggers  
+- **GitHub Actions**: Weekly schedule + Manual triggers
+- **Security updates**: Immediate updates when vulnerabilities are detected
+
+### Manual Dependency Updates
+
+#### 🚀 Quick Manual Trigger (Recommended for Rapid Development)
+
+Run the VS Code task: **"Trigger Dependabot Manually"** or use:
+
+```sh
+# Trigger all dependency updates immediately
+gh workflow run manual-dependabot.yml --field package_ecosystem=all
+
+# Trigger specific ecosystem updates
+gh workflow run manual-dependabot.yml --field package_ecosystem=pub
+gh workflow run manual-dependabot.yml --field package_ecosystem=gradle
+gh workflow run manual-dependabot.yml --field package_ecosystem=github-actions
+
+# Force updates even if already up to date
+gh workflow run manual-dependabot.yml --field package_ecosystem=all --field force_update=true
+```
+
+#### 📱 Local Dependency Updates
+
+```sh
+# Check for outdated packages
+flutter pub outdated
+
+# Update all dependencies to latest compatible versions
+flutter pub upgrade
+
+# Update specific package
+flutter pub upgrade package_name
+
+# Get dependencies after pubspec.yaml changes
+flutter pub get
+
+# Analyze dependencies for security issues
+flutter pub deps
+```
+
+### Automatic Workflows
+
+#### 🤖 Auto-merge for Safe Updates
+
+- **Patch & Minor updates**: Automatically tested and merged
+- **Security updates**: Immediately merged after testing
+- **Major updates**: Require manual review (may contain breaking changes)
+
+#### 🔒 Security Auditing
+
+- **Weekly security scans**: Every Monday at 9 AM UTC
+- **Dependency vulnerability checks**: On every dependency change
+- **Platform-specific security analysis**: Android lint + iOS security checks
+- **Automatic issue creation**: For security concerns requiring attention
+
+### Dependabot Pull Request Handling
+
+When Dependabot creates a PR:
+
+1. **Automatic Testing**: CI runs full test suite
+2. **Security Analysis**: Checks for vulnerabilities  
+3. **Auto-merge Decision**: Based on update type and test results
+4. **Manual Review**: Required for major version updates
+
+```sh
+# View Dependabot PRs
+gh pr list --author "dependabot[bot]"
+
+# Manually approve and merge a Dependabot PR
+gh pr review <PR_NUMBER> --approve
+gh pr merge <PR_NUMBER> --squash
+```
+
+---
+
 ## Getting Started 🚀
 
 This project contains 3 flavors:

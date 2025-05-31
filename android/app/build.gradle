@@ -31,7 +31,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace "com.sly.revision"
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 35  // Android 15 for latest features
     ndkVersion flutter.ndkVersion
     
     buildFeatures {
@@ -56,8 +56,8 @@ android {
         applicationId "com.sly.revision"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 23 // Updated to meet Firebase Auth requirements
-        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion 24 // Modern baseline - 96.2% device coverage
+        targetSdkVersion 34 // Required for Play Store
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -118,12 +118,15 @@ flutter {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.20"
     
-    // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:33.13.0')
+    // Import the Firebase BoM (latest stable version)
+    implementation platform('com.google.firebase:firebase-bom:33.15.0')
 
     // Add Analytics
     implementation 'com.google.firebase:firebase-analytics'
 
     // Add Authentication
     implementation 'com.google.firebase:firebase-auth'
+    
+    // Add Vertex AI for Gemini models
+    implementation 'com.google.firebase:firebase-vertexai'
 }

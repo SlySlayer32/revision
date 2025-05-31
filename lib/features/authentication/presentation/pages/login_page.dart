@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:revision/features/authentication/presentation/widgets/login_form.dart';
 
+/// Page that displays the login UI
 class LoginPage extends StatelessWidget {
+  /// Creates a new [LoginPage]
   const LoginPage({super.key});
+
+  /// Creates a [Route] for this page
+  static Route<void> route() {
+    return MaterialPageRoute<void>(
+      builder: (_) => const LoginPage(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

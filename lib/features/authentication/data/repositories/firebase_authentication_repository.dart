@@ -1,80 +1,105 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:developer';
+
+import 'package:revision/core/utils/result.dart';
+import 'package:revision/features/authentication/data/datasources/firebase_auth_data_source.dart';
+import 'package:revision/features/authentication/domain/entities/user.dart';
+import 'package:revision/features/authentication/domain/exceptions/auth_exception.dart';
 import 'package:revision/features/authentication/domain/repositories/authentication_repository.dart';
 
+/// Implementation of AuthenticationRepository that uses Firebase Auth
 class FirebaseAuthenticationRepository implements AuthenticationRepository {
+  /// Creates a new [FirebaseAuthenticationRepository]
   FirebaseAuthenticationRepository({
-    FirebaseAuth? firebaseAuth,
-  }) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
-  final FirebaseAuth _firebaseAuth;
+    FirebaseAuthDataSource? firebaseAuthDataSource,
+  }) : _dataSource = firebaseAuthDataSource ?? FirebaseAuthDataSourceImpl();
+
+  final FirebaseAuthDataSource _dataSource;
 
   @override
-  Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
+  Stream<User?> get authStateChanges => _dataSource.authStateChanges;
 
   @override
-  User? get currentUser => _firebaseAuth.currentUser;
+  User? get currentUser => _dataSource.currentUser;
 
   @override
-  Future<UserCredential> signIn({
+  Future<Result<User>> signIn({
     required String email,
     required String password,
   }) async {
     try {
-      return await _firebaseAuth.signInWithEmailAndPassword(
+      final user = await _dataSource.signIn(
         email: email,
         password: password,
       );
-    } on FirebaseAuthException catch (e) {
-      throw _handleFirebaseAuthError(e);
+      return Success(user);
+    } on AuthException catch (e) {
+      log('Sign in auth exception', error: e);
+      return Failure(e);
+    } catch (e) {
+      log('Unexpected sign in error', error: e);
+      return Failure(UnexpectedAuthException(e.toString()));
     }
   }
 
   @override
-  Future<UserCredential> signUp({
+  Future<Result<User>> signInWithGoogle() async {
+    try {
+      final user = await _dataSource.signInWithGoogle();
+      return Success(user);
+    } on AuthException catch (e) {
+      log('Google sign in auth exception', error: e);
+      return Failure(e);
+    } catch (e) {
+      log('Unexpected Google sign in error', error: e);
+      return Failure(UnexpectedAuthException(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<User>> signUp({
     required String email,
     required String password,
   }) async {
     try {
-      return await _firebaseAuth.createUserWithEmailAndPassword(
+      final user = await _dataSource.signUp(
         email: email,
         password: password,
       );
-    } on FirebaseAuthException catch (e) {
-      throw _handleFirebaseAuthError(e);
+      return Success(user);
+    } on AuthException catch (e) {
+      log('Sign up auth exception', error: e);
+      return Failure(e);
+    } catch (e) {
+      log('Unexpected sign up error', error: e);
+      return Failure(UnexpectedAuthException(e.toString()));
     }
   }
 
   @override
-  Future<void> signOut() async {
-    await _firebaseAuth.signOut();
-  }
-
-  @override
-  Future<void> sendPasswordResetEmail(String email) async {
+  Future<Result<void>> signOut() async {
     try {
-      await _firebaseAuth.sendPasswordResetEmail(email: email);
-    } on FirebaseAuthException catch (e) {
-      throw _handleFirebaseAuthError(e);
+      await _dataSource.signOut();
+      return const Success(null);
+    } on AuthException catch (e) {
+      log('Sign out auth exception', error: e);
+      return Failure(e);
+    } catch (e) {
+      log('Unexpected sign out error', error: e);
+      return Failure(UnexpectedAuthException(e.toString()));
     }
   }
 
-  Exception _handleFirebaseAuthError(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'invalid-email':
-        return Exception('Invalid email address format.');
-      case 'user-disabled':
-        return Exception('This user account has been disabled.');
-      case 'user-not-found':
-        return Exception('No user found with this email.');
-      case 'wrong-password':
-        return Exception('Incorrect password.');
-      case 'email-already-in-use':
-        return Exception('An account already exists with this email.');
-      case 'weak-password':
-        return Exception('The password provided is too weak.');
-      case 'operation-not-allowed':
-        return Exception('Email/password accounts are not enabled.');
-      default:
-        return Exception(e.message ?? 'An unknown error occurred.');
+  @override
+  Future<Result<void>> sendPasswordResetEmail(String email) async {
+    try {
+      await _dataSource.sendPasswordResetEmail(email);
+      return const Success(null);
+    } on AuthException catch (e) {
+      log('Password reset auth exception', error: e);
+      return Failure(e);
+    } catch (e) {
+      log('Unexpected password reset error', error: e);
+      return Failure(UnexpectedAuthException(e.toString()));
     }
   }
 }

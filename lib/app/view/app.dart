@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/core/di/service_locator.dart';
 import 'package:revision/features/authentication/domain/repositories/authentication_repository.dart';
+import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_usecase.dart';
+import 'package:revision/features/authentication/domain/usecases/sign_out_usecase.dart';
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
 import 'package:revision/features/authentication/presentation/pages/authentication_wrapper.dart';
 import 'package:revision/l10n/l10n.dart';
@@ -15,7 +17,8 @@ class App extends StatelessWidget {
       create: (context) => getIt<AuthenticationRepository>(),
       child: BlocProvider(
         create: (context) => AuthenticationBloc(
-          authenticationRepository: context.read<AuthenticationRepository>(),
+          getAuthStateChanges: getIt<GetAuthStateChangesUseCase>(),
+          signOut: getIt<SignOutUseCase>(),
         ),
         child: MaterialApp(
           title: 'Revision',

@@ -2,8 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:revision/features/authentication/presentation/pages/login_page.dart';
 import 'package:revision/features/authentication/presentation/pages/signup_page.dart';
 
+/// The initial page shown to unauthenticated users
 class WelcomePage extends StatelessWidget {
+  /// Creates a new [WelcomePage]
   const WelcomePage({super.key});
+
+  /// Creates a [Route] for this page
+  static Route<void> route() {
+    return MaterialPageRoute<void>(
+      builder: (_) => const WelcomePage(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +43,7 @@ class WelcomePage extends StatelessWidget {
               const Spacer(),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (context) => const LoginPage(),
-                    ),
-                  );
+                  Navigator.of(context).push(LoginPage.route());
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
@@ -48,11 +53,7 @@ class WelcomePage extends StatelessWidget {
               const SizedBox(height: 16),
               OutlinedButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (context) => const SignUpPage(),
-                    ),
-                  );
+                  Navigator.of(context).push(SignUpPage.route());
                 },
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),

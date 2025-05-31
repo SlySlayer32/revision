@@ -1,4 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:revision/core/utils/result.dart';
+import 'package:revision/features/authentication/domain/entities/user.dart';
 
 /// Abstract class that defines the contract for authentication operations
 abstract class AuthenticationRepository {
@@ -6,23 +7,26 @@ abstract class AuthenticationRepository {
   Stream<User?> get authStateChanges;
 
   /// Sign up with email and password
-  Future<UserCredential> signUp({
+  Future<Result<User>> signUp({
     required String email,
     required String password,
   });
 
   /// Sign in with email and password
-  Future<UserCredential> signIn({
+  Future<Result<User>> signIn({
     required String email,
     required String password,
   });
 
   /// Sign out the current user
-  Future<void> signOut();
+  Future<Result<void>> signOut();
 
   /// Request password reset email
-  Future<void> sendPasswordResetEmail(String email);
+  Future<Result<void>> sendPasswordResetEmail(String email);
 
   /// Get the current user
   User? get currentUser;
+
+  /// Sign in with Google account
+  Future<Result<User>> signInWithGoogle();
 }
