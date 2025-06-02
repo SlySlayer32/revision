@@ -24,6 +24,9 @@ void main() {
       email: 'test@gmail.com',
       displayName: 'John Doe',
       photoUrl: 'https://example.com/photo.jpg',
+      isEmailVerified: true, // Assuming Google sign-in implies verified email
+      createdAt: '2023-01-01T00:00:00Z',
+      customClaims: {},
     );
 
     test('should sign in user with Google successfully', () async {
@@ -42,39 +45,39 @@ void main() {
       // Arrange
       const exception = UnexpectedAuthException('Google sign in cancelled');
       when(() => mockRepository.signInWithGoogle())
-          .thenAnswer((_) async => Failure<User>(exception));
+          .thenAnswer((_) async => const Failure<User>(exception));
 
       // Act
       final result = await useCase();
 
       // Assert
-      expect(result, equals(Failure<User>(exception)));
+      expect(result, equals(const Failure<User>(exception)));
       verify(() => mockRepository.signInWithGoogle()).called(1);
     });
     test('should return failure when network error occurs', () async {
       // Arrange
       const exception = NetworkException();
       when(() => mockRepository.signInWithGoogle())
-          .thenAnswer((_) async => Failure<User>(exception));
+          .thenAnswer((_) async => const Failure<User>(exception));
 
       // Act
       final result = await useCase();
 
       // Assert
-      expect(result, equals(Failure<User>(exception)));
+      expect(result, equals(const Failure<User>(exception)));
       verify(() => mockRepository.signInWithGoogle()).called(1);
     });
     test('should return failure when Google sign in fails', () async {
       // Arrange
       const exception = UnexpectedAuthException('Google sign in failed');
       when(() => mockRepository.signInWithGoogle())
-          .thenAnswer((_) async => Failure<User>(exception));
+          .thenAnswer((_) async => const Failure<User>(exception));
 
       // Act
       final result = await useCase();
 
       // Assert
-      expect(result, equals(Failure<User>(exception)));
+      expect(result, equals(const Failure<User>(exception)));
       verify(() => mockRepository.signInWithGoogle()).called(1);
     });
   });

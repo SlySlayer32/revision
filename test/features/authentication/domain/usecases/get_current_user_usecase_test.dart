@@ -19,7 +19,15 @@ void main() {
 
     test('should return current user when user is signed in', () {
       // Arrange
-      const user = User(id: '1', email: 'test@example.com');
+      const user = User(
+        id: '1',
+        email: 'test@example.com',
+        displayName: 'Test User',
+        photoUrl: null,
+        isEmailVerified: true,
+        createdAt: '2023-01-01T00:00:00Z',
+        customClaims: {},
+      );
       when(() => mockRepository.currentUser).thenReturn(user);
 
       // Act

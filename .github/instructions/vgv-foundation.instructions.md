@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.dart"
+applyTo: "**"
 ---
 # VGV Foundation - Architecture & Standards
 

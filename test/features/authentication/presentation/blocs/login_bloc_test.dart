@@ -1,7 +1,8 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:revision/core/utils/result.dart';
+import 'package:revision/core/error/failures.dart'; // Import for AuthenticationFailure
 import 'package:revision/features/authentication/domain/entities/user.dart';
 import 'package:revision/features/authentication/domain/usecases/send_password_reset_email_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_in_usecase.dart';
@@ -41,7 +42,15 @@ void main() {
 
     const email = 'test@example.com';
     const password = 'password123';
-    const user = User(id: '1', email: email);
+    const user = User(
+      id: '1',
+      email: email,
+      displayName: 'Test User',
+      photoUrl: null,
+      isEmailVerified: true,
+      createdAt: '2023-01-01T00:00:00Z',
+      customClaims: {},
+    );
 
     test('initial state is LoginState with initial status', () {
       expect(loginBloc.state, equals(const LoginState()));
@@ -50,21 +59,17 @@ void main() {
     group('LoginRequested', () {
       void arrangeSignInSuccess() {
         when(
-          () => mockSignIn(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          ),
-        ).thenAnswer((_) async => const Success(user));
+          () =>
+              mockSignIn(const SignInParams(email: email, password: password)),
+        ).thenAnswer((_) async => const Right(user));
       }
 
       void arrangeSignInFailure() {
         when(
-          () => mockSignIn(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          ),
+          () =>
+              mockSignIn(const SignInParams(email: email, password: password)),
         ).thenAnswer(
-          (_) async => Failure<User>(Exception('Sign in failed')),
+          (_) async => const Left(AuthenticationFailure('Sign in failed')),
         );
       }
 
@@ -99,7 +104,7 @@ void main() {
               .having(
                 (s) => s.errorMessage,
                 'errorMessage',
-                'Exception: Sign in failed',
+                'Failure: Sign in failed (Code: null)', // Adjusted to match AuthenticationFailure.toString()
               ),
         ],
       );

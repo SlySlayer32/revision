@@ -23,14 +23,9 @@ enum Environment {
 
   /// Get Firebase app name for current environment
   String get firebaseAppName {
-    switch (this) {
-      case Environment.development:
-        return FirebaseConstants.developmentAppName;
-      case Environment.staging:
-        return FirebaseConstants.stagingAppName;
-      case Environment.production:
-        return FirebaseConstants.productionAppName;
-    }
+    // The projectId is now unique per environment and can serve as the app name
+    // if a named Firebase app instance is needed, or for general identification.
+    return FirebaseConstants.projectId;
   }
 
   /// Check if emulators should be used

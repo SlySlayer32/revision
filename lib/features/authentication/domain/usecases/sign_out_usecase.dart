@@ -1,18 +1,18 @@
-import 'package:revision/core/utils/result.dart';
-import 'package:revision/features/authentication/domain/repositories/authentication_repository.dart';
+import 'package:dartz/dartz.dart';
+import 'package:revision/core/error/failures.dart';
+import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 
 /// Use case for signing out the current user
 class SignOutUseCase {
-  /// Creates a new [SignOutUseCase] with the provided [authenticationRepository]
-  const SignOutUseCase(this._authenticationRepository);
+  /// Creates a new [SignOutUseCase] with the provided [authRepository]
+  const SignOutUseCase(this._authRepository);
 
-  final AuthenticationRepository _authenticationRepository;
+  final AuthRepository _authRepository;
 
   /// Signs out the current user
   ///
-  /// Returns a [Result] that is either a [Success] with void
-  /// or a [Failure] with an exception
-  Future<Result<void>> call() async {
-    return _authenticationRepository.signOut();
+  /// Returns an [Either] that is either a [Failure] or success with void
+  Future<Either<Failure, void>> call() async {
+    return _authRepository.signOut();
   }
 }

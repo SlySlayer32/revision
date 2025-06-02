@@ -7,6 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:revision/features/authentication/data/datasources/firebase_auth_data_source.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
 import 'package:revision/features/authentication/domain/exceptions/auth_exception.dart';
+import '../../../../helpers/helpers.dart'; // Import the helper
 
 class MockFirebaseAuth extends Mock implements firebase_auth.FirebaseAuth {}
 
@@ -22,6 +23,11 @@ class MockGoogleSignInAuthentication extends Mock
     implements GoogleSignInAuthentication {}
 
 void main() {
+  // Ensure Firebase is initialized before tests run
+  setUpAll(() async {
+    await setupFirebaseAuthMocks();
+  });
+
   group('FirebaseAuthDataSourceImpl', () {
     late FirebaseAuthDataSourceImpl dataSource;
     late MockFirebaseAuth mockFirebaseAuth;

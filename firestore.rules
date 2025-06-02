@@ -1,0 +1,17 @@
+// firestore.rules - Firestore security rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // User data
+    match /users/{userId} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == userId;
+    }
+
+    // Processing jobs
+    match /processing_jobs/{jobId} {
+      allow read, write: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+  }
+}

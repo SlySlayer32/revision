@@ -8,9 +8,11 @@ class UserModel extends User {
   const UserModel({
     required super.id,
     required super.email,
+    required super.isEmailVerified,
+    required super.createdAt,
+    required super.customClaims,
     super.displayName,
     super.photoUrl,
-    super.isEmailVerified,
   });
 
   /// Creates a [UserModel] from a map
@@ -21,6 +23,11 @@ class UserModel extends User {
       displayName: map['displayName'] as String?,
       photoUrl: map['photoUrl'] as String?,
       isEmailVerified: map['isEmailVerified'] as bool,
+      createdAt:
+          map['createdAt'] as String? ?? DateTime.now().toIso8601String(),
+      customClaims: Map<String, dynamic>.from(
+        map['customClaims'] as Map<String, dynamic>? ?? {},
+      ),
     );
   }
 
@@ -37,6 +44,26 @@ class UserModel extends User {
       displayName: firebaseUser.displayName,
       photoUrl: firebaseUser.photoURL,
       isEmailVerified: firebaseUser.emailVerified,
+      createdAt: firebaseUser.metadata.creationTime?.toIso8601String() ??
+          DateTime.now().toIso8601String(),
+      customClaims: const {}, // Default to empty map
+    );
+  }
+
+  /// Creates a [UserModel] from a Firebase User with custom claims
+  factory UserModel.fromFirebaseUserWithClaims(
+    firebase_auth.User firebaseUser,
+    Map<String, dynamic> customClaims,
+  ) {
+    return UserModel(
+      id: firebaseUser.uid,
+      email: firebaseUser.email ?? '',
+      displayName: firebaseUser.displayName,
+      photoUrl: firebaseUser.photoURL,
+      isEmailVerified: firebaseUser.emailVerified,
+      createdAt: firebaseUser.metadata.creationTime?.toIso8601String() ??
+          DateTime.now().toIso8601String(),
+      customClaims: customClaims,
     );
   }
 
@@ -49,6 +76,7 @@ class UserModel extends User {
       'displayName': displayName,
       'photoUrl': photoUrl,
       'isEmailVerified': isEmailVerified,
+      'customClaims': customClaims,
     };
   }
 

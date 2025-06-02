@@ -6,7 +6,8 @@ abstract class AppException implements Exception {
   final String? code;
 
   @override
-  String toString() => 'AppException: $message';
+  String toString() =>
+      'AppException: $message${code != null ? ' (Code: $code)' : ''}';
 }
 
 /// Network-related exceptions
@@ -33,6 +34,14 @@ class AIServiceException extends AppException {
   String toString() => 'AIServiceException: $message';
 }
 
+/// Advanced AI processing exceptions
+class AIProcessingException extends AppException {
+  const AIProcessingException(super.message, [super.code]);
+
+  @override
+  String toString() => 'AIProcessingException: $message';
+}
+
 /// Image processing-related exceptions
 class ImageProcessingException extends AppException {
   const ImageProcessingException(super.message, [super.code]);
@@ -47,6 +56,41 @@ class StorageException extends AppException {
 
   @override
   String toString() => 'StorageException: $message';
+}
+
+/// Firebase-specific initialization exceptions
+class FirebaseInitializationException extends AppException {
+  const FirebaseInitializationException(super.message, [super.code]);
+
+  @override
+  String toString() => 'FirebaseInitializationException: $message';
+}
+
+/// Vertex AI-specific exceptions
+class VertexAIException extends AppException {
+  const VertexAIException(super.message, [super.code]);
+
+  @override
+  String toString() => 'VertexAIException: $message';
+}
+
+/// Quota exceeded exceptions for AI services
+class QuotaExceededException extends AppException {
+  const QuotaExceededException(super.message, [super.code]);
+
+  @override
+  String toString() => 'QuotaExceededException: $message';
+}
+
+/// Circuit breaker open exception
+class CircuitBreakerOpenException extends AppException {
+  const CircuitBreakerOpenException([
+    super.message = 'Circuit breaker is open',
+    super.code,
+  ]);
+
+  @override
+  String toString() => 'CircuitBreakerOpenException: $message';
 }
 
 /// Validation-related exceptions

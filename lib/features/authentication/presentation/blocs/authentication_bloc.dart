@@ -50,8 +50,8 @@ class AuthenticationBloc
     try {
       final result = await _signOut();
       result.fold(
-        success: (_) => log('User signed out successfully'),
-        failure: (error) => log('Error signing out', error: error),
+        (failure) => log('Error signing out', error: failure),
+        (_) => log('User signed out successfully'),
       );
     } catch (e) {
       log('Unexpected error signing out', error: e);

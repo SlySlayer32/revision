@@ -40,7 +40,15 @@ void main() {
 
     test('should emit user when user signs in', () async {
       // Arrange
-      const user = User(id: '1', email: 'test@example.com');
+      const user = User(
+        id: '1',
+        email: 'test@example.com',
+        displayName: 'Test User 1',
+        photoUrl: null,
+        isEmailVerified: true,
+        createdAt: '2023-01-01T00:00:00Z',
+        customClaims: {},
+      );
       when(() => mockRepository.authStateChanges)
           .thenAnswer((_) => streamController.stream);
 
@@ -67,8 +75,24 @@ void main() {
 
     test('should emit multiple state changes', () async {
       // Arrange
-      const user1 = User(id: '1', email: 'test1@example.com');
-      const user2 = User(id: '2', email: 'test2@example.com');
+      const user1 = User(
+        id: '1',
+        email: 'test1@example.com',
+        displayName: 'Test User 1',
+        photoUrl: null,
+        isEmailVerified: true,
+        createdAt: '2023-01-01T00:00:00Z',
+        customClaims: {},
+      );
+      const user2 = User(
+        id: '2',
+        email: 'test2@example.com',
+        displayName: 'Test User 2',
+        photoUrl: null,
+        isEmailVerified: true,
+        createdAt: '2023-01-02T00:00:00Z',
+        customClaims: {},
+      );
       when(() => mockRepository.authStateChanges)
           .thenAnswer((_) => streamController.stream); // Act
       final stream = useCase();

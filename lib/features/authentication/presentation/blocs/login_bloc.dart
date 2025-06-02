@@ -29,7 +29,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final SignInUseCase _signIn;
   final SignInWithGoogleUseCase _signInWithGoogle;
   final SendPasswordResetEmailUseCase _sendPasswordResetEmail;
-
   Future<void> _onLoginRequested(
     LoginRequested event,
     Emitter<LoginState> emit,
@@ -37,19 +36,23 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     try {
       emit(state.copyWith(status: LoginStatus.loading));
 
-      final result =
-          await _signIn(email: event.email, password: event.password);
+      final result = await _signIn(
+        SignInParams(
+          email: event.email,
+          password: event.password,
+        ),
+      );
       result.fold(
-        success: (_) => emit(state.copyWith(status: LoginStatus.success)),
-        failure: (error) {
-          log('Login error', error: error);
+        (failure) {
+          log('Login error', error: failure);
           emit(
             state.copyWith(
               status: LoginStatus.failure,
-              errorMessage: error.toString(),
+              errorMessage: failure.toString(),
             ),
           );
         },
+        (user) => emit(state.copyWith(status: LoginStatus.success)),
       );
     } catch (e) {
       log('Unexpected login error', error: e);
@@ -71,16 +74,16 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       final result = await _signInWithGoogle();
       result.fold(
-        success: (_) => emit(state.copyWith(status: LoginStatus.success)),
-        failure: (error) {
-          log('Google login error', error: error);
+        (failure) {
+          log('Google login error', error: failure);
           emit(
             state.copyWith(
               status: LoginStatus.failure,
-              errorMessage: error.toString(),
+              errorMessage: failure.toString(),
             ),
           );
         },
+        (user) => emit(state.copyWith(status: LoginStatus.success)),
       );
     } catch (e) {
       log('Unexpected Google login error', error: e);
@@ -102,20 +105,20 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       final result = await _sendPasswordResetEmail(event.email);
       result.fold(
-        success: (_) {
+        (failure) {
+          log('Password reset error', error: failure);
+          emit(
+            state.copyWith(
+              status: LoginStatus.failure,
+              errorMessage: failure.toString(),
+            ),
+          );
+        },
+        (_) {
           emit(
             state.copyWith(
               status: LoginStatus.success,
               errorMessage: 'Password reset email sent',
-            ),
-          );
-        },
-        failure: (error) {
-          log('Password reset error', error: error);
-          emit(
-            state.copyWith(
-              status: LoginStatus.failure,
-              errorMessage: error.toString(),
             ),
           );
         },

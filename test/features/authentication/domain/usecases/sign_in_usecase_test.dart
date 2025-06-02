@@ -1,101 +1,135 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:revision/core/utils/result.dart';
+import 'package:revision/core/error/failures.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
-import 'package:revision/features/authentication/domain/exceptions/auth_exception.dart';
-import 'package:revision/features/authentication/domain/repositories/authentication_repository.dart';
+import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_in_usecase.dart';
 
-class MockAuthenticationRepository extends Mock
-    implements AuthenticationRepository {}
+class MockAuthRepository extends Mock implements AuthRepository {}
 
 void main() {
+  late SignInUseCase usecase;
+  late MockAuthRepository mockAuthRepository;
+
+  setUp(() {
+    mockAuthRepository = MockAuthRepository();
+    usecase = SignInUseCase(mockAuthRepository);
+  });
+
+  const tEmail = 'test@example.com';
+  const tPassword = 'password123';
+  const tUser = User(
+    id: 'test-id',
+    email: tEmail,
+    displayName: 'Test User',
+    photoUrl: null,
+    isEmailVerified: true,
+    createdAt: '2024-01-01T00:00:00Z',
+    customClaims: {},
+  );
+
   group('SignInUseCase', () {
-    late SignInUseCase useCase;
-    late MockAuthenticationRepository mockRepository;
-
-    setUp(() {
-      mockRepository = MockAuthenticationRepository();
-      useCase = SignInUseCase(mockRepository);
-    });
-
-    const email = 'test@example.com';
-    const password = 'password123';
-    const user = User(id: '1', email: email);
-
-    test('should sign in user when credentials are valid', () async {
-      // Arrange
+    test('should sign in user with valid credentials', () async {
+      // arrange
       when(
-        () => mockRepository.signIn(
-          email: email,
-          password: password,
+        () => mockAuthRepository.signInWithEmailAndPassword(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
         ),
-      ).thenAnswer((_) async => const Success(user));
+      ).thenAnswer((_) async => const Right<Failure, User>(tUser));
 
-      // Act
-      final result = await useCase(
-        email: email,
-        password: password,
+      // act
+      final result = await usecase(
+        const SignInParams(
+          email: tEmail,
+          password: tPassword,
+        ),
       );
 
-      // Assert
-      expect(result, equals(const Success(user)));
+      // assert
+      expect(
+        result,
+        equals(const Right<Failure, User>(tUser)),
+      );
       verify(
-        () => mockRepository.signIn(
-          email: email,
-          password: password,
+        () => mockAuthRepository.signInWithEmailAndPassword(
+          email: tEmail,
+          password: tPassword,
+        ),
+      ).called(1);
+      verifyNoMoreInteractions(mockAuthRepository);
+    });
+
+    test('should return failure when sign in fails', () async {
+      // arrange
+      const tFailure = AuthenticationFailure('Invalid credentials');
+      when(
+        () => mockAuthRepository.signInWithEmailAndPassword(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+        ),
+      ).thenAnswer((_) async => const Left<Failure, User>(tFailure));
+
+      // act
+      final result = await usecase(
+        const SignInParams(
+          email: tEmail,
+          password: tPassword,
+        ),
+      );
+
+      // assert
+      expect(
+        result,
+        equals(const Left<Failure, User>(tFailure)),
+      );
+      verify(
+        () => mockAuthRepository.signInWithEmailAndPassword(
+          email: tEmail,
+          password: tPassword,
         ),
       ).called(1);
     });
-    test('should return failure when credentials are invalid', () async {
-      // Arrange
-      const exception = InvalidCredentialsException();
-      when(
-        () => mockRepository.signIn(
-          email: email,
-          password: password,
-        ),
-      ).thenAnswer((_) async => Failure<User>(exception));
 
-      // Act
-      final result = await useCase(
-        email: email,
-        password: password,
+    test('should validate email format', () async {
+      // act
+      final result = await usecase(
+        const SignInParams(
+          email: 'invalid-email',
+          password: tPassword,
+        ),
       );
 
-      // Assert
-      expect(result, equals(Failure<User>(exception)));
-      verify(
-        () => mockRepository.signIn(
-          email: email,
-          password: password,
+      // assert
+      expect(result.isLeft(), isTrue);
+      result.fold(
+        (failure) => expect(failure, isA<ValidationFailure>()),
+        (user) => fail('Should return validation failure'),
+      );
+      verifyNever(
+        () => mockAuthRepository.signInWithEmailAndPassword(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
         ),
-      ).called(1);
+      );
     });
-    test('should return failure when network error occurs', () async {
-      // Arrange
-      const exception = NetworkException();
-      when(
-        () => mockRepository.signIn(
-          email: email,
-          password: password,
-        ),
-      ).thenAnswer((_) async => Failure<User>(exception));
 
-      // Act
-      final result = await useCase(
-        email: email,
-        password: password,
+    test('should validate password is not empty', () async {
+      // act
+      final result = await usecase(
+        const SignInParams(
+          email: tEmail,
+          password: '',
+        ),
       );
 
-      // Assert
-      expect(result, equals(Failure<User>(exception)));
-      verify(
-        () => mockRepository.signIn(
-          email: email,
-          password: password,
-        ),
-      ).called(1);
+      // assert
+      expect(result.isLeft(), isTrue);
+      result.fold(
+        (failure) => expect(failure, isA<ValidationFailure>()),
+        (user) => fail('Should return validation failure'),
+      );
     });
   });
 }

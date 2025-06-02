@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/core/di/service_locator.dart';
-import 'package:revision/features/authentication/domain/repositories/authentication_repository.dart';
+import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_out_usecase.dart';
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
@@ -13,8 +13,8 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider<AuthenticationRepository>(
-      create: (context) => getIt<AuthenticationRepository>(),
+    return RepositoryProvider<AuthRepository>(
+      create: (context) => getIt<AuthRepository>(),
       child: BlocProvider(
         create: (context) => AuthenticationBloc(
           getAuthStateChanges: getIt<GetAuthStateChangesUseCase>(),

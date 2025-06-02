@@ -38,17 +38,16 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
       email: event.email,
       password: event.password,
     );
-
     result.fold(
-      success: (user) => emit(SignupState.success(user)),
-      failure: (exception) {
-        log('Sign up error', error: exception);
-        if (exception is AuthException) {
-          emit(SignupState.failure(exception.message));
+      (failure) {
+        log('Sign up error', error: failure);
+        if (failure is AuthException) {
+          emit(SignupState.failure(failure.message));
         } else {
           emit(const SignupState.failure('An unexpected error occurred'));
         }
       },
+      (user) => emit(SignupState.success(user)),
     );
   }
 }

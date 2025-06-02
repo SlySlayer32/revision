@@ -1,12 +1,13 @@
 import 'package:get_it/get_it.dart';
-
 import 'package:revision/core/services/ai_service.dart';
 import 'package:revision/core/services/circuit_breaker.dart';
 import 'package:revision/features/authentication/data/datasources/firebase_auth_data_source.dart';
 import 'package:revision/features/authentication/data/repositories/firebase_authentication_repository.dart';
-import 'package:revision/features/authentication/domain/repositories/authentication_repository.dart';
+import 'package:revision/features/authentication/domain/repositories/auth_repository.dart'; // Changed import
 import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/get_current_user_usecase.dart';
+// ... other use case imports might also need to expect AuthRepository if they use it.
+// For now, focusing on SignInUseCase as per the error.
 import 'package:revision/features/authentication/domain/usecases/send_password_reset_email_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_in_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_in_with_google_usecase.dart';
@@ -32,7 +33,8 @@ void setupServiceLocator() {
     )
 
     // Repositories
-    ..registerLazySingleton<AuthenticationRepository>(
+    ..registerLazySingleton<AuthRepository>(
+      // Changed to AuthRepository
       () => FirebaseAuthenticationRepository(
         firebaseAuthDataSource: getIt<FirebaseAuthDataSource>(),
       ),
@@ -40,25 +42,30 @@ void setupServiceLocator() {
 
     // Use Cases
     ..registerLazySingleton<SignInUseCase>(
-      () => SignInUseCase(getIt<AuthenticationRepository>()),
+      () => SignInUseCase(getIt<AuthRepository>()), // Changed to AuthRepository
     )
     ..registerLazySingleton<SignInWithGoogleUseCase>(
-      () => SignInWithGoogleUseCase(getIt<AuthenticationRepository>()),
+      () => SignInWithGoogleUseCase(
+          getIt<AuthRepository>()), // Changed to AuthRepository
     )
     ..registerLazySingleton<SignUpUseCase>(
-      () => SignUpUseCase(getIt<AuthenticationRepository>()),
+      () => SignUpUseCase(getIt<AuthRepository>()), // Changed to AuthRepository
     )
     ..registerLazySingleton<SignOutUseCase>(
-      () => SignOutUseCase(getIt<AuthenticationRepository>()),
+      () =>
+          SignOutUseCase(getIt<AuthRepository>()), // Changed to AuthRepository
     )
     ..registerLazySingleton<SendPasswordResetEmailUseCase>(
-      () => SendPasswordResetEmailUseCase(getIt<AuthenticationRepository>()),
+      () => SendPasswordResetEmailUseCase(
+          getIt<AuthRepository>()), // Changed to AuthRepository
     )
     ..registerLazySingleton<GetCurrentUserUseCase>(
-      () => GetCurrentUserUseCase(getIt<AuthenticationRepository>()),
+      () => GetCurrentUserUseCase(
+          getIt<AuthRepository>()), // Changed to AuthRepository
     )
     ..registerLazySingleton<GetAuthStateChangesUseCase>(
-      () => GetAuthStateChangesUseCase(getIt<AuthenticationRepository>()),
+      () => GetAuthStateChangesUseCase(
+          getIt<AuthRepository>()), // Changed to AuthRepository
     )
 
     // BLoCs

@@ -118,8 +118,8 @@ flutter {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.20"
     
-    // Import the Firebase BoM (latest stable version)
-    implementation platform('com.google.firebase:firebase-bom:33.15.0')
+    // Import the Firebase BoM (stable version)
+    implementation platform('com.google.firebase:firebase-bom:32.8.0')
 
     // Add Analytics
     implementation 'com.google.firebase:firebase-analytics'
@@ -127,6 +127,6 @@ dependencies {
     // Add Authentication
     implementation 'com.google.firebase:firebase-auth'
     
-    // Add Vertex AI for Gemini models
-    implementation 'com.google.firebase:firebase-vertexai'
+    // Note: Vertex AI might need to be added separately
+    // implementation 'com.google.firebase:firebase-vertexai'
 }

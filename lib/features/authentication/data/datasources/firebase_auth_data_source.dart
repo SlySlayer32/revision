@@ -34,6 +34,29 @@ abstract class FirebaseAuthDataSource {
 
   /// Get the current user
   User? get currentUser;
+
+  /// Get current user with custom claims from ID token
+  Future<User?> getCurrentUserWithClaims();
+
+  /// Get custom claims for the current user
+  Future<Map<String, dynamic>> getCustomClaims();
+
+  /// Send email verification to current user
+  Future<void> sendEmailVerification();
+
+  /// Update user profile information
+  Future<User> updateUserProfile({
+    String? displayName,
+    String? photoUrl,
+  });
+
+  /// Delete the current user account
+  Future<void> deleteAccount();
+
+  /// Reauthenticate user with password
+  Future<void> reauthenticateWithPassword({
+    required String password,
+  });
 }
 
 /// Implementation of FirebaseAuthDataSource that uses Firebase Auth
@@ -65,6 +88,12 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
         : null;
   }
 
+  /// Get current user with custom claims (async version)
+  /// Use this when you need to access custom claims like roles
+  Future<User?> get currentUserWithClaims async {
+    return getCurrentUserWithClaims();
+  }
+
   @override
   Future<User> signIn({
     required String email,
@@ -80,7 +109,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
         throw const UnexpectedAuthException('Sign in failed');
       }
 
-      return UserModel.fromFirebaseUser(userCredential.user!);
+      return await _createUserWithClaims(userCredential.user!);
     } on firebase_auth.FirebaseAuthException catch (e) {
       log('Firebase sign in error: ${e.code}', error: e);
       throw _mapFirebaseAuthExceptionToDomainException(e);
@@ -105,7 +134,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
         throw const UnexpectedAuthException('Sign up failed');
       }
 
-      return UserModel.fromFirebaseUser(userCredential.user!);
+      return await _createUserWithClaims(userCredential.user!);
     } on firebase_auth.FirebaseAuthException catch (e) {
       log('Firebase sign up error: ${e.code}', error: e);
       throw _mapFirebaseAuthExceptionToDomainException(e);
@@ -137,14 +166,13 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       // Sign in to Firebase with the Google credential
       final userCredential =
           await _firebaseAuth.signInWithCredential(credential);
-
       if (userCredential.user == null) {
         throw const UnexpectedAuthException(
           'Failed to sign in with Google',
         );
       }
 
-      return UserModel.fromFirebaseUser(userCredential.user!);
+      return await _createUserWithClaims(userCredential.user!);
     } on firebase_auth.FirebaseAuthException catch (e) {
       log('Firebase Google sign in error: ${e.code}', error: e);
       throw _mapFirebaseAuthExceptionToDomainException(e);
@@ -180,6 +208,109 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
     }
   }
 
+  @override
+  Future<void> sendEmailVerification() async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        throw const UnexpectedAuthException('No user is currently signed in');
+      }
+
+      await user.sendEmailVerification();
+      log('Email verification sent to: ${user.email}');
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      log('Firebase Auth error sending email verification: ${e.code} - ${e.message}');
+      throw _mapFirebaseAuthExceptionToDomainException(e);
+    } catch (e) {
+      log('Unexpected error sending email verification: $e');
+      throw UnexpectedAuthException('Failed to send email verification: $e');
+    }
+  }
+
+  @override
+  Future<User> updateUserProfile({
+    String? displayName,
+    String? photoUrl,
+  }) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        throw const UnexpectedAuthException('No user is currently signed in');
+      }
+
+      await user.updateDisplayName(displayName);
+      if (photoUrl != null) {
+        await user.updatePhotoURL(photoUrl);
+      }
+
+      // Reload user to get updated information
+      await user.reload();
+      final updatedUser = _firebaseAuth.currentUser;
+
+      if (updatedUser == null) {
+        throw const UnexpectedAuthException('Failed to get updated user');
+      }
+
+      log('User profile updated successfully');
+      return await _createUserWithClaims(updatedUser);
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      log('Firebase Auth error updating profile: ${e.code} - ${e.message}');
+      throw _mapFirebaseAuthExceptionToDomainException(e);
+    } catch (e) {
+      log('Unexpected error updating profile: $e');
+      throw UnexpectedAuthException('Failed to update user profile: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        throw const UnexpectedAuthException('No user is currently signed in');
+      }
+
+      await user.delete();
+      log('User account deleted successfully');
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      log('Firebase Auth error deleting account: ${e.code} - ${e.message}');
+      throw _mapFirebaseAuthExceptionToDomainException(e);
+    } catch (e) {
+      log('Unexpected error deleting account: $e');
+      throw UnexpectedAuthException('Failed to delete account: $e');
+    }
+  }
+
+  @override
+  Future<void> reauthenticateWithPassword({
+    required String password,
+  }) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) {
+        throw const UnexpectedAuthException('No user is currently signed in');
+      }
+
+      if (user.email == null) {
+        throw const UnexpectedAuthException('User email is not available');
+      }
+
+      final credential = firebase_auth.EmailAuthProvider.credential(
+        email: user.email!,
+        password: password,
+      );
+
+      await user.reauthenticateWithCredential(credential);
+      log('User reauthenticated successfully');
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      log('Firebase Auth error reauthenticating: ${e.code} - ${e.message}');
+      throw _mapFirebaseAuthExceptionToDomainException(e);
+    } catch (e) {
+      log('Unexpected error reauthenticating: $e');
+      throw UnexpectedAuthException('Failed to reauthenticate: $e');
+    }
+  }
+
   // Maps Firebase Auth exceptions to domain exceptions
   AuthException _mapFirebaseAuthExceptionToDomainException(
     firebase_auth.FirebaseAuthException exception,
@@ -192,7 +323,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       case 'user-disabled':
         return const UserNotFoundException('This account has been disabled');
       case 'user-not-found':
-        return const UserNotFoundException();
+        return const InvalidCredentialsException(); // Security: don't reveal if user exists
       case 'wrong-password':
         return const InvalidCredentialsException();
       case 'weak-password':
@@ -217,6 +348,49 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
         return UnexpectedAuthException(
           'An unexpected error occurred: ${exception.message}',
         );
+    }
+  }
+
+  @override
+  Future<User?> getCurrentUserWithClaims() async {
+    final firebaseUser = _firebaseAuth.currentUser;
+    if (firebaseUser == null) return null;
+
+    try {
+      final customClaims = await getCustomClaims();
+      return UserModel.fromFirebaseUserWithClaims(firebaseUser, customClaims);
+    } catch (e) {
+      log('Error getting user with claims', error: e);
+      // Fallback to user without claims
+      return UserModel.fromFirebaseUser(firebaseUser);
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getCustomClaims() async {
+    final firebaseUser = _firebaseAuth.currentUser;
+    if (firebaseUser == null) return {};
+
+    try {
+      final idTokenResult = await firebaseUser.getIdTokenResult();
+      return Map<String, dynamic>.from(idTokenResult.claims ?? {});
+    } catch (e) {
+      log('Error getting custom claims', error: e);
+      return {};
+    }
+  }
+
+  /// Creates a UserModel with custom claims from Firebase User
+  Future<UserModel> _createUserWithClaims(
+    firebase_auth.User firebaseUser,
+  ) async {
+    try {
+      final customClaims = await getCustomClaims();
+      return UserModel.fromFirebaseUserWithClaims(firebaseUser, customClaims);
+    } catch (e) {
+      log('Error getting custom claims for user', error: e);
+      // Fallback to user without claims
+      return UserModel.fromFirebaseUser(firebaseUser);
     }
   }
 }

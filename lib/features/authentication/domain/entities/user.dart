@@ -1,49 +1,67 @@
 import 'package:equatable/equatable.dart';
 
-/// User entity representing an authenticated user in the domain layer
 class User extends Equatable {
-  /// Creates a new User entity
   const User({
     required this.id,
     required this.email,
-    this.displayName,
-    this.photoUrl,
-    this.isEmailVerified = false,
+    required this.displayName,
+    required this.photoUrl,
+    required this.isEmailVerified,
+    required this.createdAt,
+    required this.customClaims,
   });
 
-  /// The unique identifier of the user
   final String id;
-
-  /// The email address of the user
   final String email;
-
-  /// The display name of the user, if provided
   final String? displayName;
-
-  /// The URL of the user's profile photo, if provided
   final String? photoUrl;
-
-  /// Whether the user's email address has been verified
   final bool isEmailVerified;
+  final String createdAt; // ISO 8601 string
+  final Map<String, dynamic> customClaims;
 
   @override
-  List<Object?> get props =>
-      [id, email, displayName, photoUrl, isEmailVerified];
+  List<Object?> get props => [
+        id,
+        email,
+        displayName,
+        photoUrl,
+        isEmailVerified,
+        createdAt,
+        customClaims,
+      ];
 
-  /// Creates a copy of this User with the given fields replaced with new values
+  /// Validates email format using regex
+  bool get hasValidEmail {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
+  }
+
+  /// Checks if user profile has all required information
+  bool get isProfileComplete {
+    return displayName != null &&
+        displayName!.isNotEmpty &&
+        isEmailVerified &&
+        hasValidEmail;
+  }
+
+  /// Creates a copy with updated values
   User copyWith({
     String? id,
     String? email,
-    String? Function()? displayName,
-    String? Function()? photoUrl,
+    String? displayName,
+    String? photoUrl,
     bool? isEmailVerified,
+    String? createdAt,
+    Map<String, dynamic>? customClaims,
   }) {
     return User(
       id: id ?? this.id,
       email: email ?? this.email,
-      displayName: displayName != null ? displayName() : this.displayName,
-      photoUrl: photoUrl != null ? photoUrl() : this.photoUrl,
+      displayName: displayName ?? this.displayName,
+      photoUrl: photoUrl ?? this.photoUrl,
       isEmailVerified: isEmailVerified ?? this.isEmailVerified,
+      createdAt: createdAt ?? this.createdAt,
+      customClaims: customClaims ?? this.customClaims,
     );
   }
 }

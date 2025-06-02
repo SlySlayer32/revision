@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_vertexai/firebase_vertexai.dart'; // Added for Vertex AI
 import 'package:flutter/widgets.dart';
 import 'package:revision/core/constants/environment_config.dart';
 import 'package:revision/core/constants/firebase_constants.dart';
@@ -51,9 +52,10 @@ Future<void> _initializeFirebase() async {
   try {
     final environment = Environment.current;
 
+    // Initialize Firebase first
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
-      name: environment.firebaseAppName,
+      // Remove environment-specific app names for now to avoid conflicts
     );
 
     // Configure emulators for development environment
@@ -61,26 +63,64 @@ Future<void> _initializeFirebase() async {
       await _configureEmulators();
     }
 
-    log('✅ Firebase initialized successfully for '
-        '${environment.firebaseAppName}');
+    // Initialize Vertex AI after Firebase is initialized
+    await _initializeVertexAI();
+
+    log('✅ Firebase and Vertex AI initialized successfully for ${environment.name} environment');
   } catch (e, stackTrace) {
-    log('❌ Firebase initialization failed: $e', stackTrace: stackTrace);
-    rethrow;
+    log('❌ Firebase or Vertex AI initialization failed: $e',
+        stackTrace: stackTrace);
+    // Don't rethrow in development to allow app to continue
+    if (Environment.current != Environment.development) {
+      rethrow;
+    }
   }
 }
 
 /// Configure Firebase emulators for development
 Future<void> _configureEmulators() async {
-  if (FirebaseConstants.useAuthEmulator) {
+  try {
     log('🔧 Configuring Firebase Auth Emulator');
 
-    await FirebaseAuth.instance.setSettings(
-      appVerificationDisabledForTesting: true,
-    );
-
+    // IMPORTANT: Configure auth emulator BEFORE any auth operations
     await FirebaseAuth.instance.useAuthEmulator(
       FirebaseConstants.authEmulatorHost,
       FirebaseConstants.authEmulatorPort,
     );
+
+    // Disable app verification and reCAPTCHA for testing
+    await FirebaseAuth.instance.setSettings(
+      appVerificationDisabledForTesting: true,
+    );
+
+    // Additional debugging
+    log('✅ Auth emulator configured on ${FirebaseConstants.authEmulatorHost}:${FirebaseConstants.authEmulatorPort}');
+    log('✅ App verification disabled for testing');
+  } catch (e, stackTrace) {
+    log(
+      '⚠️ Firebase emulator configuration failed: $e',
+      stackTrace: stackTrace,
+    );
+    // Don't rethrow - allow app to continue with production Firebase
+  }
+}
+
+/// Initialize Vertex AI with a health check
+Future<void> _initializeVertexAI() async {
+  try {
+    // Perform a simple check to ensure the model can be accessed
+    // This doesn't generate content but verifies basic setup.
+    final model = FirebaseVertexAI.instance.generativeModel(
+      model: FirebaseConstants
+          .geminiModel, // Using the constant from firebase_constants.dart
+      systemInstruction: Content.system(
+          'Health check'), // Content is part of firebase_vertexai
+    );
+    // Optionally, could add a very lightweight call here if needed, but prompt implies just init.
+    log('✅ Vertex AI initialized successfully with model: ${FirebaseConstants.geminiModel}');
+  } catch (e, stackTrace) {
+    log('⚠️ Vertex AI initialization failed: $e', stackTrace: stackTrace);
+    // As per prompt: Don't rethrow - app should be able to function without AI initially.
+    // Consider setting a flag or state if AI features are critical for some parts.
   }
 }

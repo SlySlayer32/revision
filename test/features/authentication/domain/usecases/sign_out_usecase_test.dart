@@ -4,11 +4,17 @@ import 'package:revision/core/utils/result.dart';
 import 'package:revision/features/authentication/domain/exceptions/auth_exception.dart';
 import 'package:revision/features/authentication/domain/repositories/authentication_repository.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_out_usecase.dart';
+import '../../../../helpers/helpers.dart'; // Import the helper
 
 class MockAuthenticationRepository extends Mock
     implements AuthenticationRepository {}
 
 void main() {
+  // Ensure Firebase is initialized before tests run
+  setUpAll(() async {
+    await setupFirebaseAuthMocks();
+  });
+
   group('SignOutUseCase', () {
     late SignOutUseCase useCase;
     late MockAuthenticationRepository mockRepository;
@@ -34,26 +40,26 @@ void main() {
       // Arrange
       const exception = UnexpectedAuthException('Sign out failed');
       when(() => mockRepository.signOut())
-          .thenAnswer((_) async => Failure<void>(exception));
+          .thenAnswer((_) async => const Failure<void>(exception));
 
       // Act
       final result = await useCase();
 
       // Assert
-      expect(result, equals(Failure<void>(exception)));
+      expect(result, equals(const Failure<void>(exception)));
       verify(() => mockRepository.signOut()).called(1);
     });
     test('should return failure when network error occurs', () async {
       // Arrange
       const exception = NetworkException();
       when(() => mockRepository.signOut())
-          .thenAnswer((_) async => Failure<void>(exception));
+          .thenAnswer((_) async => const Failure<void>(exception));
 
       // Act
       final result = await useCase();
 
       // Assert
-      expect(result, equals(Failure<void>(exception)));
+      expect(result, equals(const Failure<void>(exception)));
       verify(() => mockRepository.signOut()).called(1);
     });
   });

@@ -1,17 +1,24 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:revision/core/utils/result.dart';
+import 'package:revision/core/error/failures.dart';
 import 'package:revision/features/authentication/data/datasources/firebase_auth_data_source.dart';
 import 'package:revision/features/authentication/data/repositories/firebase_authentication_repository.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
 import 'package:revision/features/authentication/domain/exceptions/auth_exception.dart';
+import '../../../../helpers/helpers.dart'; // Import the helper
 
 class MockFirebaseAuthDataSource extends Mock
     implements FirebaseAuthDataSource {}
 
 void main() {
+  // Ensure Firebase is initialized before tests run
+  setUpAll(() async {
+    await setupFirebaseAuthMocks();
+  });
+
   group('FirebaseAuthenticationRepository', () {
     late FirebaseAuthenticationRepository repository;
     late MockFirebaseAuthDataSource mockDataSource;
@@ -31,7 +38,15 @@ void main() {
 
     const email = 'test@example.com';
     const password = 'password123';
-    const user = User(id: '1', email: email);
+    const user = User(
+      id: '1',
+      email: email,
+      displayName: 'Test User',
+      photoUrl: null,
+      isEmailVerified: false,
+      createdAt: '2023-01-01T12:00:00Z',
+      customClaims: {},
+    );
 
     group('signIn', () {
       test('should return success when sign in succeeds', () async {
@@ -50,7 +65,7 @@ void main() {
         );
 
         // Assert
-        expect(result, equals(const Success(user)));
+        expect(result, equals(Success(user)));
         verify(
           () => mockDataSource.signIn(
             email: email,
@@ -115,7 +130,7 @@ void main() {
         final result = await repository.signInWithGoogle();
 
         // Assert
-        expect(result, equals(const Success(user)));
+        expect(result, equals(Success(user)));
         verify(() => mockDataSource.signInWithGoogle()).called(1);
       });
 
@@ -149,7 +164,7 @@ void main() {
         );
 
         // Assert
-        expect(result, equals(const Success(user)));
+        expect(result, equals(Success(user)));
         verify(
           () => mockDataSource.signUp(
             email: email,

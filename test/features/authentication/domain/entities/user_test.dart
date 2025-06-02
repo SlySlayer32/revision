@@ -1,75 +1,99 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
 
 void main() {
-  group('User', () {
-    const id = 'test-id';
-    const email = 'test@example.com';
-    const displayName = 'John Doe';
-    const photoUrl = 'https://example.com/photo.jpg';
+  group('User Entity', () {
+    const tUser = User(
+      id: 'test-id',
+      email: 'test@example.com',
+      displayName: 'Test User',
+      photoUrl: 'https://example.com/photo.jpg',
+      isEmailVerified: true,
+      createdAt: '2024-01-01T00:00:00Z',
+      customClaims: {},
+    );
 
-    test('supports value comparisons', () {
-      const user1 = User(
-        id: id,
-        email: email,
-        displayName: displayName,
-        photoUrl: photoUrl,
-        isEmailVerified: true,
-      );
-
-      const user2 = User(
-        id: id,
-        email: email,
-        displayName: displayName,
-        photoUrl: photoUrl,
-        isEmailVerified: true,
-      );
-
-      expect(user1, equals(user2));
+    test('should be a subclass of Equatable', () {
+      expect(tUser, isA<Equatable>());
     });
 
-    test('creates a user with required properties', () {
-      const user = User(
-        id: id,
-        email: email,
+    test('should have correct props for equality', () {
+      const otherUser = User(
+        id: 'test-id',
+        email: 'test@example.com',
+        displayName: 'Test User',
+        photoUrl: 'https://example.com/photo.jpg',
+        isEmailVerified: true,
+        createdAt: '2024-01-01T00:00:00Z',
+        customClaims: {},
       );
 
-      expect(user.id, equals(id));
-      expect(user.email, equals(email));
-      expect(user.displayName, isNull);
-      expect(user.photoUrl, isNull);
-      expect(user.isEmailVerified, isFalse);
+      expect(tUser, equals(otherUser));
+      expect(tUser.hashCode, equals(otherUser.hashCode));
     });
 
-    test('creates a user with all properties', () {
-      const user = User(
-        id: id,
-        email: email,
-        displayName: displayName,
-        photoUrl: photoUrl,
-        isEmailVerified: true,
-      );
-
-      expect(user.id, equals(id));
-      expect(user.email, equals(email));
-      expect(user.displayName, equals(displayName));
-      expect(user.photoUrl, equals(photoUrl));
-      expect(user.isEmailVerified, isTrue);
-    });
-
-    test('props returns correct list', () {
-      const user = User(
-        id: id,
-        email: email,
-        displayName: displayName,
-        photoUrl: photoUrl,
-        isEmailVerified: true,
-      );
-
+    test('should return correct props', () {
       expect(
-        user.props,
-        equals([id, email, displayName, photoUrl, true]),
+        tUser.props,
+        equals([
+          'test-id',
+          'test@example.com',
+          'Test User',
+          'https://example.com/photo.jpg',
+          true,
+          '2024-01-01T00:00:00Z',
+          const {},
+        ]),
       );
+    });
+
+    test('should handle null values correctly', () {
+      const userWithNulls = User(
+        id: 'test-id',
+        email: 'test@example.com',
+        displayName: null,
+        photoUrl: null,
+        isEmailVerified: false,
+        createdAt: '2024-01-01T00:00:00Z',
+        customClaims: {},
+      );
+
+      expect(userWithNulls.displayName, isNull);
+      expect(userWithNulls.photoUrl, isNull);
+      expect(userWithNulls.isEmailVerified, isFalse);
+    });
+
+    test('should validate email format', () {
+      expect(tUser.hasValidEmail, isTrue);
+
+      const invalidEmailUser = User(
+        id: 'test-id',
+        email: 'invalid-email',
+        displayName: 'Test User',
+        photoUrl: null,
+        isEmailVerified: false,
+        createdAt: '2024-01-01T00:00:00Z',
+        customClaims: {},
+      );
+
+      expect(invalidEmailUser.hasValidEmail, isFalse);
+    });
+
+    test('should check if user profile is complete', () {
+      expect(tUser.isProfileComplete, isTrue);
+
+      const incompleteUser = User(
+        id: 'test-id',
+        email: 'test@example.com',
+        displayName: null,
+        photoUrl: null,
+        isEmailVerified: false,
+        createdAt: '2024-01-01T00:00:00Z',
+        customClaims: {},
+      );
+
+      expect(incompleteUser.isProfileComplete, isFalse);
     });
   });
 }

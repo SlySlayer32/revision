@@ -3,46 +3,31 @@ import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:revision/core/utils/result.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
-import 'package:revision/features/authentication/domain/repositories/authentication_repository.dart';
-import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_usecase.dart';
-import 'package:revision/features/authentication/domain/usecases/sign_out_usecase.dart';
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
 
-class MockAuthenticationRepository extends Mock
-    implements AuthenticationRepository {}
-
-class TestGetAuthStateChangesUseCase extends GetAuthStateChangesUseCase {
-  TestGetAuthStateChangesUseCase()
-      : super(
-          MockAuthenticationRepository(),
-        );
-
-  late StreamController<User?> controller;
-
-  @override
-  Stream<User?> call() => controller.stream;
-}
-
-class MockSignOutUseCase extends Mock implements SignOutUseCase {}
+import '../../../../helpers/helpers.dart';
 
 void main() {
   group('AuthenticationBloc', () {
     late AuthenticationBloc authenticationBloc;
-    late TestGetAuthStateChangesUseCase getAuthStateChanges;
-    late MockSignOutUseCase mockSignOut;
+    late MockGetAuthStateChangesUseCase getAuthStateChanges;
+    late MockSignOutUseCase signOut;
     late StreamController<User?> authStateController;
 
     setUp(() {
       authStateController = StreamController<User?>();
-      getAuthStateChanges = TestGetAuthStateChangesUseCase()
-        ..controller = authStateController;
-      mockSignOut = MockSignOutUseCase();
+      getAuthStateChanges = MockGetAuthStateChangesUseCase();
+      signOut = MockSignOutUseCase();
+
+      // Setup mock stream
+      when(() => getAuthStateChanges()).thenAnswer(
+        (_) => authStateController.stream,
+      );
 
       authenticationBloc = AuthenticationBloc(
         getAuthStateChanges: getAuthStateChanges,
-        signOut: mockSignOut,
+        signOut: signOut,
       );
     });
 
@@ -50,8 +35,6 @@ void main() {
       authStateController.close();
       authenticationBloc.close();
     });
-
-    const user = User(id: '1', email: 'test@example.com');
 
     test('initial state is AuthenticationState.unknown', () {
       expect(
@@ -64,9 +47,9 @@ void main() {
       blocTest<AuthenticationBloc, AuthenticationState>(
         'emits authenticated when user is not null',
         build: () => authenticationBloc,
-        act: (bloc) => authStateController.add(user),
-        expect: () => const [
-          AuthenticationState.authenticated(user),
+        act: (bloc) => authStateController.add(TestDataFactory.user()),
+        expect: () => [
+          AuthenticationState.authenticated(TestDataFactory.user()),
         ],
       );
 
@@ -83,16 +66,20 @@ void main() {
         'emits states in order for auth changes',
         build: () => authenticationBloc,
         act: (bloc) {
+          final user = TestDataFactory.user();
           authStateController
             ..add(user)
             ..add(null)
             ..add(user);
         },
-        expect: () => const [
-          AuthenticationState.authenticated(user),
-          AuthenticationState.unauthenticated(),
-          AuthenticationState.authenticated(user),
-        ],
+        expect: () {
+          final user = TestDataFactory.user();
+          return [
+            AuthenticationState.authenticated(user),
+            const AuthenticationState.unauthenticated(),
+            AuthenticationState.authenticated(user),
+          ];
+        },
       );
     });
 
@@ -100,31 +87,29 @@ void main() {
       blocTest<AuthenticationBloc, AuthenticationState>(
         'calls sign out use case',
         build: () {
-          when(() => mockSignOut())
-              .thenAnswer((_) async => const Success<void>(null));
+          MockSetup.setupSuccessfulSignOut(signOut);
           return authenticationBloc;
         },
         act: (bloc) => bloc.add(AuthenticationLogoutRequested()),
         verify: (_) {
-          verify(() => mockSignOut()).called(1);
+          verify(() => signOut()).called(1);
         },
       );
+
       blocTest<AuthenticationBloc, AuthenticationState>(
         'does not emit new state on successful logout',
         build: () {
-          when(() => mockSignOut())
-              .thenAnswer((_) async => const Success<void>(null));
+          MockSetup.setupSuccessfulSignOut(signOut);
           return authenticationBloc;
         },
         act: (bloc) => bloc.add(AuthenticationLogoutRequested()),
         expect: () => <AuthenticationState>[],
       );
+
       blocTest<AuthenticationBloc, AuthenticationState>(
         'does not emit new state on failed logout',
         build: () {
-          when(() => mockSignOut()).thenAnswer(
-            (_) async => Failure<void>(Exception('Logout failed')),
-          );
+          MockSetup.setupFailedSignOut(signOut, errorMessage: 'Logout failed');
           return authenticationBloc;
         },
         act: (bloc) => bloc.add(AuthenticationLogoutRequested()),
