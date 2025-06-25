@@ -5,6 +5,7 @@ applyTo: '**'
 # 🎯 Immediate Action Plan: Build Working MVP
 
 ## STOP doing:
+
 - More architectural setup
 - Complex testing infrastructure
 - Documentation and planning
