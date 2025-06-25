@@ -12,6 +12,11 @@ void main() {
   group('AI Image Processing Pipeline Tests', () {
     late AiProcessingRepository repository;
 
+    setUpAll(() {
+      // Initialize Flutter test binding first
+      TestWidgetsFlutterBinding.ensureInitialized();
+    });
+
     setUp(() {
       // Create repository with Vertex AI service
       final vertexAiService = VertexAIService();
