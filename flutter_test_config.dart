@@ -9,6 +9,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'test/helpers/firebase_emulator_helper.dart';
 
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
+  // Initialize Flutter test binding first
+  TestWidgetsFlutterBinding.ensureInitialized();
+  
   // Configure test environment
   await _configureTestEnvironment();
 
