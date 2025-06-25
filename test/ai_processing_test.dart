@@ -1,12 +1,15 @@
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
-import 'package:revision/features/image_processor/data/repositories/ai_image_processor_repository.dart';
-import 'package:revision/features/image_processor/domain/entities/processed_image.dart';
+import 'package:revision/features/ai_processing/domain/repositories/ai_processing_repository.dart';
+import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
+import 'package:revision/features/ai_processing/domain/entities/processing_result.dart';
+import 'package:revision/features/ai_processing/data/repositories/mock_ai_processing_repository_mvp.dart';
+import 'package:revision/core/utils/result.dart';
 
 void main() {
   group('AI Image Processing Pipeline Tests', () {
-    late AIImageProcessorRepository repository;
+    late AiProcessingRepository repository;
 
     setUp(() {
       repository = AIImageProcessorRepository();
