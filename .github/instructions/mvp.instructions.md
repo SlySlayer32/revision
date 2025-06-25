@@ -19,6 +19,7 @@ applyTo: '**'
 - Validate each step before proceeding
 - Build a simple, functional MVP
 
+
 ## 🚀 Step-by-Step MVP Implementation
 
 ### 1. Image Selection Feature (Next 2-3 hours)
