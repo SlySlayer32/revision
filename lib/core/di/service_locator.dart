@@ -40,6 +40,7 @@ void setupServiceLocator() {
     getIt
       // Core Services
       ..registerLazySingleton<CircuitBreaker>(CircuitBreaker.new)
+      ..registerLazySingleton<GeminiPipelineService>(GeminiPipelineService.new)
 
       // Data Sources
       ..registerLazySingleton<FirebaseAuthDataSource>(
