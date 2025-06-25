@@ -35,7 +35,7 @@ final getIt = GetIt.instance;
 /// Set up all dependencies in the service locator
 void setupServiceLocator() {
   debugPrint('setupServiceLocator: Starting dependency registration...');
-  
+
   try {
     getIt
       // Core Services

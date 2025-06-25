@@ -40,9 +40,12 @@ class FirebaseConstants {
   static const String vertexAiLocation = 'us-central1'; // Matches prompt
 
   // Updated model names per MVP requirements
-  static const String analysisModel = 'gemini-2.5-flash'; // For image analysis (low cost, fast)
-  static const String generationModel = 'gemini-2.0-flash-preview-image-generation'; // For image generation
-  static const String geminiModel = 'gemini-2.5-flash'; // Default model for initialization
+  static const String analysisModel =
+      'gemini-2.5-flash'; // For image analysis (low cost, fast)
+  static const String generationModel =
+      'gemini-2.0-flash-preview-image-generation'; // For image generation
+  static const String geminiModel =
+      'gemini-2.5-flash'; // Default model for initialization
   static const String imagenModel = 'imagen-3.0-generate-001'; // Keep existing
   static const String defaultModel = 'gemini-1.5-flash'; // Keep for fallback
 
