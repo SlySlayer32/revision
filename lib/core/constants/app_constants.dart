@@ -20,7 +20,6 @@ class AppConstants {
   static const int maxImageSize = 4 * 1024 * 1024; // 4MB
   static const int aiRequestTimeout = 30000; // 30 seconds
   static const int maxRetryAttempts = 3;
-
   // Image Processing Constants
   static const List<String> supportedImageFormats = [
     'jpg',
@@ -31,6 +30,26 @@ class AppConstants {
     'raw',
     'dng',
   ];
+
+  // Maximum Resolution Constants
+  static const int maxImageWidth = 4096;
+  static const int maxImageHeight = 4096;
+
+  // Quality and Compression Constants
+  static const int jpegQuality = 85;
+  static const int pngCompressionLevel = 6;
+
+  // Cache and Storage Constants
+  static const int maxCacheSize = 100 * 1024 * 1024; // 100MB
+  static const int maxCacheItems = 50;
+
+  // Network Constants
+  static const int connectionTimeout = 30000; // 30 seconds
+  static const int receiveTimeout = 60000; // 60 seconds
+
+  // Animation and UI Constants
+  static const int defaultAnimationDuration = 300; // 300ms
+  static const int debounceDuration = 500; // 500ms
 
   // Circuit Breaker Constants
   static const int circuitBreakerFailureThreshold = 5;

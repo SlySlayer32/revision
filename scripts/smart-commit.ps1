@@ -142,4 +142,15 @@ catch {
     exit 1
 }
 
+# Update: Add logic to find and use the correct .apk output path for install/deploy
+# Use the most recent debug .apk from build/app/outputs/flutter-apk/
+$apkPath = Get-ChildItem -Path "build/app/outputs/flutter-apk/" -Filter "*.apk" | Sort-Object LastWriteTime -Descending | Select-Object -First 1 -ExpandProperty FullName
+if (-not $apkPath) {
+    Write-Host "No APK found in build/app/outputs/flutter-apk/!" -ForegroundColor Red
+    exit 1
+}
+Write-Host "Using APK: $apkPath" -ForegroundColor Green
+# Example install command (uncomment if needed):
+# adb install -r $apkPath
+
 Write-Host "`n🎉 All done!" -ForegroundColor Green

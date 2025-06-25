@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
 import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_out_usecase.dart';
@@ -20,11 +21,17 @@ class AuthenticationBloc
   })  : _getAuthStateChanges = getAuthStateChanges,
         _signOut = signOut,
         super(const AuthenticationState.unknown()) {
+    debugPrint(
+        'AuthenticationBloc: Initializing and subscribing to auth state changes');
     on<AuthenticationStatusChanged>(_onAuthenticationStatusChanged);
     on<AuthenticationLogoutRequested>(_onAuthenticationLogoutRequested);
 
     _authStateSubscription = _getAuthStateChanges().listen(
-      (user) => add(AuthenticationStatusChanged(user)),
+      (user) {
+        debugPrint(
+            'AuthenticationBloc: Auth state changed, user = \\${user?.email ?? "null"}');
+        add(AuthenticationStatusChanged(user));
+      },
     );
   }
 

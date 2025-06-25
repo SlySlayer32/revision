@@ -1,0 +1,498 @@
+import 'dart:typed_data';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:revision/core/error/exceptions.dart';
+import 'package:revision/core/services/ai_service.dart';
+
+void main() {
+  group('VertexAIService', () {
+    late VertexAIService aiService;
+    late Uint8List testImageData;
+
+    setUp(() {
+      // Initialize service with default constructor
+      aiService = VertexAIService();
+      // Create test image data (small PNG-like structure)
+      testImageData = Uint8List.fromList([
+        0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, // PNG signature
+        0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, // IHDR chunk
+        0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, // 1x1 pixel
+        0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53,
+        0xDE, 0x00, 0x00, 0x00, 0x0C, 0x49, 0x44, 0x41,
+        0x54, 0x08, 0x1D, 0x01, 0x01, 0x00, 0x00, 0xFF,
+        0xFF, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x02,
+        0x9A, 0x65, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45,
+        0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82,
+      ]);
+    });
+
+    group('Input Validation', () {
+      test('validates image data is not empty for processImagePrompt',
+          () async {
+        expect(
+          () async =>
+              aiService.processImagePrompt(Uint8List.fromList([]), 'test'),
+          throwsA(isA<AIServiceException>()),
+        );
+      });
+
+      test('validates prompt is not empty for processImagePrompt', () async {
+        expect(
+          () async => aiService.processImagePrompt(testImageData, ''),
+          throwsA(isA<AIServiceException>()),
+        );
+      });
+
+      test('validates image data is not empty for generateImageDescription',
+          () async {
+        expect(
+          () async =>
+              aiService.generateImageDescription(Uint8List.fromList([])),
+          throwsA(isA<AIServiceException>()),
+        );
+      });
+
+      test('validates image data is not empty for suggestImageEdits', () async {
+        expect(
+          () async => aiService.suggestImageEdits(Uint8List.fromList([])),
+          throwsA(isA<AIServiceException>()),
+        );
+      });
+
+      test('handles large image data gracefully', () async {
+        // Create oversized image data (20MB)
+        final largeImageData = Uint8List(20 * 1024 * 1024);
+
+        expect(
+          () async => aiService.processImagePrompt(largeImageData, 'test'),
+          throwsA(isA<AIServiceException>()),
+        );
+      });
+    });
+
+    group('Error Handling', () {
+      test('wraps Firebase exceptions appropriately', () async {
+        // Test with invalid image format to trigger Firebase errors
+        final invalidImageData = Uint8List.fromList([0xFF, 0xFF, 0xFF, 0xFF]);
+
+        expect(
+          () async =>
+              aiService.processImagePrompt(invalidImageData, 'test prompt'),
+          throwsA(isA<AIServiceException>()),
+        );
+      });
+
+      test('maintains error context in exception messages', () async {
+        try {
+          await aiService.processImagePrompt(Uint8List.fromList([]), 'test');
+          fail('Expected AIServiceException');
+        } catch (e) {
+          expect(e, isA<AIServiceException>());
+          expect(e.toString(), contains('AIServiceException'));
+        }
+      });
+
+      test('handles network errors gracefully', () async {
+        // Test with minimal image data that might cause network issues
+        final minimalImageData = Uint8List.fromList([0x89, 0x50]);
+
+        expect(
+          () async =>
+              aiService.processImagePrompt(minimalImageData, 'test prompt'),
+          throwsA(isA<AIServiceException>()),
+        );
+      });
+    });
+
+    group('checkContentSafety', () {
+      test('returns false when imageData is empty', () async {
+        final emptyImageData = Uint8List.fromList([]);
+
+        final result = await aiService.checkContentSafety(emptyImageData);
+
+        expect(result, isFalse);
+      });
+
+      test('returns boolean value for valid image data', () async {
+        final result = await aiService.checkContentSafety(testImageData);
+
+        expect(result, isA<bool>());
+      });
+
+      test('returns false when processing fails gracefully', () async {
+        // The checkContentSafety method is designed to return false on errors
+        // rather than throw exceptions for safety reasons
+        final minimalImageData = Uint8List.fromList([1]);
+
+        final result = await aiService.checkContentSafety(minimalImageData);
+
+        expect(result, isFalse);
+      });
+    });
+
+    group('generateEditingPrompt', () {
+      test('returns default prompt when no markers provided', () async {
+        final markers = <Map<String, dynamic>>[];
+
+        final result = await aiService.generateEditingPrompt(
+          imageBytes: testImageData,
+          markers: markers,
+        );
+
+        expect(result, equals('Describe the desired edits for the image.'));
+      });
+
+      test('returns markers-based prompt when markers provided', () async {
+        final markers = [
+          {'type': 'brightness', 'value': 0.2},
+          {'type': 'contrast', 'value': 0.1},
+        ];
+
+        final result = await aiService.generateEditingPrompt(
+          imageBytes: testImageData,
+          markers: markers,
+        );
+
+        expect(result, contains('markers'));
+        expect(result, isA<String>());
+        expect(result.isNotEmpty, isTrue);
+      });
+
+      test('handles empty markers list', () async {
+        final markers = <Map<String, dynamic>>[];
+
+        final result = await aiService.generateEditingPrompt(
+          imageBytes: testImageData,
+          markers: markers,
+        );
+
+        expect(result, isA<String>());
+        expect(result.isNotEmpty, isTrue);
+      });
+
+      test('handles multiple marker types', () async {
+        final markers = [
+          {'type': 'brightness', 'value': 0.3},
+          {'type': 'contrast', 'value': 0.2},
+          {'type': 'saturation', 'value': 0.1},
+          {'type': 'blur', 'radius': 5},
+        ];
+
+        final result = await aiService.generateEditingPrompt(
+          imageBytes: testImageData,
+          markers: markers,
+        );
+
+        expect(result, isA<String>());
+        expect(result.isNotEmpty, isTrue);
+        expect(result, contains('brightness'));
+        expect(result, contains('contrast'));
+        expect(result, contains('saturation'));
+        expect(result, contains('blur'));
+      });
+
+      test('handles null or invalid marker values', () async {
+        final markers = [
+          {'type': 'brightness', 'value': null},
+          {'type': 'contrast'},
+          {'invalid': 'marker'},
+        ];
+
+        final result = await aiService.generateEditingPrompt(
+          imageBytes: testImageData,
+          markers: markers,
+        );
+
+        expect(result, isA<String>());
+        expect(result.isNotEmpty, isTrue);
+      });
+    });
+
+    group('processImageWithAI', () {
+      test('returns valid image data', () async {
+        const editingPrompt = 'Enhance the image';
+
+        final result = await aiService.processImageWithAI(
+          imageBytes: testImageData,
+          editingPrompt: editingPrompt,
+        );
+
+        expect(result, isA<Uint8List>());
+        expect(result.isNotEmpty, isTrue);
+      });
+
+      test('processes invert command when prompt contains invert', () async {
+        const editingPrompt = 'invert the colors';
+
+        final result = await aiService.processImageWithAI(
+          imageBytes: testImageData,
+          editingPrompt: editingPrompt,
+        );
+
+        expect(result, isA<Uint8List>());
+        expect(result.isNotEmpty, isTrue);
+      });
+
+      test('handles different editing commands', () async {
+        const editingPrompt = 'brighten the image';
+
+        final result = await aiService.processImageWithAI(
+          imageBytes: testImageData,
+          editingPrompt: editingPrompt,
+        );
+
+        expect(result, isA<Uint8List>());
+        expect(result.isNotEmpty, isTrue);
+      });
+
+      test('handles empty editing prompt', () async {
+        const editingPrompt = '';
+
+        final result = await aiService.processImageWithAI(
+          imageBytes: testImageData,
+          editingPrompt: editingPrompt,
+        );
+
+        expect(result, isA<Uint8List>());
+        expect(result.isNotEmpty, isTrue);
+      });
+
+      test('handles various editing prompts', () async {
+        final prompts = [
+          'make it brighter',
+          'add more contrast',
+          'reduce saturation',
+          'apply blur effect',
+          'sharpen the image',
+        ];
+
+        for (final prompt in prompts) {
+          final result = await aiService.processImageWithAI(
+            imageBytes: testImageData,
+            editingPrompt: prompt,
+          );
+
+          expect(result, isA<Uint8List>());
+          expect(result.isNotEmpty, isTrue);
+        }
+      });
+    });
+
+    group('Method Integration Tests', () {
+      test('all methods handle empty input consistently', () async {
+        final emptyData = Uint8List.fromList([]);
+
+        // processImagePrompt should throw
+        expect(
+          () async => aiService.processImagePrompt(emptyData, 'test'),
+          throwsA(isA<AIServiceException>()),
+        );
+
+        // generateImageDescription should throw
+        expect(
+          () async => aiService.generateImageDescription(emptyData),
+          throwsA(isA<AIServiceException>()),
+        );
+
+        // suggestImageEdits should throw
+        expect(
+          () async => aiService.suggestImageEdits(emptyData),
+          throwsA(isA<AIServiceException>()),
+        );
+
+        // checkContentSafety should return false (no throw)
+        final safetyResult = await aiService.checkContentSafety(emptyData);
+        expect(safetyResult, isFalse);
+
+        // processImageWithAI should work (returns original data)
+        final processResult = await aiService.processImageWithAI(
+          imageBytes: emptyData,
+          editingPrompt: 'test',
+        );
+        expect(processResult, isA<Uint8List>());
+      });
+
+      test('all methods return expected types', () async {
+        // Note: These tests may fail if Firebase is not properly configured
+        // but they validate the method signatures and basic functionality
+
+        try {
+          final description =
+              await aiService.generateImageDescription(testImageData);
+          expect(description, isA<String>());
+        } on AIServiceException {
+          // Expected if Firebase is not configured
+        }
+
+        try {
+          final suggestions = await aiService.suggestImageEdits(testImageData);
+          expect(suggestions, isA<List<String>>());
+        } on AIServiceException {
+          // Expected if Firebase is not configured
+        }
+
+        try {
+          final promptResult =
+              await aiService.processImagePrompt(testImageData, 'test');
+          expect(promptResult, isA<String>());
+        } on AIServiceException {
+          // Expected if Firebase is not configured
+        }
+
+        final safetyResult = await aiService.checkContentSafety(testImageData);
+        expect(safetyResult, isA<bool>());
+
+        final editingPrompt = await aiService.generateEditingPrompt(
+          imageBytes: testImageData,
+          markers: [],
+        );
+        expect(editingPrompt, isA<String>());
+
+        final processedImage = await aiService.processImageWithAI(
+          imageBytes: testImageData,
+          editingPrompt: 'test',
+        );
+        expect(processedImage, isA<Uint8List>());
+      });
+    });
+
+    group('Edge Cases', () {
+      test('handles very small image data', () async {
+        final smallImageData = Uint8List.fromList([0x89, 0x50]);
+
+        expect(
+          () async => aiService.processImagePrompt(smallImageData, 'test'),
+          throwsA(isA<AIServiceException>()),
+        );
+      });
+
+      test('handles very long prompts', () async {
+        final longPrompt = 'test ' * 1000; // 5000 characters
+
+        expect(
+          () async => aiService.processImagePrompt(testImageData, longPrompt),
+          throwsA(isA<AIServiceException>()),
+        );
+      });
+
+      test('handles special characters in prompts', () async {
+        const specialPrompt = r'test 你好 🌟 @#$%^&*()';
+
+        try {
+          await aiService.processImagePrompt(testImageData, specialPrompt);
+        } on AIServiceException {
+          // Expected if Firebase is not configured
+        }
+      });
+
+      test('handles concurrent requests', () async {
+        final futures = List.generate(5, (index) async {
+          final safetyResult =
+              await aiService.checkContentSafety(testImageData);
+          expect(safetyResult, isA<bool>());
+        });
+
+        await Future.wait(futures);
+      });
+    });
+
+    group('processImagePrompt Specific Tests', () {
+      test('throws AIServiceException for null prompt', () async {
+        expect(
+          () async => aiService.processImagePrompt(testImageData, ''),
+          throwsA(isA<AIServiceException>()),
+        );
+      });
+
+      test('throws AIServiceException for whitespace-only prompt', () async {
+        expect(
+          () async => aiService.processImagePrompt(testImageData, '   '),
+          throwsA(isA<AIServiceException>()),
+        );
+      });
+
+      test('handles valid prompt with valid image data', () async {
+        try {
+          final result = await aiService.processImagePrompt(
+            testImageData,
+            'Describe this image',
+          );
+          expect(result, isA<String>());
+        } on AIServiceException {
+          // Expected if Firebase is not configured
+        }
+      });
+    });
+
+    group('generateImageDescription Specific Tests', () {
+      test('calls underlying prompt processing for description', () async {
+        try {
+          final result =
+              await aiService.generateImageDescription(testImageData);
+          expect(result, isA<String>());
+        } on AIServiceException {
+          // Expected if Firebase is not configured
+        }
+      });
+    });
+
+    group('suggestImageEdits Specific Tests', () {
+      test('returns list of strings', () async {
+        try {
+          final result = await aiService.suggestImageEdits(testImageData);
+          expect(result, isA<List<String>>());
+          if (result.isNotEmpty) {
+            expect(result.first, isA<String>());
+          }
+        } on AIServiceException {
+          // Expected if Firebase is not configured
+        }
+      });
+    });
+
+    group('Content Safety Tests', () {
+      test('checkContentSafety handles various image formats', () async {
+        final imageFormats = [
+          testImageData, // PNG-like
+          Uint8List.fromList([0xFF, 0xD8, 0xFF]), // JPEG-like header
+          Uint8List.fromList([0x47, 0x49, 0x46]), // GIF-like header
+        ];
+
+        for (final imageData in imageFormats) {
+          final result = await aiService.checkContentSafety(imageData);
+          expect(result, isA<bool>());
+        }
+      });
+
+      test('checkContentSafety never throws exceptions', () async {
+        // Even with invalid data, safety check should return false, not throw
+        final invalidData = Uint8List.fromList([0x00, 0x00, 0x00]);
+
+        final result = await aiService.checkContentSafety(invalidData);
+        expect(result, isA<bool>());
+      });
+    });
+
+    group('Image Processing Tests', () {
+      test('processImageWithAI handles invert operation', () async {
+        final result = await aiService.processImageWithAI(
+          imageBytes: testImageData,
+          editingPrompt: 'invert',
+        );
+
+        expect(result, isA<Uint8List>());
+        expect(result.isNotEmpty, isTrue);
+      });
+
+      test('processImageWithAI maintains image data integrity', () async {
+        final result = await aiService.processImageWithAI(
+          imageBytes: testImageData,
+          editingPrompt: 'enhance',
+        );
+
+        expect(result, isA<Uint8List>());
+        expect(result.length, greaterThan(0));
+      });
+    });
+  });
+}

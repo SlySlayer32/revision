@@ -33,7 +33,7 @@ class WelcomePage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               const Text(
-                'Your personal guide to academic success',
+                'AI-powered image editing that seamlessly removes trees from gardens and changes wall colors - making it look like it was never edited',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,

@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io' show Platform;
 
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_vertexai/firebase_vertexai.dart'; // Added for Vertex AI
 import 'package:flutter/widgets.dart';
 import 'package:revision/core/constants/environment_config.dart';
 import 'package:revision/core/constants/firebase_constants.dart';
@@ -52,11 +52,17 @@ Future<void> _initializeFirebase() async {
   try {
     final environment = Environment.current;
 
-    // Initialize Firebase first
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-      // Remove environment-specific app names for now to avoid conflicts
-    );
+    // Check if Firebase is already initialized to prevent duplicate app error
+    try {
+      Firebase.app(); // Try to get existing default app
+      log('✅ Firebase already initialized, reusing existing app');
+    } catch (e) {
+      // App doesn't exist, initialize it
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      log('✅ Firebase initialized successfully');
+    }
 
     // Configure emulators for development environment
     if (environment.useEmulators) {
@@ -64,12 +70,15 @@ Future<void> _initializeFirebase() async {
     }
 
     // Initialize Vertex AI after Firebase is initialized
-    await _initializeVertexAI();
+    // TODO: Implement AI initialization when needed
+    // await _initializeVertexAI();
 
-    log('✅ Firebase and Vertex AI initialized successfully for ${environment.name} environment');
+    log('✅ Firebase setup completed for ${environment.name} environment');
   } catch (e, stackTrace) {
-    log('❌ Firebase or Vertex AI initialization failed: $e',
-        stackTrace: stackTrace);
+    log(
+      '❌ Firebase or Vertex AI initialization failed: $e',
+      stackTrace: stackTrace,
+    );
     // Don't rethrow in development to allow app to continue
     if (Environment.current != Environment.development) {
       rethrow;
@@ -82,19 +91,19 @@ Future<void> _configureEmulators() async {
   try {
     log('🔧 Configuring Firebase Auth Emulator');
 
-    // IMPORTANT: Configure auth emulator BEFORE any auth operations
-    await FirebaseAuth.instance.useAuthEmulator(
-      FirebaseConstants.authEmulatorHost,
-      FirebaseConstants.authEmulatorPort,
-    );
+    // CRITICAL: Call connectAuthEmulator RIGHT AFTER initializing Auth
+    // Use platform-specific host for better compatibility
+    final auth = FirebaseAuth.instance;
+    final host = _getPlatformSpecificEmulatorHost();
+    await auth.useAuthEmulator(host, FirebaseConstants.authEmulatorPort);
 
     // Disable app verification and reCAPTCHA for testing
-    await FirebaseAuth.instance.setSettings(
-      appVerificationDisabledForTesting: true,
-    );
+    await auth.setSettings(appVerificationDisabledForTesting: true);
 
     // Additional debugging
-    log('✅ Auth emulator configured on ${FirebaseConstants.authEmulatorHost}:${FirebaseConstants.authEmulatorPort}');
+    log(
+      '✅ Auth emulator configured on $host:${FirebaseConstants.authEmulatorPort}',
+    );
     log('✅ App verification disabled for testing');
   } catch (e, stackTrace) {
     log(
@@ -105,22 +114,43 @@ Future<void> _configureEmulators() async {
   }
 }
 
+/// Returns the correct emulator host for the current platform
+String _getPlatformSpecificEmulatorHost() {
+  try {
+    if (Platform.isAndroid) {
+      log('Host platform is Android, using 10.0.2.2 for emulators.');
+      return '10.0.2.2';
+    } else if (Platform.isIOS) {
+      log('Host platform is iOS, using localhost for emulators.');
+      return 'localhost';
+    }
+  } catch (e) {
+    log(
+      'Platform detection failed in _getPlatformSpecificEmulatorHost: $e. Defaulting to localhost.',
+    );
+  }
+  log(
+    'Defaulting to localhost for emulators (e.g., web, desktop, or fallback).',
+  );
+  return 'localhost';
+}
+
 /// Initialize Vertex AI with a health check
+/// TODO: Implement when AI features are needed
+/*
 Future<void> _initializeVertexAI() async {
   try {
     // Perform a simple check to ensure the model can be accessed
     // This doesn't generate content but verifies basic setup.
-    final model = FirebaseVertexAI.instance.generativeModel(
-      model: FirebaseConstants
-          .geminiModel, // Using the constant from firebase_constants.dart
-      systemInstruction: Content.system(
-          'Health check'), // Content is part of firebase_vertexai
+    final firebaseAI = FirebaseAI.vertexAI(location: FirebaseConstants.vertexAiLocation);
+    firebaseAI.generativeModel(
+      model: FirebaseConstants.geminiModel,
+      systemInstruction: Content.system('Health check'),
     );
-    // Optionally, could add a very lightweight call here if needed, but prompt implies just init.
     log('✅ Vertex AI initialized successfully with model: ${FirebaseConstants.geminiModel}');
   } catch (e, stackTrace) {
     log('⚠️ Vertex AI initialization failed: $e', stackTrace: stackTrace);
-    // As per prompt: Don't rethrow - app should be able to function without AI initially.
-    // Consider setting a flag or state if AI features are critical for some parts.
+    // Don't rethrow - app should be able to function without AI initially.
   }
 }
+*/

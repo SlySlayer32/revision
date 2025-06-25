@@ -1,0 +1,104 @@
+import 'package:equatable/equatable.dart';
+
+/// Represents the context for AI image processing
+class ProcessingContext extends Equatable {
+  const ProcessingContext({
+    required this.processingType,
+    required this.qualityLevel,
+    required this.performancePriority,
+    this.markers = const [],
+    this.customInstructions,
+    this.targetFormat,
+    this.promptSystemInstructions,
+    this.editSystemInstructions,
+  });
+
+  final ProcessingType processingType;
+  final QualityLevel qualityLevel;
+  final PerformancePriority performancePriority;
+  final List<ImageMarker> markers;
+  final String? customInstructions;
+  final String? targetFormat;
+
+  /// Custom system instructions for the prompt generation AI model (Gemini)
+  final String? promptSystemInstructions;
+
+  /// Custom system instructions for the image editing AI model (Imagen)
+  final String? editSystemInstructions;
+  @override
+  List<Object?> get props => [
+        processingType,
+        qualityLevel,
+        performancePriority,
+        markers,
+        customInstructions,
+        targetFormat,
+        promptSystemInstructions,
+        editSystemInstructions,
+      ];
+  ProcessingContext copyWith({
+    ProcessingType? processingType,
+    QualityLevel? qualityLevel,
+    PerformancePriority? performancePriority,
+    List<ImageMarker>? markers,
+    String? customInstructions,
+    String? targetFormat,
+    String? promptSystemInstructions,
+    String? editSystemInstructions,
+  }) {
+    return ProcessingContext(
+      processingType: processingType ?? this.processingType,
+      qualityLevel: qualityLevel ?? this.qualityLevel,
+      performancePriority: performancePriority ?? this.performancePriority,
+      markers: markers ?? this.markers,
+      customInstructions: customInstructions ?? this.customInstructions,
+      targetFormat: targetFormat ?? this.targetFormat,
+      promptSystemInstructions:
+          promptSystemInstructions ?? this.promptSystemInstructions,
+      editSystemInstructions:
+          editSystemInstructions ?? this.editSystemInstructions,
+    );
+  }
+}
+
+enum ProcessingType {
+  enhance,
+  artistic,
+  restoration,
+  colorCorrection,
+  objectRemoval,
+  backgroundChange,
+  faceEdit,
+  custom,
+}
+
+enum QualityLevel {
+  draft,
+  standard,
+  high,
+  professional,
+}
+
+enum PerformancePriority {
+  speed,
+  balanced,
+  quality,
+}
+
+/// Basic image marker for MVP - simplified version
+class ImageMarker extends Equatable {
+  const ImageMarker({
+    required this.id,
+    required this.x,
+    required this.y,
+    this.label,
+  });
+
+  final String id;
+  final double x;
+  final double y;
+  final String? label;
+
+  @override
+  List<Object?> get props => [id, x, y, label];
+}

@@ -4,6 +4,10 @@ import 'package:revision/bootstrap.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await bootstrap(() => const App());
+  debugPrint('main_development.dart: Starting bootstrap...');
+  await bootstrap(() {
+    debugPrint('main_development.dart: Building App widget...');
+    return const App();
+  });
+  debugPrint('main_development.dart: App launched!');
 }

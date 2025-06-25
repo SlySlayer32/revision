@@ -8,12 +8,6 @@ extension EitherX<L, R> on Either<L, R> {
   /// Gets the left value if this is a Left, otherwise returns null
   L? get leftOrNull => fold((l) => l, (_) => null);
 
-  /// Returns true if this is a Right
-  bool get isRight => fold((_) => false, (_) => true);
-
-  /// Returns true if this is a Left
-  bool get isLeft => fold((_) => true, (_) => false);
-
   /// Pattern matches on Either. Similar to fold but with void functions.
   void when({
     required void Function(L left) left,

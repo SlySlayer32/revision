@@ -1,10 +1,38 @@
 class Validators {
-  static const String _emailPattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
+  // More comprehensive email regex that supports modern email formats
+  static const String _emailPattern =
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
   static final RegExp _emailRegExp = RegExp(_emailPattern);
 
   /// Validates email format
   static String? validateEmail(String email) {
     if (email.isEmpty) return 'Email cannot be empty';
+
+    // Additional validation for edge cases
+    if (email.startsWith('.') || email.endsWith('.')) {
+      return 'Please enter a valid email';
+    }
+    if (email.contains('..')) return 'Please enter a valid email';
+    if (email.split('@').length != 2) return 'Please enter a valid email';
+
+    final parts = email.split('@');
+    final localPart = parts[0];
+    final domainPart = parts[1];
+
+    // Local part validation
+    if (localPart.isEmpty ||
+        localPart.endsWith('.') ||
+        localPart.startsWith('.')) {
+      return 'Please enter a valid email';
+    }
+
+    // Domain part validation
+    if (domainPart.isEmpty ||
+        domainPart.startsWith('.') ||
+        domainPart.endsWith('.')) {
+      return 'Please enter a valid email';
+    }
+
     if (!_emailRegExp.hasMatch(email)) return 'Please enter a valid email';
     return null;
   }

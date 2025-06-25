@@ -10,7 +10,8 @@ void main() {
       expect(exception.message, equals(message));
       expect(
         exception.toString(),
-        equals('EmailAlreadyInUseException: $message'),
+        equals(
+            'EmailAlreadyInUseException: $message (code: email-already-in-use)'),
       );
     });
 

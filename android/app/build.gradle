@@ -29,10 +29,32 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+/**
+ * Android build configuration for the Revision app.
+ * 
+ * Configures build settings, SDK versions, product flavors, and signing configurations
+ * for different build variants of the application.
+ * 
+ * Key configurations include:
+ * - Namespace and application ID
+ * - Compilation and target SDK versions
+ * - Build features and compile options
+ * - Minimum SDK version and multi-dex support
+ * - Signing configurations for release builds
+ * - Product flavors (production, staging, development)
+ * - Build type settings (release and debug)
+ * 
+ * @property namespace The unique namespace for the application
+ * @property compileSdkVersion Target Android SDK version for compilation
+ * @property ndkVersion Native Development Kit version
+ * @property defaultConfig Application-wide build configurations
+ * @property productFlavors Different build variants with distinct configurations
+ * @property buildTypes Defines release and debug build behaviors
+ */
 android {
     namespace "com.sly.revision"
-    compileSdkVersion 35  // Android 15 for latest features
-    ndkVersion flutter.ndkVersion
+    compileSdkVersion 35  // Updated for plugin compatibility
+    ndkVersion "26.3.11579264"  // Updated to required NDK version
     
     buildFeatures {
         buildConfig true
@@ -47,19 +69,17 @@ android {
         jvmTarget = '17'
     }
 
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-    }
-
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.sly.revision"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 24 // Modern baseline - 96.2% device coverage
-        targetSdkVersion 34 // Required for Play Store
+        minSdkVersion 24  // Increased for Firebase compatibility
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
     }
 
     signingConfigs {
@@ -111,14 +131,36 @@ android {
     }
 }
 
+/**
+ * Android build configuration for the Revision app.
+ * 
+ * Configures build settings, SDK versions, product flavors, and signing configurations
+ * for different build variants of the application.
+ * 
+ * Key configurations include:
+ * - Namespace and application ID
+ * - Compilation and target SDK versions
+ * - Build features and compile options
+ * - Minimum SDK version and multi-dex support
+ * - Signing configurations for release builds
+ * - Product flavors (production, staging, development)
+ * - Build type settings (release and debug)
+ * 
+ * @property namespace The unique namespace for the application
+ * @property compileSdkVersion Target Android SDK version for compilation
+ * @property ndkVersion Native Development Kit version
+ * @property defaultConfig Application-wide build configurations
+ * @property productFlavors Different build variants with distinct configurations
+ * @property buildTypes Defines release and debug build behaviors
+ */
 flutter {
     source '../..'
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.20"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     
-    // Import the Firebase BoM (stable version)
+    // Use a stable Firebase BoM version compatible with SDK 35
     implementation platform('com.google.firebase:firebase-bom:32.8.0')
 
     // Add Analytics
@@ -127,6 +169,6 @@ dependencies {
     // Add Authentication
     implementation 'com.google.firebase:firebase-auth'
     
-    // Note: Vertex AI might need to be added separately
-    // implementation 'com.google.firebase:firebase-vertexai'
+    // You can now uncomment this line
+    implementation 'com.google.firebase:firebase-firestore'
 }

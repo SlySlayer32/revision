@@ -1,11 +1,12 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:revision/core/error/failures.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
-import 'package:revision/features/authentication/domain/repositories/authentication_repository.dart';
+import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:revision/features/authentication/domain/usecases/get_current_user_usecase.dart';
 
-class MockAuthenticationRepository extends Mock
-    implements AuthenticationRepository {}
+class MockAuthenticationRepository extends Mock implements AuthRepository {}
 
 void main() {
   group('GetCurrentUserUseCase', () {
@@ -17,7 +18,7 @@ void main() {
       useCase = GetCurrentUserUseCase(mockRepository);
     });
 
-    test('should return current user when user is signed in', () {
+    test('should return current user when user is signed in', () async {
       // Arrange
       const user = User(
         id: '1',
@@ -26,28 +27,30 @@ void main() {
         photoUrl: null,
         isEmailVerified: true,
         createdAt: '2023-01-01T00:00:00Z',
-        customClaims: {},
+        customClaims: <String, dynamic>{},
       );
-      when(() => mockRepository.currentUser).thenReturn(user);
+      when(() => mockRepository.getCurrentUser())
+          .thenAnswer((_) async => const Right<Failure, User?>(user));
 
       // Act
-      final result = useCase();
+      final result = await useCase();
 
       // Assert
-      expect(result, equals(user));
-      verify(() => mockRepository.currentUser).called(1);
+      expect(result, equals(const Right<Failure, User?>(user)));
+      verify(() => mockRepository.getCurrentUser()).called(1);
     });
 
-    test('should return null when no user is signed in', () {
+    test('should return null when no user is signed in', () async {
       // Arrange
-      when(() => mockRepository.currentUser).thenReturn(null);
+      when(() => mockRepository.getCurrentUser())
+          .thenAnswer((_) async => const Right<Failure, User?>(null));
 
       // Act
-      final result = useCase();
+      final result = await useCase();
 
       // Assert
-      expect(result, isNull);
-      verify(() => mockRepository.currentUser).called(1);
+      expect(result, equals(const Right<Failure, User?>(null)));
+      verify(() => mockRepository.getCurrentUser()).called(1);
     });
   });
 }

@@ -284,13 +284,48 @@ class TestRunner {
   /// Count test files in given patterns
   int _countTestFiles(List<String> patterns) {
     var count = 0;
-    for (final pattern in patterns) {
-      final dir = Directory(pattern.replaceAll('*', ''));
-      if (dir.existsSync()) {
-        count += dir
-            .listSync(recursive: true)
-            .where((f) => f.path.endsWith('_test.dart'))
-            .length;
+    for (final patternPath in patterns) {
+      // Handle patterns like 'test/features/*/domain/'
+      if (patternPath.contains('*')) {
+        final parts = patternPath.split('*');
+        final basePath = parts[0];
+        final subPath = parts.length > 1 ? parts[1] : '';
+
+        final baseDir = Directory(basePath);
+        if (baseDir.existsSync()) {
+          try {
+            baseDir.listSync().forEach((entity) {
+              if (entity is Directory) {
+                final potentialPath = '${entity.path}$subPath';
+                final targetDir = Directory(
+                    potentialPath.replaceAll('//', '/')); // Normalize path
+                if (targetDir.existsSync()) {
+                  count += targetDir
+                      .listSync(recursive: true)
+                      .where((f) => f.path.endsWith('_test.dart'))
+                      .length;
+                }
+              }
+            });
+          } catch (e) {
+            // Silently ignore errors if a path segment doesn't exist,
+            // as flutter test might handle non-existent paths gracefully.
+            // print('Warning: Could not count files for pattern $patternPath: $e');
+          }
+        }
+      } else {
+        // Handle exact paths
+        final dir = Directory(patternPath);
+        if (dir.existsSync()) {
+          try {
+            count += dir
+                .listSync(recursive: true)
+                .where((f) => f.path.endsWith('_test.dart'))
+                .length;
+          } catch (e) {
+            // print('Warning: Could not count files for path $patternPath: $e');
+          }
+        }
       }
     }
     return count;

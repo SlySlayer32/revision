@@ -1,4 +1,29 @@
-# AI Processing Pipeline Implementation (PROMPTER + EDITOR)
+/// Generates an enhanced prompt by integrating user input, processing context, and image analysis.
+/// 
+/// This method transforms a raw user prompt into a more sophisticated, context-aware prompt
+/// that can be used for advanced AI processing. It considers the processing context and 
+/// provides additional nuance based on image analysis.
+/// 
+/// [userPrompt] The original prompt provided by the user.
+/// [context] The processing context that provides additional semantic information.
+/// [imageAnalysis] Detailed analysis of the input image to refine the prompt.
+/// 
+/// Returns a refined, optimized prompt string suitable for AI model processing.
+/// 
+/// Throws an exception if prompt generation fails or input parameters are invalid.
+/// Generates an enhanced prompt by integrating user input, processing context, and image analysis.
+/// 
+/// This method transforms a raw user prompt into a more sophisticated, context-aware prompt
+/// that can be used for advanced AI processing. It considers the processing context and 
+/// provides additional nuance based on image analysis.
+/// 
+/// [userPrompt] The original prompt provided by the user.
+/// [context] The processing context that provides additional semantic information.
+/// [imageAnalysis] Detailed analysis of the input image to refine the prompt.
+/// 
+/// Returns a refined, optimized prompt string suitable for AI model processing.
+/// 
+/// Throws an exception if prompt generation fails or input parameters are invalid.# AI Processing Pipeline Implementation (PROMPTER + EDITOR)
 
 ## Context
 Implementing the comprehensive AI processing pipeline that combines prompt engineering with image editing capabilities. This system integrates with Vertex AI to provide intelligent image processing based on user prompts and marked areas, following the PROMPTER + EDITOR architecture pattern.

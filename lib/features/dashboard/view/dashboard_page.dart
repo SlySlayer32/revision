@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
+import 'package:revision/features/image_selection/presentation/view/image_selection_page.dart';
 
 /// Dashboard page that serves as the main landing page after authentication
 class DashboardPage extends StatelessWidget {
@@ -22,7 +23,7 @@ class DashboardPage extends StatelessWidget {
         final user = state.user;
         return Scaffold(
           appBar: AppBar(
-            title: const Text('AI Photo Editor Dashboard'),
+            title: const Text('Revision Dashboard'),
             elevation: 2,
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             actions: [
@@ -101,10 +102,10 @@ class DashboardPage extends StatelessWidget {
           ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () {
-              _showFeatureComingSoon(context, 'AI Photo Editor');
+              _navigateToImageSelection(context);
             },
-            icon: const Icon(Icons.auto_fix_high),
-            label: const Text('Start Editing'),
+            icon: const Icon(Icons.photo_camera),
+            label: const Text('Select Photo'),
           ),
         );
       },
@@ -265,6 +266,14 @@ class DashboardPage extends StatelessWidget {
           children: [
             _buildToolCard(
               context,
+              'Image Selection',
+              'Test image picker feature',
+              Icons.image,
+              Colors.teal,
+              onTap: () => _navigateToImageSelection(context),
+            ),
+            _buildToolCard(
+              context,
               'AI Object Removal',
               'Remove unwanted objects from photos',
               Icons.auto_fix_high,
@@ -308,13 +317,15 @@ class DashboardPage extends StatelessWidget {
     IconData icon,
     Color color, {
     bool isAvailable = true,
+    VoidCallback? onTap,
   }) {
     return Card(
       elevation: 2,
       child: InkWell(
-        onTap: isAvailable
-            ? () => _showFeatureComingSoon(context, title)
-            : () => _showFeatureComingSoon(context, title),
+        onTap: onTap ??
+            (isAvailable
+                ? () => _showFeatureComingSoon(context, title)
+                : () => _showFeatureComingSoon(context, title)),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -434,6 +445,14 @@ class DashboardPage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  void _navigateToImageSelection(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => const ImageSelectionPage(),
+      ),
     );
   }
 

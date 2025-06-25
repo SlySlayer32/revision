@@ -15,11 +15,22 @@ void main() {
       mockAuthenticationBloc = MockAuthenticationBloc();
     });
 
+    // A sample user for tests, created using VGVTestDataFactory
+    // Ensure VGVTestDataFactory is imported, likely via helpers.dart
+    final tUser = VGVTestDataFactory.createTestUser(
+      email: 'test@example.com',
+      id: 'dashboard-user',
+      displayName: 'Dashboard User', // Default display name
+    );
+    final tUserNoName = VGVTestDataFactory.createTestUser(
+      email: 'noname@example.com',
+      id: 'no-name-user',
+    );
+
     group('when user is authenticated', () {
       testWidgets('renders dashboard with welcome message', (tester) async {
-        final user = TestDataFactory.user();
         when(() => mockAuthenticationBloc.state).thenReturn(
-          AuthenticationState.authenticated(user),
+          AuthenticationState.authenticated(tUser),
         );
 
         await tester.pumpApp(
@@ -29,16 +40,15 @@ void main() {
           ),
         );
 
-        expect(find.text('AI Photo Editor Dashboard'), findsOneWidget);
+        expect(find.text('Revision Dashboard'), findsOneWidget);
         expect(find.text('Welcome back!'), findsOneWidget);
-        expect(find.text(user.email), findsOneWidget);
+        expect(find.text(tUser.email), findsOneWidget);
       });
 
       testWidgets('displays tools grid with coming soon features',
           (tester) async {
-        final user = TestDataFactory.user();
         when(() => mockAuthenticationBloc.state).thenReturn(
-          AuthenticationState.authenticated(user),
+          AuthenticationState.authenticated(tUser),
         );
 
         await tester.pumpApp(
@@ -57,9 +67,8 @@ void main() {
 
       testWidgets('shows status cards with authentication active',
           (tester) async {
-        final user = TestDataFactory.user();
         when(() => mockAuthenticationBloc.state).thenReturn(
-          AuthenticationState.authenticated(user),
+          AuthenticationState.authenticated(tUser),
         );
 
         await tester.pumpApp(
@@ -77,9 +86,8 @@ void main() {
 
       testWidgets('shows coming soon dialog when tapping a tool',
           (tester) async {
-        final user = TestDataFactory.user();
         when(() => mockAuthenticationBloc.state).thenReturn(
-          AuthenticationState.authenticated(user),
+          AuthenticationState.authenticated(tUser),
         );
 
         await tester.pumpApp(
@@ -99,9 +107,8 @@ void main() {
 
       testWidgets('logout works when tapping logout in profile menu',
           (tester) async {
-        final user = TestDataFactory.user();
         when(() => mockAuthenticationBloc.state).thenReturn(
-          AuthenticationState.authenticated(user),
+          AuthenticationState.authenticated(tUser),
         );
 
         await tester.pumpApp(
@@ -128,9 +135,9 @@ void main() {
 
     group('edge cases', () {
       testWidgets('handles user with missing display name', (tester) async {
-        final userWithoutDisplayName = TestDataFactory.user();
+        // Uses tUserNoName defined above which has displayName: null
         when(() => mockAuthenticationBloc.state).thenReturn(
-          AuthenticationState.authenticated(userWithoutDisplayName),
+          AuthenticationState.authenticated(tUserNoName),
         );
 
         await tester.pumpApp(
@@ -140,9 +147,10 @@ void main() {
           ),
         );
 
-        expect(find.text('AI Photo Editor Dashboard'), findsOneWidget);
+        expect(find.text('Revision Dashboard'), findsOneWidget);
         expect(find.text('Welcome back!'), findsOneWidget);
-        expect(find.text('Unknown User'), findsOneWidget);
+        // Dashboard shows email when displayName is null, not "Unknown User"
+        expect(find.text(tUserNoName.email), findsOneWidget);
       });
     });
   });

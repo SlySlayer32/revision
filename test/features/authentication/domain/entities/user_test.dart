@@ -11,7 +11,7 @@ void main() {
       photoUrl: 'https://example.com/photo.jpg',
       isEmailVerified: true,
       createdAt: '2024-01-01T00:00:00Z',
-      customClaims: {},
+      customClaims: <String, dynamic>{},
     );
 
     test('should be a subclass of Equatable', () {
@@ -26,7 +26,7 @@ void main() {
         photoUrl: 'https://example.com/photo.jpg',
         isEmailVerified: true,
         createdAt: '2024-01-01T00:00:00Z',
-        customClaims: {},
+        customClaims: <String, dynamic>{},
       );
 
       expect(tUser, equals(otherUser));
@@ -43,7 +43,7 @@ void main() {
           'https://example.com/photo.jpg',
           true,
           '2024-01-01T00:00:00Z',
-          const {},
+          const <String, dynamic>{},
         ]),
       );
     });
@@ -56,7 +56,7 @@ void main() {
         photoUrl: null,
         isEmailVerified: false,
         createdAt: '2024-01-01T00:00:00Z',
-        customClaims: {},
+        customClaims: <String, dynamic>{},
       );
 
       expect(userWithNulls.displayName, isNull);
@@ -74,7 +74,7 @@ void main() {
         photoUrl: null,
         isEmailVerified: false,
         createdAt: '2024-01-01T00:00:00Z',
-        customClaims: {},
+        customClaims: <String, dynamic>{},
       );
 
       expect(invalidEmailUser.hasValidEmail, isFalse);
@@ -90,7 +90,7 @@ void main() {
         photoUrl: null,
         isEmailVerified: false,
         createdAt: '2024-01-01T00:00:00Z',
-        customClaims: {},
+        customClaims: <String, dynamic>{},
       );
 
       expect(incompleteUser.isProfileComplete, isFalse);

@@ -1,33 +1,46 @@
 import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
+import 'package:dartz/dartz.dart'; // For Either
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:revision/core/error/failures.dart'; // For Failure
 import 'package:revision/features/authentication/domain/entities/user.dart';
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
 
+// Assuming helpers.dart exports MockGetAuthStateChangesUseCase, MockSignOutUseCase from mocks.dart
+// and VGVTestDataFactory from vgv_mocks.dart
 import '../../../../helpers/helpers.dart';
+
+// If not, import directly:
+// import '../../../helpers/mocks.dart'; // Contains MockGetAuthStateChangesUseCase, MockSignOutUseCase
+// import '../../../helpers/vgv_mocks.dart'; // Contains VGVTestDataFactory
 
 void main() {
   group('AuthenticationBloc', () {
     late AuthenticationBloc authenticationBloc;
-    late MockGetAuthStateChangesUseCase getAuthStateChanges;
-    late MockSignOutUseCase signOut;
+    // Use the mock types defined in mocks.dart (which implement the actual use cases)
+    late MockGetAuthStateChangesUseCase mockGetAuthStateChanges;
+    late MockSignOutUseCase mockSignOut;
     late StreamController<User?> authStateController;
+
+    // A sample user for tests, created using VGVTestDataFactory
+    final tUser =
+        VGVTestDataFactory.createTestUser(email: 'test@example.com', id: '123');
+    const tSignOutFailure = AuthenticationFailure('Logout failed');
 
     setUp(() {
       authStateController = StreamController<User?>();
-      getAuthStateChanges = MockGetAuthStateChangesUseCase();
-      signOut = MockSignOutUseCase();
+      mockGetAuthStateChanges = MockGetAuthStateChangesUseCase();
+      mockSignOut = MockSignOutUseCase();
 
-      // Setup mock stream
-      when(() => getAuthStateChanges()).thenAnswer(
+      when(() => mockGetAuthStateChanges()).thenAnswer(
         (_) => authStateController.stream,
       );
 
       authenticationBloc = AuthenticationBloc(
-        getAuthStateChanges: getAuthStateChanges,
-        signOut: signOut,
+        getAuthStateChanges: mockGetAuthStateChanges, // Pass the mock instance
+        signOut: mockSignOut, // Pass the mock instance
       );
     });
 
@@ -47,9 +60,9 @@ void main() {
       blocTest<AuthenticationBloc, AuthenticationState>(
         'emits authenticated when user is not null',
         build: () => authenticationBloc,
-        act: (bloc) => authStateController.add(TestDataFactory.user()),
+        act: (bloc) => authStateController.add(tUser), // Use VGVTestDataFactory
         expect: () => [
-          AuthenticationState.authenticated(TestDataFactory.user()),
+          AuthenticationState.authenticated(tUser), // Use VGVTestDataFactory
         ],
       );
 
@@ -66,18 +79,16 @@ void main() {
         'emits states in order for auth changes',
         build: () => authenticationBloc,
         act: (bloc) {
-          final user = TestDataFactory.user();
           authStateController
-            ..add(user)
+            ..add(tUser) // Use VGVTestDataFactory
             ..add(null)
-            ..add(user);
+            ..add(tUser); // Use VGVTestDataFactory
         },
         expect: () {
-          final user = TestDataFactory.user();
           return [
-            AuthenticationState.authenticated(user),
+            AuthenticationState.authenticated(tUser), // Use VGVTestDataFactory
             const AuthenticationState.unauthenticated(),
-            AuthenticationState.authenticated(user),
+            AuthenticationState.authenticated(tUser), // Use VGVTestDataFactory
           ];
         },
       );
@@ -85,34 +96,35 @@ void main() {
 
     group('AuthenticationLogoutRequested', () {
       blocTest<AuthenticationBloc, AuthenticationState>(
-        'calls sign out use case',
+        'calls sign out use case and expects Right(null) for success',
         build: () {
-          MockSetup.setupSuccessfulSignOut(signOut);
+          // Directly mock signOut use case for success
+          when(() => mockSignOut())
+              .thenAnswer((_) async => const Right<Failure, void>(null));
           return authenticationBloc;
         },
         act: (bloc) => bloc.add(AuthenticationLogoutRequested()),
         verify: (_) {
-          verify(() => signOut()).called(1);
+          verify(() => mockSignOut()).called(1);
         },
+        expect: () =>
+            <AuthenticationState>[], // No state change expected on successful logout by default
       );
 
       blocTest<AuthenticationBloc, AuthenticationState>(
-        'does not emit new state on successful logout',
+        'calls sign out use case and expects Left(Failure) for failure',
         build: () {
-          MockSetup.setupSuccessfulSignOut(signOut);
+          // Directly mock signOut use case for failure
+          when(() => mockSignOut()).thenAnswer(
+              (_) async => const Left<Failure, void>(tSignOutFailure));
           return authenticationBloc;
         },
         act: (bloc) => bloc.add(AuthenticationLogoutRequested()),
-        expect: () => <AuthenticationState>[],
-      );
-
-      blocTest<AuthenticationBloc, AuthenticationState>(
-        'does not emit new state on failed logout',
-        build: () {
-          MockSetup.setupFailedSignOut(signOut, errorMessage: 'Logout failed');
-          return authenticationBloc;
+        verify: (_) {
+          verify(() => mockSignOut()).called(1);
         },
-        act: (bloc) => bloc.add(AuthenticationLogoutRequested()),
+        // Depending on bloc logic, it might emit a failure state or handle silently.
+        // Current tests imply no state emission on logout attempt.
         expect: () => <AuthenticationState>[],
       );
     });

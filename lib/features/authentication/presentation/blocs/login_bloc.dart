@@ -48,7 +48,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           emit(
             state.copyWith(
               status: LoginStatus.failure,
-              errorMessage: failure.toString(),
+              errorMessage: failure.message,
             ),
           );
         },
@@ -79,7 +79,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           emit(
             state.copyWith(
               status: LoginStatus.failure,
-              errorMessage: failure.toString(),
+              errorMessage: failure.message,
             ),
           );
         },
@@ -110,7 +110,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           emit(
             state.copyWith(
               status: LoginStatus.failure,
-              errorMessage: failure.toString(),
+              errorMessage: failure.message,
             ),
           );
         },

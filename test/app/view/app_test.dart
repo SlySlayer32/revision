@@ -8,6 +8,10 @@ import '../../helpers/test_helpers.dart';
 
 void main() {
   group('App', () {
+    setUpAll(VGVTestHelper.setupTestDependencies);
+
+    tearDownAll(VGVTestHelper.tearDownTestDependencies);
+
     testWidgets('renders MaterialApp correctly', (tester) async {
       // VGV Pattern: Test widget rendering without external dependencies
       await VGVTestHelper.pumpAndSettle(

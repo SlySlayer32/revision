@@ -1,5 +1,5 @@
 ---
-applyTo: 'buildplan'
+applyTo: "plan"
 ---
 
 # Flutter AI Photo Editor - Build Tutorial

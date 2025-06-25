@@ -3,9 +3,11 @@ import 'package:revision/core/constants/environment_config.dart';
 /// Firebase-specific constants and configuration following VGV patterns
 class FirebaseConstants {
   const FirebaseConstants._();
+  // Firebase Project ID (Same for all environments as we're using a single project)
+  static const String projectId = 'revision-fc66c';
 
-  // Firebase Project ID (Environment-specific based on user feedback)
-  static String get projectId {
+  // Bundle IDs (Environment-specific)
+  static String get bundleId {
     switch (Environment.current) {
       case Environment.development:
         return 'com.sly.revision.dev';
@@ -18,22 +20,19 @@ class FirebaseConstants {
 
   // Firebase Auth Configuration
   static const String authDomain = 'revision-fc66c.firebaseapp.com';
-  static const bool useAuthEmulator =
-      true; // Always use emulator in development
-  static const String authEmulatorHost = 'localhost';
-  static const int authEmulatorPort = 9098;
+  static bool get useAuthEmulator => Environment.current.useEmulators;
+  static const String authEmulatorHost = '127.0.0.1';
+  static const int authEmulatorPort = 9099;
 
   // Firestore Configuration
   static const String firestoreDatabase = '(default)';
-  static const bool useFirestoreEmulator =
-      bool.fromEnvironment('USE_FIRESTORE_EMULATOR');
+  static bool get useFirestoreEmulator => Environment.current.useEmulators;
   static const String firestoreEmulatorHost = 'localhost';
   static const int firestoreEmulatorPort = 8080;
 
   // Firebase Storage Configuration
   static const String storageBucket = 'revision-fc66c.appspot.com';
-  static const bool useStorageEmulator =
-      bool.fromEnvironment('USE_STORAGE_EMULATOR');
+  static bool get useStorageEmulator => Environment.current.useEmulators;
   static const String storageEmulatorHost = 'localhost';
   static const int storageEmulatorPort = 9199;
 
@@ -69,8 +68,7 @@ class FirebaseConstants {
 
   // Firebase Functions Configuration
   static const String functionsRegion = 'us-central1';
-  static const bool useFunctionsEmulator =
-      bool.fromEnvironment('USE_FUNCTIONS_EMULATOR');
+  static bool get useFunctionsEmulator => Environment.current.useEmulators;
   static const String functionsEmulatorHost = 'localhost';
   static const int functionsEmulatorPort = 5001;
 

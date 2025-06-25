@@ -10,7 +10,7 @@ import 'package:revision/firebase_options.dart';
 class FirebaseEmulatorHelper {
   static const String _authEmulatorHost = 'localhost';
   static const int _authEmulatorPort = 9099;
-  static const String _projectId = 'demo-revision-project';
+  static const String _projectId = 'revision-fc66c';
 
   static bool _isInitialized = false;
   static bool _emulatorsStarted = false;
@@ -19,22 +19,50 @@ class FirebaseEmulatorHelper {
   static Future<void> initializeForTesting() async {
     if (_isInitialized) return;
 
+    // Ensure binding is initialized for tests
     TestWidgetsFlutterBinding.ensureInitialized();
 
+    // Platform-specific host logic for emulator (match app logic)
+    var emulatorHost = _authEmulatorHost;
+    if (Platform.isAndroid) {
+      emulatorHost = '10.0.2.2';
+    } else if (Platform.isIOS) {
+      emulatorHost = 'localhost';
+    } else {
+      emulatorHost = '127.0.0.1';
+    }
+
     try {
-      await Firebase.initializeApp(
-        name: 'testing',
-        options: DefaultFirebaseOptions.currentPlatform.copyWith(
-          projectId: _projectId,
-        ),
-      );
+      // Check if Firebase is already initialized to prevent duplicate app error
+      try {
+        Firebase.app(); // Try to get existing default app
+        print('✅ Firebase already initialized, reusing existing app');
+      } catch (e) {
+        // App doesn't exist, initialize it
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform.copyWith(
+            projectId: _projectId,
+          ),
+        );
+        print('✅ Firebase initialized successfully for testing');
+      }
 
-      // Configure Auth emulator
-      await FirebaseAuth.instance.useAuthEmulator(
-        _authEmulatorHost,
-        _authEmulatorPort,
-      );
+      // Configure Auth emulator - must be called before any auth operations
+      try {
+        await FirebaseAuth.instance.useAuthEmulator(
+          emulatorHost,
+          _authEmulatorPort,
+        );
+        print(
+          '✅ Firebase Auth emulator connected on '
+          '[33m$emulatorHost:$_authEmulatorPort[0m',
+        );
+      } catch (e) {
+        print('⚠️ Could not connect to auth emulator on $emulatorHost: $e');
+        rethrow; // Rethrow to fail test if emulator connection fails
+      }
 
+      // Disable app verification for testing
       await FirebaseAuth.instance.setSettings(
         appVerificationDisabledForTesting: true,
       );
@@ -55,15 +83,15 @@ class FirebaseEmulatorHelper {
       // Check if emulators are already running
       final healthCheck = await _checkEmulatorHealth();
       if (healthCheck) {
-        print('🔥 Firebase emulators already running');
+        // print('🔥 Firebase emulators already running');
         _emulatorsStarted = true;
         return;
       }
 
-      print('🚀 Starting Firebase emulators...');
+      // print('🚀 Starting Firebase emulators...');
 
       // Start emulators in detached mode
-      final process = await Process.start(
+      await Process.start(
         'firebase',
         ['emulators:start', '--only=auth', '--project=$_projectId'],
         mode: ProcessStartMode.detached,
@@ -73,10 +101,10 @@ class FirebaseEmulatorHelper {
       await _waitForEmulators();
 
       _emulatorsStarted = true;
-      print('✅ Firebase emulators started successfully');
+      // print('✅ Firebase emulators started successfully');
     } catch (e) {
-      print('❌ Failed to start Firebase emulators: $e');
-      print('💡 Make sure Firebase CLI is installed and configured');
+      // print('❌ Failed to start Firebase emulators: $e');
+      // print('💡 Make sure Firebase CLI is installed and configured');
       rethrow;
     }
   }
@@ -88,9 +116,9 @@ class FirebaseEmulatorHelper {
     try {
       await Process.run('firebase', ['emulators:stop']);
       _emulatorsStarted = false;
-      print('🛑 Firebase emulators stopped');
+      // print('🛑 Firebase emulators stopped');
     } catch (e) {
-      print('⚠️ Failed to stop emulators gracefully: $e');
+      // print('⚠️ Failed to stop emulators gracefully: $e');
     }
   }
 
@@ -103,16 +131,17 @@ class FirebaseEmulatorHelper {
       final response = await Process.run('curl', [
         '-X',
         'DELETE',
-        'http://$_authEmulatorHost:$_authEmulatorPort/emulator/v1/projects/$_projectId/accounts',
+        'http://$_authEmulatorHost:$_authEmulatorPort',
+        '/emulator/v1/projects/$_projectId/accounts',
       ]);
 
       if (response.exitCode == 0) {
-        print('🧹 Emulator data cleared successfully');
+        // print('🧹 Emulator data cleared successfully');
       } else {
-        print('⚠️ Failed to clear emulator data: ${response.stderr}');
+        // print('⚠️ Failed to clear emulator data: ${response.stderr}');
       }
     } catch (e) {
-      print('⚠️ Error clearing emulator data: $e');
+      // print('⚠️ Error clearing emulator data: $e');
     }
   }
 
@@ -253,13 +282,13 @@ class FirebaseEmulatorHelper {
     await initializeForTesting();
     await clearEmulatorData();
     await seedTestUsers();
-    print('🎯 Firebase testing environment ready');
+    // print('🎯 Firebase testing environment ready');
   }
 
   /// Cleanup testing environment
   static Future<void> teardownTestEnvironment() async {
     await clearEmulatorData();
-    print('🧹 Firebase testing environment cleaned up');
+    // print('🧹 Firebase testing environment cleaned up');
   }
 
   /// Check if Auth emulator is running and healthy
@@ -267,7 +296,8 @@ class FirebaseEmulatorHelper {
     try {
       final result = await Process.run('curl', [
         '-s',
-        'http://$_authEmulatorHost:$_authEmulatorPort/emulator/v1/projects/$_projectId/config',
+        'http://$_authEmulatorHost:$_authEmulatorPort',
+        '/emulator/v1/projects/$_projectId/config',
       ]);
       return result.exitCode == 0;
     } catch (e) {
@@ -285,7 +315,7 @@ class FirebaseEmulatorHelper {
         return;
       }
       await Future<void>.delayed(delay);
-      print('⏳ Waiting for emulators to start... (${i + 1}/$maxAttempts)');
+      // print('⏳ Waiting for emulators to start... (${i + 1}/$maxAttempts)');
     }
 
     throw const TimeoutException(
@@ -302,6 +332,18 @@ class FirebaseEmulatorHelper {
       'isRunning': _emulatorsStarted,
       'isInitialized': _isInitialized,
     };
+  }
+
+  /// Clear all authentication data from emulator
+  static Future<void> clearAuthData() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      // In a real emulator environment, you might also call:
+      // await _clearAllUsersFromEmulator();
+      print('✅ Auth data cleared');
+    } catch (e) {
+      print('⚠️ Failed to clear auth data: $e');
+    }
   }
 }
 

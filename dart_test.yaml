@@ -1,0 +1,73 @@
+# Dart test configuration for improved test output recording
+# This file configures how tests are run and output is recorded
+
+test_on: "vm"
+
+# Global test configuration
+timeout: 30s
+retry: 1
+concurrency: 4
+
+# Test output configuration
+reporter: expanded
+verbose_trace: true
+
+# Override settings for different test types
+override:
+  # Unit tests - fast and isolated
+  "test/features/*/domain/**":
+    timeout: 10s
+    concurrency: 6
+    platforms: [vm]
+
+  "test/features/*/presentation/blocs/**":
+    timeout: 15s
+    concurrency: 4
+    platforms: [vm]
+
+  "test/core/**":
+    timeout: 10s
+    concurrency: 6
+    platforms: [vm]
+
+  # Widget tests - require Flutter
+  "test/features/*/presentation/pages/**":
+    timeout: 30s
+    concurrency: 2
+    platforms: [flutter-test]
+
+  "test/features/*/presentation/widgets/**":
+    timeout: 30s
+    concurrency: 2
+    platforms: [flutter-test]
+
+  "test/app/**":
+    timeout: 30s
+    concurrency: 2
+    platforms: [flutter-test]
+
+  # Integration tests - longer timeout, lower concurrency
+  "test/integration/**":
+    timeout: 120s
+    concurrency: 1
+    platforms: [flutter-test]
+    retry: 0 # Don't retry integration tests
+
+  # MVP tests
+  "test/features/mvp_**":
+    timeout: 60s
+    concurrency: 2
+    platforms: [flutter-test]
+
+# Configure test environment
+define_platforms:
+  flutter-test:
+    name: flutter-test
+    extends: vm
+    settings:
+      flutter_test_config: flutter_test_config.dart
+
+# Exclude problematic test files if emulators aren't running
+ignore:
+  - "test/**/*emulator*_test.dart"
+  - "test/**/firebase_authentication_emulator_connectivity_test.dart"

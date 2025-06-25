@@ -1,20 +1,13 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:revision/core/utils/result.dart';
-import 'package:revision/features/authentication/domain/exceptions/auth_exception.dart';
-import 'package:revision/features/authentication/domain/repositories/authentication_repository.dart';
+import 'package:revision/core/error/failures.dart';
+import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:revision/features/authentication/domain/usecases/send_password_reset_email_usecase.dart';
-import '../../../../helpers/helpers.dart'; // Import the helper
 
-class MockAuthenticationRepository extends Mock
-    implements AuthenticationRepository {}
+class MockAuthenticationRepository extends Mock implements AuthRepository {}
 
 void main() {
-  // Ensure Firebase is initialized before tests run
-  setUpAll(() async {
-    await setupFirebaseAuthMocks();
-  });
-
   group('SendPasswordResetEmailUseCase', () {
     late SendPasswordResetEmailUseCase useCase;
     late MockAuthenticationRepository mockRepository;
@@ -28,54 +21,65 @@ void main() {
 
     test('should send password reset email successfully', () async {
       // Arrange
-      when(() => mockRepository.sendPasswordResetEmail(email))
-          .thenAnswer((_) async => const Success(null));
+      when(() => mockRepository.sendPasswordResetEmail(email: email))
+          .thenAnswer((_) async => const Right<Failure, void>(null));
 
       // Act
       final result = await useCase(email);
 
       // Assert
-      expect(result, equals(const Success(null)));
-      verify(() => mockRepository.sendPasswordResetEmail(email)).called(1);
+      expect(result, equals(const Right<Failure, void>(null)));
+      verify(() => mockRepository.sendPasswordResetEmail(email: email))
+          .called(1);
     });
-    test('should return failure when user not found', () async {
+
+    test('should return failure when user not found (AuthenticationFailure)',
+        () async {
       // Arrange
-      const exception = UserNotFoundException();
-      when(() => mockRepository.sendPasswordResetEmail(email))
-          .thenAnswer((_) async => const Failure<void>(exception));
+      const failure = AuthenticationFailure('User not found');
+      when(() => mockRepository.sendPasswordResetEmail(email: email))
+          .thenAnswer((_) async => const Left<Failure, void>(failure));
 
       // Act
       final result = await useCase(email);
 
       // Assert
-      expect(result, equals(const Failure<void>(exception)));
-      verify(() => mockRepository.sendPasswordResetEmail(email)).called(1);
+      expect(result, equals(const Left<Failure, void>(failure)));
+      verify(() => mockRepository.sendPasswordResetEmail(email: email))
+          .called(1);
     });
-    test('should return failure when network error occurs', () async {
+
+    test('should return failure when network error occurs (NetworkFailure)',
+        () async {
       // Arrange
-      const exception = NetworkException();
-      when(() => mockRepository.sendPasswordResetEmail(email))
-          .thenAnswer((_) async => const Failure<void>(exception));
+      const failure = NetworkFailure('Network error');
+      when(() => mockRepository.sendPasswordResetEmail(email: email))
+          .thenAnswer((_) async => const Left<Failure, void>(failure));
 
       // Act
       final result = await useCase(email);
 
       // Assert
-      expect(result, equals(const Failure<void>(exception)));
-      verify(() => mockRepository.sendPasswordResetEmail(email)).called(1);
+      expect(result, equals(const Left<Failure, void>(failure)));
+      verify(() => mockRepository.sendPasswordResetEmail(email: email))
+          .called(1);
     });
-    test('should return failure when unexpected error occurs', () async {
+
+    test(
+        'should return failure when unexpected error occurs (AuthenticationFailure)',
+        () async {
       // Arrange
-      const exception = UnexpectedAuthException('Failed to send email');
-      when(() => mockRepository.sendPasswordResetEmail(email))
-          .thenAnswer((_) async => const Failure<void>(exception));
+      const failure = AuthenticationFailure('Failed to send email');
+      when(() => mockRepository.sendPasswordResetEmail(email: email))
+          .thenAnswer((_) async => const Left<Failure, void>(failure));
 
       // Act
       final result = await useCase(email);
 
       // Assert
-      expect(result, equals(const Failure<void>(exception)));
-      verify(() => mockRepository.sendPasswordResetEmail(email)).called(1);
+      expect(result, equals(const Left<Failure, void>(failure)));
+      verify(() => mockRepository.sendPasswordResetEmail(email: email))
+          .called(1);
     });
   });
 }

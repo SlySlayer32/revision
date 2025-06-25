@@ -52,6 +52,9 @@ unlinked_spec.ds
 **/android/app/debug
 **/android/app/profile
 **/android/app/release
+**/android/app/.cxx/
+**/android/.cxx/
+**/android/app/build/
 *.jks
 
 # iOS/XCode related
@@ -90,7 +93,6 @@ coverage/
 packages/**/pubspec.lock
 
 # Web related
-lib/generated_plugin_registrant.dart
 
 # Symbolication related
 app.*.symbols
@@ -111,5 +113,4 @@ app.*.map.json
 !.idea/dictionaries/
 !.idea/runConfigurations/
 .aider*
-.env
 .env

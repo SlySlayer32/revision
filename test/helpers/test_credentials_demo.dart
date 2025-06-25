@@ -20,11 +20,6 @@ void main() {
       // Get the predefined test credentials
       final credentials = FirebaseEmulatorHelper.getTestCredentials();
 
-      print('📋 Available test credentials:');
-      for (final cred in credentials) {
-        print('   - Email: ${cred['email']}, Password: ${cred['password']}');
-      }
-
       // Test signing in with the first set of credentials
       final testEmail = credentials.first['email']!;
       final testPassword = credentials.first['password']!;
@@ -36,8 +31,6 @@ void main() {
 
       expect(user, isNotNull);
       expect(user!.email, equals(testEmail));
-
-      print('✅ Successfully signed in with: $testEmail');
     });
 
     test('should create a new custom test user', () async {
@@ -54,8 +47,6 @@ void main() {
       expect(user, isNotNull);
       expect(user!.email, equals(customEmail));
       expect(user.displayName, equals(customName));
-
-      print('✅ Created custom user: $customEmail');
     });
 
     test('should handle invalid credentials gracefully', () async {
@@ -65,7 +56,6 @@ void main() {
       );
 
       expect(user, isNull);
-      print('✅ Properly handled invalid credentials');
     });
   });
 }

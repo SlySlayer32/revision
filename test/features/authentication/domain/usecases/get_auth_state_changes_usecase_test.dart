@@ -3,20 +3,19 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
-import 'package:revision/features/authentication/domain/repositories/authentication_repository.dart';
+import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_usecase.dart';
 
-class MockAuthenticationRepository extends Mock
-    implements AuthenticationRepository {}
+class MockAuthRepository extends Mock implements AuthRepository {}
 
 void main() {
   group('GetAuthStateChangesUseCase', () {
     late GetAuthStateChangesUseCase useCase;
-    late MockAuthenticationRepository mockRepository;
+    late MockAuthRepository mockRepository;
     late StreamController<User?> streamController;
 
     setUp(() {
-      mockRepository = MockAuthenticationRepository();
+      mockRepository = MockAuthRepository();
       useCase = GetAuthStateChangesUseCase(mockRepository);
       streamController = StreamController<User?>();
     });
@@ -24,7 +23,6 @@ void main() {
     tearDown(() {
       streamController.close();
     });
-
     test('should return stream of auth state changes', () {
       // Arrange
       when(() => mockRepository.authStateChanges)
@@ -47,7 +45,7 @@ void main() {
         photoUrl: null,
         isEmailVerified: true,
         createdAt: '2023-01-01T00:00:00Z',
-        customClaims: {},
+        customClaims: <String, dynamic>{},
       );
       when(() => mockRepository.authStateChanges)
           .thenAnswer((_) => streamController.stream);
@@ -82,7 +80,7 @@ void main() {
         photoUrl: null,
         isEmailVerified: true,
         createdAt: '2023-01-01T00:00:00Z',
-        customClaims: {},
+        customClaims: <String, dynamic>{},
       );
       const user2 = User(
         id: '2',
@@ -91,7 +89,7 @@ void main() {
         photoUrl: null,
         isEmailVerified: true,
         createdAt: '2023-01-02T00:00:00Z',
-        customClaims: {},
+        customClaims: <String, dynamic>{},
       );
       when(() => mockRepository.authStateChanges)
           .thenAnswer((_) => streamController.stream); // Act

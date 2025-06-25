@@ -13,6 +13,7 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('App: Building MaterialApp');
     return RepositoryProvider<AuthRepository>(
       create: (context) => getIt<AuthRepository>(),
       child: BlocProvider(

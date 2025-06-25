@@ -1,130 +1,164 @@
-// VGV-compliant test data factory
-// Following Very Good Ventures testing patterns for consistent test data
+// VGV-compliant test data factory for creating test objects
+// Following Very Good Ventures testing patterns
 
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:mocktail/mocktail.dart';
+import 'package:revision/features/authentication/data/models/user_model.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
 
-/// VGV Test data factory for generating consistent test data
-/// Uses static values for deterministic testing as per VGV standards
+import 'vgv_mocks.dart';
+
+/// VGV Test Data Factory for creating consistent test data
+/// Provides factory methods for creating test objects following VGV patterns
 class VGVTestDataFactory {
-  // VGV Pattern: Use const values for deterministic testing
-  static const String testUserId = 'test-user-id-123';
-  static const String testEmail = 'test@vgv.example.com';
-  static const String testPassword = 'TestPass123!';
-  static const String testDisplayName = 'VGV Test User';
-  static const String testPhotoUrl = 'https://example.com/photo.jpg';
-  static const String testCreatedAt = '2024-01-01T00:00:00.000Z';
-
-  // Alternative test values
-  static const String testUserId2 = 'test-user-id-456';
-  static const String testEmail2 = 'test2@vgv.example.com';
-  static const String testDisplayName2 = 'VGV Test User 2';
-
-  /// Creates a VGV-compliant test user with default values
+  /// Creates a test User entity with default or custom values
   static User createTestUser({
-    String? id,
-    String? email,
-    String? displayName,
+    String id = 'test-user-id',
+    String email = 'test@example.com',
+    String? displayName = 'Test User',
+    bool isEmailVerified = true,
     String? photoUrl,
-    bool? isEmailVerified,
-    String? createdAt,
-    Map<String, dynamic>? customClaims,
+    String createdAt = '2023-01-01T00:00:00Z',
+    Map<String, dynamic> customClaims = const {},
   }) {
     return User(
-      id: id ?? testUserId,
-      email: email ?? testEmail,
-      displayName: displayName ?? testDisplayName,
-      photoUrl: photoUrl ?? testPhotoUrl,
-      isEmailVerified: isEmailVerified ?? true,
-      createdAt: createdAt ?? testCreatedAt,
-      customClaims: customClaims ?? const {'role': 'user'},
+      id: id,
+      email: email,
+      displayName: displayName,
+      photoUrl: photoUrl,
+      isEmailVerified: isEmailVerified,
+      createdAt: createdAt,
+      customClaims: customClaims,
     );
   }
 
-  /// Creates a second test user for testing multiple users
-  static User createSecondTestUser({
-    String? id,
-    String? email,
-    String? displayName,
+  /// Creates a test UserModel with default or custom values
+  static UserModel createTestUserModel({
+    String id = 'test-user-id',
+    String email = 'test@example.com',
+    String? displayName = 'Test User',
+    bool isEmailVerified = true,
     String? photoUrl,
-    bool? isEmailVerified,
-    String? createdAt,
-    Map<String, dynamic>? customClaims,
+    String createdAt = '2023-01-01T00:00:00Z',
+    Map<String, dynamic> customClaims = const {},
   }) {
-    return User(
-      id: id ?? testUserId2,
-      email: email ?? testEmail2,
-      displayName: displayName ?? testDisplayName2,
-      photoUrl: photoUrl ?? testPhotoUrl,
-      isEmailVerified: isEmailVerified ?? true,
-      createdAt: createdAt ?? testCreatedAt,
-      customClaims: customClaims ?? const {'role': 'user'},
+    return UserModel(
+      id: id,
+      email: email,
+      displayName: displayName,
+      photoUrl: photoUrl,
+      isEmailVerified: isEmailVerified,
+      createdAt: createdAt,
+      customClaims: customClaims,
     );
   }
 
-  /// Creates a user with unverified email for testing
-  static User createUnverifiedUser({
-    String? id,
-    String? email,
-    String? displayName,
+  /// Creates a list of test users for bulk testing
+  static List<User> createTestUserList([int count = 3]) {
+    return List.generate(
+      count,
+      (index) => createTestUser(
+        id: 'test-user-$index',
+        email: 'user$index@example.com',
+        displayName: 'Test User $index',
+      ),
+    );
+  }
+
+  /// Creates a mock Firebase User for testing
+  static firebase_auth.User createMockFirebaseUser({
+    String uid = 'test-user-id',
+    String? email = 'test@example.com',
+    String? displayName = 'Test User',
+    bool emailVerified = true,
+    String? photoURL,
+    DateTime? creationTime,
   }) {
-    return User(
-      id: id ?? 'unverified-user-id',
-      email: email ?? 'unverified@vgv.example.com',
-      displayName: displayName ?? 'Unverified User',
-      photoUrl: testPhotoUrl,
+    final user = MockFirebaseUser();
+    final metadata = MockUserMetadata();
+
+    when(() => user.uid).thenReturn(uid);
+    when(() => user.email).thenReturn(email);
+    when(() => user.displayName).thenReturn(displayName);
+    when(() => user.emailVerified).thenReturn(emailVerified);
+    when(() => user.photoURL).thenReturn(photoURL);
+    when(() => user.metadata).thenReturn(metadata);
+    when(() => metadata.creationTime)
+        .thenReturn(creationTime ?? DateTime.parse('2023-01-01T00:00:00Z'));
+
+    return user;
+  }
+
+  /// Creates test authentication credentials
+  static Map<String, String> createTestCredentials({
+    String email = 'test@example.com',
+    String password = 'testPassword123',
+    String? displayName = 'Test User',
+  }) {
+    return {
+      'email': email,
+      'password': password,
+      if (displayName != null) 'displayName': displayName,
+    };
+  }
+
+  /// Creates test email/password combinations for various test scenarios
+  static Map<String, String> createValidCredentials() {
+    return createTestCredentials();
+  }
+
+  static Map<String, String> createInvalidEmailCredentials() {
+    return createTestCredentials(email: 'invalid-email');
+  }
+
+  static Map<String, String> createWeakPasswordCredentials() {
+    return createTestCredentials(password: '123');
+  }
+
+  /// Creates test user with admin role
+  static User createTestAdminUser() {
+    return createTestUser(
+      id: 'admin-user-id',
+      email: 'admin@example.com',
+      displayName: 'Admin User',
+      customClaims: {'role': 'admin'},
+    );
+  }
+
+  /// Creates test user with standard role
+  static User createTestStandardUser() {
+    return createTestUser(
+      id: 'standard-user-id',
+      email: 'user@example.com',
+      displayName: 'Standard User',
+      customClaims: {'role': 'user'},
+    );
+  }
+
+  /// Creates a user without email verification
+  static User createUnverifiedUser() {
+    return createTestUser(
       isEmailVerified: false,
-      createdAt: testCreatedAt,
-      customClaims: const {'role': 'unverified'},
+      email: 'unverified@example.com',
     );
   }
 
-  /// Creates a user with admin role for testing
-  static User createAdminUser({
-    String? id,
-    String? email,
-    String? displayName,
-  }) {
-    return User(
-      id: id ?? 'admin-user-id',
-      email: email ?? 'admin@vgv.example.com',
-      displayName: displayName ?? 'VGV Admin User',
-      photoUrl: testPhotoUrl,
-      isEmailVerified: true,
-      createdAt: testCreatedAt,
-      customClaims: const {
-        'role': 'admin',
-        'permissions': ['read', 'write', 'admin'],
-      },
+  /// Creates a user with minimal data (only required fields)
+  static User createMinimalUser() {
+    return createTestUser(
+      displayName: null,
+      customClaims: {},
     );
   }
 
-  /// Creates a list of test users
-  static List<User> createTestUsers({int count = 3}) {
-    final users = <User>[];
-    for (var i = 0; i < count; i++) {
-      users.add(
-        createTestUser(
-          id: 'test-user-id-$i',
-          email: 'test$i@vgv.example.com',
-          displayName: 'VGV Test User $i',
-        ),
-      );
-    }
-    return users;
-  }
-
-  // VGV Pattern: Exception test data
-  static Exception createTestException([
-    String message = 'VGV test exception',
-  ]) {
-    return Exception(message);
-  }
-
-  // VGV Pattern: Error messages for testing
-  static const String errorInvalidEmail = 'Invalid email format';
-  static const String errorWeakPassword = 'Password too weak';
-  static const String errorUserNotFound = 'User not found';
-  static const String errorEmailAlreadyInUse = 'Email already in use';
-  static const String errorNetworkError = 'Network connection error';
-  static const String errorUnknown = 'An unknown error occurred';
+  /// VGV Test Constants
+  static const String testEmail = 'test@example.com';
+  static const String testPassword = 'testPassword123';
+  static const String testDisplayName = 'Test User';
+  static const String testUserId = 'test-user-id';
+  static const String adminEmail = 'admin@example.com';
+  static const String adminPassword = 'adminPassword123';
 }
+
+/// Mock UserMetadata class for Firebase Auth testing
+class MockUserMetadata extends Mock implements firebase_auth.UserMetadata {}

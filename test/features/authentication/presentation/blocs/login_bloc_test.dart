@@ -49,7 +49,7 @@ void main() {
       photoUrl: null,
       isEmailVerified: true,
       createdAt: '2023-01-01T00:00:00Z',
-      customClaims: {},
+      customClaims: <String, dynamic>{},
     );
 
     test('initial state is LoginState with initial status', () {
@@ -61,7 +61,7 @@ void main() {
         when(
           () =>
               mockSignIn(const SignInParams(email: email, password: password)),
-        ).thenAnswer((_) async => const Right(user));
+        ).thenAnswer((_) async => const Right<Failure, User>(user));
       }
 
       void arrangeSignInFailure() {
@@ -69,7 +69,9 @@ void main() {
           () =>
               mockSignIn(const SignInParams(email: email, password: password)),
         ).thenAnswer(
-          (_) async => const Left(AuthenticationFailure('Sign in failed')),
+          (_) async => const Left<Failure, User>(
+            AuthenticationFailure('Sign in failed'),
+          ),
         );
       }
 
@@ -104,7 +106,7 @@ void main() {
               .having(
                 (s) => s.errorMessage,
                 'errorMessage',
-                'Failure: Sign in failed (Code: null)', // Adjusted to match AuthenticationFailure.toString()
+                'Sign in failed', // Updated to match failure.message format
               ),
         ],
       );

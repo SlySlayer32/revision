@@ -23,8 +23,7 @@ enum Environment {
 
   /// Get Firebase app name for current environment
   String get firebaseAppName {
-    // The projectId is now unique per environment and can serve as the app name
-    // if a named Firebase app instance is needed, or for general identification.
+    // Use the bundle ID for environment-specific naming if needed
     return FirebaseConstants.projectId;
   }
 
@@ -50,6 +49,9 @@ enum Environment {
         return 'https://us-central1-revision-ai-editor.cloudfunctions.net';
     }
   }
+
+  /// Get Firebase Functions URL for environment (alias for baseUrl for test compatibility)
+  String get firebaseFunctionsUrl => baseUrl;
 
   /// Get debug mode flag
   bool get isDebugMode {

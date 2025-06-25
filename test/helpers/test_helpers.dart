@@ -2,13 +2,83 @@
 // Following Very Good Ventures testing patterns
 
 import 'package:bloc_test/bloc_test.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:revision/core/di/service_locator.dart';
+import 'package:revision/core/error/failures.dart';
+import 'package:revision/features/authentication/domain/entities/user.dart';
+import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
+import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_usecase.dart';
+import 'package:revision/features/authentication/domain/usecases/get_current_user_usecase.dart';
+import 'package:revision/features/authentication/domain/usecases/send_password_reset_email_usecase.dart';
+import 'package:revision/features/authentication/domain/usecases/sign_in_usecase.dart';
+import 'package:revision/features/authentication/domain/usecases/sign_in_with_google_usecase.dart';
+import 'package:revision/features/authentication/domain/usecases/sign_out_usecase.dart';
+import 'package:revision/features/authentication/domain/usecases/sign_up_usecase.dart';
+import 'package:revision/features/authentication/presentation/blocs/login_bloc.dart';
+import 'package:revision/features/authentication/presentation/blocs/signup_bloc.dart';
+
+import 'mocks.dart';
 
 /// VGV Test Helper utilities following Very Good Ventures patterns
 class VGVTestHelper {
+  /// Sets up GetIt service locator with mock dependencies for testing
+  static void setupTestDependencies() {
+    // Reset GetIt
+    if (GetIt.instance.isRegistered<AuthRepository>()) {
+      GetIt.instance.reset();
+    } // Mock instances
+    final mockAuthRepository = MockAuthRepository();
+    final mockSignInUseCase = MockSignInUseCase();
+    final mockSignInWithGoogleUseCase = MockSignInWithGoogleUseCase();
+    final mockSignUpUseCase = MockSignUpUseCase();
+    final mockSignOutUseCase = MockSignOutUseCase();
+    final mockSendPasswordResetEmailUseCase =
+        MockSendPasswordResetEmailUseCase();
+    final mockGetCurrentUserUseCase = MockGetCurrentUserUseCase();
+    final mockGetAuthStateChangesUseCase = MockGetAuthStateChangesUseCase();
+    final mockLoginBloc = MockLoginBloc();
+    final mockSignupBloc = MockSignupBloc();
+
+    // Configure mock behaviors to return proper values
+    when(mockGetAuthStateChangesUseCase.call)
+        .thenAnswer((_) => Stream<User?>.value(null));
+
+    when(mockSignOutUseCase.call)
+        .thenAnswer((_) async => const Right<Failure, void>(null));
+
+    // Register mocks in GetIt
+    getIt
+      // Repository
+      ..registerLazySingleton<AuthRepository>(() => mockAuthRepository)
+
+      // Use Cases
+      ..registerLazySingleton<SignInUseCase>(() => mockSignInUseCase)
+      ..registerLazySingleton<SignInWithGoogleUseCase>(
+          () => mockSignInWithGoogleUseCase)
+      ..registerLazySingleton<SignUpUseCase>(() => mockSignUpUseCase)
+      ..registerLazySingleton<SignOutUseCase>(() => mockSignOutUseCase)
+      ..registerLazySingleton<SendPasswordResetEmailUseCase>(
+          () => mockSendPasswordResetEmailUseCase)
+      ..registerLazySingleton<GetCurrentUserUseCase>(
+          () => mockGetCurrentUserUseCase)
+      ..registerLazySingleton<GetAuthStateChangesUseCase>(
+          () => mockGetAuthStateChangesUseCase)
+
+      // BLoCs - Remove AuthenticationBloc from here since app creates it directly
+      ..registerFactory<LoginBloc>(() => mockLoginBloc)
+      ..registerFactory<SignupBloc>(() => mockSignupBloc);
+  }
+
+  /// Tears down test dependencies
+  static void tearDownTestDependencies() {
+    GetIt.instance.reset();
+  }
+
   /// Creates a VGV-compliant widget test wrapper
   static Widget createApp({
     required Widget child,
@@ -59,7 +129,7 @@ class VGVTestHelper {
     blocTest<B, S>(
       description,
       build: build,
-      seed: () => seed,
+      seed: seed == null ? null : () => seed, // Re-applying seed!
       act: act,
       skip: skip,
       wait: wait,

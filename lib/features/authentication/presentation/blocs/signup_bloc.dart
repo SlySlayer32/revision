@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
-import 'package:revision/features/authentication/domain/exceptions/auth_exception.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_up_usecase.dart';
 
 part 'signup_event.dart';
@@ -41,11 +40,8 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
     result.fold(
       (failure) {
         log('Sign up error', error: failure);
-        if (failure is AuthException) {
-          emit(SignupState.failure(failure.message));
-        } else {
-          emit(const SignupState.failure('An unexpected error occurred'));
-        }
+        // Extract message from Failure or fallback to generic message
+        emit(SignupState.failure(failure.message));
       },
       (user) => emit(SignupState.success(user)),
     );

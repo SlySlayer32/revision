@@ -1,2 +1,0 @@
-G:/BUILDING/New folder/web-guide-generator/revision/android/app/.cxx/RelWithDebInfo/2p2r6d1o/armeabi-v7a/CMakeFiles/edit_cache.dir
-G:/BUILDING/New folder/web-guide-generator/revision/android/app/.cxx/RelWithDebInfo/2p2r6d1o/armeabi-v7a/CMakeFiles/rebuild_cache.dir

@@ -27,7 +27,7 @@ void main() {
       photoUrl: null,
       isEmailVerified: false,
       createdAt: '2023-01-01T00:00:00Z',
-      customClaims: {},
+      customClaims: <String, dynamic>{},
     );
 
     test('should create user when email and password are valid', () async {
@@ -37,7 +37,7 @@ void main() {
           email: email,
           password: password,
         ),
-      ).thenAnswer((_) async => const Right(user));
+      ).thenAnswer((_) async => const Right<Failure, User>(user));
 
       // Act
       final result = await useCase(
@@ -46,7 +46,7 @@ void main() {
       );
 
       // Assert
-      expect(result, equals(const Right(user)));
+      expect(result, equals(const Right<Failure, User>(user)));
       verify(
         () => mockRepository.signUpWithEmailAndPassword(
           email: email,
@@ -54,16 +54,15 @@ void main() {
         ),
       ).called(1);
     });
-
     test('should return failure when email is already in use', () async {
       // Arrange
-      const failure = Failure('Email already in use');
+      const failure = AuthenticationFailure('Email already in use');
       when(
         () => mockRepository.signUpWithEmailAndPassword(
           email: email,
           password: password,
         ),
-      ).thenAnswer((_) async => const Left(failure));
+      ).thenAnswer((_) async => const Left<Failure, User>(failure));
 
       // Act
       final result = await useCase(
@@ -72,7 +71,7 @@ void main() {
       );
 
       // Assert
-      expect(result, equals(const Left(failure)));
+      expect(result, equals(const Left<Failure, User>(failure)));
       verify(
         () => mockRepository.signUpWithEmailAndPassword(
           email: email,
@@ -80,16 +79,15 @@ void main() {
         ),
       ).called(1);
     });
-
     test('should return failure when password is weak', () async {
       // Arrange
-      const failure = Failure('Password is too weak');
+      const failure = ValidationFailure('Password is too weak');
       when(
         () => mockRepository.signUpWithEmailAndPassword(
           email: email,
           password: 'weak',
         ),
-      ).thenAnswer((_) async => const Left(failure));
+      ).thenAnswer((_) async => const Left<Failure, User>(failure));
 
       // Act
       final result = await useCase(
@@ -98,7 +96,7 @@ void main() {
       );
 
       // Assert
-      expect(result, equals(const Left(failure)));
+      expect(result, equals(const Left<Failure, User>(failure)));
       verify(
         () => mockRepository.signUpWithEmailAndPassword(
           email: email,
@@ -106,16 +104,15 @@ void main() {
         ),
       ).called(1);
     });
-
     test('should return failure when network error occurs', () async {
       // Arrange
-      const failure = Failure('Network error');
+      const failure = NetworkFailure('Network error');
       when(
         () => mockRepository.signUpWithEmailAndPassword(
           email: email,
           password: password,
         ),
-      ).thenAnswer((_) async => const Left(failure));
+      ).thenAnswer((_) async => const Left<Failure, User>(failure));
 
       // Act
       final result = await useCase(
@@ -124,7 +121,7 @@ void main() {
       );
 
       // Assert
-      expect(result, equals(const Left(failure)));
+      expect(result, equals(const Left<Failure, User>(failure)));
       verify(
         () => mockRepository.signUpWithEmailAndPassword(
           email: email,

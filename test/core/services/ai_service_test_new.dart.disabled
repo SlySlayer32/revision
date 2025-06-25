@@ -1,0 +1,409 @@
+import 'dart:typed_data';
+
+import 'package:firebase_vertexai/firebase_vertexai.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:revision/core/error/exceptions.dart';
+import 'package:revision/core/services/ai_service.dart';
+
+// Private mock class following VGV best practices
+class _MockGenerativeModel extends Mock implements GenerativeModel {}
+
+void main() {
+  group('AIService', () {
+    late Uint8List testImageData;
+    late Uint8List emptyImageData;
+
+    setUpAll(() {
+      // Register fallback values for any() calls with complex types
+      registerFallbackValue(
+        <Content>[Content.text('')],
+      );
+    });
+
+    setUp(() {
+      testImageData = Uint8List.fromList([1, 2, 3, 4]); // Mock image data
+      emptyImageData = Uint8List.fromList([]); // Empty image data
+    });
+
+    group('$VertexAIService', () {
+      late _MockGenerativeModel mockGeminiModel;
+      late _MockGenerativeModel mockImagenModel;
+      late VertexAIService vertexAIService;
+
+      setUp(() {
+        mockGeminiModel = _MockGenerativeModel();
+        mockImagenModel = _MockGenerativeModel();
+
+        vertexAIService = VertexAIService(
+          geminiModel: mockGeminiModel,
+          imagenModel: mockImagenModel,
+        );
+      });
+
+      group('processImagePrompt', () {
+        test('returns description when successful', () async {
+          // Arrange
+          const prompt = 'Describe this image';
+          const expectedResponse = 'A test image description';
+
+          when(() => mockGeminiModel.generateContent(any())).thenAnswer(
+              (_) async => _createSuccessResponse(expectedResponse));
+
+          // Act
+          final result =
+              await vertexAIService.processImagePrompt(testImageData, prompt);
+
+          // Assert
+          expect(result, equals(expectedResponse));
+          verify(() => mockGeminiModel.generateContent(any())).called(1);
+        });
+
+        test('throws $AIServiceException when AI returns empty response',
+            () async {
+          // Arrange
+          const prompt = 'Describe this image';
+          when(() => mockGeminiModel.generateContent(any()))
+              .thenAnswer((_) async => _createEmptyResponse());
+
+          // Act & Assert
+          expect(
+            () => vertexAIService.processImagePrompt(testImageData, prompt),
+            throwsA(
+              isA<AIServiceException>().having(
+                (e) => e.message,
+                'message',
+                'No response generated from AI model',
+              ),
+            ),
+          );
+        });
+
+        test('throws $AIServiceException for generic exceptions', () async {
+          // Arrange
+          const prompt = 'Describe this image';
+          when(() => mockGeminiModel.generateContent(any()))
+              .thenThrow(Exception('AI service error'));
+
+          // Act & Assert
+          expect(
+            () => vertexAIService.processImagePrompt(testImageData, prompt),
+            throwsA(
+              isA<AIServiceException>().having(
+                (e) => e.message,
+                'message',
+                contains('Failed to process image prompt'),
+              ),
+            ),
+          );
+        });
+
+        test('rethrows $AIServiceException if already an $AIServiceException',
+            () async {
+          // Arrange
+          const prompt = 'Describe this image';
+          when(() => mockGeminiModel.generateContent(any()))
+              .thenThrow(const AIServiceException('Specific AI error'));
+
+          // Act & Assert
+          expect(
+            () => vertexAIService.processImagePrompt(testImageData, prompt),
+            throwsA(
+              isA<AIServiceException>().having(
+                (e) => e.message,
+                'message',
+                'Specific AI error',
+              ),
+            ),
+          );
+        });
+
+        test('handles empty imageData gracefully', () async {
+          // Arrange
+          const prompt = 'Describe this image';
+          when(() => mockGeminiModel.generateContent(any())).thenAnswer(
+            (_) async => _createSuccessResponse('Description for empty image'),
+          );
+
+          // Act
+          final result =
+              await vertexAIService.processImagePrompt(emptyImageData, prompt);
+
+          // Assert
+          expect(result, equals('Description for empty image'));
+        });
+
+        test('handles empty prompt gracefully', () async {
+          // Arrange
+          const prompt = '';
+          when(() => mockGeminiModel.generateContent(any())).thenAnswer(
+            (_) async => _createSuccessResponse(
+              'Description for image with empty prompt',
+            ),
+          );
+
+          // Act
+          final result =
+              await vertexAIService.processImagePrompt(testImageData, prompt);
+
+          // Assert
+          expect(result, equals('Description for image with empty prompt'));
+        });
+      });
+
+      group('generateImageDescription', () {
+        test('returns image description', () async {
+          // Arrange
+          const expectedDescription = 'A beautiful landscape image';
+          when(() => mockGeminiModel.generateContent(any())).thenAnswer(
+            (_) async => _createSuccessResponse(expectedDescription),
+          );
+
+          // Act
+          final result =
+              await vertexAIService.generateImageDescription(testImageData);
+
+          // Assert
+          expect(result, equals(expectedDescription));
+          verify(() => mockGeminiModel.generateContent(any())).called(1);
+        });
+
+        test('throws $AIServiceException if underlying prompt processing fails',
+            () async {
+          // Arrange
+          when(() => mockGeminiModel.generateContent(any()))
+              .thenThrow(Exception('Description generation failed'));
+
+          // Act & Assert
+          expect(
+            () => vertexAIService.generateImageDescription(testImageData),
+            throwsA(
+              isA<AIServiceException>().having(
+                (e) => e.message,
+                'message',
+                contains('Failed to process image prompt'),
+              ),
+            ),
+          );
+        });
+      });
+
+      group('suggestImageEdits', () {
+        test('returns list of edit suggestions', () async {
+          // Arrange
+          const aiResponse = '''
+            - Brighten the image
+            - Adjust contrast
+            - Crop to center
+            ''';
+          final expectedSuggestions = [
+            'Brighten the image',
+            'Adjust contrast',
+            'Crop to center',
+          ];
+
+          when(() => mockGeminiModel.generateContent(any()))
+              .thenAnswer((_) async => _createSuccessResponse(aiResponse));
+
+          // Act
+          final result = await vertexAIService.suggestImageEdits(testImageData);
+
+          // Assert
+          expect(result, equals(expectedSuggestions));
+          expect(result, hasLength(3));
+          verify(() => mockGeminiModel.generateContent(any())).called(1);
+        });
+
+        test('handles empty AI response for suggestions', () async {
+          // Arrange
+          when(() => mockGeminiModel.generateContent(any()))
+              .thenAnswer((_) async => _createEmptyResponse());
+
+          // Act
+          final result = await vertexAIService.suggestImageEdits(testImageData);
+
+          // Assert
+          expect(result, isEmpty);
+        });
+
+        test('throws $AIServiceException if underlying prompt processing fails',
+            () async {
+          // Arrange
+          when(() => mockGeminiModel.generateContent(any()))
+              .thenThrow(Exception('Suggestion generation failed'));
+
+          // Act & Assert
+          expect(
+            () => vertexAIService.suggestImageEdits(testImageData),
+            throwsA(
+              isA<AIServiceException>().having(
+                (e) => e.message,
+                'message',
+                contains('Failed to generate edit suggestions'),
+              ),
+            ),
+          );
+        });
+      });
+
+      group('checkContentSafety', () {
+        test('returns true for SAFE response', () async {
+          // Arrange
+          when(() => mockGeminiModel.generateContent(any()))
+              .thenAnswer((_) async => _createSuccessResponse('SAFE'));
+
+          // Act
+          final result =
+              await vertexAIService.checkContentSafety(testImageData);
+
+          // Assert
+          expect(result, isTrue);
+          verify(() => mockGeminiModel.generateContent(any())).called(1);
+        });
+
+        test('returns false for UNSAFE response', () async {
+          // Arrange
+          when(() => mockGeminiModel.generateContent(any()))
+              .thenAnswer((_) async => _createSuccessResponse('UNSAFE'));
+
+          // Act
+          final result =
+              await vertexAIService.checkContentSafety(testImageData);
+
+          // Assert
+          expect(result, isFalse);
+        });
+
+        test('returns false for any other response', () async {
+          // Arrange
+          when(() => mockGeminiModel.generateContent(any()))
+              .thenAnswer((_) async => _createSuccessResponse('MAYBE'));
+
+          // Act
+          final result =
+              await vertexAIService.checkContentSafety(testImageData);
+
+          // Assert
+          expect(result, isFalse);
+        });
+
+        test('returns false if underlying prompt processing fails', () async {
+          // Arrange
+          when(() => mockGeminiModel.generateContent(any()))
+              .thenThrow(Exception('Safety check failed'));
+
+          // Act
+          final result =
+              await vertexAIService.checkContentSafety(testImageData);
+
+          // Assert
+          expect(result, isFalse);
+        });
+      });
+
+      group('generateEditingPrompt', () {
+        test('returns default prompt when markers are empty', () async {
+          // Act
+          final result = await vertexAIService.generateEditingPrompt(
+            imageBytes: testImageData,
+            markers: [],
+          );
+
+          // Assert
+          expect(result, equals('Describe the desired edits for the image.'));
+        });
+
+        test('returns prompt with markers when markers are present', () async {
+          // Arrange
+          final markers = [
+            {'x': 0.1, 'y': 0.2},
+            {'x': 0.5, 'y': 0.6},
+          ];
+
+          // Act
+          final result = await vertexAIService.generateEditingPrompt(
+            imageBytes: testImageData,
+            markers: markers,
+          );
+
+          // Assert
+          expect(result, contains('Perform edits based on markers:'));
+          expect(result, contains('{x: 0.1, y: 0.2}'));
+          expect(result, contains('{x: 0.5, y: 0.6}'));
+        });
+      });
+
+      group('processImageWithAI', () {
+        test('returns original image bytes when prompt does not contain invert',
+            () async {
+          // Arrange
+          const editingPrompt = 'Adjust brightness';
+
+          // Act
+          final result = await vertexAIService.processImageWithAI(
+            imageBytes: testImageData,
+            editingPrompt: editingPrompt,
+          );
+
+          // Assert
+          expect(result, equals(testImageData));
+        });
+
+        test('returns inverted image bytes when prompt contains invert',
+            () async {
+          // Arrange
+          const editingPrompt = 'Invert colors';
+
+          // Act
+          final result = await vertexAIService.processImageWithAI(
+            imageBytes: testImageData,
+            editingPrompt: editingPrompt,
+          );
+
+          // Assert
+          expect(result, isNot(equals(testImageData)));
+          expect(result, isA<Uint8List>());
+          expect(result, isNotEmpty);
+        });
+
+        test('handles empty imageBytes for processing', () async {
+          // Arrange
+          const editingPrompt = 'No operation';
+
+          // Act
+          final result = await vertexAIService.processImageWithAI(
+            imageBytes: emptyImageData,
+            editingPrompt: editingPrompt,
+          );
+
+          // Assert
+          expect(result, equals(emptyImageData));
+        });
+      });
+    });
+  });
+}
+
+/// Helper function to create a successful GenerateContentResponse
+GenerateContentResponse _createSuccessResponse(String text) {
+  return GenerateContentResponse(
+    [], // promptFeedback
+    [
+      Candidate(
+        Content.text(text), // content
+        null, // citationMetadata
+        FinishReason.stop, // finishReason
+        0, // index
+        <SafetyRating>[], // safetyRatings
+      ),
+    ], // candidates
+  );
+}
+
+/// Helper function to create an empty GenerateContentResponse
+GenerateContentResponse _createEmptyResponse() {
+  return GenerateContentResponse(
+    [], // promptFeedback
+    <Candidate>[], // empty candidates
+  );
+}

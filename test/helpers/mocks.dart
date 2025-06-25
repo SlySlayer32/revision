@@ -1,17 +1,25 @@
 // VGV-compliant mock classes for testing
 // Following Very Good Ventures testing patterns
 
-import 'dart:async';
-
 import 'package:bloc_test/bloc_test.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:mocktail/mocktail.dart';
-import 'package:revision/core/utils/result.dart';
+// import 'package:revision/core/utils/result.dart'; // Removed custom Result
 import 'package:revision/features/authentication/domain/entities/user.dart';
 import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
+import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_usecase.dart'; // Import actual use case
+import 'package:revision/features/authentication/domain/usecases/get_current_user_usecase.dart'; // Import actual use case
+import 'package:revision/features/authentication/domain/usecases/send_password_reset_email_usecase.dart'; // Import actual use case
+import 'package:revision/features/authentication/domain/usecases/sign_in_usecase.dart'; // Import actual use case
+import 'package:revision/features/authentication/domain/usecases/sign_in_with_google_usecase.dart'; // Import actual use case
+import 'package:revision/features/authentication/domain/usecases/sign_out_usecase.dart'; // Import actual use case
+import 'package:revision/features/authentication/domain/usecases/sign_up_usecase.dart'; // Import actual use case
+import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart'; // For AuthenticationEvent, AuthenticationState, AuthenticationBloc
+import 'package:revision/features/authentication/presentation/blocs/login_bloc.dart'; // For LoginBloc, LoginEvent, LoginState
+import 'package:revision/features/authentication/presentation/blocs/signup_bloc.dart'; // For SignupBloc, SignupEvent, SignupState
 
 // VGV Pattern: Core Mocks
-class MockResult<T> extends Mock implements Result<T> {}
+// class MockResult<T> extends Mock implements Result<T> {} // Removed, Result is sealed and we use Either
 
 // VGV Pattern: Authentication Domain Mocks
 class MockAuthRepository extends Mock implements AuthRepository {}
@@ -28,35 +36,34 @@ class MockUserCredential extends Mock implements firebase_auth.UserCredential {}
 class MockAuthCredential extends Mock implements firebase_auth.AuthCredential {}
 
 // VGV Pattern: Use Case Mocks
-class MockSignInUseCase extends Mock {
-  Future<Result<User>> call(Map<String, String> params);
-}
+// These now reflect that use cases return Either<Failure, T> and implement actual use cases
+class MockSignInUseCase extends Mock implements SignInUseCase {}
 
-class MockSignUpUseCase extends Mock {
-  Future<Result<User>> call(Map<String, String> params);
-}
+class MockSignUpUseCase extends Mock implements SignUpUseCase {}
 
-class MockSignOutUseCase extends Mock {
-  Future<Result<void>> call();
-}
+class MockSignOutUseCase extends Mock implements SignOutUseCase {}
 
-class MockGetCurrentUserUseCase extends Mock {
-  Future<Result<User?>> call();
-}
+class MockGetCurrentUserUseCase extends Mock implements GetCurrentUserUseCase {}
 
-class MockGetAuthStateChangesUseCase extends Mock {
-  Stream<User?> call();
-}
+class MockGetAuthStateChangesUseCase extends Mock
+    implements GetAuthStateChangesUseCase {}
+
+class MockSignInWithGoogleUseCase extends Mock
+    implements SignInWithGoogleUseCase {}
+
+class MockSendPasswordResetEmailUseCase extends Mock
+    implements SendPasswordResetEmailUseCase {}
 
 // VGV Pattern: BLoC Mocks using bloc_test
-class MockAuthenticationBloc extends MockBloc<dynamic, dynamic>
-    implements Bloc<dynamic, dynamic> {}
+class MockAuthenticationBloc
+    extends MockBloc<AuthenticationEvent, AuthenticationState>
+    implements AuthenticationBloc {}
 
-class MockLoginBloc extends MockBloc<dynamic, dynamic>
-    implements Bloc<dynamic, dynamic> {}
+class MockLoginBloc extends MockBloc<LoginEvent, LoginState>
+    implements LoginBloc {}
 
-class MockSignupBloc extends MockBloc<dynamic, dynamic>
-    implements Bloc<dynamic, dynamic> {}
+class MockSignupBloc extends MockBloc<SignupEvent, SignupState>
+    implements SignupBloc {}
 
 // VGV Pattern: Generic Function Mocks
 class MockFunction extends Mock {

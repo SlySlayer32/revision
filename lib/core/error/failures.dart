@@ -37,3 +37,23 @@ class ImageProcessingFailure extends Failure {
 class AIProcessingFailure extends Failure {
   const AIProcessingFailure(super.message, [super.code]);
 }
+
+class PermissionFailure extends Failure {
+  const PermissionFailure(super.message, [super.code]);
+}
+
+class DeviceFailure extends Failure {
+  const DeviceFailure(super.message, [super.code]);
+}
+
+class ImageSelectionFailure extends Failure {
+  const ImageSelectionFailure(super.message, [super.code]);
+}
+
+class CameraAccessFailure extends Failure {
+  const CameraAccessFailure(super.message, [super.code]);
+}
+
+class GalleryAccessFailure extends Failure {
+  const GalleryAccessFailure(super.message, [super.code]);
+}

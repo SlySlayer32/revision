@@ -12,9 +12,11 @@ class AuthenticationWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('AuthenticationWrapper: Building, waiting for auth state...');
     return BlocBuilder<AuthenticationBloc, AuthenticationState>(
       buildWhen: (previous, current) => previous.status != current.status,
       builder: (context, state) {
+        debugPrint('AuthenticationWrapper: Auth status = \\${state.status}');
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: switch (state.status) {

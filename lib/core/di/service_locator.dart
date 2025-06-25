@@ -1,13 +1,17 @@
 import 'package:get_it/get_it.dart';
-import 'package:revision/core/services/ai_service.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:revision/core/services/circuit_breaker.dart';
+import 'package:revision/core/services/image_save_service.dart';
+import 'package:revision/core/services/vertex_ai_service.dart';
+import 'package:revision/features/ai_processing/data/repositories/ai_processing_repository_impl.dart';
+import 'package:revision/features/ai_processing/domain/repositories/ai_processing_repository.dart';
+import 'package:revision/features/ai_processing/domain/usecases/process_image_with_ai_usecase.dart';
+import 'package:revision/features/ai_processing/presentation/cubit/ai_processing_cubit.dart';
 import 'package:revision/features/authentication/data/datasources/firebase_auth_data_source.dart';
 import 'package:revision/features/authentication/data/repositories/firebase_authentication_repository.dart';
-import 'package:revision/features/authentication/domain/repositories/auth_repository.dart'; // Changed import
+import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/get_current_user_usecase.dart';
-// ... other use case imports might also need to expect AuthRepository if they use it.
-// For now, focusing on SignInUseCase as per the error.
 import 'package:revision/features/authentication/domain/usecases/send_password_reset_email_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_in_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_in_with_google_usecase.dart';
@@ -16,6 +20,12 @@ import 'package:revision/features/authentication/domain/usecases/sign_up_usecase
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
 import 'package:revision/features/authentication/presentation/blocs/login_bloc.dart';
 import 'package:revision/features/authentication/presentation/blocs/signup_bloc.dart';
+import 'package:revision/features/image_editing/presentation/cubit/image_annotation_cubit.dart';
+import 'package:revision/features/image_selection/data/datasources/image_picker_data_source.dart';
+import 'package:revision/features/image_selection/data/repositories/image_selection_repository_impl.dart';
+import 'package:revision/features/image_selection/domain/repositories/image_selection_repository.dart';
+import 'package:revision/features/image_selection/domain/usecases/select_image_use_case.dart';
+import 'package:revision/features/image_selection/presentation/cubit/image_selection_cubit.dart';
 
 /// Global service locator instance
 final getIt = GetIt.instance;
@@ -25,48 +35,52 @@ void setupServiceLocator() {
   getIt
     // Core Services
     ..registerLazySingleton<CircuitBreaker>(CircuitBreaker.new)
-    ..registerLazySingleton<AIService>(VertexAIService.new)
 
     // Data Sources
     ..registerLazySingleton<FirebaseAuthDataSource>(
       FirebaseAuthDataSourceImpl.new,
     )
+    ..registerLazySingleton<ImagePicker>(ImagePicker.new)
+    ..registerLazySingleton<ImagePickerDataSource>(
+      () => ImagePickerDataSource(getIt<ImagePicker>()),
+    )
 
     // Repositories
     ..registerLazySingleton<AuthRepository>(
-      // Changed to AuthRepository
       () => FirebaseAuthenticationRepository(
         firebaseAuthDataSource: getIt<FirebaseAuthDataSource>(),
       ),
     )
+    ..registerLazySingleton<ImageRepository>(
+      () => ImageSelectionRepositoryImpl(getIt<ImagePickerDataSource>()),
+    )
 
     // Use Cases
     ..registerLazySingleton<SignInUseCase>(
-      () => SignInUseCase(getIt<AuthRepository>()), // Changed to AuthRepository
+      () => SignInUseCase(getIt<AuthRepository>()),
     )
     ..registerLazySingleton<SignInWithGoogleUseCase>(
-      () => SignInWithGoogleUseCase(
-          getIt<AuthRepository>()), // Changed to AuthRepository
+      () => SignInWithGoogleUseCase(getIt<AuthRepository>()),
     )
     ..registerLazySingleton<SignUpUseCase>(
-      () => SignUpUseCase(getIt<AuthRepository>()), // Changed to AuthRepository
+      () => SignUpUseCase(getIt<AuthRepository>()),
     )
     ..registerLazySingleton<SignOutUseCase>(
-      () =>
-          SignOutUseCase(getIt<AuthRepository>()), // Changed to AuthRepository
+      () => SignOutUseCase(getIt<AuthRepository>()),
     )
     ..registerLazySingleton<SendPasswordResetEmailUseCase>(
-      () => SendPasswordResetEmailUseCase(
-          getIt<AuthRepository>()), // Changed to AuthRepository
+      () => SendPasswordResetEmailUseCase(getIt<AuthRepository>()),
     )
     ..registerLazySingleton<GetCurrentUserUseCase>(
-      () => GetCurrentUserUseCase(
-          getIt<AuthRepository>()), // Changed to AuthRepository
+      () => GetCurrentUserUseCase(getIt<AuthRepository>()),
     )
     ..registerLazySingleton<GetAuthStateChangesUseCase>(
-      () => GetAuthStateChangesUseCase(
-          getIt<AuthRepository>()), // Changed to AuthRepository
+      () => GetAuthStateChangesUseCase(getIt<AuthRepository>()),
     )
+    ..registerLazySingleton<SelectImageUseCase>(
+      () => SelectImageUseCase(getIt<ImageRepository>()),
+    )
+    ..registerLazySingleton<ImageSaveService>(ImageSaveService.new)
 
     // BLoCs
     ..registerFactory<AuthenticationBloc>(
@@ -83,10 +97,30 @@ void setupServiceLocator() {
       ),
     )
     ..registerFactory<SignupBloc>(
-      () => SignupBloc(
-        signUp: getIt<SignUpUseCase>(),
-      ),
+      () => SignupBloc(signUp: getIt<SignUpUseCase>()),
+    )
+    ..registerFactory<ImageSelectionCubit>(
+      () => ImageSelectionCubit(getIt<SelectImageUseCase>()),
+    ) // AI Processing Services
+    ..registerLazySingleton<VertexAIService>(VertexAIService.new)
+
+    // AI Processing Repositories
+    ..registerLazySingleton<AiProcessingRepository>(
+      () => AiProcessingRepositoryImpl(getIt<VertexAIService>()),
+    )
+
+    // AI Processing Use Cases
+    ..registerLazySingleton<ProcessImageWithAiUseCase>(
+      () => ProcessImageWithAiUseCase(getIt<AiProcessingRepository>()),
+    )
+
+    // AI Processing Cubits
+    ..registerFactory<AiProcessingCubit>(
+      () => AiProcessingCubit(getIt<ProcessImageWithAiUseCase>()),
+    )
+    ..registerFactory<ImageAnnotationCubit>(
+      ImageAnnotationCubit.new,
     );
 
-  // Add more services and repositories here as needed
+  // AI Processing dependencies are now registered
 }

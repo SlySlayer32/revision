@@ -4,14 +4,20 @@
 import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
+import 'package:dartz/dartz.dart' hide State; // dartz also has a State class
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:mocktail/mocktail.dart';
-import 'package:revision/core/utils/result.dart';
+import 'package:revision/core/error/failures.dart';
+// No longer using custom Result for repository mocks, using Either instead.
+// import 'package:revision/core/utils/result.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
 import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
+import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
+import 'package:revision/features/authentication/presentation/blocs/login_bloc.dart';
+import 'package:revision/features/authentication/presentation/blocs/signup_bloc.dart';
 
 // Core Mocks
-class MockResult<T> extends Mock implements Result<T> {}
+// class MockResult<T> extends Mock implements Result<T> {} // Removed as Result is sealed and we use Either
 
 // Authentication Domain Mocks
 class MockAuthRepository extends Mock implements AuthRepository {}
@@ -46,29 +52,32 @@ abstract class MockStreamUseCaseNoParams<Type> extends Mock {
 
 // Authentication Use Case Mocks
 class MockSignInUseCase extends Mock
-    implements MockUseCase<Result<User>, Map<String, String>> {}
+    implements MockUseCase<Either<Failure, User>, Map<String, String>> {}
 
 class MockSignUpUseCase extends Mock
-    implements MockUseCase<Result<User>, Map<String, String>> {}
+    implements MockUseCase<Either<Failure, User>, Map<String, String>> {}
 
 class MockSignOutUseCase extends Mock
-    implements MockUseCaseNoParams<Result<void>> {}
+    implements MockUseCaseNoParams<Either<Failure, void>> {}
 
 class MockGetCurrentUserUseCase extends Mock
-    implements MockUseCaseNoParams<Result<User?>> {}
+    implements MockUseCaseNoParams<Either<Failure, User?>> {}
 
-class MockGetAuthStateChangesUseCase extends Mock
-    implements MockStreamUseCaseNoParams<User?> {}
+class MockGetAuthStateChangesUseCase
+    extends Mock // This one returns a direct Stream<User?>, not Either
+    implements
+        MockStreamUseCaseNoParams<User?> {}
 
 // BLoC Mocks
-class MockAuthenticationBloc extends MockBloc<dynamic, dynamic>
-    implements Bloc<dynamic, dynamic> {}
+class MockAuthenticationBloc
+    extends MockBloc<AuthenticationEvent, AuthenticationState>
+    implements AuthenticationBloc {}
 
-class MockLoginBloc extends MockBloc<dynamic, dynamic>
-    implements Bloc<dynamic, dynamic> {}
+class MockLoginBloc extends MockBloc<LoginEvent, LoginState>
+    implements LoginBloc {}
 
-class MockSignupBloc extends MockBloc<dynamic, dynamic>
-    implements Bloc<dynamic, dynamic> {}
+class MockSignupBloc extends MockBloc<SignupEvent, SignupState>
+    implements SignupBloc {}
 
 // Generic Mocks for testing
 class MockFunction extends Mock {
@@ -90,12 +99,18 @@ class VGVTestDataFactory {
     String email = 'test@example.com',
     String displayName = 'Test User',
     bool isEmailVerified = true,
+    String? photoUrl, // Can be null
+    String createdAt = '2023-01-01T00:00:00Z',
+    Map<String, dynamic> customClaims = const {},
   }) {
     return User(
       id: id,
       email: email,
       displayName: displayName,
+      photoUrl: photoUrl,
       isEmailVerified: isEmailVerified,
+      createdAt: createdAt,
+      customClaims: customClaims,
     );
   }
 
@@ -133,6 +148,7 @@ class VGVMockSetup {
   /// Sets up mock authentication repository for successful operations
   static void setupSuccessfulAuthRepository(MockAuthRepository mockRepository) {
     final testUser = VGVTestDataFactory.createTestUser();
+    // const testUserNull = null; // For cases where User? is null // Removed as unused
 
     // Sign in success
     when(
@@ -140,7 +156,7 @@ class VGVMockSetup {
         email: any(named: 'email'),
         password: any(named: 'password'),
       ),
-    ).thenAnswer((_) async => Result.success(testUser));
+    ).thenAnswer((_) async => Right<Failure, User>(testUser));
 
     // Sign up success
     when(
@@ -149,24 +165,30 @@ class VGVMockSetup {
         password: any(named: 'password'),
         displayName: any(named: 'displayName'),
       ),
-    ).thenAnswer((_) async => Result.success(testUser));
+    ).thenAnswer((_) async => Right<Failure, User>(testUser));
 
     // Sign out success
-    when(() => mockRepository.signOut())
-        .thenAnswer((_) async => const Result.success(null));
+    when(() => mockRepository.signOut()).thenAnswer(
+      (_) async => const Right<Failure, void>(null),
+    ); // void is represented by null in Right
 
-    // Get current user success
+    // Get current user success (returning a User)
     when(() => mockRepository.getCurrentUser())
-        .thenAnswer((_) async => Result.success(testUser));
+        .thenAnswer((_) async => Right<Failure, User?>(testUser));
+
+    // Example for Get current user success (returning null User)
+    // when(() => mockRepository.getCurrentUser())
+    //     .thenAnswer((_) async => const Right<Failure, User?>(null)); // Directly use null
 
     // Auth state changes success
-    when(() => mockRepository.getAuthStateChanges())
+    when(() => mockRepository.authStateChanges) // Corrected to getter
         .thenAnswer((_) => Stream.value(testUser));
   }
 
   /// Sets up mock authentication repository for error scenarios
   static void setupErrorAuthRepository(MockAuthRepository mockRepository) {
-    final exception = VGVTestDataFactory.createTestException();
+    // Using specific Failure types as per AuthRepository contract
+    const authFailure = AuthenticationFailure('Generic auth error');
 
     // All operations fail
     when(
@@ -174,7 +196,7 @@ class VGVMockSetup {
         email: any(named: 'email'),
         password: any(named: 'password'),
       ),
-    ).thenAnswer((_) async => Result.failure(exception));
+    ).thenAnswer((_) async => const Left<Failure, User>(authFailure));
 
     when(
       () => mockRepository.signUpWithEmailAndPassword(
@@ -182,15 +204,17 @@ class VGVMockSetup {
         password: any(named: 'password'),
         displayName: any(named: 'displayName'),
       ),
-    ).thenAnswer((_) async => Result.failure(exception));
+    ).thenAnswer((_) async => const Left<Failure, User>(authFailure));
 
     when(() => mockRepository.signOut())
-        .thenAnswer((_) async => Result.failure(exception));
+        .thenAnswer((_) async => const Left<Failure, void>(authFailure));
 
     when(() => mockRepository.getCurrentUser())
-        .thenAnswer((_) async => Result.failure(exception));
+        .thenAnswer((_) async => const Left<Failure, User?>(authFailure));
 
-    when(() => mockRepository.getAuthStateChanges())
-        .thenAnswer((_) => Stream.error(exception));
+    when(() => mockRepository.authStateChanges) // Corrected to getter
+        .thenAnswer(
+      (_) => Stream<User?>.error(authFailure),
+    ); // Explicit type for Stream.error
   }
 }

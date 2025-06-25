@@ -192,19 +192,18 @@ class GoldenTestHelper {
   }
 
   /// Creates a standard material app wrapper
-  static DeviceBuilder Function(Widget) materialAppWrapper({
+  static Widget Function(Widget child) materialAppWrapper({
     ThemeData? theme,
     Locale? locale,
+    Iterable<LocalizationsDelegate<dynamic>>? localizationsDelegates,
   }) {
-    return (child) => DeviceBuilder()
-      ..addScenario(
-        widget: MaterialApp(
+    return (child) => MaterialApp(
           theme: theme ?? ThemeData.light(),
           locale: locale,
-          home: child,
+          localizationsDelegates: localizationsDelegates,
+          home: Scaffold(body: child), // Often good to have a Scaffold
           debugShowCheckedModeBanner: false,
-        ),
-      );
+        );
   }
 
   /// Tests with custom themes
