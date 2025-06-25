@@ -91,8 +91,9 @@ Future<void> _initializeFirebase() async {
     }
 
     // Initialize Vertex AI after Firebase is initialized
-    // TODO: Implement AI initialization when needed
-    // await _initializeVertexAI();
+    debugPrint('_initializeFirebase: Starting Vertex AI initialization...');
+    await _initializeVertexAI();
+    debugPrint('_initializeFirebase: Vertex AI initialization completed');
 
     log('✅ Firebase setup completed for ${environment.name} environment');
   } catch (e, stackTrace) {
