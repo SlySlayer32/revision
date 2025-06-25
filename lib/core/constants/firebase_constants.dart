@@ -39,10 +39,12 @@ class FirebaseConstants {
   // Vertex AI Configuration
   static const String vertexAiLocation = 'us-central1'; // Matches prompt
 
-  // Updated model names for latest Gemini and Imagen models
-  static const String geminiModel = 'gemini-2.0-flash-exp'; // Matches prompt
-  static const String imagenModel = 'imagen-3.0-generate-001'; // Matches prompt
-  static const String defaultModel = 'gemini-1.5-flash'; // Existing, keep
+  // Updated model names per MVP requirements
+  static const String analysisModel = 'gemini-2.5-flash'; // For image analysis (low cost, fast)
+  static const String generationModel = 'gemini-2.0-flash-preview-image-generation'; // For image generation
+  static const String geminiModel = 'gemini-2.5-flash'; // Default model for initialization
+  static const String imagenModel = 'imagen-3.0-generate-001'; // Keep existing
+  static const String defaultModel = 'gemini-1.5-flash'; // Keep for fallback
 
   static const Map<String, String> availableModels = {
     // Existing, keep
