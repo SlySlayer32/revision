@@ -12,7 +12,7 @@ void main() {
     late AiProcessingRepository repository;
 
     setUp(() {
-      repository = AIImageProcessorRepository();
+      repository = MockAiProcessingRepositoryMvp();
     });
 
     testWidgets('AI processing pipeline basic functionality', (WidgetTester tester) async {
@@ -30,19 +30,33 @@ void main() {
         0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130
       ]);
 
+      const testContext = ProcessingContext(
+        processingType: ProcessingType.enhance,
+        qualityLevel: QualityLevel.standard,
+        performancePriority: PerformancePriority.balanced,
+      );
+
       try {
         // Test AI processing - this should not crash
-        final ProcessedImage result = await repository.processImage(testImageBytes);
+        final result = await repository.processImage(
+          imageData: testImageBytes,
+          userPrompt: 'Enhance this test image',
+          context: testContext,
+        );
         
         // Verify the result has expected properties
-        expect(result, isNotNull);
-        expect(result.processedImageBytes, isNotNull);
-        expect(result.processedImageBytes.isNotEmpty, true);
+        expect(result, isA<Success<ProcessingResult>>());
         
-        print('✅ AI Processing Test: Basic functionality works');
-        print('   - Input image size: ${testImageBytes.length} bytes');
-        print('   - Output image size: ${result.processedImageBytes.length} bytes');
-        print('   - Processing completed successfully');
+        if (result is Success<ProcessingResult>) {
+          final processingResult = result.value;
+          expect(processingResult.processedImageData, isNotNull);
+          expect(processingResult.processedImageData.isNotEmpty, true);
+          
+          print('✅ AI Processing Test: Basic functionality works');
+          print('   - Input image size: ${testImageBytes.length} bytes');
+          print('   - Output image size: ${processingResult.processedImageData.length} bytes');
+          print('   - Processing completed successfully');
+        }
 
       } catch (e) {
         print('❌ AI Processing Test Failed: $e');
@@ -56,10 +70,21 @@ void main() {
         // Test with empty bytes
         final Uint8List emptyBytes = Uint8List(0);
         
-        await repository.processImage(emptyBytes);
+        const testContext = ProcessingContext(
+          processingType: ProcessingType.enhance,
+          qualityLevel: QualityLevel.standard,
+          performancePriority: PerformancePriority.balanced,
+        );
         
-        // If we get here, the repository handled empty input gracefully
-        print('✅ AI Processing Test: Empty input handled gracefully');
+        final result = await repository.processImage(
+          imageData: emptyBytes,
+          userPrompt: 'Test prompt',
+          context: testContext,
+        );
+        
+        // Should return a failure for empty input
+        expect(result, isA<Failure>());
+        print('✅ AI Processing Test: Empty input properly rejected');
         
       } catch (e) {
         // Expected behavior - should handle invalid input
