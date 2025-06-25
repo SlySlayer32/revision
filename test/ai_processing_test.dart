@@ -4,15 +4,18 @@ import 'package:flutter/services.dart';
 import 'package:revision/features/ai_processing/domain/repositories/ai_processing_repository.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_result.dart';
-import 'package:revision/features/ai_processing/data/repositories/mock_ai_processing_repository_mvp.dart';
+import 'package:revision/features/ai_processing/data/repositories\ai_processing_repository_impl.dart';
 import 'package:revision/core/utils/result.dart';
+import 'package:revision/core/services/vertex_ai_service.dart';
 
 void main() {
   group('AI Image Processing Pipeline Tests', () {
     late AiProcessingRepository repository;
 
     setUp(() {
-      repository = MockAiProcessingRepositoryMvp();
+      // Create repository with Vertex AI service
+      final vertexAiService = VertexAIService();
+      repository = AiProcessingRepositoryImpl(vertexAiService);
     });
 
     testWidgets('AI processing pipeline basic functionality', (WidgetTester tester) async {
