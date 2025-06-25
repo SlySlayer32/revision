@@ -28,23 +28,38 @@ class AppBlocObserver extends BlocObserver {
 }
 
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
-  FlutterError.onError = (details) {
-    log(details.exceptionAsString(), stackTrace: details.stack);
-  };
+  try {
+    debugPrint('bootstrap: Starting app initialization...');
+    
+    FlutterError.onError = (details) {
+      log(details.exceptionAsString(), stackTrace: details.stack);
+    };
 
-  Bloc.observer = const AppBlocObserver();
+    Bloc.observer = const AppBlocObserver();
+    debugPrint('bootstrap: BlocObserver configured');
 
-  // Initialize Firebase with environment-specific configuration
-  await _initializeFirebase();
+    // Initialize Firebase with environment-specific configuration
+    debugPrint('bootstrap: Starting Firebase initialization...');
+    await _initializeFirebase();
+    debugPrint('bootstrap: Firebase initialization completed');
 
-  // Initialize service locator with all dependencies
-  setupServiceLocator();
+    // Initialize service locator with all dependencies
+    debugPrint('bootstrap: Setting up service locator...');
+    setupServiceLocator();
+    debugPrint('bootstrap: Service locator setup completed');
 
-  // Add cross-flavor configuration here
-  final environment = Environment.current;
-  log('🚀 Starting app in ${environment.name} mode');
+    // Add cross-flavor configuration here
+    final environment = Environment.current;
+    log('🚀 Starting app in ${environment.name} mode');
 
-  runApp(await builder());
+    debugPrint('bootstrap: Building app widget...');
+    runApp(await builder());
+    debugPrint('bootstrap: App widget built and started');
+  } catch (e, stackTrace) {
+    debugPrint('❌ CRITICAL: Bootstrap failed: $e');
+    debugPrint('❌ Stack trace: $stackTrace');
+    rethrow;
+  }
 }
 
 /// Initialize Firebase with proper error handling and environment configuration
