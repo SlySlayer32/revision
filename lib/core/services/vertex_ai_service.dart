@@ -529,8 +529,8 @@ Generate the edited image with the specified changes applied.
           .timeout(const Duration(minutes: 2)); // Longer timeout for image generation
 
       // Check if we got image data back
-      if (response.candidates != null && response.candidates!.isNotEmpty) {
-        final candidate = response.candidates!.first;
+      if (response.candidates.isNotEmpty) {
+        final candidate = response.candidates.first;
         
         // Look for inline data in the response
         if (candidate.content.parts.isNotEmpty) {
