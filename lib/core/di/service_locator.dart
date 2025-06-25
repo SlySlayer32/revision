@@ -32,95 +32,105 @@ final getIt = GetIt.instance;
 
 /// Set up all dependencies in the service locator
 void setupServiceLocator() {
-  getIt
-    // Core Services
-    ..registerLazySingleton<CircuitBreaker>(CircuitBreaker.new)
+  debugPrint('setupServiceLocator: Starting dependency registration...');
+  
+  try {
+    getIt
+      // Core Services
+      ..registerLazySingleton<CircuitBreaker>(CircuitBreaker.new)
 
-    // Data Sources
-    ..registerLazySingleton<FirebaseAuthDataSource>(
-      FirebaseAuthDataSourceImpl.new,
-    )
-    ..registerLazySingleton<ImagePicker>(ImagePicker.new)
-    ..registerLazySingleton<ImagePickerDataSource>(
-      () => ImagePickerDataSource(getIt<ImagePicker>()),
-    )
+      // Data Sources
+      ..registerLazySingleton<FirebaseAuthDataSource>(
+        FirebaseAuthDataSourceImpl.new,
+      )
+      ..registerLazySingleton<ImagePicker>(ImagePicker.new)
+      ..registerLazySingleton<ImagePickerDataSource>(
+        () => ImagePickerDataSource(getIt<ImagePicker>()),
+      )
 
-    // Repositories
-    ..registerLazySingleton<AuthRepository>(
-      () => FirebaseAuthenticationRepository(
-        firebaseAuthDataSource: getIt<FirebaseAuthDataSource>(),
-      ),
-    )
-    ..registerLazySingleton<ImageRepository>(
-      () => ImageSelectionRepositoryImpl(getIt<ImagePickerDataSource>()),
-    )
+      // Repositories
+      ..registerLazySingleton<AuthRepository>(
+        () => FirebaseAuthenticationRepository(
+          firebaseAuthDataSource: getIt<FirebaseAuthDataSource>(),
+        ),
+      )
+      ..registerLazySingleton<ImageRepository>(
+        () => ImageSelectionRepositoryImpl(getIt<ImagePickerDataSource>()),
+      )
 
-    // Use Cases
-    ..registerLazySingleton<SignInUseCase>(
-      () => SignInUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<SignInWithGoogleUseCase>(
-      () => SignInWithGoogleUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<SignUpUseCase>(
-      () => SignUpUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<SignOutUseCase>(
-      () => SignOutUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<SendPasswordResetEmailUseCase>(
-      () => SendPasswordResetEmailUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<GetCurrentUserUseCase>(
-      () => GetCurrentUserUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<GetAuthStateChangesUseCase>(
-      () => GetAuthStateChangesUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<SelectImageUseCase>(
-      () => SelectImageUseCase(getIt<ImageRepository>()),
-    )
-    ..registerLazySingleton<ImageSaveService>(ImageSaveService.new)
+      // Use Cases
+      ..registerLazySingleton<SignInUseCase>(
+        () => SignInUseCase(getIt<AuthRepository>()),
+      )
+      ..registerLazySingleton<SignInWithGoogleUseCase>(
+        () => SignInWithGoogleUseCase(getIt<AuthRepository>()),
+      )
+      ..registerLazySingleton<SignUpUseCase>(
+        () => SignUpUseCase(getIt<AuthRepository>()),
+      )
+      ..registerLazySingleton<SignOutUseCase>(
+        () => SignOutUseCase(getIt<AuthRepository>()),
+      )
+      ..registerLazySingleton<SendPasswordResetEmailUseCase>(
+        () => SendPasswordResetEmailUseCase(getIt<AuthRepository>()),
+      )
+      ..registerLazySingleton<GetCurrentUserUseCase>(
+        () => GetCurrentUserUseCase(getIt<AuthRepository>()),
+      )
+      ..registerLazySingleton<GetAuthStateChangesUseCase>(
+        () => GetAuthStateChangesUseCase(getIt<AuthRepository>()),
+      )
+      ..registerLazySingleton<SelectImageUseCase>(
+        () => SelectImageUseCase(getIt<ImageRepository>()),
+      )
+      ..registerLazySingleton<ImageSaveService>(ImageSaveService.new)
 
-    // BLoCs
-    ..registerFactory<AuthenticationBloc>(
-      () => AuthenticationBloc(
-        getAuthStateChanges: getIt<GetAuthStateChangesUseCase>(),
-        signOut: getIt<SignOutUseCase>(),
-      ),
-    )
-    ..registerFactory<LoginBloc>(
-      () => LoginBloc(
-        signIn: getIt<SignInUseCase>(),
-        signInWithGoogle: getIt<SignInWithGoogleUseCase>(),
-        sendPasswordResetEmail: getIt<SendPasswordResetEmailUseCase>(),
-      ),
-    )
-    ..registerFactory<SignupBloc>(
-      () => SignupBloc(signUp: getIt<SignUpUseCase>()),
-    )
-    ..registerFactory<ImageSelectionCubit>(
-      () => ImageSelectionCubit(getIt<SelectImageUseCase>()),
-    ) // AI Processing Services
-    ..registerLazySingleton<VertexAIService>(VertexAIService.new)
+      // BLoCs
+      ..registerFactory<AuthenticationBloc>(
+        () => AuthenticationBloc(
+          getAuthStateChanges: getIt<GetAuthStateChangesUseCase>(),
+          signOut: getIt<SignOutUseCase>(),
+        ),
+      )
+      ..registerFactory<LoginBloc>(
+        () => LoginBloc(
+          signIn: getIt<SignInUseCase>(),
+          signInWithGoogle: getIt<SignInWithGoogleUseCase>(),
+          sendPasswordResetEmail: getIt<SendPasswordResetEmailUseCase>(),
+        ),
+      )
+      ..registerFactory<SignupBloc>(
+        () => SignupBloc(signUp: getIt<SignUpUseCase>()),
+      )
+      ..registerFactory<ImageSelectionCubit>(
+        () => ImageSelectionCubit(getIt<SelectImageUseCase>()),
+      ) // AI Processing Services
+      ..registerLazySingleton<VertexAIService>(VertexAIService.new)
 
-    // AI Processing Repositories
-    ..registerLazySingleton<AiProcessingRepository>(
-      () => AiProcessingRepositoryImpl(getIt<VertexAIService>()),
-    )
+      // AI Processing Repositories
+      ..registerLazySingleton<AiProcessingRepository>(
+        () => AiProcessingRepositoryImpl(getIt<VertexAIService>()),
+      )
 
-    // AI Processing Use Cases
-    ..registerLazySingleton<ProcessImageWithAiUseCase>(
-      () => ProcessImageWithAiUseCase(getIt<AiProcessingRepository>()),
-    )
+      // AI Processing Use Cases
+      ..registerLazySingleton<ProcessImageWithAiUseCase>(
+        () => ProcessImageWithAiUseCase(getIt<AiProcessingRepository>()),
+      )
 
-    // AI Processing Cubits
-    ..registerFactory<AiProcessingCubit>(
-      () => AiProcessingCubit(getIt<ProcessImageWithAiUseCase>()),
-    )
-    ..registerFactory<ImageAnnotationCubit>(
-      ImageAnnotationCubit.new,
-    );
+      // AI Processing Cubits
+      ..registerFactory<AiProcessingCubit>(
+        () => AiProcessingCubit(getIt<ProcessImageWithAiUseCase>()),
+      )
+      ..registerFactory<ImageAnnotationCubit>(
+        ImageAnnotationCubit.new,
+      );
+
+    debugPrint('setupServiceLocator: All dependencies registered successfully');
+  } catch (e, stackTrace) {
+    debugPrint('❌ setupServiceLocator failed: $e');
+    debugPrint('❌ Stack trace: $stackTrace');
+    rethrow;
+  }
 
   // AI Processing dependencies are now registered
 }
