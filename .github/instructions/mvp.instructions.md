@@ -18,6 +18,7 @@ applyTo: '**'
 - Plan ahead every edit
 - Validate each step before proceeding
 
+
 ## 🚀 Step-by-Step MVP Implementation
 
 ### 1. Image Selection Feature (Next 2-3 hours)
