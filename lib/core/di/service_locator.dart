@@ -123,6 +123,4 @@ void setupServiceLocator() {
     debugPrint('❌ Stack trace: $stackTrace');
     rethrow;
   }
-
-  // AI Processing dependencies are now registered
 }
