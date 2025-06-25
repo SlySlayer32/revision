@@ -18,8 +18,6 @@ applyTo: '**'
 - Plan ahead every edit
 - Validate each step before proceeding
 - Build a simple, functional MVP
-## 🏗️ MVP Structure Overvie
-
 
 ## 🚀 Step-by-Step MVP Implementation
 
