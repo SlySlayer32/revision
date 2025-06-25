@@ -179,7 +179,7 @@ Future<void> _initializeVertexAI() async {
     );
     
     // Create a generative model instance for health check
-    final model = firebaseAI.generativeModel(
+    firebaseAI.generativeModel(
       model: FirebaseConstants.geminiModel,
       systemInstruction: Content.system('Health check'),
     );
