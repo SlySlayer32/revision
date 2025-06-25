@@ -168,21 +168,29 @@ String _getPlatformSpecificEmulatorHost() {
 }
 
 /// Initialize Vertex AI with a health check
-/// TODO: Implement when AI features are needed
-/*
 Future<void> _initializeVertexAI() async {
   try {
-    // Perform a simple check to ensure the model can be accessed
-    // This doesn't generate content but verifies basic setup.
-    final firebaseAI = FirebaseAI.vertexAI(location: FirebaseConstants.vertexAiLocation);
-    firebaseAI.generativeModel(
+    debugPrint('_initializeVertexAI: Starting Vertex AI initialization...');
+    
+    // Import the firebase_ai package
+    final firebaseAI = FirebaseAI.vertexAI(
+      location: FirebaseConstants.vertexAiLocation,
+    );
+    
+    // Create a generative model instance for health check
+    final model = firebaseAI.generativeModel(
       model: FirebaseConstants.geminiModel,
       systemInstruction: Content.system('Health check'),
     );
+    
+    debugPrint('_initializeVertexAI: Vertex AI model configured: ${FirebaseConstants.geminiModel}');
+    debugPrint('✅ Vertex AI initialized successfully with model: ${FirebaseConstants.geminiModel}');
+    
     log('✅ Vertex AI initialized successfully with model: ${FirebaseConstants.geminiModel}');
   } catch (e, stackTrace) {
+    debugPrint('⚠️ Vertex AI initialization failed: $e');
+    debugPrint('⚠️ Stack trace: $stackTrace');
     log('⚠️ Vertex AI initialization failed: $e', stackTrace: stackTrace);
     // Don't rethrow - app should be able to function without AI initially.
   }
 }
-*/
