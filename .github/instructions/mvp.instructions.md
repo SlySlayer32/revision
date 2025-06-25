@@ -17,7 +17,7 @@ applyTo: '**'
 - Focus on making it work
 - Plan ahead every edit
 - Validate each step before proceeding
-
+- Build a simple, functional MVP
 
 ## 🚀 Step-by-Step MVP Implementation
 
