@@ -12,7 +12,7 @@ applyTo: '**'
 
 ## START doing!!!!!!!!!!!!!:
 - MVP style setup 
- -setup proper logic
+setup proper logic
 - Focus on making it work
 - Plan ahead every edit
 - Validate each step before proceeding
