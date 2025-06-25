@@ -10,8 +10,7 @@ applyTo: '**'
 - Documentation and planning
 - Mocks
 
-## START doing!!!!!!!!!!!!!:
-- MVP style setup 
+
 - Setup proper logic
 - Focus on making it work
 - Plan ahead every edit
