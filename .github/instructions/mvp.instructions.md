@@ -12,7 +12,7 @@ applyTo: '**'
 
 ## START doing!!!!!!!!!!!!!:
 - MVP style setup 
-- ]\etup proper logic
+-Setup proper logic
 - Focus on making it work
 - Plan ahead every edit
 - Validate each step before proceeding
