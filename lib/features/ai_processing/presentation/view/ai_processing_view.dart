@@ -255,6 +255,7 @@ class AiProcessingView extends StatelessWidget {
       BuildContext context, ProcessingResult result) async {
     // TODO: Implement save functionality
     // For MVP, just show a success message
+    // Auto-save Git automation test comment
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Save functionality coming soon!'),
