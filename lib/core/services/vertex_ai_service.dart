@@ -219,7 +219,7 @@ Format as bullet points.
   }) async {
     try {
       log('🔄 Generating editing prompt with ${markers.length} markers');
-      
+
       // Validate inputs
       if (imageBytes.isEmpty) {
         throw Exception('Image data is empty');
@@ -294,22 +294,21 @@ Provide clear, actionable editing steps.
 
       // For MVP: Use Google Cloud Vision API for object detection + Imagen for inpainting
       // This is the proper way to implement object removal with Google's AI
-      
+
       // Step 1: Call Vertex AI Imagen API for image editing
       final editedImageBytes = await _callVertexAIImagenAPI(
         imageBytes: imageBytes,
         editingPrompt: editingPrompt,
       );
-      
+
       if (editedImageBytes != null && editedImageBytes.isNotEmpty) {
         log('✅ Successfully processed image with Vertex AI Imagen');
         return editedImageBytes;
       }
-      
+
       // Fallback: Use Cloud Vision + image processing for object removal
       log('🔄 Fallback: Using advanced image processing for object removal');
       return await _performAdvancedObjectRemoval(imageBytes, editingPrompt);
-      
     } catch (e, stackTrace) {
       log('❌ processImageWithAI failed: $e', stackTrace: stackTrace);
 
@@ -326,18 +325,19 @@ Provide clear, actionable editing steps.
   }) async {
     try {
       log('🤖 Calling Vertex AI Imagen API for image editing...');
-      
+
       // Try the real Gemini 2.0 Flash Image Generation model first
       try {
         log('🔄 Attempting real image generation with Gemini 2.0 Flash...');
-        final editedImage = await _callGeminiImageGeneration(imageBytes, editingPrompt);
+        final editedImage =
+            await _callGeminiImageGeneration(imageBytes, editingPrompt);
         log('✅ Successfully generated edited image with Gemini 2.0 Flash');
         return editedImage;
       } catch (e) {
         log('⚠️ Gemini 2.0 Flash generation failed: $e');
         log('🔄 Falling back to analysis-based editing...');
       }
-      
+
       // Fallback: Use analysis to guide editing
       final analysisContent = [
         Content.multi([
@@ -358,20 +358,18 @@ Format as valid JSON with specific pixel coordinates and editing parameters.
       ];
 
       log('🤖 Getting detailed editing analysis from Gemini...');
-      final analysisResponse = await _geminiModel.generateContent(analysisContent).timeout(
-          const Duration(seconds: 30));
-          
+      final analysisResponse = await _geminiModel
+          .generateContent(analysisContent)
+          .timeout(const Duration(seconds: 30));
+
       if (analysisResponse.text != null && analysisResponse.text!.isNotEmpty) {
         log('📊 Received detailed editing analysis');
-        
+
         // Apply sophisticated image processing based on AI analysis
         return await _applyAIGuidedImageEditing(
-          imageBytes, 
-          editingPrompt, 
-          analysisResponse.text!
-        );
+            imageBytes, editingPrompt, analysisResponse.text!);
       }
-      
+
       return null;
     } catch (e, stackTrace) {
       log('❌ Vertex AI Imagen API call failed: $e', stackTrace: stackTrace);
@@ -456,16 +454,15 @@ Format as valid JSON with specific pixel coordinates and editing parameters.
   ) async {
     try {
       log('🎯 Applying AI-guided image editing based on analysis');
-      
+
       // For real implementation, you would:
       // 1. Parse the AI analysis JSON
       // 2. Use the coordinates and strategies to apply real edits
       // 3. Call actual image processing APIs or libraries
-      
+
       // For now, try to use the Gemini 2.0 Flash Image Generation model
       // which can actually edit images based on prompts
       return await _callGeminiImageGeneration(imageBytes, editingPrompt);
-      
     } catch (e, stackTrace) {
       log('❌ AI-guided image editing failed: $e', stackTrace: stackTrace);
       return await _simulateObjectRemoval(imageBytes);
@@ -479,15 +476,14 @@ Format as valid JSON with specific pixel coordinates and editing parameters.
   ) async {
     try {
       log('🔄 Performing advanced object removal');
-      
+
       // For real implementation, you would:
       // 1. Use Google Cloud Vision API to detect objects
       // 2. Use Vertex AI Imagen for inpainting/object removal
       // 3. Apply content-aware fill algorithms
-      
+
       // For now, try Gemini 2.0 Flash Image Generation
       return await _callGeminiImageGeneration(imageBytes, editingPrompt);
-      
     } catch (e, stackTrace) {
       log('❌ Advanced object removal failed: $e', stackTrace: stackTrace);
       return await _simulateObjectRemoval(imageBytes);
@@ -501,7 +497,7 @@ Format as valid JSON with specific pixel coordinates and editing parameters.
   ) async {
     try {
       log('🤖 Calling Gemini 2.0 Flash for image generation/editing...');
-      
+
       // Create content for image generation model
       final content = [
         Content.multi([
@@ -522,16 +518,15 @@ Generate the edited image with the specified changes applied.
       ];
 
       log('🔄 Sending image editing request to Gemini 2.0 Flash...');
-      
+
       // Use the image generation model for actual editing
-      final response = await _geminiImageModel
-          .generateContent(content)
-          .timeout(const Duration(minutes: 2)); // Longer timeout for image generation
+      final response = await _geminiImageModel.generateContent(content).timeout(
+          const Duration(minutes: 2)); // Longer timeout for image generation
 
       // Check if we got image data back
       if (response.candidates.isNotEmpty) {
         final candidate = response.candidates.first;
-        
+
         // Look for inline data in the response
         if (candidate.content.parts.isNotEmpty) {
           for (final part in candidate.content.parts) {
@@ -547,7 +542,7 @@ Generate the edited image with the specified changes applied.
       if (response.text != null && response.text!.isNotEmpty) {
         log('⚠️ Received text response instead of image data');
         log('📝 Response: ${response.text!.substring(0, 200)}...');
-        
+
         // Try to extract base64 image data if present
         // This is a fallback in case the API returns base64 encoded image
         if (response.text!.contains('base64')) {
@@ -558,9 +553,9 @@ Generate the edited image with the specified changes applied.
 
       log('⚠️ No image data received from Gemini 2.0 Flash');
       throw Exception('No image data in response from Gemini image model');
-      
     } catch (e, stackTrace) {
-      log('❌ Gemini 2.0 Flash image generation failed: $e', stackTrace: stackTrace);
+      log('❌ Gemini 2.0 Flash image generation failed: $e',
+          stackTrace: stackTrace);
       rethrow;
     }
   }

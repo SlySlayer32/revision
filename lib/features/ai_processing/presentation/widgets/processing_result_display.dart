@@ -27,11 +27,13 @@ class _ProcessingResultDisplayState extends State<ProcessingResultDisplay> {
   @override
   Widget build(BuildContext context) {
     print('🔄 ProcessingResultDisplay: Building result display');
-    print('🔄 Result data size: ${widget.result.processedImageData.length} bytes');
+    print(
+        '🔄 Result data size: ${widget.result.processedImageData.length} bytes');
     print('🔄 Original image path: ${widget.originalImage.path}');
-    print('🔄 Original image bytes: ${widget.originalImage.bytes?.length ?? 'null'}');
+    print(
+        '🔄 Original image bytes: ${widget.originalImage.bytes?.length ?? 'null'}');
     print('🔄 Show original: $_showOriginal');
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -123,19 +125,22 @@ class _ProcessingResultDisplayState extends State<ProcessingResultDisplay> {
 
   Widget _buildProcessedImage() {
     print('🔄 ProcessingResultDisplay: Building processed image');
-    print('🔄 Processed image data size: ${widget.result.processedImageData.length} bytes');
-    
+    print(
+        '🔄 Processed image data size: ${widget.result.processedImageData.length} bytes');
+
     try {
       return Image.memory(
         widget.result.processedImageData,
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) {
-          print('❌ ProcessingResultDisplay: Error loading processed image: $error');
+          print(
+              '❌ ProcessingResultDisplay: Error loading processed image: $error');
           return _buildErrorPlaceholder();
         },
       );
     } catch (e) {
-      print('❌ ProcessingResultDisplay: Exception building processed image: $e');
+      print(
+          '❌ ProcessingResultDisplay: Exception building processed image: $e');
       return _buildErrorPlaceholder();
     }
   }

@@ -66,7 +66,8 @@ class AiProcessingRepositoryImpl implements AiProcessingRepository {
       print('🔄 User prompt: "$userPrompt"');
       print('🔄 Processing type: ${context.processingType}');
       print('🔄 Markers count: ${context.markers.length}');
-      print('🔄 System instructions provided: prompt=${context.promptSystemInstructions != null}, edit=${context.editSystemInstructions != null}');
+      print(
+          '🔄 System instructions provided: prompt=${context.promptSystemInstructions != null}, edit=${context.editSystemInstructions != null}');
 
       // Validate inputs
       if (imageData.isEmpty) {
@@ -82,7 +83,8 @@ class AiProcessingRepositoryImpl implements AiProcessingRepository {
       // Step 1: Generate enhanced editing prompt if we have markers
       String enhancedPrompt = userPrompt;
       if (context.markers.isNotEmpty) {
-        print('🔄 AiProcessingRepository: Generating enhanced prompt with ${context.markers.length} markers...');
+        print(
+            '🔄 AiProcessingRepository: Generating enhanced prompt with ${context.markers.length} markers...');
 
         final markersData = context.markers
             .map((marker) => {
@@ -104,22 +106,25 @@ class AiProcessingRepositoryImpl implements AiProcessingRepository {
           markers: markersData,
         );
 
-        print('✅ AiProcessingRepository: Enhanced prompt generated: "$enhancedPrompt"');
+        print(
+            '✅ AiProcessingRepository: Enhanced prompt generated: "$enhancedPrompt"');
       } else {
-        print('ℹ️ AiProcessingRepository: No markers provided, using original prompt');
+        print(
+            'ℹ️ AiProcessingRepository: No markers provided, using original prompt');
       }
 
       // Step 2: Process the image with AI using the enhanced prompt
       print('🔄 AiProcessingRepository: Processing image with AI...');
       print('🔄 Final prompt being sent to AI: "$enhancedPrompt"');
-      
+
       // Apply custom editing system instructions if provided
       String finalEditingPrompt = enhancedPrompt;
       if (context.editSystemInstructions != null) {
-        finalEditingPrompt = '${context.editSystemInstructions}\n\nEditing instructions: $enhancedPrompt';
+        finalEditingPrompt =
+            '${context.editSystemInstructions}\n\nEditing instructions: $enhancedPrompt';
         print('🔄 Using custom editing system instructions');
       }
-      
+
       final processedImageData = await _vertexAiService.processImageWithAI(
         imageBytes: imageData,
         editingPrompt: finalEditingPrompt,
