@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io' show Platform;
 
 import 'package:bloc/bloc.dart';
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
