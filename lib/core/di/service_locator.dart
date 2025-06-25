@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:revision/core/services/circuit_breaker.dart';
+import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/core/services/image_save_service.dart';
 import 'package:revision/core/services/vertex_ai_service.dart';
 import 'package:revision/features/ai_processing/data/repositories/ai_processing_repository_impl.dart';
