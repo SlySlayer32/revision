@@ -325,14 +325,20 @@ Provide clear, actionable editing steps.
     required String editingPrompt,
   }) async {
     try {
-      log('� Calling Vertex AI Imagen API for image editing...');
+      log('🤖 Calling Vertex AI Imagen API for image editing...');
       
-      // For real implementation, you would call the Vertex AI REST API
-      // Example endpoint: https://us-central1-aiplatform.googleapis.com/v1/projects/{PROJECT}/locations/{LOCATION}/publishers/google/models/imagegeneration@006:predict
+      // Try the real Gemini 2.0 Flash Image Generation model first
+      try {
+        log('🔄 Attempting real image generation with Gemini 2.0 Flash...');
+        final editedImage = await _callGeminiImageGeneration(imageBytes, editingPrompt);
+        log('✅ Successfully generated edited image with Gemini 2.0 Flash');
+        return editedImage;
+      } catch (e) {
+        log('⚠️ Gemini 2.0 Flash generation failed: $e');
+        log('🔄 Falling back to analysis-based editing...');
+      }
       
-      // For now, we'll use the Gemini API to get detailed editing instructions
-      // and then apply sophisticated image processing techniques
-      
+      // Fallback: Use analysis to guide editing
       final analysisContent = [
         Content.multi([
           InlineDataPart('image/jpeg', imageBytes),
@@ -356,7 +362,7 @@ Format as valid JSON with specific pixel coordinates and editing parameters.
           const Duration(seconds: 30));
           
       if (analysisResponse.text != null && analysisResponse.text!.isNotEmpty) {
-        log('� Received detailed editing analysis');
+        log('📊 Received detailed editing analysis');
         
         // Apply sophisticated image processing based on AI analysis
         return await _applyAIGuidedImageEditing(
