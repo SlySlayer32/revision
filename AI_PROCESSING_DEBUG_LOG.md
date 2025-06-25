@@ -1,9 +1,11 @@
 # AI Processing Pipeline Debug Log
 
 ## Issue Description
+
 The user reported that when marking an object in an image and clicking "Remove Object" (Send), the app navigates to the AI processing page, but clicking "Start AI Processing" does not send the marked image and prompt to the actual Gemini 2.0 Flash Preview Image Generation model for real image modifications.
 
 ## Root Cause Analysis
+
 1. **Missing Method Implementations**: The `_applyAIGuidedImageEditing` and `_performAdvancedObjectRemoval` methods were being called but not implemented.
 
 2. **Simulation Instead of Real Processing**: The `_callVertexAIImagenAPI` method was only doing analysis and falling back to simulation instead of attempting real image generation.
@@ -13,13 +15,17 @@ The user reported that when marking an object in an image and clicking "Remove O
 ## Changes Made
 
 ### 1. Fixed Firebase AI Constants
+
 **File**: `lib/core/constants/firebase_ai_constants.dart`
+
 - Updated `geminiImageModel` from `'gemini-2.0-flash-exp'` to `'gemini-2.0-flash-preview-image-generation'`
 
 ### 2. Implemented Missing Methods
+
 **File**: `lib/core/services/vertex_ai_service.dart`
 
-#### Added `_applyAIGuidedImageEditing` method:
+#### Added `_applyAIGuidedImageEditing` method
+
 ```dart
 Future<Uint8List> _applyAIGuidedImageEditing(
   Uint8List imageBytes,
@@ -31,7 +37,8 @@ Future<Uint8List> _applyAIGuidedImageEditing(
 }
 ```
 
-#### Added `_performAdvancedObjectRemoval` method:
+#### Added `_performAdvancedObjectRemoval` method
+
 ```dart
 Future<Uint8List> _performAdvancedObjectRemoval(
   Uint8List imageBytes,
@@ -42,7 +49,8 @@ Future<Uint8List> _performAdvancedObjectRemoval(
 }
 ```
 
-#### Added `_callGeminiImageGeneration` method:
+#### Added `_callGeminiImageGeneration` method
+
 ```dart
 Future<Uint8List> _callGeminiImageGeneration(
   Uint8List imageBytes,
@@ -55,11 +63,13 @@ Future<Uint8List> _callGeminiImageGeneration(
 ```
 
 ### 3. Updated `_callVertexAIImagenAPI` Method
+
 - Now tries real Gemini 2.0 Flash Image Generation first
 - Only falls back to analysis-based editing if the real model fails
 - Proper error handling and logging
 
 ### 4. Fixed Null Safety Issues
+
 - Removed unnecessary null checks for `response.candidates`
 - Updated to use `response.candidates.isNotEmpty` instead
 
@@ -104,9 +114,11 @@ Future<Uint8List> _callGeminiImageGeneration(
 2. `lib/core/services/vertex_ai_service.dart` - Implemented missing methods and real AI processing
 
 ## Status
+
 ✅ **FIXED**: The AI processing pipeline now attempts real image generation with Gemini 2.0 Flash Preview Image Generation model before falling back to simulation.
 
 ## Next Steps for Testing
+
 1. Test the full flow on a device/browser
 2. Verify that real API calls are being made (check logs)
 3. Test with different image types and marker configurations
