@@ -4,7 +4,7 @@ class FirebaseAIConstants {
   static const String geminiModel =
       'gemini-2.5-flash'; // For prompt generation and analysis
   static const String geminiImageModel =
-      'gemini-2.0-flash-exp'; // Gemini 2.0 Flash Preview Image Generation
+      'gemini-2.0-flash-preview-image-generation'; // Real Gemini 2.0 Flash Preview Image Generation
 
   // Legacy Imagen models (keeping for reference but using Gemini 2.0 Flash)
   static const String imagenModel = 'imagegeneration@006'; // Legacy - not used
