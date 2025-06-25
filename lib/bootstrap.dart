@@ -114,16 +114,20 @@ Future<void> _initializeFirebase() async {
 /// Configure Firebase emulators for development
 Future<void> _configureEmulators() async {
   try {
-    log('🔧 Configuring Firebase Auth Emulator');
+    debugPrint('_configureEmulators: Starting emulator configuration...');
 
     // CRITICAL: Call connectAuthEmulator RIGHT AFTER initializing Auth
     // Use platform-specific host for better compatibility
     final auth = FirebaseAuth.instance;
     final host = _getPlatformSpecificEmulatorHost();
+    debugPrint('_configureEmulators: Using host $host for Auth emulator');
+    
     await auth.useAuthEmulator(host, FirebaseConstants.authEmulatorPort);
+    debugPrint('_configureEmulators: Auth emulator connected');
 
     // Disable app verification and reCAPTCHA for testing
     await auth.setSettings(appVerificationDisabledForTesting: true);
+    debugPrint('_configureEmulators: App verification disabled');
 
     // Additional debugging
     log(
@@ -131,6 +135,8 @@ Future<void> _configureEmulators() async {
     );
     log('✅ App verification disabled for testing');
   } catch (e, stackTrace) {
+    debugPrint('⚠️ Firebase emulator configuration failed: $e');
+    debugPrint('⚠️ Stack trace: $stackTrace');
     log(
       '⚠️ Firebase emulator configuration failed: $e',
       stackTrace: stackTrace,
