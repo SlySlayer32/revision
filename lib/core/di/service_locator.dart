@@ -85,7 +85,12 @@ void setupServiceLocator() {
       )
       ..registerLazySingleton<ImageSaveService>(ImageSaveService.new)
 
-      // BLoCs
+      // Gemini AI Pipeline (MVP Implementation)
+      ..registerLazySingleton<ProcessImageWithGeminiUseCase>(
+        () => ProcessImageWithGeminiUseCase(getIt<GeminiPipelineService>()),
+      )
+
+      // BLoCs and Cubits
       ..registerFactory<AuthenticationBloc>(
         () => AuthenticationBloc(
           getAuthStateChanges: getIt<GetAuthStateChangesUseCase>(),
@@ -104,22 +109,9 @@ void setupServiceLocator() {
       )
       ..registerFactory<ImageSelectionCubit>(
         () => ImageSelectionCubit(getIt<SelectImageUseCase>()),
-      ) // AI Processing Services
-      ..registerLazySingleton<VertexAIService>(VertexAIService.new)
-
-      // AI Processing Repositories
-      ..registerLazySingleton<AiProcessingRepository>(
-        () => AiProcessingRepositoryImpl(getIt<VertexAIService>()),
       )
-
-      // AI Processing Use Cases
-      ..registerLazySingleton<ProcessImageWithAiUseCase>(
-        () => ProcessImageWithAiUseCase(getIt<AiProcessingRepository>()),
-      )
-
-      // AI Processing Cubits
-      ..registerFactory<AiProcessingCubit>(
-        () => AiProcessingCubit(getIt<ProcessImageWithAiUseCase>()),
+      ..registerFactory<GeminiPipelineCubit>(
+        () => GeminiPipelineCubit(getIt<ProcessImageWithGeminiUseCase>()),
       )
       ..registerFactory<ImageAnnotationCubit>(
         ImageAnnotationCubit.new,
