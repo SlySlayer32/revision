@@ -82,7 +82,7 @@ class AiProcessingView extends StatelessWidget {
     );
   }
 
-  Widget _buildImagePreview(BuildContext context, AiProcessingState state) {
+  Widget _buildImagePreview(BuildContext context, GeminiPipelineState state) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.all(16),
