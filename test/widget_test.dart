@@ -8,9 +8,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revision/app/app.dart';
+import 'package:revision/core/di/service_locator.dart';
 
 void main() {
   testWidgets('App launches without crashing', (WidgetTester tester) async {
+    // Setup dependencies before launching the app
+    setupServiceLocator();
+    
     // Build our app and trigger a frame.
     await tester.pumpWidget(const App());
 
