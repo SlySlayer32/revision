@@ -23,10 +23,10 @@ class AiProcessingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AiProcessingCubit, AiProcessingState>(
+    return BlocConsumer<GeminiPipelineCubit, GeminiPipelineState>(
       listener: (context, state) {
         switch (state) {
-          case AiProcessingError():
+          case GeminiPipelineError():
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('Processing failed: ${state.message}'),
