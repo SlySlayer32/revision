@@ -2,12 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:revision/features/ai_processing/domain/entities/processing_result.dart';
-import 'package:revision/features/ai_processing/presentation/cubit/ai_processing_cubit.dart';
-import 'package:revision/features/ai_processing/presentation/cubit/ai_processing_state.dart';
-import 'package:revision/features/ai_processing/presentation/widgets/processing_controls.dart';
-import 'package:revision/features/ai_processing/presentation/widgets/processing_progress_indicator.dart';
-import 'package:revision/features/ai_processing/presentation/widgets/processing_result_display.dart';
+import 'package:revision/core/services/gemini_pipeline_service.dart';
+import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
 import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
 
@@ -116,7 +112,7 @@ class AiProcessingView extends StatelessWidget {
                 _buildErrorPlaceholder(context),
           );
         }
-        
+
         // Priority 2: Use file path for local images
         if (selectedImage.path != null) {
           if (selectedImage.path!.startsWith('http')) {
@@ -138,7 +134,7 @@ class AiProcessingView extends StatelessWidget {
             }
           }
         }
-        
+
         return _buildErrorPlaceholder(context);
       },
     );
