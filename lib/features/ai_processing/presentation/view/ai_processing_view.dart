@@ -173,22 +173,42 @@ class AiProcessingView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       child: switch (state) {
-        AiProcessingInitial() ||
-        AiProcessingError() ||
-        AiProcessingCancelled() =>
-          ProcessingControls(
-            selectedImage: selectedImage,
-            annotatedImage: annotatedImage,
-            onStartProcessing: (prompt, processingContext) {
-              BlocProvider.of<AiProcessingCubit>(context).processImage(
-                image: selectedImage,
-                userPrompt: prompt,
-                context: processingContext,
-              );
-            },
-          ),
-        AiProcessingInProgress() => _buildCancelControls(context, state),
-        AiProcessingSuccess() => _buildSuccessControls(context, state),
+        GeminiPipelineInitial() ||
+        GeminiPipelineError() => ElevatedButton(
+          onPressed: () {
+            if (selectedImage.bytes != null) {
+              context.read<GeminiPipelineCubit>().processImage(selectedImage.bytes!);
+            }
+          },
+          child: const Text('Process with Gemini AI'),
+        ),
+        GeminiPipelineLoading() => const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Processing...'),
+          ],
+        ),
+        GeminiPipelineSuccess() => Column(
+          children: [
+            Text('Analysis: ${state.result.analysisPrompt}'),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () => context.read<GeminiPipelineCubit>().clearPipeline(),
+                  child: const Text('Process Another'),
+                ),
+                ElevatedButton(
+                  onPressed: () => _saveResult(context, state.result),
+                  child: const Text('Save Result'),
+                ),
+              ],
+            ),
+          ],
+        ),
       },
     );
   }
