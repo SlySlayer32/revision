@@ -81,7 +81,7 @@ void setupServiceLocator() {
         () => GetAuthStateChangesUseCase(getIt<AuthRepository>()),
       )
       ..registerLazySingleton<SelectImageUseCase>(
-        () => SelectImageUseCase(getIt<ImageSelectionRepository>()),
+        () => SelectImageUseCase(getIt<ImageRepository>()),
       )
       ..registerLazySingleton<ImageSaveService>(ImageSaveService.new)
 
