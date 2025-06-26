@@ -21,18 +21,179 @@ applyTo: '**'
 
 ## 🚀 Step-by-Step MVP Implementation
 
-### 1. Image Selection Feature (Next 2-3 hours)
-You have detailed prompts ready. Execute them in this order:
+### 0. Firebase Setup & Initialization (MANDATORY FIRST STEP - 30 minutes)
+**Firebase MUST be configured before any other implementation:**
 
-#### Step 1: Follow prompt files, 06-image-picker-domain.prompt.md through until 10-image-editor-presentation.prompt.md
-- Create the domain layer for image selection
-- Focus on core entities and use cases
-- **Validation checkpoint:** Domain models compile and basic structure is in place
+#### Firebase CLI & Project Setup:
+```bash
+# Install Firebase CLI globally
+npm install -g firebase-tools
 
-#### Step 2: Implement the data layer using the `image_picker` package
-- Implement data layer with image_picker package
-- Add basic permission handling for gallery access
-- **Validation checkpoint:** Can successfully pick images from camera
+# Login to Firebase
+firebase login
+
+# Install FlutterFire CLI
+dart pub global activate flutterfire_cli
+
+# Configure Firebase for Flutter project
+flutterfire configure
+```
+
+#### Required Dependencies:
+```yaml
+dependencies:
+  firebase_core: ^3.7.1
+  firebase_auth: ^5.3.3
+  firebase_storage: ^12.3.7
+  cloud_firestore: ^5.5.1
+  firebase_analytics: ^11.3.7
+  image_picker: ^1.1.2
+  flutter_bloc: ^8.1.6
+  http: ^1.2.2
+```
+
+#### Firebase Initialization (lib/main.dart):
+```dart
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // MANDATORY: Initialize Firebase first
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
+  runApp(MyApp());
+}
+```
+
+#### Firebase Console Configuration:
+1. Enable Authentication (Email/Password + Google Sign-in)
+2. Setup Cloud Firestore with security rules
+3. Configure Firebase Storage with appropriate rules
+4. Enable Analytics for usage tracking
+
+**Validation checkpoint:** App launches without Firebase errors, can authenticate users
+
+### 1. Image Selection Feature (2-3 hours)
+
+#### Step 1: Domain Layer Implementation
+**Create complete domain entities with VGV architecture:**
+
+`lib/features/image_processing/domain/entities/image_entity.dart`:
+```dart
+import 'dart:typed_data';
+
+class ProcessedImage {
+  final String id;
+  final String originalPath;
+  final Uint8List imageBytes;
+  final String fileName;
+  final int fileSizeBytes;
+  final DateTime createdAt;
+  final String? generatedPrompt;
+  final String? aiGeneratedImagePath;
+  
+  const ProcessedImage({
+    required this.id,
+    required this.originalPath,
+    required this.imageBytes,
+    required this.fileName,
+    required this.fileSizeBytes,
+    required this.createdAt,
+    this.generatedPrompt,
+    this.aiGeneratedImagePath,
+  });
+}
+```
+
+`lib/features/image_processing/domain/repositories/image_repository.dart`:
+```dart
+import 'dart:typed_data';
+import '../entities/image_entity.dart';
+
+abstract class ImageRepository {
+  Future<ProcessedImage> pickImageFromGallery();
+  Future<ProcessedImage> pickImageFromCamera();
+  Future<bool> saveImageToGallery(Uint8List imageBytes, String fileName);
+  Future<String> uploadImageToFirebase(ProcessedImage image);
+}
+```
+
+#### Step 2: Data Layer Implementation with Real Image Picker
+`lib/features/image_processing/data/repositories/image_repository_impl.dart`:
+```dart
+import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+class ImageRepositoryImpl implements ImageRepository {
+  final ImagePicker _picker = ImagePicker();
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  
+  @override
+  Future<ProcessedImage> pickImageFromGallery() async {
+    // Request permissions
+    final status = await Permission.photos.request();
+    if (status.isDenied) {
+      throw Exception('Gallery permission denied');
+    }
+    
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 2048,
+      maxHeight: 2048,
+      imageQuality: 85,
+    );
+    
+    if (pickedFile == null) {
+      throw Exception('No image selected');
+    }
+    
+    final imageBytes = await pickedFile.readAsBytes();
+    
+    // Validate file size (max 10MB)
+    if (imageBytes.length > 10 * 1024 * 1024) {
+      throw Exception('Image too large. Maximum size is 10MB');
+    }
+    
+    return ProcessedImage(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      originalPath: pickedFile.path,
+      imageBytes: imageBytes,
+      fileName: pickedFile.name,
+      fileSizeBytes: imageBytes.length,
+      createdAt: DateTime.now(),
+    );
+  }
+  
+  @override
+  Future<String> uploadImageToFirebase(ProcessedImage image) async {
+    try {
+      final storageRef = _storage
+          .ref()
+          .child('user_images')
+          .child('${DateTime.now().millisecondsSinceEpoch}.jpg');
+      
+      final uploadTask = storageRef.putData(
+        image.imageBytes,
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
+      
+      final snapshot = await uploadTask;
+      return await snapshot.ref.getDownloadURL();
+    } catch (e) {
+      throw Exception('Failed to upload image: $e');
+    }
+  }
+}
+```
+
+**Validation checkpoint:** Can successfully pick images from camera/gallery, handle permissions
 
 #### Step 3: Build the presentation layer
 - Using the `flutter_bloc` package
