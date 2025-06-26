@@ -24,29 +24,23 @@ class MockClient extends _i1.Mock implements _i2.Client {
   }
 
   @override
-  _i2.StreamedResponse send(_i2.BaseRequest? request) =>
+  Future<_i2.StreamedResponse> send(_i2.BaseRequest request) =>
       (super.noSuchMethod(
         Invocation.method(
           #send,
           [request],
         ),
-        returnValue: _FakeStreamedResponse_0(
-          this,
-          Invocation.method(
-            #send,
-            [request],
-          ),
+        returnValue: _i2.StreamedResponse(
+          Stream.empty(),
+          200,
         ),
-      ) as _i2.StreamedResponse);
-}
+      ) as Future<_i2.StreamedResponse>);
 
-class _FakeStreamedResponse_0 extends _i1.SmartFake
-    implements _i2.StreamedResponse {
-  _FakeStreamedResponse_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+  @override
+  void close() {
+    super.noSuchMethod(
+      Invocation.method(#close, []),
+      returnValueForMissingStub: null,
+    );
+  }
 }
