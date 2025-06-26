@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
-import 'package:revision/core/utils/result.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_result.dart';
 import 'package:revision/features/ai_processing/domain/repositories/ai_processing_repository.dart';
+import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
 
 /// Use case for processing images with AI
 class ProcessImageWithAiUseCase {
@@ -11,43 +11,22 @@ class ProcessImageWithAiUseCase {
 
   final AiProcessingRepository _repository;
 
-  /// Process an image with AI
-  Future<Result<ProcessingResult>> call({
-    required Uint8List imageData,
+  /// Process an image with AI using the provided prompt and context
+  Stream<ProcessingProgress> call({
+    required SelectedImage image,
     required String userPrompt,
     required ProcessingContext context,
-  }) async {
-    // Validate inputs
-    if (imageData.isEmpty) {
-      return const Failure(ProcessingException('Image data cannot be empty'));
-    }
-
-    if (userPrompt.trim().isEmpty) {
-      return const Failure(ProcessingException('User prompt cannot be empty'));
-    }
-
-    // Check if service is available
-    final isAvailable = await _repository.isServiceAvailable();
-    if (!isAvailable) {
-      return const Failure(
-          ProcessingException('AI service is currently unavailable'));
-    }
-
-    // Process the image
+  }) {
     return _repository.processImage(
-      imageData: imageData,
+      image: image,
       userPrompt: userPrompt,
       context: context,
     );
   }
-}
 
-/// Exception thrown during AI processing
-class ProcessingException implements Exception {
-  const ProcessingException(this.message);
+  /// Cancel any ongoing processing
+  Future<void> cancelProcessing() => _repository.cancelProcessing();
 
-  final String message;
-
-  @override
-  String toString() => 'ProcessingException: $message';
+  /// Reset processing state
+  Future<void> reset() => _repository.reset();
 }
