@@ -40,7 +40,7 @@ class AiProcessingPage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: BlocProvider(
-        create: (context) => getIt<AiProcessingCubit>(),
+        create: (context) => getIt<GeminiPipelineCubit>(),
         child: AiProcessingView(
           selectedImage: selectedImage,
           annotatedImage: annotatedImage,
