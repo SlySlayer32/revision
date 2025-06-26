@@ -503,6 +503,7 @@ User opens app → Logs in → Picks image → Applies Gemini AI pipeline → Sa
 
 ## 🔄 Validation Points Summary:
 After each major step, ensure the previous functionality still works. If something breaks, fix it immediately before proceeding. This prevents building on unstable foundations and makes debugging much easier during rapid development.
+
 ## 🚀 Final Steps
 1. Conduct thorough testing on physical devices.
 2. Gather user feedback for improvements.
