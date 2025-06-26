@@ -2,22 +2,22 @@
 applyTo: '**'
 ---
 
-# 🎯 Immediate Action Plan: Build Working MVP
+# 🚀 Pre-Production Implementation Plan: Full Working System
 
-## STOP doing:
-- Documentation and planning
-- Mocks
-- creating multiple simplified versions
-- dont make multiple simplified files
+## ZERO TOLERANCE for:
+- Mock implementations or placeholder functions
+- Simulated endpoints or fake data sources
+- Simplified "demo" versions that don't use real services
+- Workarounds that bypass proper implementation
+- Hardcoded credentials or insecure configurations
 
-## START doing:
-- Complete complex logic 
-- build from the existing files
-- Setup proper logic
-- Focus on making it work
-- Plan ahead every edit
-- Validate each step before proceeding
-- Build a simple, functional MVP
+## MANDATORY REQUIREMENTS:
+- Real Firebase services with proper initialization
+- Actual Vertex AI Gemini models (no test endpoints)
+- Production-grade security and error handling
+- Complete end-to-end functionality
+- Full VGV architecture implementation
+- Comprehensive validation at each checkpoint
 
 ## 🚀 Step-by-Step MVP Implementation
 
