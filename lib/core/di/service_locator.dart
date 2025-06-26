@@ -22,7 +22,8 @@ import 'package:revision/features/authentication/presentation/blocs/signup_bloc.
 import 'package:revision/features/image_editing/presentation/cubit/image_annotation_cubit.dart';
 import 'package:revision/features/image_selection/data/datasources/image_picker_data_source.dart';
 import 'package:revision/features/image_selection/data/repositories/image_selection_repository_impl.dart';
-import 'package:revision/features/image_selection/domain/repositories/image_selection_repository.dart';
+import 'package:revision/features/image_selection/domain/repositories/image_selection_repository.dart'
+    as image_selection;
 import 'package:revision/features/image_selection/domain/usecases/select_image_use_case.dart';
 import 'package:revision/features/image_selection/presentation/cubit/image_selection_cubit.dart';
 
