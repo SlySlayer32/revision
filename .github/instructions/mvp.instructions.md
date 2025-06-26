@@ -8,7 +8,7 @@ applyTo: '**'
 - Documentation and planning
 - Mocks
 - creating multiple simplified versions
-
+- dont make multiple simplified files
 ## START doing:
 - build from the existing files
 - Setup proper logic
