@@ -91,10 +91,38 @@ class AiProcessingView extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: switch (state) {
-        AiProcessingSuccess() => ProcessingResultDisplay(
-            result: state.result,
-            originalImage: state.originalImage,
-          ),
+        GeminiPipelineSuccess() => Row(
+          children: [
+            // Original image
+            Expanded(
+              child: Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Original', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Expanded(child: _buildImageWidget()),
+                ],
+              ),
+            ),
+            // Generated image
+            Expanded(
+              child: Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Generated', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  Expanded(
+                    child: state.result.generatedImageBytes != null
+                        ? Image.memory(state.result.generatedImageBytes!, fit: BoxFit.contain)
+                        : const Center(child: Text('No generated image')),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
         _ => ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: _buildImageWidget(),
