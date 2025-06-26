@@ -114,9 +114,7 @@ class AiProcessingView extends StatelessWidget {
                     child: Text('Generated', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                   Expanded(
-                    child: state.result.generatedImageBytes != null
-                        ? Image.memory(state.result.generatedImageBytes!, fit: BoxFit.contain)
-                        : const Center(child: Text('No generated image')),
+                    child: Image.memory(state.result.generatedImage, fit: BoxFit.contain),
                   ),
                 ],
               ),
