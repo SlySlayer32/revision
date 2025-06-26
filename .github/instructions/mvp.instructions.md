@@ -5,8 +5,6 @@ applyTo: '**'
 # 🎯 Immediate Action Plan: Build Working MVP
 
 ## STOP doing:
-- Over-engineering
-- More architectural setup
 - Documentation and planning
 - Mocks
 
