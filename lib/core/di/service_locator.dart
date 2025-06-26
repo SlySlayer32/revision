@@ -54,7 +54,7 @@ void setupServiceLocator() {
           firebaseAuthDataSource: getIt<FirebaseAuthDataSource>(),
         ),
       )
-      ..registerLazySingleton<ImageSelectionRepository>(
+      ..registerLazySingleton<ImageRepository>(
         () => ImageSelectionRepositoryImpl(getIt<ImagePickerDataSource>()),
       )
 
