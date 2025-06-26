@@ -33,21 +33,15 @@ class AiProcessingView extends StatelessWidget {
                 backgroundColor: Theme.of(context).colorScheme.error,
                 action: SnackBarAction(
                   label: 'Retry',
-                  onPressed: () => context.read<AiProcessingCubit>().reset(),
+                  onPressed: () => context.read<GeminiPipelineCubit>().clearPipeline(),
                 ),
               ),
             );
-          case AiProcessingSuccess():
+          case GeminiPipelineSuccess():
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: const Text('Processing completed successfully!'),
                 backgroundColor: Theme.of(context).colorScheme.primary,
-              ),
-            );
-          case AiProcessingCancelled():
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Processing was cancelled'),
               ),
             );
           default:
@@ -64,9 +58,18 @@ class AiProcessingView extends StatelessWidget {
             ),
 
             // Progress section (shown during processing)
-            if (state is AiProcessingInProgress)
-              Expanded(
-                child: ProcessingProgressIndicator(progress: state.progress),
+            if (state is GeminiPipelineLoading)
+              const Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text('Processing with Gemini AI...'),
+                    ],
+                  ),
+                ),
               ),
 
             // Controls section
