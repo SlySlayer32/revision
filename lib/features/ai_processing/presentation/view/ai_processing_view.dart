@@ -169,7 +169,7 @@ class AiProcessingView extends StatelessWidget {
     );
   }
 
-  Widget _buildControls(BuildContext context, AiProcessingState state) {
+  Widget _buildControls(BuildContext context, GeminiPipelineState state) {
     return Container(
       padding: const EdgeInsets.all(16),
       child: switch (state) {
