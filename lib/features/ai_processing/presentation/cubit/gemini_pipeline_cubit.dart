@@ -5,7 +5,7 @@ import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/features/ai_processing/domain/usecases/process_image_with_gemini_usecase.dart';
 
 /// Cubit for managing Gemini AI Pipeline state and operations
-/// 
+///
 /// Handles the complete MVP pipeline:
 /// 1. Image selection
 /// 2. Gemini 2.5 Flash analysis

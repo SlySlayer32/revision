@@ -33,7 +33,8 @@ class AiProcessingView extends StatelessWidget {
                 backgroundColor: Theme.of(context).colorScheme.error,
                 action: SnackBarAction(
                   label: 'Retry',
-                  onPressed: () => context.read<GeminiPipelineCubit>().clearPipeline(),
+                  onPressed: () =>
+                      context.read<GeminiPipelineCubit>().clearPipeline(),
                 ),
               ),
             );
@@ -92,35 +93,38 @@ class AiProcessingView extends StatelessWidget {
       ),
       child: switch (state) {
         GeminiPipelineSuccess() => Row(
-          children: [
-            // Original image
-            Expanded(
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('Original', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Expanded(child: _buildImageWidget()),
-                ],
+            children: [
+              // Original image
+              Expanded(
+                child: Column(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Original',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    Expanded(child: _buildImageWidget()),
+                  ],
+                ),
               ),
-            ),
-            // Generated image
-            Expanded(
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('Generated', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Expanded(
-                    child: Image.memory(state.result.generatedImage, fit: BoxFit.contain),
-                  ),
-                ],
+              // Generated image
+              Expanded(
+                child: Column(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Generated',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    Expanded(
+                      child: Image.memory(state.result.generatedImage,
+                          fit: BoxFit.contain),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         _ => ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: _buildImageWidget(),
@@ -173,42 +177,44 @@ class AiProcessingView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       child: switch (state) {
-        GeminiPipelineInitial() ||
-        GeminiPipelineError() => ElevatedButton(
-          onPressed: () {
-            if (selectedImage.bytes != null) {
-              context.read<GeminiPipelineCubit>().processImage(selectedImage.bytes!);
-            }
-          },
-          child: const Text('Process with Gemini AI'),
-        ),
+        GeminiPipelineInitial() || GeminiPipelineError() => ElevatedButton(
+            onPressed: () {
+              if (selectedImage.bytes != null) {
+                context
+                    .read<GeminiPipelineCubit>()
+                    .processImage(selectedImage.bytes!);
+              }
+            },
+            child: const Text('Process with Gemini AI'),
+          ),
         GeminiPipelineLoading() => const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Processing...'),
-          ],
-        ),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Processing...'),
+            ],
+          ),
         GeminiPipelineSuccess() => Column(
-          children: [
-            Text('Analysis: ${state.result.analysisPrompt}'),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () => context.read<GeminiPipelineCubit>().clearPipeline(),
-                  child: const Text('Process Another'),
-                ),
-                ElevatedButton(
-                  onPressed: () => _saveResult(context, state.result),
-                  child: const Text('Save Result'),
-                ),
-              ],
-            ),
-          ],
-        ),
+            children: [
+              Text('Analysis: ${state.result.analysisPrompt}'),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () =>
+                        context.read<GeminiPipelineCubit>().clearPipeline(),
+                    child: const Text('Process Another'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => _saveResult(context, state.result),
+                    child: const Text('Save Result'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         _ => const SizedBox.shrink(),
       },
     );
