@@ -11,7 +11,7 @@ applyTo: '**'
 - dont make multiple simplified files
 
 ## START doing:
-
+- 
 - build from the existing files
 - Setup proper logic
 - Focus on making it work
