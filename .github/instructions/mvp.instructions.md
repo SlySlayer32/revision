@@ -10,6 +10,7 @@ applyTo: '**'
 
 ## START doing:
 
+
 - Setup proper logic
 - Focus on making it work
 - Plan ahead every edit
