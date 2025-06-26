@@ -7,7 +7,7 @@ applyTo: '**'
 ## STOP doing:
 - Documentation and planning
 - Mocks
-
+-
 ## START doing:
 
 - Setup proper logic
