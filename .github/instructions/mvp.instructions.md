@@ -7,7 +7,6 @@ applyTo: '**'
 ## STOP doing:
 - Over-engineering
 - More architectural setup
-- Complex testing infrastructure
 - Documentation and planning
 - Mocks
 
