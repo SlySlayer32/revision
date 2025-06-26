@@ -9,7 +9,7 @@ applyTo: '**'
 - Mocks
 - creating multiple simplified versions
 ## START doing:
-
+- build from the existing files
 - Setup proper logic
 - Focus on making it work
 - Plan ahead every edit
