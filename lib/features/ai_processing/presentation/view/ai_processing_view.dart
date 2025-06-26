@@ -209,6 +209,7 @@ class AiProcessingView extends StatelessWidget {
             ),
           ],
         ),
+        _ => const SizedBox.shrink(),
       },
     );
   }
