@@ -213,64 +213,6 @@ class AiProcessingView extends StatelessWidget {
     );
   }
 
-  Widget _buildCancelControls(
-      BuildContext context, AiProcessingInProgress state) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          state.progress.message ?? 'Processing...',
-          style: Theme.of(context).textTheme.titleMedium,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 16),
-        if (state.canCancel)
-          ElevatedButton.icon(
-            onPressed: () =>
-                context.read<AiProcessingCubit>().cancelProcessing(),
-            icon: const Icon(Icons.cancel),
-            label: const Text('Cancel Processing'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Theme.of(context).colorScheme.onError,
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildSuccessControls(
-      BuildContext context, AiProcessingSuccess state) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () => _saveResult(context, state.result),
-                icon: const Icon(Icons.save),
-                label: const Text('Save Result'),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => context.read<AiProcessingCubit>().reset(),
-                icon: const Icon(Icons.refresh),
-                label: const Text('Process Again'),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Back to Selection'),
-        ),
-      ],
-    );
-  }
-
   Widget _buildErrorPlaceholder(BuildContext context) {
     return ColoredBox(
       color: Theme.of(context).colorScheme.errorContainer,
@@ -297,10 +239,9 @@ class AiProcessingView extends StatelessWidget {
   }
 
   Future<void> _saveResult(
-      BuildContext context, ProcessingResult result) async {
+      BuildContext context, GeminiPipelineResult result) async {
     // TODO: Implement save functionality
     // For MVP, just show a success message
-    // Auto-save Git automation test comment
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Save functionality coming soon!'),
