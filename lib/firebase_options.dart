@@ -103,7 +103,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '286965129060',
     projectId: 'revision-464202',
     storageBucket: 'revision-464202.firebasestorage.app',
-    iosBundleId: 'com.sly.revision.development',
+    iosBundleId: 'com.sly.revision.dev',
   );
 
   // Staging Environment Options (TODO: Replace with actual staging app configs)
@@ -131,7 +131,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '286965129060',
     projectId: 'revision-464202',
     storageBucket: 'revision-464202.firebasestorage.app',
-    iosBundleId: 'com.sly.revision.staging',
+    iosBundleId: 'com.sly.revision.stg',
   );
 
   // Production Environment Options (TODO: Replace with actual production app configs)
