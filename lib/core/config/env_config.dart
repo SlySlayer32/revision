@@ -37,6 +37,4 @@ class EnvConfig {
       ...EnvironmentDetector.getDebugInfo(),
     };
   }
-    };
-  }
 }
