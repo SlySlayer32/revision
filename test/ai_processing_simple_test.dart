@@ -23,8 +23,9 @@ void main() {
       expect(ProcessingStatus.processing, equals(ProcessingStatus.processing));
       expect(ProcessingStatus.completed, equals(ProcessingStatus.completed));
       expect(ProcessingStatus.failed, equals(ProcessingStatus.failed));
-      
-      expect(ProcessingStatus.pending, isNot(equals(ProcessingStatus.processing)));
+
+      expect(
+          ProcessingStatus.pending, isNot(equals(ProcessingStatus.processing)));
     });
   });
 }
