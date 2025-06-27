@@ -1263,7 +1263,7 @@ functions/
 ### Initialize Cloud Functions
 ```bash
 # Navigate to project root
-cd /path/to/aura
+cd /path/to/revision
 
 # Initialize Cloud Functions
 firebase init functions
