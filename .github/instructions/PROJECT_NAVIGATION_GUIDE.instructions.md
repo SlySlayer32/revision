@@ -239,15 +239,6 @@ docs/
 └── VGV-Guide.md                     # VGV architecture explanation
 ```
 
-### ⚙️ Development Rules (`.clinerules/`)
-```
-.clinerules/
-├── 📋 buildplan.instructions.md     # Build plan overview
-├── 🛠️ vgv-foundation.instructions.md # VGV foundation rules
-├── 🔧 fixing-errors.md              # Error fixing guidelines
-└── 📂 workflows/                    # Step-by-step workflows
-    └── Authentication Domain Layer.md # Auth domain implementation guide
-
 ## 🔍 Quick Navigation Guide
 
 ### 📍 Looking for...
