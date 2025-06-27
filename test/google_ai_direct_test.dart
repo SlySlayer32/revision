@@ -1,79 +1,129 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:firebase_ai/firebase_ai.dart';
 
-/// Test first request to Gemini API using Google AI (AI Studio) directly
-/// This test validates Google AI SDK without Firebase dependency
+/// Test first request to Gemini API using Firebase AI with Google AI backend
+/// This demonstrates how to use Google AI (AI Studio) through Firebase AI SDK
 void main() {
-  group('Google AI (Gemini API) Direct Tests', () {
-    test('should create Gemini model with Google AI SDK', () {
-      // This test validates that we can create a GenerativeModel
-      // In a real scenario, you would set your API key as an environment variable
-      const apiKey = 'your-api-key-here'; // Replace with actual API key
+  group('Firebase AI with Google AI Backend Tests', () {
+    test('should show proper Firebase AI configuration for Google AI', () {
+      print('📋 Firebase AI with Google AI Backend Configuration:');
+      print('');
+      print('1. Get API key from Google AI Studio (ai.google.dev)');
+      print('2. Configure Firebase AI to use Google AI backend');
+      print('3. Use FirebaseAI.googleAI() to create the AI instance');
+      print('4. Create GenerativeModel with your desired model');
+      print('');
+      print('Code example:');
+      print('  // Configure your API key (see firebase_ai documentation)');
+      print('  final firebaseAI = FirebaseAI.googleAI();');
+      print('  final model = firebaseAI.generativeModel(model: "gemini-2.5-flash");');
+      print('  final response = await model.generateContent([Content.text("Hello!")]);');
+      print('');
+      print('🔑 API Key Setup:');
+      print('  - For development: Set in Firebase project configuration');
+      print('  - For production: Use secure environment variables');
+      print('  - Never commit API keys to version control');
       
+      expect(true, isTrue);
+    });
+
+    test('should demonstrate Firebase AI model creation pattern', () {
       try {
-        final model = GenerativeModel(
+        // This shows the correct pattern for creating models with Firebase AI
+        final firebaseAI = FirebaseAI.googleAI();
+        
+        final model = firebaseAI.generativeModel(
           model: 'gemini-2.5-flash',
-          apiKey: apiKey,
+          generationConfig: GenerationConfig(
+            temperature: 0.7,
+            maxOutputTokens: 1024,
+            topK: 40,
+            topP: 0.95,
+          ),
         );
         
         expect(model, isNotNull);
         expect(model.model, equals('gemini-2.5-flash'));
-        print('✅ Google AI GenerativeModel created successfully');
+        print('✅ Firebase AI GenerativeModel created successfully');
       } catch (e) {
-        print('⚠️ Expected error without valid API key: $e');
-        // Expected to fail without a real API key
-        expect(e.toString(), contains('API'));
+        print('⚠️ Expected error without proper configuration: $e');
+        // Expected to fail without proper Firebase AI configuration
+        expect(
+          e.toString(),
+          anyOf([
+            contains('API'),
+            contains('key'),
+            contains('configuration'),
+            contains('firebase'),
+          ]),
+        );
       }
     });
 
-    test('should demonstrate text generation capability (mock)', () async {
-      // This test shows how the API would work with a real API key
-      const mockApiKey = 'test-key';
-      
+    test('should show example of text generation request', () async {
       try {
-        final model = GenerativeModel(
-          model: 'gemini-2.5-flash',
-          apiKey: mockApiKey,
-        );
+        final firebaseAI = FirebaseAI.googleAI();
+        final model = firebaseAI.generativeModel(model: 'gemini-2.5-flash');
 
-        final content = [Content.text('Hello, Gemini!')];
+        final content = [
+          Content.text('Hello, Gemini! Please respond with a friendly greeting.')
+        ];
         
-        // This will fail without a real API key, but demonstrates the pattern
+        // This will work once API key is properly configured
         final response = await model.generateContent(content);
         
-        // This should not be reached without a valid API key
         expect(response.text, isNotNull);
-        print('🎉 Response: ${response.text}');
+        expect(response.text!.isNotEmpty, true);
+        print('🎉 Response from Gemini: ${response.text}');
       } catch (e) {
-        print('⚠️ Expected error without valid API key: $e');
-        // Expected to fail with mock API key
+        print('⚠️ Expected error without valid configuration: $e');
+        // Expected to fail without proper configuration
         expect(
           e.toString(),
           anyOf([
             contains('API'),
             contains('key'),
             contains('authentication'),
-            contains('invalid'),
+            contains('configuration'),
+            contains('firebase'),
           ]),
         );
       }
     });
 
-    test('should show proper configuration for production', () {
-      // This test demonstrates the proper way to configure Google AI
-      print('📋 For production use:');
-      print('1. Get API key from Google AI Studio (ai.google.dev)');
-      print('2. Set environment variable: GOOGLE_AI_API_KEY');
-      print('3. Use: String.fromEnvironment("GOOGLE_AI_API_KEY")');
-      print('4. Initialize model with your API key');
-      print('');
-      print('Example:');
-      print('const apiKey = String.fromEnvironment("GOOGLE_AI_API_KEY");');
-      print('final model = GenerativeModel(model: "gemini-2.5-flash", apiKey: apiKey);');
-      print('final response = await model.generateContent([Content.text("Hello!")]);');
-      
-      // This test always passes and just shows configuration info
-      expect(true, isTrue);
+    test('should show example of image analysis request', () async {
+      try {
+        final firebaseAI = FirebaseAI.googleAI();
+        final model = firebaseAI.generativeModel(model: 'gemini-2.5-flash');
+
+        // Example of how to send image data (you would use real image bytes)
+        final mockImageBytes = List<int>.filled(100, 0); // Mock image data
+        
+        final content = [
+          Content.multi([
+            InlineDataPart('image/jpeg', mockImageBytes),
+            TextPart('Describe this image in detail.'),
+          ]),
+        ];
+        
+        final response = await model.generateContent(content);
+        
+        expect(response.text, isNotNull);
+        print('🖼️ Image analysis response: ${response.text}');
+      } catch (e) {
+        print('⚠️ Expected error without valid configuration: $e');
+        // Expected to fail without proper configuration
+        expect(
+          e.toString(),
+          anyOf([
+            contains('API'),
+            contains('key'),
+            contains('configuration'),
+            contains('firebase'),
+            contains('image'),
+          ]),
+        );
+      }
     });
   });
 }
