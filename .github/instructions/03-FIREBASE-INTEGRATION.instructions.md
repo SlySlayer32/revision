@@ -1,5 +1,5 @@
 ---
-applyTo: '**'
+applyTo: 'firebase'
 ---
 
 # 🔥 Firebase Integration - Complete Production Setup Guide
