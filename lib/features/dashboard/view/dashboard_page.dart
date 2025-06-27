@@ -457,6 +457,14 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
+  void _navigateToFirebaseAIDemo(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => const FirebaseAIDemoWidget(),
+      ),
+    );
+  }
+
   void _showFeatureComingSoon(BuildContext context, String featureName) {
     showDialog<void>(
       context: context,
