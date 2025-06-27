@@ -38,6 +38,131 @@ class DefaultFirebaseOptions {
     }
   }
 
+  // Environment-aware Firebase options
+  static FirebaseOptions _getWebOptions() {
+    const environment = String.fromEnvironment('ENVIRONMENT', defaultValue: 'development');
+    switch (environment) {
+      case 'production':
+        return webProduction;
+      case 'staging':
+        return webStaging;
+      case 'development':
+      default:
+        return webDevelopment;
+    }
+  }
+
+  static FirebaseOptions _getAndroidOptions() {
+    const environment = String.fromEnvironment('ENVIRONMENT', defaultValue: 'development');
+    switch (environment) {
+      case 'production':
+        return androidProduction;
+      case 'staging':
+        return androidStaging;
+      case 'development':
+      default:
+        return androidDevelopment;
+    }
+  }
+
+  static FirebaseOptions _getIOSOptions() {
+    const environment = String.fromEnvironment('ENVIRONMENT', defaultValue: 'development');
+    switch (environment) {
+      case 'production':
+        return iosProduction;
+      case 'staging':
+        return iosStaging;
+      case 'development':
+      default:
+        return iosDevelopment;
+    }
+  }
+
+  // Development Environment Options
+  static const FirebaseOptions webDevelopment = FirebaseOptions(
+    apiKey: 'AIzaSyCMOEvNSrcXqh0n9FD4deqGxFRYhBmfbmg',
+    appId: '1:286965129060:web:c43635c372975dfd13a471',
+    messagingSenderId: '286965129060',
+    projectId: 'revision-464202',
+    authDomain: 'revision-464202.firebaseapp.com',
+    storageBucket: 'revision-464202.firebasestorage.app',
+    measurementId: 'G-M787R1D63W',
+  );
+
+  static const FirebaseOptions androidDevelopment = FirebaseOptions(
+    apiKey: 'AIzaSyBfcmiB-92MRTUx0kkMceMPgKdEUkiDxrU',
+    appId: '1:286965129060:android:3199446fd73253bb13a471',
+    messagingSenderId: '286965129060',
+    projectId: 'revision-464202',
+    storageBucket: 'revision-464202.firebasestorage.app',
+  );
+
+  static const FirebaseOptions iosDevelopment = FirebaseOptions(
+    apiKey: 'AIzaSyDK5Bao49F2y8h5PBvOdzDFyKd7NTaZD5s',
+    appId: '1:286965129060:ios:306d857dd0768ca113a471',
+    messagingSenderId: '286965129060',
+    projectId: 'revision-464202',
+    storageBucket: 'revision-464202.firebasestorage.app',
+    iosBundleId: 'com.sly.revision.development',
+  );
+
+  // Staging Environment Options (TODO: Replace with actual staging app configs)
+  static const FirebaseOptions webStaging = FirebaseOptions(
+    apiKey: 'YOUR_STAGING_WEB_API_KEY',
+    appId: 'YOUR_STAGING_WEB_APP_ID',
+    messagingSenderId: '286965129060',
+    projectId: 'revision-464202',
+    authDomain: 'revision-464202.firebaseapp.com',
+    storageBucket: 'revision-464202.firebasestorage.app',
+    measurementId: 'YOUR_STAGING_MEASUREMENT_ID',
+  );
+
+  static const FirebaseOptions androidStaging = FirebaseOptions(
+    apiKey: 'YOUR_STAGING_ANDROID_API_KEY',
+    appId: 'YOUR_STAGING_ANDROID_APP_ID',
+    messagingSenderId: '286965129060',
+    projectId: 'revision-464202',
+    storageBucket: 'revision-464202.firebasestorage.app',
+  );
+
+  static const FirebaseOptions iosStaging = FirebaseOptions(
+    apiKey: 'YOUR_STAGING_IOS_API_KEY',
+    appId: 'YOUR_STAGING_IOS_APP_ID',
+    messagingSenderId: '286965129060',
+    projectId: 'revision-464202',
+    storageBucket: 'revision-464202.firebasestorage.app',
+    iosBundleId: 'com.sly.revision.staging',
+  );
+
+  // Production Environment Options (TODO: Replace with actual production app configs)
+  static const FirebaseOptions webProduction = FirebaseOptions(
+    apiKey: 'YOUR_PRODUCTION_WEB_API_KEY',
+    appId: 'YOUR_PRODUCTION_WEB_APP_ID',
+    messagingSenderId: '286965129060',
+    projectId: 'revision-464202',
+    authDomain: 'revision-464202.firebaseapp.com',
+    storageBucket: 'revision-464202.firebasestorage.app',
+    measurementId: 'YOUR_PRODUCTION_MEASUREMENT_ID',
+  );
+
+  static const FirebaseOptions androidProduction = FirebaseOptions(
+    apiKey: 'YOUR_PRODUCTION_ANDROID_API_KEY',
+    appId: 'YOUR_PRODUCTION_ANDROID_APP_ID',
+    messagingSenderId: '286965129060',
+    projectId: 'revision-464202',
+    storageBucket: 'revision-464202.firebasestorage.app',
+  );
+
+  static const FirebaseOptions iosProduction = FirebaseOptions(
+    apiKey: 'YOUR_PRODUCTION_IOS_API_KEY',
+    appId: 'YOUR_PRODUCTION_IOS_APP_ID',
+    messagingSenderId: '286965129060',
+    projectId: 'revision-464202',
+    storageBucket: 'revision-464202.firebasestorage.app',
+    iosBundleId: 'com.sly.revision',
+  );
+
+  // Legacy single-environment options (kept for backwards compatibility)
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyCMOEvNSrcXqh0n9FD4deqGxFRYhBmfbmg',
     appId: '1:286965129060:web:c43635c372975dfd13a471',
