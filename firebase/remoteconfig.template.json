@@ -1,8 +1,8 @@
 {
   "conditions": [
     {
-      "name": "development_env",
-      "expression": "app.id.contains('dev')",
+      "name": "development_env", 
+      "expression": "app.id.contains(['dev'])",
       "tagColor": "BLUE"
     },
     {
