@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Development",
+      "name": "🔧 Development",
       "request": "launch",
       "type": "dart",
       "program": "lib/main_development.dart",
@@ -15,7 +15,11 @@
         "--target",
         "lib/main_development.dart",
         "--dart-define",
-        "USE_AUTH_EMULATOR=true"
+        "ENVIRONMENT=development",
+        "--dart-define",
+        "USE_AUTH_EMULATOR=true",
+        "--dart-define",
+        "GEMINI_API_KEY=${env:GEMINI_API_KEY}"
       ],
       "toolArgs": [
         "--vm-service-port=8181"
@@ -25,7 +29,7 @@
       }
     },
     {
-      "name": "Launch staging",
+      "name": "🟡 Staging",
       "request": "launch",
       "type": "dart",
       "program": "lib/main_staging.dart",
@@ -33,7 +37,11 @@
         "--flavor",
         "staging",
         "--target",
-        "lib/main_staging.dart"
+        "lib/main_staging.dart",
+        "--dart-define",
+        "ENVIRONMENT=staging",
+        "--dart-define",
+        "GEMINI_API_KEY=${env:GEMINI_API_KEY}"
       ],
       "toolArgs": [
         "--vm-service-port=8182"
@@ -43,7 +51,7 @@
       }
     },
     {
-      "name": "Launch production",
+      "name": "🔴 Production",
       "request": "launch",
       "type": "dart",
       "program": "lib/main_production.dart",
@@ -51,8 +59,118 @@
         "--flavor",
         "production",
         "--target",
-        "lib/main_production.dart"
-      ]
+        "lib/main_production.dart",
+        "--dart-define",
+        "ENVIRONMENT=production",
+        "--dart-define",
+        "GEMINI_API_KEY=${env:GEMINI_API_KEY}"
+      ],
+      "toolArgs": [
+        "--vm-service-port=8183"
+      ],
+      "env": {
+        "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
+      }
+    },
+    {
+      "name": "🌐 Development Web",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_development.dart",
+      "args": [
+        "--target",
+        "lib/main_development.dart",
+        "--dart-define",
+        "ENVIRONMENT=development",
+        "--dart-define",
+        "GEMINI_API_KEY=${env:GEMINI_API_KEY}",
+        "-d",
+        "chrome"
+      ],
+      "toolArgs": [
+        "--vm-service-port=8184"
+      ],
+      "env": {
+        "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
+      }
+    },
+    {
+      "name": "🧪 Development + Debug Tools",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_development.dart",
+      "args": [
+        "--flavor",
+        "development",
+        "--target",
+        "lib/main_development.dart",
+        "--dart-define",
+        "ENVIRONMENT=development",
+        "--dart-define",
+        "USE_AUTH_EMULATOR=true",
+        "--dart-define",
+        "GEMINI_API_KEY=${env:GEMINI_API_KEY}",
+        "--dart-define",
+        "ENABLE_DEBUG_TOOLS=true"
+      ],
+      "toolArgs": [
+        "--vm-service-port=8185"
+      ],
+      "env": {
+        "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
+      }
+    },
+    {
+      "name": "📱 Development Android",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_development.dart",
+      "args": [
+        "--flavor",
+        "development",
+        "--target",
+        "lib/main_development.dart",
+        "--dart-define",
+        "ENVIRONMENT=development",
+        "--dart-define",
+        "USE_AUTH_EMULATOR=true",
+        "--dart-define",
+        "GEMINI_API_KEY=${env:GEMINI_API_KEY}",
+        "-d",
+        "android"
+      ],
+      "toolArgs": [
+        "--vm-service-port=8186"
+      ],
+      "env": {
+        "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
+      }
+    },
+    {
+      "name": "🍎 Development iOS",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_development.dart",
+      "args": [
+        "--flavor",
+        "development",
+        "--target",
+        "lib/main_development.dart",
+        "--dart-define",
+        "ENVIRONMENT=development",
+        "--dart-define",
+        "USE_AUTH_EMULATOR=true",
+        "--dart-define",
+        "GEMINI_API_KEY=${env:GEMINI_API_KEY}",
+        "-d",
+        "ios"
+      ],
+      "toolArgs": [
+        "--vm-service-port=8187"
+      ],
+      "env": {
+        "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
+      }
     }
   ]
 }
