@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Configuration for AI services including API keys and rate limits
 class AIConfig {
@@ -6,6 +7,20 @@ class AIConfig {
   static const String geminiModel = 'gemini-2.5-flash';
   static const String geminiImageModel = 'gemini-2.0-vision-flash';
   
+  /// API Keys (loaded from environment)
+  static String get apiKey => _getConfigValue('FIREBASE_AI_API_KEY');
+  static String get projectId => _getConfigValue('GOOGLE_CLOUD_PROJECT_ID');
+  
+  /// Helper method to get config values
+  static String _getConfigValue(String key) {
+    final value = dotenv.env[key];
+    if (value == null) {
+      log('⚠️ Missing environment variable: $key');
+      throw Exception('Missing required environment variable: $key');
+    }
+    return value;
+  }
+
   /// Model configuration
   static const double temperature = 0.7;
   static const int maxOutputTokens = 2048;
