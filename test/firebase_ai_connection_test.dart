@@ -14,17 +14,15 @@ void main() {
       }
     });
 
-    test('should initialize Firebase AI successfully', () async {
-      // Test basic Firebase AI initialization
-      expect(() => FirebaseAI.instance, returnsNormally);
+    test('should create GenerativeModel successfully', () async {
+      // Test basic Firebase AI model creation
+      expect(() => FirebaseAI.generativeModel(model: 'gemini-1.5-flash'), returnsNormally);
     });
 
     test('should have Gemini models available', () async {
       try {
-        final ai = FirebaseAI.instance;
-        
         // Test if we can access Gemini models
-        final model = ai.generativeModel(
+        final model = FirebaseAI.generativeModel(
           model: 'gemini-1.5-flash',
         );
         
@@ -38,8 +36,7 @@ void main() {
 
     test('should handle basic text generation request', () async {
       try {
-        final ai = FirebaseAI.instance;
-        final model = ai.generativeModel(model: 'gemini-1.5-flash');
+        final model = FirebaseAI.generativeModel(model: 'gemini-1.5-flash');
         
         final response = await model.generateContent([
           Content.text('Hello, this is a test. Please respond with "Test successful"')
@@ -60,8 +57,7 @@ void main() {
 
     test('should handle image analysis capabilities', () async {
       try {
-        final ai = FirebaseAI.instance;
-        final model = ai.generativeModel(model: 'gemini-1.5-flash');
+        final model = FirebaseAI.generativeModel(model: 'gemini-1.5-flash');
         
         // Test multimodal capabilities (without actual image for unit test)
         final prompt = [
@@ -78,14 +74,12 @@ void main() {
   });
 
   group('Firebase AI Configuration Tests', () {
-    test('should validate Firebase AI configuration', () {
-      // Test Firebase AI package is properly imported
-      expect(FirebaseAI.instance, isNotNull);
+    test('should validate Firebase AI model creation', () {
+      // Test Firebase AI package is properly imported and working
+      expect(() => FirebaseAI.generativeModel(model: 'gemini-1.5-flash'), returnsNormally);
     });
 
-    test('should list available models', () {
-      final ai = FirebaseAI.instance;
-      
+    test('should support various Gemini models', () {
       // Test various model configurations
       final models = [
         'gemini-1.5-flash',
@@ -94,7 +88,7 @@ void main() {
       ];
       
       for (final modelName in models) {
-        expect(() => ai.generativeModel(model: modelName), returnsNormally);
+        expect(() => FirebaseAI.generativeModel(model: modelName), returnsNormally);
       }
     });
   });
