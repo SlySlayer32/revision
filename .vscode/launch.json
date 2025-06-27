@@ -85,9 +85,7 @@
         "--dart-define",
         "GEMINI_API_KEY=AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM",
         "-d",
-        "chrome",
-        "--web-renderer",
-        "html"
+        "chrome"
       ],
       "toolArgs": [
         "--vm-service-port=8184"
