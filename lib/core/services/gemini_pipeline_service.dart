@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:revision/core/constants/firebase_constants.dart';
 
 /// Gemini AI Pipeline Service - MVP Implementation
 ///
