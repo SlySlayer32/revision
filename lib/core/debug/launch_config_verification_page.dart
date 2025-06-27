@@ -183,12 +183,36 @@ class LaunchConfigVerificationPage extends StatelessWidget {
             const Text('Available launch configurations:'),
             const SizedBox(height: 4),
             const Text('• 🔧 Development - Main development config'),
-            const Text('• 🌐 Development Web - Web development'),
+            const Text('• 🌐 Development Web - Web development (updated)'),
+            const Text('• 🌐 Staging Web - Web staging environment'),
+            const Text('• 🌐 Production Web - Web production environment'),
             const Text('• 📱 Development Android - Android development'),
             const Text('• 🍎 Development iOS - iOS development'),
             const Text('• 🧪 Development + Debug Tools - With extra debugging'),
             const Text('• 🟡 Staging - Staging environment'),
             const Text('• 🔴 Production - Production environment'),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: Colors.green.withOpacity(0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '✅ Web Configuration Fixed!',
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text('• Removed deprecated --web-renderer flag'),
+                  const Text('• Uses modern Flutter web defaults (CanvasKit)'),
+                  const Text('• Added staging and production web configs'),
+                ],
+              ),
+            ),
             const SizedBox(height: 8),
             const Text(
               'Press F5 or Ctrl+F5 in VS Code to select a configuration!',
