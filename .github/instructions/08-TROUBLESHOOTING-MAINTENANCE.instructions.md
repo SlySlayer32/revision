@@ -1,4 +1,3 @@
-```instructions
 ---
 applyTo: 'troubleshooting'
 ---
