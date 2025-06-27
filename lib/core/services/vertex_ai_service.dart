@@ -223,8 +223,10 @@ Format as bullet points.
       log('🔄 Analyzing image with ${markers.length} markers');
 
       // Validate image size
-      if (imageBytes.length > FirebaseAIConstants.maxImageSizeMB * 1024 * 1024) {
-        throw Exception('Image too large: ${imageBytes.length ~/ (1024 * 1024)}MB');
+      if (imageBytes.length >
+          FirebaseAIConstants.maxImageSizeMB * 1024 * 1024) {
+        throw Exception(
+            'Image too large: ${imageBytes.length ~/ (1024 * 1024)}MB');
       }
 
       // Create marker description
@@ -269,9 +271,9 @@ Generate a comprehensive prompt that captures the essence of this image for recr
 
       return response.text!;
     } catch (e, stackTrace) {
-      log('❌ MVP Step 1 Failed: Analysis with Gemini 2.5 Flash failed: $e', 
+      log('❌ MVP Step 1 Failed: Analysis with Gemini 2.5 Flash failed: $e',
           stackTrace: stackTrace);
-      
+
       // Fallback prompt for MVP
       return 'Enhance this image by improving lighting, adjusting colors, and optimizing composition while maintaining its natural appearance and style.';
     }
@@ -288,8 +290,10 @@ Generate a comprehensive prompt that captures the essence of this image for recr
       log('🔄 Processing image with prompt: ${editingPrompt.substring(0, 100)}...');
 
       // Validate image size
-      if (imageBytes.length > FirebaseAIConstants.maxImageSizeMB * 1024 * 1024) {
-        throw Exception('Image too large: ${imageBytes.length ~/ (1024 * 1024)}MB');
+      if (imageBytes.length >
+          FirebaseAIConstants.maxImageSizeMB * 1024 * 1024) {
+        throw Exception(
+            'Image too large: ${imageBytes.length ~/ (1024 * 1024)}MB');
       }
 
       // MVP Image Generation Prompt (Gemini 2.0 Flash Preview Image Generation)
@@ -336,15 +340,15 @@ Requirements:
       // For MVP: If no image is returned, create a processed variant
       // This ensures the pipeline doesn't break during development
       log('⚠️ No image data in response, creating processed variant for MVP');
-      final processedImage = _createProcessedImageVariant(imageBytes, 'ai_enhanced');
-      
+      final processedImage =
+          _createProcessedImageVariant(imageBytes, 'ai_enhanced');
+
       log('✅ MVP Step 2 Complete: Processed image variant created');
       return processedImage;
-
     } catch (e, stackTrace) {
-      log('❌ MVP Step 2 Failed: Image generation with Gemini 2.0 Flash Preview failed: $e', 
+      log('❌ MVP Step 2 Failed: Image generation with Gemini 2.0 Flash Preview failed: $e',
           stackTrace: stackTrace);
-      
+
       // Fallback for MVP: Return original with processing indicator
       log('🔄 Using fallback: returning processed variant of original image');
       return _createProcessedImageVariant(imageBytes, 'fallback_processed');
@@ -607,5 +611,27 @@ Generate the edited image with the specified changes applied.
     log('✅ Created $editType variant (${processed.length} bytes)');
 
     return processed;
+  }
+
+  @override
+  Future<String> processTextPrompt(String prompt) async {
+    try {
+      final content = [Content.text(prompt)];
+      
+      final response = await _geminiModel
+          .generateContent(content)
+          .timeout(FirebaseAIConstants.requestTimeout);
+
+      if (response.text == null || response.text!.isEmpty) {
+        throw Exception('Empty response from Firebase AI Logic');
+      }
+
+      log('✅ Firebase AI Logic processTextPrompt completed successfully');
+      return response.text!;
+    } catch (e, stackTrace) {
+      log('❌ Firebase AI Logic processTextPrompt failed: $e',
+          stackTrace: stackTrace);
+      rethrow;
+    }
   }
 }
