@@ -2,6 +2,27 @@
 
 This guide shows you how to set up Firebase Remote Config to control your AI model parameters, prompts, and system instructions from the Firebase Console without rebuilding your app.
 
+## 🚀 Quick Setup with Template
+
+**NEW: Use the included template for instant setup!**
+
+### Option 1: One-Click PowerShell Import (Recommended)
+```powershell
+# Run this in your project root directory
+.\scripts\import-firebase-remote-config.ps1
+```
+
+### Option 2: Firebase CLI Import
+```bash
+firebase login
+firebase use revision-464202
+firebase remoteconfig:set firebase_remote_config_template.json
+```
+
+### Option 3: Manual Setup (continue reading below)
+
+---
+
 ## 🎯 What You Can Control
 
 With Firebase Remote Config, you can dynamically control:
