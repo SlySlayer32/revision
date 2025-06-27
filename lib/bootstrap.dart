@@ -31,7 +31,7 @@ class AppBlocObserver extends BlocObserver {
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   try {
     debugPrint('bootstrap: Starting app initialization...');
-    
+
     FlutterError.onError = (details) {
       log(details.exceptionAsString(), stackTrace: details.stack);
     };
@@ -71,24 +71,24 @@ Future<void> _initializeFirebase() async {
     debugPrint('_initializeFirebase: Environment is ${environment.name}');
 
     // Check if Firebase is already initialized to prevent duplicate app error
-    try {
-      final existingApp = Firebase.app(); // Try to get existing default app
-      debugPrint('✅ Firebase already initialized, reusing existing app: ${existingApp.name}');
-    } catch (e) {
-      // App doesn't exist, initialize it
-      debugPrint('_initializeFirebase: No existing Firebase app found, initializing new one...');
+    if (Firebase.apps.isEmpty) {
+      debugPrint('bootstrap: Firebase not initialized, calling initializeApp...');
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      debugPrint('✅ Firebase initialized successfully');
+      debugPrint('bootstrap: Firebase.initializeApp() completed.');
+    } else {
+      debugPrint('bootstrap: Firebase already initialized.');
     }
 
     // Configure emulators for development environment
     if (environment.useEmulators) {
-      debugPrint('_initializeFirebase: Configuring emulators for development...');
+      debugPrint(
+          '_initializeFirebase: Configuring emulators for development...');
       await _configureEmulators();
     } else {
-      debugPrint('_initializeFirebase: Skipping emulator configuration for ${environment.name}');
+      debugPrint(
+          '_initializeFirebase: Skipping emulator configuration for ${environment.name}');
     }
 
     // Initialize Vertex AI after Firebase is initialized
@@ -123,7 +123,7 @@ Future<void> _configureEmulators() async {
     final auth = FirebaseAuth.instance;
     final host = _getPlatformSpecificEmulatorHost();
     debugPrint('_configureEmulators: Using host $host for Auth emulator');
-    
+
     await auth.useAuthEmulator(host, FirebaseConstants.authEmulatorPort);
     debugPrint('_configureEmulators: Auth emulator connected');
 
@@ -172,21 +172,31 @@ String _getPlatformSpecificEmulatorHost() {
 Future<void> _initializeVertexAI() async {
   try {
     debugPrint('_initializeVertexAI: Starting Vertex AI initialization...');
-    
+
+    // IMPORTANT: Ensure API key is available before initializing Vertex AI
+    if (Environment.geminiApiKey.isEmpty) {
+      log('❌ CRITICAL: GEMINI_API_KEY is not set. AI features will fail.');
+      log('👉 RUN WITH: flutter run --dart-define=GEMINI_API_KEY=YOUR_KEY_HERE');
+      // Do not proceed with AI initialization if the key is missing.
+      return; 
+    }
+
     // Import the firebase_ai package
     final firebaseAI = FirebaseAI.vertexAI(
       location: FirebaseConstants.vertexAiLocation,
     );
-    
+
     // Create a generative model instance for health check
     firebaseAI.generativeModel(
       model: FirebaseConstants.geminiModel,
       systemInstruction: Content.system('Health check'),
     );
-    
-    debugPrint('_initializeVertexAI: Vertex AI model configured: ${FirebaseConstants.geminiModel}');
-    debugPrint('✅ Vertex AI initialized successfully with model: ${FirebaseConstants.geminiModel}');
-    
+
+    debugPrint(
+        '_initializeVertexAI: Vertex AI model configured: ${FirebaseConstants.geminiModel}');
+    debugPrint(
+        '✅ Vertex AI initialized successfully with model: ${FirebaseConstants.geminiModel}');
+
     log('✅ Vertex AI initialized successfully with model: ${FirebaseConstants.geminiModel}');
   } catch (e, stackTrace) {
     debugPrint('⚠️ Vertex AI initialization failed: $e');
