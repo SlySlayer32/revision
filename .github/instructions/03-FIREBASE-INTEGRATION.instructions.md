@@ -15,24 +15,24 @@ Firebase provides a comprehensive Backend-as-a-Service (BaaS) platform that hand
 #### Development Environment
 ```bash
 # Create project in Firebase Console
-# Project Name: Aura Development
-# Project ID: aura-dev-[unique-id]
+# Project Name: Revision Development
+# Project ID: revision-464202-dev
 # Location: us-central1 (or your preferred region)
 ```
 
 #### Staging Environment
 ```bash
 # Create project in Firebase Console
-# Project Name: Aura Staging
-# Project ID: aura-staging-[unique-id]
+# Project Name: Revision Staging
+# Project ID: revision-464202-staging
 # Location: us-central1 (same as development)
 ```
 
 #### Production Environment
 ```bash
 # Create project in Firebase Console
-# Project Name: Aura Production
-# Project ID: aura-prod-[unique-id]
+# Project Name: Revision Production
+# Project ID: revision-464202
 # Location: us-central1 (same as development)
 ```
 
