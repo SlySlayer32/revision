@@ -2,7 +2,7 @@
   "conditions": [
     {
       "name": "development_env",
-      "expression": "app.id == 'com.revision.dev'",
+      "expression": "app.id.contains('dev')",
       "tagColor": "BLUE"
     },
     {
