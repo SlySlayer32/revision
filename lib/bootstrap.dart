@@ -185,7 +185,8 @@ Future<void> _initializeVertexAI() async {
         '_initializeVertexAI: Starting Firebase AI (GoogleAI) initialization...');
 
     // IMPORTANT: Ensure API key is available before initializing Firebase AI
-    if (EnvConfig.geminiApiKey.isEmpty) {
+    // Firebase AI Logic uses API keys managed by Firebase Console
+    if (!EnvConfig.isFirebaseAIConfigured) {
       log('❌ CRITICAL: GEMINI_API_KEY is not set. AI features will fail.');
       log('👉 RUN WITH: flutter run --dart-define=GEMINI_API_KEY=YOUR_KEY_HERE');
     }
