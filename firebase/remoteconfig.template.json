@@ -1,8 +1,8 @@
 {
   "conditions": [
     {
-      "name": "development_env",
-      "expression": "app.id == 'revision-464202-dev'",
+      "name": "android_users",
+      "expression": "device.os == 'android'",
       "tagColor": "BLUE"
     },
     {
