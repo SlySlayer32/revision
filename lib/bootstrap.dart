@@ -40,7 +40,8 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
       await dotenv.load(fileName: '.env');
       debugPrint('bootstrap: Environment variables loaded');
     } catch (e) {
-      debugPrint('bootstrap: Environment variables already loaded or not found: $e');
+      debugPrint(
+          'bootstrap: Environment variables already loaded or not found: $e');
     }
 
     FlutterError.onError = (details) {

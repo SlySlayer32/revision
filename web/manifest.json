@@ -9,7 +9,11 @@
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "scope": "/",
-    "categories": ["photo", "productivity", "graphics"],
+    "categories": [
+        "photo",
+        "productivity",
+        "graphics"
+    ],
     "screenshots": [
         {
             "src": "icons/Icon-512.png",

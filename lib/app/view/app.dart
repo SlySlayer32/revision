@@ -14,7 +14,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint('App: Building MaterialApp');
-    
+
     // Error handling wrapper for hot reload safety
     try {
       return RepositoryProvider<AuthRepository>(
@@ -57,7 +57,7 @@ class App extends StatelessWidget {
     } catch (e, stackTrace) {
       debugPrint('App: Critical error in build: $e');
       debugPrint('App: Stack trace: $stackTrace');
-      
+
       // Return error widget instead of crashing
       return MaterialApp(
         home: Scaffold(
