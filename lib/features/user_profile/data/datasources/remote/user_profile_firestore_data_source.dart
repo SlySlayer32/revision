@@ -11,7 +11,8 @@ abstract class UserProfileFirestoreDataSource {
   Stream<UserProfileModel> watchUserProfile(String userId);
 }
 
-class UserProfileFirestoreDataSourceImpl implements UserProfileFirestoreDataSource {
+class UserProfileFirestoreDataSourceImpl
+    implements UserProfileFirestoreDataSource {
   UserProfileFirestoreDataSourceImpl({
     required FirebaseFirestore firestore,
   }) : _firestore = firestore;
@@ -25,7 +26,7 @@ class UserProfileFirestoreDataSourceImpl implements UserProfileFirestoreDataSour
   Future<UserProfileModel> getUserProfile(String userId) async {
     try {
       final doc = await _users.doc(userId).get();
-      
+
       if (!doc.exists || doc.data() == null) {
         throw const CacheException('User profile not found');
       }

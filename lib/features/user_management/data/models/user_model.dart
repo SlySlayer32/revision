@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../domain/entities/user.dart';
 
 /// Firestore data model for User entity
@@ -16,7 +17,7 @@ class UserModel extends User {
   /// Convert from Firestore DocumentSnapshot
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    
+
     return UserModel(
       id: doc.id,
       email: data['email'] as String,

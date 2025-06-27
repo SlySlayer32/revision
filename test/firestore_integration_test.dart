@@ -6,7 +6,7 @@ import 'package:revision/features/user_profile/data/models/user_profile_model.da
 import 'package:revision/firebase_options_dev.dart';
 
 /// Integration test for Firestore database setup and configuration
-/// 
+///
 /// This test validates:
 /// 1. Firebase initialization
 /// 2. Firestore connection
@@ -26,10 +26,10 @@ void main() async {
         await Firebase.initializeApp(
           options: DefaultFirebaseOptions.currentPlatform,
         );
-        
+
         firestore = FirebaseFirestore.instance;
         dataSource = UserProfileFirestoreDataSourceImpl(firestore: firestore);
-        
+
         print('✅ Firebase and Firestore initialized successfully');
       } catch (e) {
         print('⚠️ Firebase initialization error: $e');
@@ -116,7 +116,7 @@ void main() async {
           print('✅ Security rules working correctly');
           print('   • Unauthenticated access blocked: ${e.runtimeType}');
           print('   • Error message: ${e.toString().substring(0, 100)}...');
-          
+
           // This is expected - security rules should block unauthenticated access
           expect(e.toString(), isNotEmpty);
         }

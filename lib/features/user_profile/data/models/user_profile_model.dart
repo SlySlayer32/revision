@@ -68,8 +68,7 @@ class UserProfileModel extends UserProfile {
       if (preferences != null)
         'preferences': UserPreferencesModel.fromEntity(preferences!).toMap(),
       if (subscription != null)
-        'subscription':
-            UserSubscriptionModel.fromEntity(subscription!).toMap(),
+        'subscription': UserSubscriptionModel.fromEntity(subscription!).toMap(),
       if (usageStats != null)
         'usageStats': UserUsageStatsModel.fromEntity(usageStats!).toMap(),
     };
