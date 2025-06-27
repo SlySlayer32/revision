@@ -8,13 +8,13 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      return _getWebOptions();
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return android;
+        return _getAndroidOptions();
       case TargetPlatform.iOS:
-        return ios;
+        return _getIOSOptions();
       case TargetPlatform.macOS:
         // Or handle macOS specifically if you have a separate configuration
         throw UnsupportedError(
@@ -39,28 +39,30 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBJrnLSckHLO0nhPudg7-aClqgrvtjy9_Y',
-    appId: '1:80100619406:web:d8f4c8556e3fb468aa45df',
-    messagingSenderId: '80100619406',
-    projectId: 'revision-fc66c',
-    authDomain: 'revision-fc66c.firebaseapp.com',
-    storageBucket: 'revision-fc66c.appspot.com',
+    apiKey: 'AIzaSyCMOEvNSrcXqh0n9FD4deqGxFRYhBmfbmg',
+    appId: '1:286965129060:web:c43635c372975dfd13a471',
+    messagingSenderId: '286965129060',
+    projectId: 'revision-464202',
+    authDomain: 'revision-464202.firebaseapp.com',
+    storageBucket: 'revision-464202.firebasestorage.app',
+    measurementId: 'G-M787R1D63W',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBJrnLSckHLO0nhPudg7-aClqgrvtjy9_Y',
-    appId: '1:80100619406:android:c825dd556e3fb468aa45df',
-    messagingSenderId: '80100619406',
-    projectId: 'revision-fc66c',
-    storageBucket: 'revision-fc66c.appspot.com',
+    apiKey: 'AIzaSyBfcmiB-92MRTUx0kkMceMPgKdEUkiDxrU',
+    appId: '1:286965129060:android:3199446fd73253bb13a471',
+    messagingSenderId: '286965129060',
+    projectId: 'revision-464202',
+    storageBucket: 'revision-464202.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBJrnLSckHLO0nhPudg7-aClqgrvtjy9_Y',
-    appId: '1:80100619406:ios:d8f4c8556e3fb468aa45df',
-    messagingSenderId: '80100619406',
-    projectId: 'revision-fc66c',
-    storageBucket: 'revision-fc66c.appspot.com',
+    apiKey: 'AIzaSyDK5Bao49F2y8h5PBvOdzDFyKd7NTaZD5s',
+    appId: '1:286965129060:ios:306d857dd0768ca113a471',
+    messagingSenderId: '286965129060',
+    projectId: 'revision-464202',
+    storageBucket: 'revision-464202.firebasestorage.app',
     iosBundleId: 'com.sly.revision',
   );
+
 }
