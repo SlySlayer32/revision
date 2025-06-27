@@ -5,6 +5,7 @@ This template provides **instant setup** for AI model control via Firebase Remot
 ## 🚀 Quick Import Options
 
 ### Option 1: Firebase CLI (Recommended)
+
 ```bash
 # Ensure you're logged in and using the correct project
 firebase login
@@ -18,6 +19,7 @@ firebase remoteconfig:get > current_config.json
 ```
 
 ### Option 2: REST API Import
+
 ```bash
 # Get an access token (if needed)
 firebase auth:print-access-token
@@ -31,27 +33,31 @@ curl -X PUT \
 ```
 
 ### Option 3: Manual Upload (Firebase Console)
+
 1. Go to [Firebase Console](https://console.firebase.google.com)
 2. Select project `revision-464202`
 3. Navigate to **Remote Config**
-4. Click **"Upload from file"** 
+4. Click **"Upload from file"**
 5. Select `firebase_remote_config_template.json`
 6. Click **"Publish changes"**
 
 ## 📋 What Gets Imported
 
 ### ✅ Complete AI Parameter Set
+
 - **11 parameters** for full AI control
 - **4 organized parameter groups**
 - **3 smart conditions** for user targeting
 - **Type safety** with explicit `valueType` definitions
 
 ### 🎯 Conditional Logic Included
+
 - **Premium users** get more powerful models (`gemini-1.5-pro`, 2048 tokens)
 - **Development environment** gets debug mode and higher creativity
 - **5% of users** get debug logging for troubleshooting
 
 ### 🛠️ Parameter Groups for Organization
+
 - **AI Model Configuration** - Model selection
 - **Generation Parameters** - Fine-tuning controls  
 - **System Instructions** - AI behavior and prompts

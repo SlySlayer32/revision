@@ -7,12 +7,14 @@ This guide shows you how to set up Firebase Remote Config to control your AI mod
 **NEW: Use the included template for instant setup!**
 
 ### Option 1: One-Click PowerShell Import (Recommended)
+
 ```powershell
 # Run this in your project root directory
 .\scripts\import-firebase-remote-config.ps1
 ```
 
 ### Option 2: Firebase CLI Import
+
 ```bash
 firebase login
 firebase use revision-464202
@@ -50,35 +52,43 @@ Click **Add parameter** for each of the following:
 #### Model Configuration Parameters
 
 **Parameter: `ai_gemini_model`**
+
 - Default value: `gemini-2.5-flash`
 - Description: `Primary Gemini model for text analysis and processing`
 
 **Parameter: `ai_gemini_image_model`**
+
 - Default value: `gemini-2.0-flash-preview-image-generation`
 - Description: `Gemini model for image generation and processing`
 
 #### Generation Parameters
 
 **Parameter: `ai_temperature`**
+
 - Default value: `0.4`
 - Description: `Controls creativity vs consistency (0.0-1.0). Lower = more focused, Higher = more creative`
 
 **Parameter: `ai_max_output_tokens`**
+
 - Default value: `1024`
 - Description: `Maximum tokens in AI response. Higher = longer responses`
 
 **Parameter: `ai_top_k`**
+
 - Default value: `40`
 - Description: `Top-K sampling parameter. Lower = more focused responses`
 
 **Parameter: `ai_top_p`**
+
 - Default value: `0.95`
 - Description: `Top-P (nucleus) sampling parameter. Lower = more focused responses`
 
 #### System Instructions
 
 **Parameter: `ai_analysis_system_prompt`**
+
 - Default value:
+
 ```
 You are an expert image analysis AI. Analyze the provided image and marked object to create precise editing instructions.
 
@@ -91,10 +101,13 @@ Focus on:
 
 Provide actionable editing instructions.
 ```
+
 - Description: `System instruction for image analysis tasks`
 
 **Parameter: `ai_editing_system_prompt`**
+
 - Default value:
+
 ```
 You are an expert AI image editor using Gemini 2.0 Flash Preview Image Generation. Edit the provided image based on user instructions with these requirements:
 
@@ -107,19 +120,23 @@ You are an expert AI image editor using Gemini 2.0 Flash Preview Image Generatio
 
 Return the edited image directly as the output.
 ```
+
 - Description: `System instruction for image editing tasks`
 
 #### Performance & Control Parameters
 
 **Parameter: `ai_request_timeout_seconds`**
+
 - Default value: `30`
 - Description: `Timeout for AI requests in seconds`
 
 **Parameter: `ai_enable_advanced_features`**
+
 - Default value: `true`
 - Description: `Enable experimental AI features`
 
 **Parameter: `ai_debug_mode`**
+
 - Default value: `false`
 - Description: `Enable detailed logging for AI operations`
 
@@ -145,17 +162,20 @@ Return the edited image directly as the output.
 Create conditions for different environments:
 
 **Development Environment:**
+
 - **Condition name**: `development_env`
 - **Applies to**: App with `app_id` contains `dev`
 - **Values**: Higher debug settings, faster timeouts
 
 **Production Environment:**
+
 - **Condition name**: `production_env`
 - **Values**: Optimized for performance and cost
 
 ### Time-Based Configuration
 
 **Holiday Themes:**
+
 - **Condition name**: `holiday_season`
 - **Applies to**: Date/time within holiday period
 - **Values**: Special holiday-themed prompts
@@ -165,6 +185,7 @@ Create conditions for different environments:
 ### Automatic Updates
 
 Your app automatically:
+
 1. Fetches latest config on startup
 2. Refreshes config every hour (configurable)
 3. Falls back to hardcoded defaults if Remote Config fails
@@ -200,6 +221,7 @@ print('Current AI config: $debugInfo');
 ### 2. Test in Your App
 
 Use the Firebase AI Demo widget in your app:
+
 1. Open your app
 2. Go to Dashboard
 3. Tap "Test Firebase AI"
@@ -209,6 +231,7 @@ Use the Firebase AI Demo widget in your app:
 ### 3. Verify Changes
 
 After updating config:
+
 1. Wait 1-5 minutes for propagation
 2. Restart your app or call `refreshConfig()`
 3. Check logs for "Remote Config refreshed successfully"
@@ -218,6 +241,7 @@ After updating config:
 ### 1. Model Upgrades
 
 When Google releases new models:
+
 1. Update `ai_gemini_model` parameter
 2. Test with a small user group using conditions
 3. Roll out to all users gradually
@@ -225,6 +249,7 @@ When Google releases new models:
 ### 2. Cost Optimization
 
 Reduce costs by:
+
 - Lowering `ai_max_output_tokens` during high usage
 - Using lighter models for basic tasks
 - Adjusting `ai_temperature` for more focused responses
@@ -232,6 +257,7 @@ Reduce costs by:
 ### 3. Quality Improvements
 
 Improve responses by:
+
 - Updating system prompts based on user feedback
 - A/B testing different prompt strategies
 - Adjusting generation parameters for your use case
@@ -239,6 +265,7 @@ Improve responses by:
 ### 4. Feature Rollouts
 
 Control new features:
+
 - Use `ai_enable_advanced_features` for gradual rollouts
 - Create user segment conditions
 - Monitor performance before full release
@@ -304,16 +331,18 @@ Control new features:
 ### Firebase Analytics Integration
 
 The app automatically logs:
+
 - AI model usage events
 - Remote Config parameter changes
 - Performance metrics
 - Error occurrences
 
-## 🎉 Success!
+## 🎉 Success
 
-You now have complete control over your AI model behavior from the Firebase Console! 
+You now have complete control over your AI model behavior from the Firebase Console!
 
 Changes take effect within minutes without requiring app updates, giving you:
+
 - ✅ Instant model upgrades
 - ✅ Real-time prompt optimization  
 - ✅ A/B testing capabilities
