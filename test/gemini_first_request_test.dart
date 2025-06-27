@@ -6,17 +6,17 @@ import 'package:revision/core/services/gemini_ai_service.dart';
 import 'package:revision/firebase_options_dev.dart';
 
 /// Test Gemini API integration using Firebase AI Logic with Google AI Developer API
-/// 
+///
 /// This test validates the Google AI Studio (Gemini Developer API) setup through Firebase AI Logic.
-/// 
+///
 /// Configuration requirements:
 /// 1. Firebase project with AI Logic enabled
-/// 2. Gemini Developer API enabled in Firebase Console  
+/// 2. Gemini Developer API enabled in Firebase Console
 /// 3. API key generated and configured in Firebase Console (not in code)
 /// 4. firebase_ai package properly configured
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
-  
+
   group('Gemini API Integration Tests', () {
     setUpAll(() async {
       // Load environment variables first
@@ -50,28 +50,32 @@ void main() async {
       print('   • API key automatically loaded from Firebase config');
       print('');
       print('4. Environment Status:');
-      print('   • API key in .env: ${EnvConfig.geminiApiKey.isNotEmpty ? "✅ Present" : "❌ Missing"}');
-      print('   • Environment configured: ${EnvConfig.isConfigured ? "✅ Yes" : "❌ No"}');
+      print(
+          '   • API key in .env: ${EnvConfig.geminiApiKey.isNotEmpty ? "✅ Present" : "❌ Missing"}');
+      print(
+          '   • Environment configured: ${EnvConfig.isConfigured ? "✅ Yes" : "❌ No"}');
       print('');
-      
+
       expect(true, isTrue);
     });
 
-    test('should demonstrate Firebase AI model creation without Firebase init', () {
+    test('should demonstrate Firebase AI model creation without Firebase init',
+        () {
       print('');
       print('🧪 Testing Firebase AI model creation pattern:');
-      
+
       try {
         // This shows the correct pattern but will fail without Firebase
         final aiService = GeminiAIService();
         expect(aiService, isNotNull);
         print('✅ GeminiAIService created successfully');
       } catch (e) {
-        print('⚠️ Expected error without Firebase initialization: ${e.toString().substring(0, 100)}...');
+        print(
+            '⚠️ Expected error without Firebase initialization: ${e.toString().substring(0, 100)}...');
         print('');
         print('💡 This is expected in test environment without Firebase setup');
         print('   In a real app with Firebase configured, this would work');
-        
+
         expect(e.toString(), contains('firebase'));
       }
     });
@@ -105,7 +109,8 @@ void main() async {
       test('should send first request to Gemini 2.5 Flash', () async {
         try {
           // Simple test prompt
-          final prompt = 'Hello Gemini! Please respond with exactly: "Hello from Google AI!"';
+          final prompt =
+              'Hello Gemini! Please respond with exactly: "Hello from Google AI!"';
 
           print('');
           print('🚀 Sending first request to Gemini 2.5 Flash...');
@@ -116,13 +121,14 @@ void main() async {
 
           print('');
           print('🎉 Response from Gemini 2.5 Flash:');
-          print('📄 ${response.substring(0, response.length > 200 ? 200 : response.length)}${response.length > 200 ? "..." : ""}');
+          print(
+              '📄 ${response.substring(0, response.length > 200 ? 200 : response.length)}${response.length > 200 ? "..." : ""}');
           print('');
 
           expect(response, isNotNull);
           expect(response.isNotEmpty, true);
           expect(response.toLowerCase(), contains('hello'));
-          
+
           print('✅ First Gemini API request successful!');
         } catch (e) {
           print('');
@@ -130,12 +136,13 @@ void main() async {
           print('');
           print('🔧 Troubleshooting steps:');
           print('1. Verify Firebase project has AI Logic enabled');
-          print('2. Check Gemini Developer API is configured in Firebase Console');
+          print(
+              '2. Check Gemini Developer API is configured in Firebase Console');
           print('3. Ensure API key is properly set in Firebase Console');
           print('4. Verify app is connected to correct Firebase project');
           print('5. Check network connectivity');
           print('');
-          
+
           // For MVP, we expect this to fail in test environment
           expect(e.toString(), isNotEmpty);
         }
@@ -145,7 +152,7 @@ void main() async {
         try {
           // Test with invalid/empty prompt to see error handling
           final response = await aiService.processTextPrompt('');
-          
+
           // If it succeeds with empty prompt, that's unexpected but okay
           expect(response, isNotNull);
           print('✅ Empty prompt handled successfully: $response');

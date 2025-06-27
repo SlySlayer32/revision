@@ -1,4 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'environment_detector.dart';
 
 /// Environment configuration for API keys and other secrets.
@@ -13,7 +14,7 @@ class EnvConfig {
     if (fromDotenv.isNotEmpty) {
       return fromDotenv;
     }
-    
+
     // Fallback to compile-time environment variable
     return const String.fromEnvironment(
       'GEMINI_API_KEY',
