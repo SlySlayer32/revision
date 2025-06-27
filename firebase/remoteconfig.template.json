@@ -1,22 +1,22 @@
 {
-    "conditions": [
-        {
-            "name": "development_env",
-            "expression": "app.id.contains('dev')",
-            "tagColor": "BLUE"
-        },
-        {
-            "name": "premium_users",
-            "expression": "app.userProperty['tier'] == 'premium'",
-            "tagColor": "GREEN"
-        },
-        {
-            "name": "debug_mode_users",
-            "expression": "percent <= 5",
-            "tagColor": "ORANGE"
-        }
-    ],
-    "parameters": {
+  "conditions": [
+    {
+      "name": "development_env",
+      "expression": "app.id.contains('dev')",
+      "tagColor": "BLUE"
+    },
+    {
+      "name": "premium_users",
+      "expression": "app.userProperty['tier'] == 'premium'",
+      "tagColor": "GREEN"
+    },
+    {
+      "name": "debug_mode_users",
+      "expression": "percent <= 5",
+      "tagColor": "ORANGE"
+    }
+  ],
+  "parameters": {
         "ai_gemini_model": {
             "defaultValue": {
                 "value": "gemini-2.5-flash"
