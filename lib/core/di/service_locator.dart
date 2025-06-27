@@ -38,6 +38,12 @@ void setupServiceLocator() {
   debugPrint('setupServiceLocator: Starting dependency registration...');
 
   try {
+    // Reset service locator for hot reload safety
+    if (getIt.isRegistered<AuthRepository>()) {
+      debugPrint('setupServiceLocator: Dependencies already registered, resetting...');
+      getIt.reset();
+    }
+
     getIt
       // Core Services
       ..registerLazySingleton<CircuitBreaker>(CircuitBreaker.new)
