@@ -71,7 +71,6 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
 Future<void> _initializeFirebase() async {
   try {
     debugPrint('_initializeFirebase: Starting Firebase initialization...');
-    final environment = EnvironmentDetector.currentEnvironment;
     debugPrint('_initializeFirebase: Environment is ${EnvironmentDetector.environmentString}');
 
     // Log Firebase configuration debug info
