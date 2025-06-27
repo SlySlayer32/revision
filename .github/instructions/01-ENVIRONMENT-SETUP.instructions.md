@@ -677,7 +677,7 @@ FIREBASE_PROJECT_ID=revision-staging-xxxxx
 # .env.production
 ENVIRONMENT=production
 GEMINI_API_KEY_PROD=your_production_api_key_here
-FIREBASE_PROJECT_ID=aura-prod-xxxxx
+FIREBASE_PROJECT_ID=revision-464202
 ```
 
 #### Update .gitignore
