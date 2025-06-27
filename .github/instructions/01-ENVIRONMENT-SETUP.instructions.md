@@ -170,11 +170,11 @@ dart pub global activate import_sorter
 very_good create revision \
   --desc "AI-powered photo editor with object removal capabilities" \
   --org "com.example" \
-  --android-package "com.example.aura" \
-  --ios-bundle-id "com.example.aura"
+  --android-package "com.example.revision" \
+  --ios-bundle-id "com.example.revision"
 
 # Navigate to project
-cd aura
+cd revision
 ```
 
 ### 2. Configure Project Structure
