@@ -171,6 +171,51 @@
       "env": {
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
       }
+    },
+    {
+      "name": "🌐 Staging Web",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_staging.dart",
+      "args": [
+        "--target",
+        "lib/main_staging.dart",
+        "--dart-define",
+        "ENVIRONMENT=staging",
+        "--dart-define",
+        "GEMINI_API_KEY=AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM",
+        "-d",
+        "chrome"
+      ],
+      "toolArgs": [
+        "--vm-service-port=8188"
+      ],
+      "env": {
+        "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
+      }
+    },
+    {
+      "name": "🌐 Production Web",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_production.dart",
+      "args": [
+        "--target",
+        "lib/main_production.dart",
+        "--dart-define",
+        "ENVIRONMENT=production",
+        "--dart-define",
+        "GEMINI_API_KEY=AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM",
+        "-d",
+        "chrome",
+        "--release"
+      ],
+      "toolArgs": [
+        "--vm-service-port=8189"
+      ],
+      "env": {
+        "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
+      }
     }
   ]
 }
