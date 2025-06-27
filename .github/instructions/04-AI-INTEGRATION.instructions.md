@@ -1,5 +1,5 @@
 ---
-applyTo: '**'
+applyTo: 'ai'
 ---
 
 # 🤖 AI Integration - Vertex AI & Gemini Complete Implementation Guide
