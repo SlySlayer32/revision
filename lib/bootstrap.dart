@@ -174,12 +174,12 @@ String _getPlatformSpecificEmulatorHost() {
   return 'localhost';
 }
 
-/// Initialize Vertex AI with a health check
+/// Initialize Firebase AI with GoogleAI (Gemini Developer API)
 Future<void> _initializeVertexAI() async {
   try {
-    debugPrint('_initializeVertexAI: Starting Vertex AI initialization...');
+    debugPrint('_initializeVertexAI: Starting Firebase AI (GoogleAI) initialization...');
 
-    // IMPORTANT: Ensure API key is available before initializing Vertex AI
+    // IMPORTANT: Ensure API key is available before initializing Firebase AI
     if (EnvConfig.geminiApiKey.isEmpty) {
       log('❌ CRITICAL: GEMINI_API_KEY is not set. AI features will fail.');
       log('👉 RUN WITH: flutter run --dart-define=GEMINI_API_KEY=YOUR_KEY_HERE');
@@ -187,23 +187,22 @@ Future<void> _initializeVertexAI() async {
       return;
     }
 
-    // Import the firebase_ai package
-    final firebaseAI = FirebaseAI.vertexAI(
-      location: FirebaseConstants.vertexAiLocation,
-    );
+    // Initialize Firebase AI with GoogleAI (Gemini Developer API)
+    // Note: When using Firebase AI Logic SDKs with Gemini Developer API,
+    // you do NOT add your Gemini API key into your app's codebase
+    final firebaseAI = FirebaseAI.googleAI();
 
     // Create a generative model instance for health check
-    firebaseAI.generativeModel(
+    final model = firebaseAI.generativeModel(
       model: FirebaseConstants.geminiModel,
-      systemInstruction: Content.system('Health check'),
     );
 
     debugPrint(
-        '_initializeVertexAI: Vertex AI model configured: ${FirebaseConstants.geminiModel}');
+        '_initializeVertexAI: Firebase AI (GoogleAI) model configured: ${FirebaseConstants.geminiModel}');
     debugPrint(
-        '✅ Vertex AI initialized successfully with model: ${FirebaseConstants.geminiModel}');
+        '✅ Firebase AI (GoogleAI) initialized successfully with model: ${FirebaseConstants.geminiModel}');
 
-    log('✅ Vertex AI initialized successfully with model: ${FirebaseConstants.geminiModel}');
+    log('✅ Firebase AI (GoogleAI) initialized successfully with model: ${FirebaseConstants.geminiModel}');
   } catch (e, stackTrace) {
     debugPrint('⚠️ Vertex AI initialization failed: $e');
     debugPrint('⚠️ Stack trace: $stackTrace');
