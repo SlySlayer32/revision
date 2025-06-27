@@ -1,5 +1,5 @@
 ---
-applyTo: '**'
+applyTo: 'vgv'
 ---
 
 # 🏗️ VGV Clean Architecture - Complete Implementation Guide
