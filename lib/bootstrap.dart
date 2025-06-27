@@ -68,12 +68,15 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   }
 }
 
-/// Initialize Firebase with proper error handling and environment configuration
 Future<void> _initializeFirebase() async {
   try {
     debugPrint('_initializeFirebase: Starting Firebase initialization...');
-    final environment = Environment.current;
-    debugPrint('_initializeFirebase: Environment is \${environment.name}');
+    final environment = EnvironmentDetector.currentEnvironment;
+    debugPrint('_initializeFirebase: Environment is ${EnvironmentDetector.environmentString}');
+
+    // Log Firebase configuration debug info
+    final firebaseDebugInfo = DefaultFirebaseOptions.getDebugInfo();
+    log('🔥 Firebase Debug Info: $firebaseDebugInfo');
 
     // Check if Firebase is already initialized to prevent duplicate app error
     if (Firebase.apps.isEmpty) {
@@ -88,13 +91,13 @@ Future<void> _initializeFirebase() async {
     }
 
     // Configure emulators for development environment
-    if (environment.useEmulators) {
+    if (EnvironmentDetector.isDevelopment) {
       debugPrint(
           '_initializeFirebase: Configuring emulators for development...');
       await _configureEmulators();
     } else {
       debugPrint(
-          '_initializeFirebase: Skipping emulator configuration for ${environment.name}');
+          '_initializeFirebase: Skipping emulator configuration for ${EnvironmentDetector.environmentString}');
     }
 
     // Initialize Vertex AI after Firebase is initialized
@@ -102,7 +105,7 @@ Future<void> _initializeFirebase() async {
     await _initializeVertexAI();
     debugPrint('_initializeFirebase: Vertex AI initialization completed');
 
-    log('✅ Firebase setup completed for ${environment.name} environment');
+    log('✅ Firebase setup completed for ${EnvironmentDetector.environmentString} environment');
   } catch (e, stackTrace) {
     debugPrint('❌ Firebase initialization failed: $e');
     debugPrint('❌ Stack trace: $stackTrace');
@@ -111,7 +114,7 @@ Future<void> _initializeFirebase() async {
       stackTrace: stackTrace,
     );
     // Don't rethrow in development to allow app to continue
-    if (Environment.current != Environment.development) {
+    if (!EnvironmentDetector.isDevelopment) {
       rethrow;
     } else {
       debugPrint('⚠️ Continuing in development mode despite Firebase error');
