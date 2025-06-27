@@ -1,5 +1,3 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 import 'environment_detector.dart';
 
 /// Environment configuration for Firebase AI Logic and other settings.
