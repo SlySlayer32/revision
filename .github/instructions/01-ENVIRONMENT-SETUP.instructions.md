@@ -283,19 +283,19 @@ flutter:
 1. **Development Environment**
    ```bash
    # Create dev project in Firebase Console
-   # Project ID: aura-dev-[random-string]
+   # Project ID: revision-dev-xxxxx
    ```
 
 2. **Staging Environment**
    ```bash
    # Create staging project in Firebase Console  
-   # Project ID: aura-staging-[random-string]
+   # Project ID: revision-staging-xxxxx
    ```
 
 3. **Production Environment**
    ```bash
    # Create production project in Firebase Console
-   # Project ID: aura-prod-[random-string]
+   # Project ID: revision-464202
    ```
 
 #### Configure Flutter for Firebase
