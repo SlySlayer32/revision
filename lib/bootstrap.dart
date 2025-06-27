@@ -98,9 +98,9 @@ Future<void> _initializeFirebase() async {
     }
 
     // Initialize Vertex AI after Firebase is initialized
-    debugPrint('_initializeFirebase: Starting Vertex AI initialization...');
-    await _initializeVertexAI();
-    debugPrint('_initializeFirebase: Vertex AI initialization completed');
+    debugPrint('_initializeFirebase: Starting Firebase AI initialization...');
+    await _initializeFirebaseAI();
+    debugPrint('_initializeFirebase: Firebase AI initialization completed');
 
     log('✅ Firebase setup completed for ${EnvironmentDetector.environmentString} environment');
   } catch (e, stackTrace) {
@@ -175,10 +175,10 @@ String _getPlatformSpecificEmulatorHost() {
 }
 
 /// Initialize Firebase AI with GoogleAI (Gemini Developer API)
-Future<void> _initializeVertexAI() async {
+Future<void> _initializeFirebaseAI() async {
   try {
     debugPrint(
-        '_initializeVertexAI: Starting Firebase AI (GoogleAI) initialization...');
+        '_initializeFirebaseAI: Starting Firebase AI (GoogleAI) initialization...');
 
     // IMPORTANT: Ensure API key is available before initializing Firebase AI
     if (EnvConfig.geminiApiKey.isEmpty) {
@@ -198,15 +198,18 @@ Future<void> _initializeVertexAI() async {
       model: FirebaseConstants.geminiModel,
     );
 
+    // Register the model instance with the service locator
+    getIt.registerLazySingleton<GenerativeModel>(() => model);
+
     // Verify the model was created successfully
-    debugPrint('_initializeVertexAI: Model instance created: ${model.model}');
+    debugPrint('_initializeFirebaseAI: Model instance created: ${model.model}');
 
     debugPrint(
-        '_initializeVertexAI: Firebase AI (GoogleAI) model configured: ${FirebaseConstants.geminiModel}');
+        '_initializeFirebaseAI: Firebase AI (GoogleAI) model configured: ${FirebaseConstants.geminiModel}');
     debugPrint(
-        '✅ Firebase AI (GoogleAI) initialized successfully with model: ${FirebaseConstants.geminiModel}');
+        '✅ Firebase AI (GoogleAI) initialized and registered successfully with model: ${FirebaseConstants.geminiModel}');
 
-    log('✅ Firebase AI (GoogleAI) initialized successfully with model: ${FirebaseConstants.geminiModel}');
+    log('✅ Firebase AI (GoogleAI) initialized and registered successfully with model: ${FirebaseConstants.geminiModel}');
   } catch (e, stackTrace) {
     debugPrint('⚠️ Firebase AI (GoogleAI) initialization failed: $e');
     debugPrint('⚠️ Stack trace: $stackTrace');
