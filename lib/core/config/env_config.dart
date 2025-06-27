@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'environment_detector.dart';
 
 /// Environment configuration for API keys and other secrets.
@@ -5,11 +6,20 @@ import 'environment_detector.dart';
 /// This class retrieves configuration from environment variables
 /// passed during the build process and supports runtime environment detection.
 class EnvConfig {
-  /// The API key for Gemini, retrieved from the `--dart-define` flag.
-  static const String geminiApiKey = String.fromEnvironment(
-    'GEMINI_API_KEY',
-    defaultValue: '',
-  );
+  /// The API key for Gemini, retrieved from .env file or --dart-define flag.
+  static String get geminiApiKey {
+    // First try to get from dotenv (loaded from .env file)
+    final fromDotenv = dotenv.env['GEMINI_API_KEY'] ?? '';
+    if (fromDotenv.isNotEmpty) {
+      return fromDotenv;
+    }
+    
+    // Fallback to compile-time environment variable
+    return const String.fromEnvironment(
+      'GEMINI_API_KEY',
+      defaultValue: '',
+    );
+  }
 
   /// A flag to check if the Gemini API key has been configured.
   static bool get isConfigured => geminiApiKey.isNotEmpty;
