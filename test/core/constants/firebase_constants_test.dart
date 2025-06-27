@@ -308,8 +308,8 @@ void main() {
         // Ensure we're using recent model versions
         expect(
           FirebaseConstants.geminiModel,
-          contains('2.0'),
-        ); // Latest Gemini version
+          contains('2.5'),
+        ); // Latest Gemini version (2.5-flash)
         expect(
           FirebaseConstants.imagenModel,
           contains('3.0'),
