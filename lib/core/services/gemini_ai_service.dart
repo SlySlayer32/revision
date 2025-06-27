@@ -93,6 +93,44 @@ class GeminiAIService implements AIService {
     }
   }
 
+  void _initializeModelsWithConstants() {
+    try {
+      log('⚠️ Falling back to constants for model initialization...');
+      
+      // Initialize Firebase AI with Google AI backend (AI Studio)
+      final firebaseAI = FirebaseAI.googleAI();
+
+      // Initialize Gemini model for text and analysis using constants
+      _geminiModel = firebaseAI.generativeModel(
+        model: FirebaseAIConstants.geminiModel,
+        generationConfig: GenerationConfig(
+          temperature: FirebaseAIConstants.temperature,
+          maxOutputTokens: FirebaseAIConstants.maxOutputTokens,
+          topK: FirebaseAIConstants.topK,
+          topP: FirebaseAIConstants.topP,
+        ),
+        systemInstruction: Content.text(FirebaseAIConstants.analysisSystemPrompt),
+      );
+
+      // Initialize Gemini model for image processing using constants
+      _geminiImageModel = firebaseAI.generativeModel(
+        model: FirebaseAIConstants.geminiImageModel,
+        generationConfig: GenerationConfig(
+          temperature: 0.3, // Lower temperature for more controlled responses
+          maxOutputTokens: 2048,
+          topK: 32,
+          topP: 0.9,
+        ),
+        systemInstruction: Content.text(FirebaseAIConstants.editingSystemPrompt),
+      );
+
+      log('✅ Models initialized with constants fallback');
+    } catch (e, stackTrace) {
+      log('❌ Failed to initialize models with constants: $e', stackTrace: stackTrace);
+      rethrow;
+    }
+  }
+
   /// Process text prompt using Google AI
   Future<String> processTextPrompt(String prompt) async {
     try {
