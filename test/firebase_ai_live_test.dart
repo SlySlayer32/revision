@@ -7,12 +7,16 @@
 
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revision/firebase_options.dart';
 
 void main() {
   group('Firebase AI Logic Live Tests', () {
     setUpAll(() async {
+      // Ensure Flutter binding is initialized for tests
+      TestWidgetsFlutterBinding.ensureInitialized();
+      
       // Initialize Firebase for testing
       try {
         await Firebase.initializeApp(
