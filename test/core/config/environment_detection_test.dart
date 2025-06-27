@@ -50,8 +50,8 @@ void main() {
   });
 
   group('EnvConfig Tests', () {
-    test('should check if API key is configured', () {
-      final isConfigured = EnvConfig.isConfigured;
+    test('should check if Firebase AI is configured', () {
+      final isConfigured = EnvConfig.isFirebaseAIConfigured;
       expect(isConfigured, isA<bool>());
     });
 
