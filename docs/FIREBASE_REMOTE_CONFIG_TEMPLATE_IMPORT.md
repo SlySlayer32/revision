@@ -9,6 +9,7 @@ Instead of manually creating each parameter, use this pre-configured template to
 Use the included template: `firebase_remote_config_template.json`
 
 This template includes:
+
 - ✅ All 11 AI parameters with proper defaults
 - ✅ Smart conditions for development/premium users
 - ✅ Parameter groups for better organization
@@ -19,26 +20,31 @@ This template includes:
 ### Method 1: Firebase CLI (Recommended)
 
 1. **Install Firebase CLI** (if not already installed):
+
    ```bash
    npm install -g firebase-tools
    ```
 
 2. **Login to Firebase**:
+
    ```bash
    firebase login
    ```
 
 3. **Navigate to your project directory**:
+
    ```bash
    cd path/to/your/revision/project
    ```
 
 4. **Import the template**:
+
    ```bash
    firebase remoteconfig:set firebase_remote_config_template.json
    ```
 
 5. **Verify import**:
+
    ```bash
    firebase remoteconfig:get
    ```
@@ -116,15 +122,18 @@ After import, verify everything is working:
    - Confirm parameter groups are organized
 
 2. **Test in your app**:
+
    ```bash
    flutter run
    ```
+
    - Open Dashboard → "Test Firebase AI"
    - Tap "Refresh Config" button
    - Verify current config values are displayed
    - Test with a prompt to confirm AI is working
 
 3. **Check logs** for successful initialization:
+
    ```
    ✅ Firebase Remote Config initialized successfully
    ✅ Google AI (Gemini API) models initialized successfully
@@ -135,6 +144,7 @@ After import, verify everything is working:
 ### Adjust Default Values
 
 Update any defaults in Firebase Console:
+
 1. Click on a parameter
 2. Edit "Default value"
 3. Click "Update" then "Publish changes"
@@ -142,6 +152,7 @@ Update any defaults in Firebase Console:
 ### Add Custom Conditions
 
 Create your own conditions:
+
 1. Click "Add condition"
 2. Define rules (e.g., `app.version >= '1.2.0'`)
 3. Apply to specific parameters
@@ -149,6 +160,7 @@ Create your own conditions:
 ### Modify System Prompts
 
 Customize AI behavior:
+
 1. Edit `ai_analysis_system_prompt` or `ai_editing_system_prompt`
 2. Add your specific requirements
 3. Test with real prompts
@@ -213,6 +225,7 @@ You'll know import worked when:
 To update an existing configuration:
 
 1. **Export current config**:
+
    ```bash
    firebase remoteconfig:get > current_config.json
    ```
@@ -220,6 +233,7 @@ To update an existing configuration:
 2. **Merge with template** (keep your customizations)
 
 3. **Re-import updated template**:
+
    ```bash
    firebase remoteconfig:set updated_template.json
    ```
