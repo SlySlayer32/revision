@@ -4,17 +4,28 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform, kIsWeb;
 
+// Import environment-specific configurations
+import 'firebase_options_dev.dart' as dev;
+import 'firebase_options_staging.dart' as staging;
+import 'firebase_options_production.dart' as production;
+
 /// Default [FirebaseOptions] for use with your Firebase apps.
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
-    if (kIsWeb) {
-      return _getWebOptions();
+    // Get environment from compile-time constant
+    const environment = String.fromEnvironment('ENVIRONMENT', defaultValue: 'development');
+    
+    // Return environment-specific options
+    switch (environment) {
+      case 'production':
+        return production.DefaultFirebaseOptions.currentPlatform;
+      case 'staging':
+        return staging.DefaultFirebaseOptions.currentPlatform;
+      case 'development':
+      default:
+        return dev.DefaultFirebaseOptions.currentPlatform;
     }
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.android:
-        return _getAndroidOptions();
-      case TargetPlatform.iOS:
-        return _getIOSOptions();
+  }
       case TargetPlatform.macOS:
         // Or handle macOS specifically if you have a separate configuration
         throw UnsupportedError(
