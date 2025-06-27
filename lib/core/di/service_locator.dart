@@ -41,6 +41,12 @@ void setupServiceLocator() {
     getIt
       // Core Services
       ..registerLazySingleton<CircuitBreaker>(CircuitBreaker.new)
+      ..registerLazySingleton<FirebaseAIRemoteConfigService>(
+        FirebaseAIRemoteConfigService.new,
+      )
+      ..registerLazySingleton<GeminiAIService>(
+        () => GeminiAIService(remoteConfigService: getIt<FirebaseAIRemoteConfigService>()),
+      )
       ..registerLazySingleton<GeminiPipelineService>(
         () => GeminiPipelineService(generativeModel: getIt<GenerativeModel>()),
       )
