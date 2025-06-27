@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../../../../core/error/exceptions.dart';
-import '../models/user_profile_model.dart';
+import '../../../../../core/error/exceptions.dart';
+import '../../models/user_profile_model.dart';
 
 abstract class UserProfileFirestoreDataSource {
   Future<UserProfileModel> getUserProfile(String userId);
