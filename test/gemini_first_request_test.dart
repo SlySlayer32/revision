@@ -81,7 +81,7 @@ void main() async {
         print('💡 This is expected in test environment without Firebase setup');
         print('   In a real app with Firebase configured, this would work');
 
-        expect(e.toString(), contains('firebase'));
+        expect(e.toString(), contains('NotInitializedError'));
       }
     });
 
