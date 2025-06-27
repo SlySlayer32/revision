@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:revision/examples/firebase_ai_demo_widget.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
 import 'package:revision/features/image_selection/presentation/view/image_selection_page.dart';
