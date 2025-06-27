@@ -247,8 +247,6 @@ docs/
 ├── 🔧 fixing-errors.md              # Error fixing guidelines
 └── 📂 workflows/                    # Step-by-step workflows
     └── Authentication Domain Layer.md # Auth domain implementation guide
-```
-
 
 ## 🔍 Quick Navigation Guide
 
