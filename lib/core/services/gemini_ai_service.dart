@@ -317,7 +317,7 @@ Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a b
 
       final response = await _geminiImageModel
           .generateContent(content)
-          .timeout(FirebaseAIConstants.requestTimeout);
+          .timeout(_remoteConfig.requestTimeout);
 
       if (response.text == null || response.text!.isEmpty) {
         // Default to safe if we can't analyze
