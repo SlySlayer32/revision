@@ -167,7 +167,7 @@ dart pub global activate import_sorter
 
 ```bash
 # Create project using Very Good CLI
-very_good create aura \
+very_good create revision \
   --desc "AI-powered photo editor with object removal capabilities" \
   --org "com.example" \
   --android-package "com.example.aura" \
