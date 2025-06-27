@@ -192,10 +192,13 @@ Future<void> _initializeVertexAI() async {
     // you do NOT add your Gemini API key into your app's codebase
     final firebaseAI = FirebaseAI.googleAI();
 
-    // Create a generative model instance for health check
+    // Create a generative model instance for health check  
     final model = firebaseAI.generativeModel(
       model: FirebaseConstants.geminiModel,
     );
+
+    // Verify the model was created successfully
+    debugPrint('_initializeVertexAI: Model instance created: ${model.model}');
 
     debugPrint(
         '_initializeVertexAI: Firebase AI (GoogleAI) model configured: ${FirebaseConstants.geminiModel}');
@@ -204,9 +207,9 @@ Future<void> _initializeVertexAI() async {
 
     log('✅ Firebase AI (GoogleAI) initialized successfully with model: ${FirebaseConstants.geminiModel}');
   } catch (e, stackTrace) {
-    debugPrint('⚠️ Vertex AI initialization failed: $e');
+    debugPrint('⚠️ Firebase AI (GoogleAI) initialization failed: $e');
     debugPrint('⚠️ Stack trace: $stackTrace');
-    log('⚠️ Vertex AI initialization failed: $e', stackTrace: stackTrace);
+    log('⚠️ Firebase AI (GoogleAI) initialization failed: $e', stackTrace: stackTrace);
     // Don't rethrow - app should be able to function without AI initially.
   }
 }
