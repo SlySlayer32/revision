@@ -2,28 +2,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'environment_detector.dart';
 
-/// Environment configuration for API keys and other secrets.
+/// Environment configuration for Firebase AI Logic and other settings.
 ///
 /// This class retrieves configuration from environment variables
 /// passed during the build process and supports runtime environment detection.
+/// 
+/// Note: API keys are managed by Firebase AI Logic, not in environment variables.
 class EnvConfig {
-  /// The API key for Gemini, retrieved from .env file or --dart-define flag.
-  static String get geminiApiKey {
-    // First try to get from dotenv (loaded from .env file)
-    final fromDotenv = dotenv.env['GEMINI_API_KEY'] ?? '';
-    if (fromDotenv.isNotEmpty) {
-      return fromDotenv;
-    }
-
-    // Fallback to compile-time environment variable
-    return const String.fromEnvironment(
-      'GEMINI_API_KEY',
-      defaultValue: '',
-    );
-  }
-
-  /// A flag to check if the Gemini API key has been configured.
-  static bool get isConfigured => geminiApiKey.isNotEmpty;
+  /// Firebase AI Logic is always configured when Firebase is properly initialized.
+  /// API keys are managed internally by Firebase.
+  static bool get isFirebaseAIConfigured => true;
 
   /// Get the current environment
   static AppEnvironment get currentEnvironment =>
