@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 /// Environment configuration for API keys and other secrets.
 ///
 /// This class retrieves the Gemini API key from the environment variables

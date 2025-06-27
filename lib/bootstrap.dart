@@ -72,7 +72,8 @@ Future<void> _initializeFirebase() async {
 
     // Check if Firebase is already initialized to prevent duplicate app error
     if (Firebase.apps.isEmpty) {
-      debugPrint('bootstrap: Firebase not initialized, calling initializeApp...');
+      debugPrint(
+          'bootstrap: Firebase not initialized, calling initializeApp...');
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
