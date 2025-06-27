@@ -15,7 +15,7 @@ import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
 /// - Uses Gemini Developer API (not Vertex AI)
 /// - Requires Firebase project setup with AI Logic enabled
 class GeminiAIService implements AIService {
-  GeminiAIService({FirebaseAIRemoteConfigService? remoteConfigService}) 
+  GeminiAIService({FirebaseAIRemoteConfigService? remoteConfigService})
       : _remoteConfig = remoteConfigService ?? FirebaseAIRemoteConfigService() {
     _initializeService();
   }
@@ -27,19 +27,18 @@ class GeminiAIService implements AIService {
 
   Future<void> _initializeService() async {
     if (_isInitialized) return;
-    
+
     try {
       log('🚀 Initializing Firebase AI Logic with Remote Config...');
-      
+
       // Initialize Remote Config first
       await _remoteConfig.initialize();
-      
+
       // Initialize models with Remote Config values
       _initializeModels();
-      
+
       _isInitialized = true;
       log('✅ Firebase AI Logic initialized successfully');
-      
     } catch (e) {
       log('❌ Failed to initialize Firebase AI Logic: $e');
       // Fall back to constants if Remote Config fails
@@ -70,8 +69,10 @@ class GeminiAIService implements AIService {
       _geminiImageModel = firebaseAI.generativeModel(
         model: _remoteConfig.geminiImageModel,
         generationConfig: GenerationConfig(
-          temperature: _remoteConfig.temperature * 0.75, // Slightly lower for images
-          maxOutputTokens: _remoteConfig.maxOutputTokens * 2, // More tokens for images
+          temperature:
+              _remoteConfig.temperature * 0.75, // Slightly lower for images
+          maxOutputTokens:
+              _remoteConfig.maxOutputTokens * 2, // More tokens for images
           topK: 32,
           topP: 0.9,
         ),
@@ -98,7 +99,7 @@ class GeminiAIService implements AIService {
   void _initializeModelsWithConstants() {
     try {
       log('⚠️ Falling back to constants for model initialization...');
-      
+
       // Initialize Firebase AI with Google AI backend (AI Studio)
       final firebaseAI = FirebaseAI.googleAI();
 
@@ -111,7 +112,8 @@ class GeminiAIService implements AIService {
           topK: FirebaseAIConstants.topK,
           topP: FirebaseAIConstants.topP,
         ),
-        systemInstruction: Content.text(FirebaseAIConstants.analysisSystemPrompt),
+        systemInstruction:
+            Content.text(FirebaseAIConstants.analysisSystemPrompt),
       );
 
       // Initialize Gemini model for image processing using constants
@@ -123,12 +125,14 @@ class GeminiAIService implements AIService {
           topK: 32,
           topP: 0.9,
         ),
-        systemInstruction: Content.text(FirebaseAIConstants.editingSystemPrompt),
+        systemInstruction:
+            Content.text(FirebaseAIConstants.editingSystemPrompt),
       );
 
       log('✅ Models initialized with constants fallback');
     } catch (e, stackTrace) {
-      log('❌ Failed to initialize models with constants: $e', stackTrace: stackTrace);
+      log('❌ Failed to initialize models with constants: $e',
+          stackTrace: stackTrace);
       rethrow;
     }
   }
@@ -409,14 +413,14 @@ Provide a clear, actionable editing prompt.
   /// Refresh Remote Config and reinitialize models with new values
   Future<void> refreshConfig() async {
     if (!_isInitialized) return;
-    
+
     try {
       log('🔄 Refreshing Firebase AI Remote Config...');
       await _remoteConfig.refresh();
-      
+
       // Reinitialize models with new config values
       _initializeModels();
-      
+
       log('✅ Firebase AI Remote Config refreshed successfully');
     } catch (e) {
       log('⚠️ Failed to refresh Remote Config: $e');
