@@ -275,18 +275,18 @@ class DashboardPage extends StatelessWidget {
             ),
             _buildToolCard(
               context,
+              'Firebase AI Demo',
+              'Test Gemini API integration',
+              Icons.psychology,
+              Colors.blue,
+              onTap: () => _navigateToFirebaseAIDemo(context),
+            ),
+            _buildToolCard(
+              context,
               'AI Object Removal',
               'Remove unwanted objects from photos',
               Icons.auto_fix_high,
               Colors.purple,
-              isAvailable: false,
-            ),
-            _buildToolCard(
-              context,
-              'Background Editor',
-              'Replace or remove backgrounds',
-              Icons.landscape,
-              Colors.green,
               isAvailable: false,
             ),
             _buildToolCard(
