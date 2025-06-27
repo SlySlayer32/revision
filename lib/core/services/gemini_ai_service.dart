@@ -406,6 +406,34 @@ Provide a clear, actionable editing prompt.
     }
   }
 
+  /// Refresh Remote Config and reinitialize models with new values
+  Future<void> refreshConfig() async {
+    if (!_isInitialized) return;
+    
+    try {
+      log('🔄 Refreshing Firebase AI Remote Config...');
+      await _remoteConfig.refresh();
+      
+      // Reinitialize models with new config values
+      _initializeModels();
+      
+      log('✅ Firebase AI Remote Config refreshed successfully');
+    } catch (e) {
+      log('⚠️ Failed to refresh Remote Config: $e');
+    }
+  }
+
+  /// Get current Remote Config values for debugging
+  Map<String, dynamic> getConfigDebugInfo() {
+    return _remoteConfig.getAllValues();
+  }
+
+  /// Check if advanced features are enabled
+  bool get isAdvancedFeaturesEnabled => _remoteConfig.enableAdvancedFeatures;
+
+  /// Check if debug mode is enabled
+  bool get isDebugMode => _remoteConfig.debugMode;
+
   List<String> _getFallbackSuggestions() {
     return [
       'Remove any unwanted objects or distractions from the image',
