@@ -1,22 +1,42 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:revision/firebase_options.dart';
+import 'package:revision/core/config/ai_config.dart';
+import 'package:revision/firebase_options_dev.dart';
 
 /// Test first request to Gemini 2.5 Flash using Firebase AI Logic SDK
 /// This test validates the complete Firebase AI setup and sends a real request
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  
   group('Gemini 2.5 Flash First Request Tests', () {
+    late FirebaseAI firebaseAI;
+    late GenerativeModel model;
+
     setUpAll(() async {
-      // Initialize Firebase for testing
       try {
+        // Initialize Firebase with development configuration
         await Firebase.initializeApp(
           options: DefaultFirebaseOptions.currentPlatform,
         );
         print('✅ Firebase initialized successfully');
+
+        // Initialize Firebase AI with proper configuration
+        firebaseAI = FirebaseAI.googleAI();
+        model = firebaseAI.generativeModel(
+          model: AIConfig.geminiModel,
+          generationConfig: GenerationConfig(
+            temperature: AIConfig.temperature,
+            maxOutputTokens: AIConfig.maxOutputTokens,
+            topK: AIConfig.topK,
+            topP: AIConfig.topP,
+          ),
+          systemInstruction: Content.text(AIConfig.analysisSystemPrompt),
+        );
+        print('✅ AI model initialized successfully');
       } catch (e) {
-        print('⚠️ Firebase already initialized or error: $e');
+        print('⚠️ Initialization error: $e');
+        rethrow;
       }
     });
 
