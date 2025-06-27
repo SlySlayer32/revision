@@ -98,7 +98,7 @@ void main() {
         final model = firebaseAI.generativeModel(model: 'gemini-2.5-flash');
 
         // Example of how to send image data (you would use real image bytes)
-        final mockImageBytes = List<int>.filled(100, 0); // Mock image data
+        final mockImageBytes = Uint8List.fromList(List<int>.filled(100, 0)); // Mock image data
         
         final content = [
           Content.multi([
