@@ -8,7 +8,7 @@ import 'package:revision/core/services/ai_service.dart';
 
 /// Google AI (Gemini API) service implementation
 /// Uses Google AI Studio API with Firebase AI SDK
-/// 
+///
 /// Configuration:
 /// - API key is managed through Firebase Console (not in code)
 /// - Uses Gemini Developer API (not Vertex AI)
@@ -17,20 +17,16 @@ class GeminiAIService implements AIService {
   GeminiAIService() {
     _initializeModels();
   }
-  
+
   late final GenerativeModel _geminiModel;
   late final GenerativeModel _geminiImageModel;
 
   void _initializeModels() {
     try {
-      // Verify environment configuration
-      if (!EnvConfig.isConfigured) {
-        log('⚠️ Gemini API key not found in environment configuration');
-        log('💡 This should be set in Firebase Console, not in code');
-      }
+      log('🚀 Initializing Firebase AI Logic models...');
 
       // Initialize Firebase AI with Google AI backend (AI Studio)
-      // Note: API key is configured in Firebase Console, not passed here
+      // API key is configured in Firebase Console, not passed here
       final firebaseAI = FirebaseAI.googleAI();
 
       // Initialize Gemini model for text and analysis
@@ -48,7 +44,8 @@ class GeminiAIService implements AIService {
 
       // Initialize Gemini model for image processing
       _geminiImageModel = firebaseAI.generativeModel(
-        model: FirebaseAIConstants.geminiImageModel, // Can use same model for images
+        model: FirebaseAIConstants
+            .geminiImageModel, // Can use same model for images
         generationConfig: GenerationConfig(
           temperature: 0.3, // Lower temperature for more controlled responses
           maxOutputTokens: 2048,
@@ -62,7 +59,8 @@ class GeminiAIService implements AIService {
       log('✅ Google AI (Gemini API) models initialized successfully');
       log('🔑 API key source: Firebase Console configuration');
     } catch (e, stackTrace) {
-      log('❌ Failed to initialize Google AI models: $e', stackTrace: stackTrace);
+      log('❌ Failed to initialize Google AI models: $e',
+          stackTrace: stackTrace);
       log('💡 Common issues:');
       log('   - Firebase project not set up with AI Logic');
       log('   - Gemini API not enabled in Firebase Console');
@@ -76,7 +74,7 @@ class GeminiAIService implements AIService {
   Future<String> processTextPrompt(String prompt) async {
     try {
       final content = [Content.text(prompt)];
-      
+
       final response = await _geminiModel
           .generateContent(content)
           .timeout(FirebaseAIConstants.requestTimeout);
@@ -89,7 +87,7 @@ class GeminiAIService implements AIService {
       return response.text!;
     } catch (e, stackTrace) {
       log('❌ Google AI processTextPrompt failed: $e', stackTrace: stackTrace);
-      
+
       // Return fallback response for MVP
       return 'Sorry, I encountered an error processing your request. Please try again.';
     }
@@ -183,7 +181,8 @@ Keep the description clear and technical.
       log('✅ Google AI generateImageDescription completed successfully');
       return response.text!;
     } catch (e, stackTrace) {
-      log('❌ Google AI generateImageDescription failed: $e', stackTrace: stackTrace);
+      log('❌ Google AI generateImageDescription failed: $e',
+          stackTrace: stackTrace);
       return 'Unable to analyze image at this time.';
     }
   }
@@ -279,7 +278,7 @@ Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a b
   }) async {
     try {
       final markerDescriptions = markers
-          .map((marker) => 
+          .map((marker) =>
               'Marker at (${marker['x']}, ${marker['y']}): ${marker['description'] ?? 'Object to edit'}')
           .join('\n');
 
@@ -314,7 +313,8 @@ Provide a clear, actionable editing prompt.
       log('✅ Google AI generateEditingPrompt completed successfully');
       return response.text!;
     } catch (e, stackTrace) {
-      log('❌ Google AI generateEditingPrompt failed: $e', stackTrace: stackTrace);
+      log('❌ Google AI generateEditingPrompt failed: $e',
+          stackTrace: stackTrace);
       return 'Remove marked objects and blend the background seamlessly.';
     }
   }
@@ -328,13 +328,13 @@ Provide a clear, actionable editing prompt.
       // Note: This is a placeholder as actual image processing would require
       // additional AI services or image processing libraries
       log('🤖 Processing image with AI using prompt: $editingPrompt');
-      
+
       // For now, return the original image
       // In a real implementation, this would:
       // 1. Send the image and prompt to an image editing AI service
       // 2. Receive the processed image
       // 3. Return the processed image bytes
-      
+
       log('⚠️ AI image processing not yet implemented - returning original image');
       return imageBytes;
     } catch (e, stackTrace) {
