@@ -1,7 +1,5 @@
-import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:revision/core/constants/firebase_ai_constants.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
 
 /// Firebase AI Logic Demo Widget with Remote Config
@@ -60,23 +58,8 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
       _configValues = _geminiService.getConfigDebugInfo();
     });
   }
-      );
-      
-      setState(() {
-        _status = '✅ Firebase AI Logic initialized successfully!';
-      });
-      
-      debugPrint('🎯 Firebase AI Logic setup completed');
-      debugPrint('🔑 API key source: Firebase Console configuration');
-    } catch (e) {
-      setState(() {
-        _status = '❌ Initialization failed: $e';
-      });
-      debugPrint('❌ Firebase AI Logic initialization failed: $e');
-    }
-  }
 
-  Future<void> _sendPrompt() async {
+  Future<void> _generateContent() async {
     if (_promptController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a prompt')),
@@ -87,48 +70,61 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
     setState(() {
       _isLoading = true;
       _response = '';
-      _status = 'Sending request to Gemini...';
+      _status = 'Sending request to Gemini via Remote Config...';
     });
 
     try {
-      // Step 3: Send a prompt request to the model
-      // This follows the exact Firebase AI Logic documentation pattern
+      // Use the Gemini AI service which now uses Remote Config parameters
       final prompt = _promptController.text.trim();
-      debugPrint('📝 Sending prompt: "$prompt"');
       
-      final response = await _model.generateContent([Content.text(prompt)]);
+      // This call now uses the current Remote Config values for:
+      // - Model selection, temperature, tokens, etc.
+      // - System instructions and prompts
+      // - Timeout values
+      final response = await _geminiService.processTextPrompt(prompt);
+
+      setState(() {
+        _response = response;
+        _status = '✅ Response received using Remote Config parameters';
+        _isLoading = false;
+      });
       
-      if (response.text != null && response.text!.isNotEmpty) {
-        setState(() {
-          _response = response.text!;
-          _status = '✅ Response received successfully!';
-        });
-        debugPrint('✅ API call successful');
-      } else {
-        setState(() {
-          _response = 'No response received from the model.';
-          _status = '⚠️ Empty response received';
-        });
-      }
+      // Refresh config values to show what was actually used
+      _refreshConfigValues();
+      
     } catch (e) {
       setState(() {
         _response = 'Error: $e';
-        _status = '❌ Request failed';
+        _status = '❌ Request failed: $e';
+        _isLoading = false;
       });
-      debugPrint('❌ API call failed: $e');
+    }
+  }
+
+  Future<void> _refreshRemoteConfig() async {
+    setState(() {
+      _status = 'Refreshing Remote Config from Firebase Console...';
+    });
+
+    try {
+      await _geminiService.refreshConfig();
+      _refreshConfigValues();
       
-      // Show user-friendly error message
+      setState(() {
+        _status = '✅ Remote Config refreshed successfully';
+      });
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to get response: ${e.toString()}'),
-            backgroundColor: Colors.red,
+          const SnackBar(
+            content: Text('Remote Config updated! Changes will apply to next request.'),
+            backgroundColor: Colors.green,
           ),
         );
       }
-    } finally {
+    } catch (e) {
       setState(() {
-        _isLoading = false;
+        _status = '❌ Failed to refresh Remote Config: $e';
       });
     }
   }
@@ -143,108 +139,216 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Firebase AI Logic Demo'),
-        backgroundColor: Colors.blue[100],
+        title: const Text('Firebase AI + Remote Config Demo'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _refreshRemoteConfig,
+            tooltip: 'Refresh Remote Config',
+          ),
+        ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Status card
+            // Status Card
             Card(
-              color: _status.startsWith('✅') 
-                  ? Colors.green[50] 
-                  : _status.startsWith('❌') 
-                      ? Colors.red[50] 
-                      : Colors.blue[50],
+              color: _status.contains('✅') 
+                ? Colors.green.shade50 
+                : _status.contains('❌') 
+                  ? Colors.red.shade50 
+                  : Colors.blue.shade50,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  _status,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // Prompt input
-            TextField(
-              controller: _promptController,
-              decoration: const InputDecoration(
-                labelText: 'Enter your prompt',
-                hintText: 'e.g., "Write a short story about a magic backpack"',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
-              enabled: !_isLoading,
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // Send button
-            ElevatedButton.icon(
-              onPressed: _isLoading ? null : _sendPrompt,
-              icon: _isLoading 
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.send),
-              label: Text(_isLoading ? 'Sending...' : 'Send to Gemini'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(16),
-              ),
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // Response area
-            Expanded(
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Response:',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Text(
-                            _response.isEmpty ? 'No response yet...' : _response,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            
-            // Instructions
-            const Card(
-              color: Colors.amber,
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '🎯 How this works:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      'Status',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    SizedBox(height: 8),
-                    Text('1. Uses Firebase AI Logic with Gemini Developer API'),
-                    Text('2. API key is managed by Firebase Console (not .env)'),
-                    Text('3. Follows official Firebase AI Logic documentation'),
-                    Text('4. Ready for integration into your app features'),
+                    const SizedBox(height: 8),
+                    Text(_status),
+                  ],
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Remote Config Values Card
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Current Remote Config Values',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Spacer(),
+                        ElevatedButton.icon(
+                          onPressed: _refreshRemoteConfig,
+                          icon: const Icon(Icons.cloud_download, size: 16),
+                          label: const Text('Refresh'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'These values are controlled from Firebase Console > Remote Config',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 12),
+                    if (_configValues.isNotEmpty) ...[
+                      for (final entry in _configValues.entries)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  entry.key,
+                                  style: const TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 3,
+                                child: Text(
+                                  entry.value.toString(),
+                                  style: const TextStyle(fontFamily: 'monospace'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ] else
+                      const Text('Loading config values...'),
+                  ],
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Input Section
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Test Prompt',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _promptController,
+                      decoration: const InputDecoration(
+                        hintText: 'Enter your prompt here...',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _isLoading ? null : _generateContent,
+                        icon: _isLoading 
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.send),
+                        label: Text(_isLoading ? 'Generating...' : 'Generate with AI'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Response Section
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'AI Response',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8.0),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Text(
+                        _response.isEmpty ? 'No response yet...' : _response,
+                        style: const TextStyle(fontFamily: 'monospace'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Instructions Card
+            Card(
+              color: Colors.amber.shade50,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.info, color: Colors.amber.shade700),
+                        const SizedBox(width: 8),
+                        Text(
+                          'How to Control from Firebase Console',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.amber.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      '1. Go to Firebase Console > Remote Config\n'
+                      '2. Update AI parameters (model, temperature, prompts, etc.)\n'
+                      '3. Click "Publish changes"\n'
+                      '4. Tap "Refresh" button above to load new values\n'
+                      '5. Test with a new prompt to see changes!',
+                    ),
                   ],
                 ),
               ),
