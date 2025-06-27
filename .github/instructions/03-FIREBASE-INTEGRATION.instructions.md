@@ -53,34 +53,34 @@ firebase login
 #### Generate Firebase Configuration Files
 ```bash
 # Navigate to your Flutter project root
-cd /path/to/aura
+cd /path/to/revision
 
 # Configure for development
 flutterfire configure \
-  --project=aura-dev-xxxxx \
+  --project=revision-464202-dev \
   --out=lib/firebase_options_dev.dart \
-  --ios-bundle-id=com.example.aura.dev \
-  --android-package-name=com.example.aura.dev \
+  --ios-bundle-id=com.example.revision.dev \
+  --android-package-name=com.example.revision.dev \
   --web-app-id=1:123456789:web:abcdef \
   --ios-out=ios/Runner/GoogleService-Info-dev.plist \
   --android-out=android/app/src/dev/google-services.json
 
 # Configure for staging
 flutterfire configure \
-  --project=aura-staging-xxxxx \
+  --project=revision-464202-staging \
   --out=lib/firebase_options_staging.dart \
-  --ios-bundle-id=com.example.aura.staging \
-  --android-package-name=com.example.aura.staging \
+  --ios-bundle-id=com.example.revision.staging \
+  --android-package-name=com.example.revision.staging \
   --web-app-id=1:123456789:web:ghijkl \
   --ios-out=ios/Runner/GoogleService-Info-staging.plist \
   --android-out=android/app/src/staging/google-services.json
 
 # Configure for production
 flutterfire configure \
-  --project=aura-prod-xxxxx \
+  --project=revision-464202 \
   --out=lib/firebase_options_prod.dart \
-  --ios-bundle-id=com.example.aura \
-  --android-package-name=com.example.aura \
+  --ios-bundle-id=com.example.revision \
+  --android-package-name=com.example.revision \
   --web-app-id=1:123456789:web:mnopqr \
   --ios-out=ios/Runner/GoogleService-Info-prod.plist \
   --android-out=android/app/src/production/google-services.json
