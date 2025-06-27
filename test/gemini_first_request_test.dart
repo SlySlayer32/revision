@@ -170,9 +170,16 @@ void main() async {
       });
 
       test('should handle API errors gracefully', () async {
+        // Skip test if Firebase is not initialized
+        if (!firebaseInitialized || aiService == null) {
+          print('');
+          print('⏩ Skipping error handling test - Firebase not initialized');
+          return;
+        }
+
         try {
           // Test with invalid/empty prompt to see error handling
-          final response = await aiService.processTextPrompt('');
+          final response = await aiService!.processTextPrompt('');
 
           // If it succeeds with empty prompt, that's unexpected but okay
           expect(response, isNotNull);
