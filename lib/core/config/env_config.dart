@@ -15,7 +15,8 @@ class EnvConfig {
   static bool get isConfigured => geminiApiKey.isNotEmpty;
 
   /// Get the current environment
-  static AppEnvironment get currentEnvironment => EnvironmentDetector.currentEnvironment;
+  static AppEnvironment get currentEnvironment =>
+      EnvironmentDetector.currentEnvironment;
 
   /// Get environment as string
   static String get environmentString => EnvironmentDetector.environmentString;
