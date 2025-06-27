@@ -1,97 +1,97 @@
 {
-  "conditions": [
-    {
-      "name": "android_users",
-      "expression": "device.os == 'android'",
-      "tagColor": "BLUE"
-    },
-    {
-      "name": "debug_mode_users",
-      "expression": "percent <= 5",
-      "tagColor": "ORANGE"
+    "conditions": [
+        {
+            "name": "android_users",
+            "expression": "device.os == 'android'",
+            "tagColor": "BLUE"
+        },
+        {
+            "name": "debug_mode_users",
+            "expression": "percent <= 5",
+            "tagColor": "ORANGE"
+        }
+    ],
+    "parameters": {
+        "ai_gemini_model": {
+            "defaultValue": {
+                "value": "gemini-2.5-flash"
+            },
+            "description": "Primary Gemini model for text analysis and processing",
+            "conditionalValues": {
+                "debug_mode_users": {
+                    "value": "gemini-1.5-pro"
+                }
+            }
+        },
+        "ai_gemini_image_model": {
+            "defaultValue": {
+                "value": "gemini-2.0-flash-preview-image-generation"
+            },
+            "description": "Gemini model for image generation and processing"
+        },
+        "ai_temperature": {
+            "defaultValue": {
+                "value": "0.4"
+            },
+            "description": "Controls creativity vs consistency (0.0-1.0). Lower = more focused, Higher = more creative",
+            "conditionalValues": {
+                "android_users": {
+                    "value": "0.6"
+                }
+            }
+        },
+        "ai_max_output_tokens": {
+            "defaultValue": {
+                "value": "1024"
+            },
+            "description": "Maximum tokens in AI response. Higher = longer responses"
+        },
+        "ai_debug_mode": {
+            "defaultValue": {
+                "value": "false"
+            },
+            "description": "Enable detailed logging for AI operations",
+            "conditionalValues": {
+                "debug_mode_users": {
+                    "value": "true"
+                }
+            }
+        },
+        "ai_top_k": {
+            "defaultValue": {
+                "value": "40"
+            },
+            "description": "Top-K sampling parameter. Lower = more focused responses"
+        },
+        "ai_top_p": {
+            "defaultValue": {
+                "value": "0.95"
+            },
+            "description": "Top-P (nucleus) sampling parameter. Lower = more focused responses"
+        },
+        "ai_analysis_system_prompt": {
+            "defaultValue": {
+                "value": "You are an expert image analysis AI. Analyze the provided image and marked object to create precise editing instructions.\\n\\nFocus on:\\n1. Object identification and boundaries\\n2. Background reconstruction techniques\\n3. Lighting and shadow analysis\\n4. Color harmony considerations\\n5. Realistic removal strategies\\n\\nProvide actionable editing instructions."
+            },
+            "description": "System instruction for image analysis tasks"
+        },
+        "ai_editing_system_prompt": {
+            "defaultValue": {
+                "value": "You are an expert AI image editor using Gemini 2.0 Flash Preview Image Generation. Edit the provided image based on user instructions with these requirements:\\n\\n1. Generate a new version of the image with the requested edits applied\\n2. If removing objects: use content-aware reconstruction to fill the space naturally\\n3. If enhancing: improve lighting, contrast, color balance, and composition\\n4. Maintain original image resolution and quality\\n5. Preserve overall composition and visual coherence\\n6. Apply changes seamlessly and realistically\\n\\nReturn the edited image directly as the output."
+            },
+            "description": "System instruction for image editing tasks"
+        },
+        "ai_request_timeout_seconds": {
+            "defaultValue": {
+                "value": "30"
+            },
+            "description": "Timeout for AI requests in seconds"
+        },
+        "ai_enable_advanced_features": {
+            "defaultValue": {
+                "value": "true"
+            },
+            "description": "Enable experimental AI features"
+        }
     }
-  ],
-  "parameters": {
-    "ai_gemini_model": {
-      "defaultValue": {
-        "value": "gemini-2.5-flash"
-      },
-      "description": "Primary Gemini model for text analysis and processing",
-      "conditionalValues": {
-        "debug_mode_users": {
-          "value": "gemini-1.5-pro"
-        }
-      }
-    },
-    "ai_gemini_image_model": {
-      "defaultValue": {
-        "value": "gemini-2.0-flash-preview-image-generation"
-      },
-      "description": "Gemini model for image generation and processing"
-    },
-    "ai_temperature": {
-      "defaultValue": {
-        "value": "0.4"
-      },
-      "description": "Controls creativity vs consistency (0.0-1.0). Lower = more focused, Higher = more creative",
-      "conditionalValues": {
-        "android_users": {
-          "value": "0.6"
-        }
-      }
-    },
-    "ai_max_output_tokens": {
-      "defaultValue": {
-        "value": "1024"
-      },
-      "description": "Maximum tokens in AI response. Higher = longer responses"
-    },
-    "ai_debug_mode": {
-      "defaultValue": {
-        "value": "false"
-      },
-      "description": "Enable detailed logging for AI operations",
-      "conditionalValues": {
-        "debug_mode_users": {
-          "value": "true"
-        }
-      }
-    },
-    "ai_top_k": {
-      "defaultValue": {
-        "value": "40"
-      },
-      "description": "Top-K sampling parameter. Lower = more focused responses"
-    },
-    "ai_top_p": {
-      "defaultValue": {
-        "value": "0.95"
-      },
-      "description": "Top-P (nucleus) sampling parameter. Lower = more focused responses"
-    },
-    "ai_analysis_system_prompt": {
-      "defaultValue": {
-        "value": "You are an expert image analysis AI. Analyze the provided image and marked object to create precise editing instructions.\\n\\nFocus on:\\n1. Object identification and boundaries\\n2. Background reconstruction techniques\\n3. Lighting and shadow analysis\\n4. Color harmony considerations\\n5. Realistic removal strategies\\n\\nProvide actionable editing instructions."
-      },
-      "description": "System instruction for image analysis tasks"
-    },
-    "ai_editing_system_prompt": {
-      "defaultValue": {
-        "value": "You are an expert AI image editor using Gemini 2.0 Flash Preview Image Generation. Edit the provided image based on user instructions with these requirements:\\n\\n1. Generate a new version of the image with the requested edits applied\\n2. If removing objects: use content-aware reconstruction to fill the space naturally\\n3. If enhancing: improve lighting, contrast, color balance, and composition\\n4. Maintain original image resolution and quality\\n5. Preserve overall composition and visual coherence\\n6. Apply changes seamlessly and realistically\\n\\nReturn the edited image directly as the output."
-      },
-      "description": "System instruction for image editing tasks"
-    },
-    "ai_request_timeout_seconds": {
-      "defaultValue": {
-        "value": "30"
-      },
-      "description": "Timeout for AI requests in seconds"
-    },
-    "ai_enable_advanced_features": {
-      "defaultValue": {
-        "value": "true"
-      },
-      "description": "Enable experimental AI features"
-    }
-  }
 }
