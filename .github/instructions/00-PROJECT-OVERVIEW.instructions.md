@@ -1,6 +1,5 @@
 ---
 applyTo: '**'
-priority: 1
 ---
 
 # 📱 Aura: AI-Powered Photo Editor - Complete Project Overview
