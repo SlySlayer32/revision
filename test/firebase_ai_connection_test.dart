@@ -1,17 +1,22 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:revision/firebase_options.dart';
 
 /// Test Firebase AI connection and basic functionality
 /// Using Firebase AI Logic SDKs with Gemini Developer API
 void main() {
   group('Firebase AI Connection Tests', () {
     setUpAll(() async {
-      // Initialize Firebase for testing using proper options
+      // Initialize Firebase for testing with minimal configuration
       try {
         await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
+          options: const FirebaseOptions(
+            apiKey: 'test-api-key',
+            appId: 'test-app-id', 
+            messagingSenderId: 'test-sender-id',
+            projectId: 'revision-464202',
+            storageBucket: 'revision-464202.appspot.com',
+          ),
         );
       } catch (e) {
         // Already initialized
