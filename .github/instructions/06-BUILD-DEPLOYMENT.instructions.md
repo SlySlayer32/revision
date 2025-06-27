@@ -1,5 +1,5 @@
 ---
-applyTo: '**'
+applyTo: 'build'
 ---
 
 # 🚀 Build & Deployment - Complete Production Pipeline Guide
