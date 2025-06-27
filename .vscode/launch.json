@@ -111,7 +111,7 @@
         "--dart-define",
         "USE_AUTH_EMULATOR=true",
         "--dart-define",
-        "GEMINI_API_KEY=${env:GEMINI_API_KEY}",
+        "GEMINI_API_KEY=AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM",
         "--dart-define",
         "ENABLE_DEBUG_TOOLS=true"
       ],
