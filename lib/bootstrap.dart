@@ -34,6 +34,11 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   try {
     debugPrint('bootstrap: Starting app initialization...');
 
+    // Load environment variables from .env file
+    debugPrint('bootstrap: Loading environment variables...');
+    await dotenv.load(fileName: '.env');
+    debugPrint('bootstrap: Environment variables loaded');
+
     FlutterError.onError = (details) {
       log(details.exceptionAsString(), stackTrace: details.stack);
     };
