@@ -1,5 +1,5 @@
 ---
-applyTo: ''
+applyTo: 'project'
 ---
 
 # 📱 Aura: AI-Powered Photo Editor - Complete Project Overview
