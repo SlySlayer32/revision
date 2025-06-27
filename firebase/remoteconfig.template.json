@@ -7,7 +7,7 @@
     },
     {
       "name": "premium_users",
-      "expression": "app.userProperty['tier'] == 'premium'",
+      "expression": "app.userProperty.tier == 'premium'",
       "tagColor": "GREEN"
     },
     {
