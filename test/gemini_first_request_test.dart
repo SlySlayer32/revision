@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revision/core/config/env_config.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
