@@ -10,7 +10,7 @@ class AIConfig {
   static const double temperature = 0.7;
   static const int maxOutputTokens = 2048;
   static const int topK = 32;
-  static const int topP = 1;
+  static const double topP = 1.0;
   
   /// Rate limiting configuration
   static const int maxRequestsPerMinute = 60;
