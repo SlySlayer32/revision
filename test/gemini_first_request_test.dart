@@ -71,7 +71,7 @@ void main() async {
         print('✅ GeminiAIService created successfully');
       } catch (e) {
         print(
-            '⚠️ Expected error without Firebase initialization: ${e.toString().substring(0, 100)}...');
+            '⚠️ Expected error without Firebase initialization: ${e.toString().length > 100 ? e.toString().substring(0, 100) + "..." : e.toString()}');
         print('');
         print('💡 This is expected in test environment without Firebase setup');
         print('   In a real app with Firebase configured, this would work');
