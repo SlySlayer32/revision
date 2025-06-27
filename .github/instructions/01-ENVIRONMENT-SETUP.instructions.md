@@ -1,5 +1,5 @@
 ---
-applyTo: '**'
+applyTo: 'environment'
 ---
 
 # 🛠️ Development Environment Setup - Complete Developer Guide
