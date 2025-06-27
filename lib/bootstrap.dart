@@ -6,7 +6,6 @@ import 'package:bloc/bloc.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:revision/core/config/env_config.dart';
 import 'package:revision/core/config/environment_detector.dart';
@@ -169,9 +168,7 @@ String _getPlatformSpecificEmulatorHost() {
       'Platform detection failed in _getPlatformSpecificEmulatorHost: $e. Defaulting to localhost.',
     );
   }
-  log(
-    'Defaulting to localhost for emulators (e.g., web, desktop, or fallback).'
-  );
+  log('Defaulting to localhost for emulators (e.g., web, desktop, or fallback).');
   return 'localhost';
 }
 
