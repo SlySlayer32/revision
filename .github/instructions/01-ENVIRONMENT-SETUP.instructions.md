@@ -181,7 +181,7 @@ cd revision
 
 #### Update pubspec.yaml
 ```yaml
-name: aura
+name: revision
 description: AI-powered photo editor with object removal capabilities
 version: 1.0.0+1
 
