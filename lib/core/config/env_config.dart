@@ -4,7 +4,7 @@ import 'environment_detector.dart';
 ///
 /// This class retrieves configuration from environment variables
 /// passed during the build process and supports runtime environment detection.
-/// 
+///
 /// Note: API keys are managed by Firebase AI Logic, not in environment variables.
 class EnvConfig {
   /// Firebase AI Logic is always configured when Firebase is properly initialized.
