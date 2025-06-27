@@ -1,5 +1,5 @@
 ---
-applyTo: ''
+applyTo: 'testing'
 ---
 
 # 🧪 Testing Strategy - Complete Production Testing Guide
