@@ -1,16 +1,19 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:revision/core/constants/firebase_ai_constants.dart';
+import 'package:revision/core/services/gemini_ai_service.dart';
 
-/// Firebase AI Logic Demo Widget
+/// Firebase AI Logic Demo Widget with Remote Config
 /// 
 /// This widget demonstrates how to use Firebase AI Logic with Gemini Developer API
-/// in your actual Flutter app where Firebase is properly initialized.
+/// and Firebase Remote Config for dynamic parameter control.
 /// 
 /// Key features:
 /// - Uses Firebase-managed API keys (no .env required)
-/// - Implements the exact pattern from Firebase AI Logic documentation  
-/// - Shows both text generation and error handling
+/// - Dynamic configuration via Firebase Remote Config
+/// - Real-time parameter updates from Firebase Console
+/// - Shows both text generation and configuration debugging
 /// - Ready for integration into your app features
 class FirebaseAIDemoWidget extends StatefulWidget {
   const FirebaseAIDemoWidget({super.key});
@@ -20,11 +23,12 @@ class FirebaseAIDemoWidget extends StatefulWidget {
 }
 
 class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
-  late final GenerativeModel _model;
+  late final GeminiAIService _geminiService;
   final TextEditingController _promptController = TextEditingController();
   String _response = '';
   bool _isLoading = false;
-  String _status = 'Ready to test Firebase AI Logic';
+  String _status = 'Ready to test Firebase AI Logic with Remote Config';
+  Map<String, dynamic> _configValues = {};
 
   @override
   void initState() {
@@ -34,20 +38,28 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
 
   void _initializeFirebaseAI() {
     try {
-      // Step 1: Initialize the Gemini Developer API backend service
-      // This is exactly what the Firebase AI Logic docs recommend
-      final ai = FirebaseAI.googleAI();
+      // Get the Gemini AI service from service locator
+      // This service now uses Remote Config for dynamic parameter control
+      _geminiService = GetIt.instance<GeminiAIService>();
       
-      // Step 2: Create a GenerativeModel instance with your preferred model
-      _model = ai.generativeModel(
-        model: FirebaseAIConstants.geminiModel, // 'gemini-2.5-flash'
-        generationConfig: GenerationConfig(
-          temperature: FirebaseAIConstants.temperature,
-          maxOutputTokens: FirebaseAIConstants.maxOutputTokens,
-          topK: FirebaseAIConstants.topK,
-          topP: FirebaseAIConstants.topP,
-        ),
-        systemInstruction: Content.text(FirebaseAIConstants.analysisSystemPrompt),
+      // Load current Remote Config values for display
+      _refreshConfigValues();
+      
+      setState(() {
+        _status = '✅ Firebase AI Logic with Remote Config initialized';
+      });
+    } catch (e) {
+      setState(() {
+        _status = '❌ Initialization failed: $e';
+      });
+    }
+  }
+
+  void _refreshConfigValues() {
+    setState(() {
+      _configValues = _geminiService.getConfigDebugInfo();
+    });
+  }
       );
       
       setState(() {
