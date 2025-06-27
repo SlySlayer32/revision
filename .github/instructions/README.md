@@ -1,8 +1,3 @@
-```instructions
----
-applyTo: 'index'
----
-
 # 📚 Revision Project - Master Instruction Index
 
 ## 🎯 Complete AI Co-Pilot Knowledge Base
