@@ -99,7 +99,7 @@ void main() async {
         } catch (e) {
           print('⚠️ Firebase initialization error in test environment');
           print('   Error type: ${e.runtimeType}');
-          print('   Details: ${e.toString().substring(0, 100)}...');
+          print('   Details: ${e.toString().length > 100 ? e.toString().substring(0, 100) + "..." : e.toString()}');
           print('');
           print('💡 This is EXPECTED in test environment. In production:');
           print('   1. Firebase project must be properly configured');
