@@ -116,3 +116,11 @@ class CacheException extends AppException {
   @override
   String toString() => 'CacheException: $message';
 }
+
+/// Server-related exceptions (Firestore, Firebase functions, etc.)
+class ServerException extends AppException {
+  const ServerException(super.message, [super.code]);
+
+  @override
+  String toString() => 'ServerException: $message';
+}
