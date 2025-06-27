@@ -302,24 +302,24 @@ flutter:
 ```bash
 # Configure for development
 flutterfire configure \
-  --project=aura-dev-xxxxx \
+  --project=revision-dev-xxxxx \
   --out=lib/firebase_options_dev.dart \
-  --ios-bundle-id=com.example.aura.dev \
-  --android-package-name=com.example.aura.dev
+  --ios-bundle-id=com.example.revision.dev \
+  --android-package-name=com.example.revision.dev
 
 # Configure for staging
 flutterfire configure \
-  --project=aura-staging-xxxxx \
+  --project=revision-staging-xxxxx \
   --out=lib/firebase_options_staging.dart \
-  --ios-bundle-id=com.example.aura.staging \
-  --android-package-name=com.example.aura.staging
+  --ios-bundle-id=com.example.revision.staging \
+  --android-package-name=com.example.revision.staging
 
 # Configure for production
 flutterfire configure \
-  --project=aura-prod-xxxxx \
-  --out=lib/firebase_options_prod.dart \
-  --ios-bundle-id=com.example.aura \
-  --android-package-name=com.example.aura
+  --project=revision-464202 \
+  --out=lib/firebase_options_production.dart \
+  --ios-bundle-id=com.example.revision \
+  --android-package-name=com.example.revision
 ```
 
 ### 4. Firebase Services Configuration
