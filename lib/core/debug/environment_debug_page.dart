@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:revision/core/config/environment_detector.dart';
 import 'package:revision/core/config/env_config.dart';
+import 'package:revision/core/config/environment_detector.dart';
 import 'package:revision/firebase_options.dart';
 
 /// A debug page to display environment detection information
@@ -59,7 +59,8 @@ class EnvironmentDebugPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text('Current Environment: ${EnvironmentDetector.environmentString}'),
+            Text(
+                'Current Environment: ${EnvironmentDetector.environmentString}'),
             Text('Is Development: ${EnvironmentDetector.isDevelopment}'),
             Text('Is Staging: ${EnvironmentDetector.isStaging}'),
             Text('Is Production: ${EnvironmentDetector.isProduction}'),
@@ -83,9 +84,10 @@ class EnvironmentDebugPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text('Gemini API Key Configured: ${EnvConfig.isConfigured}'),
-            Text('API Key Length: ${EnvConfig.geminiApiKey.length}'),
+            Text('Firebase AI: ${EnvConfig.isFirebaseAIConfigured ? 'Configured' : 'Not Configured'}'),
             const SizedBox(height: 8),
-            const Text('Debug Info:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Debug Info:',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(8),
@@ -122,7 +124,8 @@ class EnvironmentDebugPage extends StatelessWidget {
             Text('Platform: ${firebaseDebugInfo['platform']}'),
             Text('Is Web: ${firebaseDebugInfo['isWeb']}'),
             const SizedBox(height: 8),
-            const Text('Firebase Debug Info:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Firebase Debug Info:',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(8),
