@@ -1,11 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:revision/core/config/environment_detector.dart';
 import 'package:revision/core/config/env_config.dart';
+import 'package:revision/core/config/environment_detector.dart';
 import 'package:revision/firebase_options.dart';
 
 void main() {
   group('Environment Detection Tests', () {
-    test('should detect development environment from compile-time constant', () {
+    test('should detect development environment from compile-time constant',
+        () {
       // This test would normally run with --dart-define=ENVIRONMENT=development
       // In tests, we can't easily set compile-time constants, so we test the runtime detection
       final environment = EnvironmentDetector.currentEnvironment;
@@ -22,9 +23,9 @@ void main() {
       final isDev = EnvironmentDetector.isDevelopment;
       final isStaging = EnvironmentDetector.isStaging;
       final isProd = EnvironmentDetector.isProduction;
-      
+
       expect(isDev || isStaging || isProd, isTrue);
-      
+
       // Only one should be true at a time
       final trueCount = [isDev, isStaging, isProd].where((e) => e).length;
       expect(trueCount, equals(1));
@@ -62,8 +63,13 @@ void main() {
     test('should provide debug information', () {
       final debugInfo = EnvConfig.getDebugInfo();
       expect(debugInfo, isA<Map<String, dynamic>>());
-      expect(debugInfo, containsPair('geminiApiKeyConfigured', isA<bool>()));
-      expect(debugInfo, containsPair('geminiApiKeyLength', isA<int>()));
+      // Check required keys
+      expect(debugInfo, containsPair('firebaseAIConfigured', isA<bool>()));
+      expect(debugInfo, containsPair('environment', isA<String>()));
+      expect(debugInfo, containsPair('currentEnvironment', isA<AppEnvironment>()));
+      
+      // Check that environment is properly detected
+      expect(debugInfo['environment'], isNotEmpty);
       expect(debugInfo, containsPair('environment', isA<String>()));
     });
   });
@@ -77,9 +83,12 @@ void main() {
     });
 
     test('should provide Firebase options for specific environments', () {
-      final devOptions = DefaultFirebaseOptions.getOptionsForEnvironment(AppEnvironment.development);
-      final stagingOptions = DefaultFirebaseOptions.getOptionsForEnvironment(AppEnvironment.staging);
-      final prodOptions = DefaultFirebaseOptions.getOptionsForEnvironment(AppEnvironment.production);
+      final devOptions = DefaultFirebaseOptions.getOptionsForEnvironment(
+          AppEnvironment.development);
+      final stagingOptions = DefaultFirebaseOptions.getOptionsForEnvironment(
+          AppEnvironment.staging);
+      final prodOptions = DefaultFirebaseOptions.getOptionsForEnvironment(
+          AppEnvironment.production);
 
       expect(devOptions.projectId, isNotEmpty);
       expect(stagingOptions.projectId, isNotEmpty);
@@ -111,7 +120,8 @@ void main() {
     test('should detect development from localhost patterns', () {
       // These tests would need to be run in a web context with specific URLs
       // For now, we just verify the detection logic exists
-      expect(EnvironmentDetector.getDebugInfo(), containsPair('isWeb', isA<bool>()));
+      expect(EnvironmentDetector.getDebugInfo(),
+          containsPair('isWeb', isA<bool>()));
     });
   });
 }
