@@ -26,13 +26,13 @@ void main() {
 
     test('should have Gemini models available', () async {
       try {
-        // Test if we can access Gemini models
-        final model = FirebaseAI.generativeModel(
-          model: 'gemini-1.5-flash',
+        // Test if we can access Gemini models using GoogleAI
+        final model = FirebaseAI.googleAI().generativeModel(
+          model: 'gemini-2.5-flash',
         );
         
         expect(model, isNotNull);
-        expect(model.model, equals('gemini-1.5-flash'));
+        expect(model.model, equals('gemini-2.5-flash'));
       } catch (e) {
         // This is expected if API key is not configured
         expect(e.toString(), contains('API key'));
@@ -41,7 +41,7 @@ void main() {
 
     test('should handle basic text generation request', () async {
       try {
-        final model = FirebaseAI.generativeModel(model: 'gemini-1.5-flash');
+        final model = FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash');
         
         final response = await model.generateContent([
           Content.text('Hello, this is a test. Please respond with "Test successful"')
@@ -62,7 +62,7 @@ void main() {
 
     test('should handle image analysis capabilities', () async {
       try {
-        final model = FirebaseAI.generativeModel(model: 'gemini-1.5-flash');
+        final model = FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash');
         
         // Test multimodal capabilities (without actual image for unit test)
         final prompt = [
