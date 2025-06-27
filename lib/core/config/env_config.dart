@@ -32,10 +32,11 @@ class EnvConfig {
   /// Get comprehensive debug information
   static Map<String, dynamic> getDebugInfo() {
     return {
-      'geminiApiKeyConfigured': isConfigured,
-      'geminiApiKeyLength': geminiApiKey.length,
+      'firebaseAIConfigured': isFirebaseAIConfigured,
       'environment': environmentString,
       ...EnvironmentDetector.getDebugInfo(),
+    };
+  }
     };
   }
 }
