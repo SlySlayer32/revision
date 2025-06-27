@@ -1,5 +1,5 @@
 ---
-applyTo: '**'
+applyTo: 'project'
 ---
 
 # 🧭 Enhanced Project Navigation - Complete Development Guide
