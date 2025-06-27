@@ -1,6 +1,16 @@
 {
   "conditions": [
     {
+      "name": "development_env",
+      "expression": "app.id == 'revision-464202-dev'",
+      "tagColor": "BLUE"
+    },
+    {
+      "name": "premium_users",
+      "expression": "app.userProperty['tier'] == 'premium'",
+      "tagColor": "GREEN"
+    },
+    {
       "name": "debug_mode_users",
       "expression": "percent <= 5",
       "tagColor": "ORANGE"
