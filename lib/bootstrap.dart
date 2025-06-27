@@ -7,6 +7,7 @@ import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:revision/core/config/env_config.dart';
 import 'package:revision/core/config/environment_detector.dart';
 import 'package:revision/core/constants/firebase_constants.dart';
