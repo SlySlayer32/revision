@@ -249,26 +249,7 @@ docs/
     └── Authentication Domain Layer.md # Auth domain implementation guide
 ```
 
-### 📋 GitHub Configuration (`.github/`)
-```
-.github/
-├── 📝 prompts/                      # Detailed implementation prompts
-│   ├── 01-project-setup-vgv.prompt.md
-│   ├── 02-firebase-vertexai-setup.prompt.md
-│   ├── 03-auth-domain-layer.prompt.md
-│   ├── 03-authentication-domain.prompt.md
-│   ├── 04-auth-data-layer.prompt.md
-│   ├── 05-auth-presentation-layer.prompt.md
-│   ├── 06-image-picker-domain.prompt.md
-│   ├── 07-image-picker-data-presentation.prompt.md
-│   ├── 08-image-editor-domain.prompt.md
-│   ├── 09-image-editor-data.prompt.md
-│   └── README.md
-└── 📝 instructions/                 # VGV coding standards
-    ├── vgv-foundation.instructions.md
-    ├── VGV-Test.instructions.md
-    └── Explicit-Layer-Context.Instructions.md
-```
+
 
 ## 🔍 Quick Navigation Guide
 
