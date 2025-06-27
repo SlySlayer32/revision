@@ -667,7 +667,7 @@ linter:
 # .env.development (local development)
 ENVIRONMENT=development
 GEMINI_API_KEY_DEV=your_development_api_key_here
-FIREBASE_PROJECT_ID=aura-dev-xxxxx
+FIREBASE_PROJECT_ID=revision-dev-xxxxx
 
 # .env.staging
 ENVIRONMENT=staging
