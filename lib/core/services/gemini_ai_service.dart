@@ -133,25 +133,27 @@ Please try again or contact support if the issue persists.
   }
 
   @override
-  Future<String> enhancePrompt(String originalPrompt) async {
+  Future<String> generateImageDescription(Uint8List imageData) async {
     try {
-      final enhancementPrompt = '''
-Take this image editing prompt and enhance it to be more specific and actionable:
+      final content = [
+        Content.multi([
+          InlineDataPart('image/jpeg', imageData),
+          TextPart('''
+Describe this image in detail for photo editing purposes.
 
-Original prompt: "$originalPrompt"
+Include:
+1. Main subjects and objects
+2. Lighting conditions
+3. Colors and composition
+4. Background elements
+5. Overall mood and style
 
-Enhanced prompt should:
-- Be more descriptive and specific
-- Include technical details for better results
-- Mention lighting, composition, and style considerations
-- Be optimized for AI image editing assistance
+Keep the description clear and technical.
+'''),
+        ]),
+      ];
 
-Provide only the enhanced prompt, no explanations.
-''';
-
-      final content = [Content.text(enhancementPrompt)];
-      
-      final response = await _geminiModel
+      final response = await _geminiImageModel
           .generateContent(content)
           .timeout(FirebaseAIConstants.requestTimeout);
 
@@ -159,18 +161,16 @@ Provide only the enhanced prompt, no explanations.
         throw Exception('Empty response from Google AI');
       }
 
-      log('✅ Google AI enhancePrompt completed successfully');
-      return response.text!.trim();
+      log('✅ Google AI generateImageDescription completed successfully');
+      return response.text!;
     } catch (e, stackTrace) {
-      log('❌ Google AI enhancePrompt failed: $e', stackTrace: stackTrace);
-      
-      // Return original prompt as fallback
-      return originalPrompt;
+      log('❌ Google AI generateImageDescription failed: $e', stackTrace: stackTrace);
+      return 'Unable to analyze image at this time.';
     }
   }
 
   @override
-  Future<List<String>> generateEditingSuggestions(Uint8List imageData) async {
+  Future<List<String>> suggestImageEdits(Uint8List imageData) async {
     try {
       final content = [
         Content.multi([
@@ -207,11 +207,120 @@ Provide each suggestion as a clear, actionable sentence.
           .take(5)
           .toList();
 
-      log('✅ Google AI generateEditingSuggestions completed successfully');
+      log('✅ Google AI suggestImageEdits completed successfully');
       return suggestions.isNotEmpty ? suggestions : _getFallbackSuggestions();
     } catch (e, stackTrace) {
-      log('❌ Google AI generateEditingSuggestions failed: $e', stackTrace: stackTrace);
+      log('❌ Google AI suggestImageEdits failed: $e', stackTrace: stackTrace);
       return _getFallbackSuggestions();
+    }
+  }
+
+  @override
+  Future<bool> checkContentSafety(Uint8List imageData) async {
+    try {
+      final content = [
+        Content.multi([
+          InlineDataPart('image/jpeg', imageData),
+          TextPart('''
+Analyze this image for content safety. Is this image appropriate for a photo editing application?
+
+Consider:
+1. Does it contain inappropriate content?
+2. Is it suitable for general audiences?
+3. Does it violate content policies?
+
+Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a brief reason.
+'''),
+        ]),
+      ];
+
+      final response = await _geminiImageModel
+          .generateContent(content)
+          .timeout(FirebaseAIConstants.requestTimeout);
+
+      if (response.text == null || response.text!.isEmpty) {
+        // Default to safe if we can't analyze
+        return true;
+      }
+
+      final responseText = response.text!.toUpperCase();
+      log('✅ Google AI checkContentSafety completed successfully');
+      return responseText.contains('SAFE') && !responseText.contains('UNSAFE');
+    } catch (e, stackTrace) {
+      log('❌ Google AI checkContentSafety failed: $e', stackTrace: stackTrace);
+      // Default to safe on error
+      return true;
+    }
+  }
+
+  @override
+  Future<String> generateEditingPrompt({
+    required Uint8List imageBytes,
+    required List<Map<String, dynamic>> markers,
+  }) async {
+    try {
+      final markerDescriptions = markers
+          .map((marker) => 
+              'Marker at (${marker['x']}, ${marker['y']}): ${marker['description'] ?? 'Object to edit'}')
+          .join('\n');
+
+      final content = [
+        Content.multi([
+          InlineDataPart('image/jpeg', imageBytes),
+          TextPart('''
+Generate a detailed editing prompt for this image based on the user's markers:
+
+$markerDescriptions
+
+Create a comprehensive editing instruction that includes:
+1. What objects/areas to modify
+2. How to handle the background
+3. Lighting and shadow considerations
+4. Color matching requirements
+5. Specific techniques to use
+
+Provide a clear, actionable editing prompt.
+'''),
+        ]),
+      ];
+
+      final response = await _geminiImageModel
+          .generateContent(content)
+          .timeout(FirebaseAIConstants.requestTimeout);
+
+      if (response.text == null || response.text!.isEmpty) {
+        throw Exception('Empty response from Google AI');
+      }
+
+      log('✅ Google AI generateEditingPrompt completed successfully');
+      return response.text!;
+    } catch (e, stackTrace) {
+      log('❌ Google AI generateEditingPrompt failed: $e', stackTrace: stackTrace);
+      return 'Remove marked objects and blend the background seamlessly.';
+    }
+  }
+
+  @override
+  Future<Uint8List> processImageWithAI({
+    required Uint8List imageBytes,
+    required String editingPrompt,
+  }) async {
+    try {
+      // Note: This is a placeholder as actual image processing would require
+      // additional AI services or image processing libraries
+      log('🤖 Processing image with AI using prompt: $editingPrompt');
+      
+      // For now, return the original image
+      // In a real implementation, this would:
+      // 1. Send the image and prompt to an image editing AI service
+      // 2. Receive the processed image
+      // 3. Return the processed image bytes
+      
+      log('⚠️ AI image processing not yet implemented - returning original image');
+      return imageBytes;
+    } catch (e, stackTrace) {
+      log('❌ Google AI processImageWithAI failed: $e', stackTrace: stackTrace);
+      rethrow;
     }
   }
 
