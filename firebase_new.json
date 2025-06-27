@@ -1,87 +1,87 @@
 {
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
-  "storage": {
-    "rules": "storage.rules"
-  },
-  "emulators": {
-    "auth": {
-      "port": 9099
-    },
     "firestore": {
-      "port": 8080
+        "rules": "firestore.rules",
+        "indexes": "firestore.indexes.json"
     },
     "storage": {
-      "port": 9199
+        "rules": "storage.rules"
     },
-    "ui": {
-      "enabled": true,
-      "port": 4000
-    },
-    "singleProjectMode": true
-  },
-  "flutter": {
-    "platforms": {
-      "android": {
-        "default": {
-          "projectId": "revision-464202",
-          "appId": "1:286965129060:android:3199446fd73253bb13a471",
-          "fileOutput": "android/app/google-services.json"
+    "emulators": {
+        "auth": {
+            "port": 9099
         },
-        "buildConfigurations": {
-          "src\\development": {
-            "projectId": "revision-464202",
-            "appId": "1:286965129060:android:a5885b518f8ba3a313a471",
-            "fileOutput": "android/app/src/development/google-services.json"
-          },
-          "src\\staging": {
-            "projectId": "revision-464202",
-            "appId": "1:286965129060:android:b2f50ff0b3f5594f13a471",
-            "fileOutput": "android/app/src/staging/google-services.json"
-          },
-          "src\\production": {
-            "projectId": "revision-464202",
-            "appId": "1:286965129060:android:3199446fd73253bb13a471",
-            "fileOutput": "android/app/src/production/google-services.json"
-          }
-        }
-      }
+        "firestore": {
+            "port": 8080
+        },
+        "storage": {
+            "port": 9199
+        },
+        "ui": {
+            "enabled": true,
+            "port": 4000
+        },
+        "singleProjectMode": true
     },
-    "dart": {
-      "lib/firebase_options.dart": {
-        "projectId": "revision-464202",
-        "configurations": {
-          "android": "1:286965129060:android:3199446fd73253bb13a471",
-          "ios": "1:286965129060:ios:306d857dd0768ca113a471",
-          "web": "1:286965129060:web:c43635c372975dfd13a471"
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "revision-464202",
+                    "appId": "1:286965129060:android:3199446fd73253bb13a471",
+                    "fileOutput": "android/app/google-services.json"
+                },
+                "buildConfigurations": {
+                    "src\\development": {
+                        "projectId": "revision-464202",
+                        "appId": "1:286965129060:android:a5885b518f8ba3a313a471",
+                        "fileOutput": "android/app/src/development/google-services.json"
+                    },
+                    "src\\staging": {
+                        "projectId": "revision-464202",
+                        "appId": "1:286965129060:android:b2f50ff0b3f5594f13a471",
+                        "fileOutput": "android/app/src/staging/google-services.json"
+                    },
+                    "src\\production": {
+                        "projectId": "revision-464202",
+                        "appId": "1:286965129060:android:3199446fd73253bb13a471",
+                        "fileOutput": "android/app/src/production/google-services.json"
+                    }
+                }
+            }
+        },
+        "dart": {
+            "lib/firebase_options.dart": {
+                "projectId": "revision-464202",
+                "configurations": {
+                    "android": "1:286965129060:android:3199446fd73253bb13a471",
+                    "ios": "1:286965129060:ios:306d857dd0768ca113a471",
+                    "web": "1:286965129060:web:c43635c372975dfd13a471"
+                }
+            },
+            "lib/firebase_options_dev.dart": {
+                "projectId": "revision-464202",
+                "configurations": {
+                    "android": "1:286965129060:android:a5885b518f8ba3a313a471",
+                    "ios": "1:286965129060:ios:e7147024bdc9494a13a471",
+                    "web": "1:286965129060:web:c43635c372975dfd13a471"
+                }
+            },
+            "lib/firebase_options_staging.dart": {
+                "projectId": "revision-464202",
+                "configurations": {
+                    "android": "1:286965129060:android:b2f50ff0b3f5594f13a471",
+                    "ios": "1:286965129060:ios:9c573cb109855a4413a471",
+                    "web": "1:286965129060:web:c43635c372975dfd13a471"
+                }
+            },
+            "lib/firebase_options_production.dart": {
+                "projectId": "revision-464202",
+                "configurations": {
+                    "android": "1:286965129060:android:3199446fd73253bb13a471",
+                    "ios": "1:286965129060:ios:306d857dd0768ca113a471",
+                    "web": "1:286965129060:web:c43635c372975dfd13a471"
+                }
+            }
         }
-      },
-      "lib/firebase_options_dev.dart": {
-        "projectId": "revision-464202",
-        "configurations": {
-          "android": "1:286965129060:android:a5885b518f8ba3a313a471",
-          "ios": "1:286965129060:ios:e7147024bdc9494a13a471",
-          "web": "1:286965129060:web:c43635c372975dfd13a471"
-        }
-      },
-      "lib/firebase_options_staging.dart": {
-        "projectId": "revision-464202",
-        "configurations": {
-          "android": "1:286965129060:android:b2f50ff0b3f5594f13a471",
-          "ios": "1:286965129060:ios:9c573cb109855a4413a471",
-          "web": "1:286965129060:web:c43635c372975dfd13a471"
-        }
-      },
-      "lib/firebase_options_production.dart": {
-        "projectId": "revision-464202",
-        "configurations": {
-          "android": "1:286965129060:android:3199446fd73253bb13a471",
-          "ios": "1:286965129060:ios:306d857dd0768ca113a471",
-          "web": "1:286965129060:web:c43635c372975dfd13a471"
-        }
-      }
     }
-  }
 }
