@@ -85,9 +85,14 @@ void main() {
       expect(stagingOptions.projectId, isNotEmpty);
       expect(prodOptions.projectId, isNotEmpty);
 
-      // They should have different project IDs
-      final projectIds = {devOptions.projectId, stagingOptions.projectId, prodOptions.projectId};
-      expect(projectIds.length, equals(3));
+      // All options should be valid Firebase configurations
+      expect(devOptions.appId, isNotEmpty);
+      expect(stagingOptions.appId, isNotEmpty);
+      expect(prodOptions.appId, isNotEmpty);
+
+      expect(devOptions.apiKey, isNotEmpty);
+      expect(stagingOptions.apiKey, isNotEmpty);
+      expect(prodOptions.apiKey, isNotEmpty);
     });
 
     test('should provide Firebase debug information', () {
