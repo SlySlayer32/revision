@@ -1,13 +1,17 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:revision/core/config/ai_config.dart';
 import 'package:revision/firebase_options_dev.dart';
 
 /// Test first request to Gemini 2.5 Flash using Firebase AI Logic SDK
 /// This test validates the complete Firebase AI setup and sends a real request
-void main() {
+void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
+  
+  // Load environment variables
+  await dotenv.load(fileName: '.env.development');
   
   group('Gemini 2.5 Flash First Request Tests', () {
     late FirebaseAI firebaseAI;
@@ -22,7 +26,11 @@ void main() {
         print('✅ Firebase initialized successfully');
 
         // Initialize Firebase AI with proper configuration
-        firebaseAI = FirebaseAI.googleAI();
+        firebaseAI = FirebaseAI.googleAI(
+          apiKey: AIConfig.apiKey,
+          projectId: AIConfig.projectId,
+        );
+        
         model = firebaseAI.generativeModel(
           model: AIConfig.geminiModel,
           generationConfig: GenerationConfig(
