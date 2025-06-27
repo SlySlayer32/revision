@@ -8,22 +8,48 @@ import 'package:flutter/foundation.dart'
 import 'firebase_options_dev.dart' as dev;
 import 'firebase_options_staging.dart' as staging;
 import 'firebase_options_production.dart' as production;
+import 'core/config/environment_detector.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
+/// Supports both compile-time and runtime environment detection.
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
-    // Get environment from compile-time constant
-    const environment = String.fromEnvironment('ENVIRONMENT', defaultValue: 'development');
+    // Use runtime environment detection
+    final environment = EnvironmentDetector.currentEnvironment;
     
     // Return environment-specific options
     switch (environment) {
-      case 'production':
+      case AppEnvironment.production:
         return production.DefaultFirebaseOptions.currentPlatform;
-      case 'staging':
+      case AppEnvironment.staging:
         return staging.DefaultFirebaseOptions.currentPlatform;
-      case 'development':
-      default:
+      case AppEnvironment.development:
         return dev.DefaultFirebaseOptions.currentPlatform;
     }
+  }
+
+  /// Get Firebase options for a specific environment
+  static FirebaseOptions getOptionsForEnvironment(AppEnvironment environment) {
+    switch (environment) {
+      case AppEnvironment.production:
+        return production.DefaultFirebaseOptions.currentPlatform;
+      case AppEnvironment.staging:
+        return staging.DefaultFirebaseOptions.currentPlatform;
+      case AppEnvironment.development:
+        return dev.DefaultFirebaseOptions.currentPlatform;
+    }
+  }
+
+  /// Get debug information about current Firebase configuration
+  static Map<String, dynamic> getDebugInfo() {
+    final currentOptions = currentPlatform;
+    return {
+      'environment': EnvironmentDetector.environmentString,
+      'projectId': currentOptions.projectId,
+      'appId': currentOptions.appId,
+      'platform': defaultTargetPlatform.name,
+      'isWeb': kIsWeb,
+      'environmentDetection': EnvironmentDetector.getDebugInfo(),
+    };
   }
 }
