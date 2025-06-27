@@ -26,7 +26,7 @@ class DefaultFirebaseOptions {
         return dev.DefaultFirebaseOptions.currentPlatform;
     }
   }
-      case TargetPlatform.macOS:
+}
         // Or handle macOS specifically if you have a separate configuration
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for macOS.',
