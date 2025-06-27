@@ -2,11 +2,17 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:revision/core/config/env_config.dart';
 import 'package:revision/core/constants/firebase_ai_constants.dart';
 import 'package:revision/core/services/ai_service.dart';
 
 /// Google AI (Gemini API) service implementation
 /// Uses Google AI Studio API with Firebase AI SDK
+/// 
+/// Configuration:
+/// - API key is managed through Firebase Console (not in code)
+/// - Uses Gemini Developer API (not Vertex AI)
+/// - Requires Firebase project setup with AI Logic enabled
 class GeminiAIService implements AIService {
   GeminiAIService() {
     _initializeModels();
@@ -17,7 +23,14 @@ class GeminiAIService implements AIService {
 
   void _initializeModels() {
     try {
+      // Verify environment configuration
+      if (!EnvConfig.isConfigured) {
+        log('⚠️ Gemini API key not found in environment configuration');
+        log('💡 This should be set in Firebase Console, not in code');
+      }
+
       // Initialize Firebase AI with Google AI backend (AI Studio)
+      // Note: API key is configured in Firebase Console, not passed here
       final firebaseAI = FirebaseAI.googleAI();
 
       // Initialize Gemini model for text and analysis
@@ -47,8 +60,14 @@ class GeminiAIService implements AIService {
       );
 
       log('✅ Google AI (Gemini API) models initialized successfully');
+      log('🔑 API key source: Firebase Console configuration');
     } catch (e, stackTrace) {
       log('❌ Failed to initialize Google AI models: $e', stackTrace: stackTrace);
+      log('💡 Common issues:');
+      log('   - Firebase project not set up with AI Logic');
+      log('   - Gemini API not enabled in Firebase Console');
+      log('   - API key not configured in Firebase Console');
+      log('   - Firebase not initialized properly');
       rethrow;
     }
   }
