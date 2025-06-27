@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:revision/core/config/env_config.dart';
+import 'package:revision/core/config/environment_detector.dart';
 import 'package:revision/core/constants/firebase_constants.dart';
 import 'package:revision/core/di/service_locator.dart';
 import 'package:revision/firebase_options.dart';
