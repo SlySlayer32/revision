@@ -66,8 +66,9 @@ void main() {
       // Check required keys
       expect(debugInfo, containsPair('firebaseAIConfigured', isA<bool>()));
       expect(debugInfo, containsPair('environment', isA<String>()));
-      expect(debugInfo, containsPair('currentEnvironment', isA<AppEnvironment>()));
-      
+      expect(
+          debugInfo, containsPair('currentEnvironment', isA<AppEnvironment>()));
+
       // Check that environment is properly detected
       expect(debugInfo['environment'], isNotEmpty);
       expect(debugInfo, containsPair('environment', isA<String>()));

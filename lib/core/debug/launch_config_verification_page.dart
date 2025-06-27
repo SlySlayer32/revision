@@ -101,7 +101,8 @@ class LaunchConfigVerificationPage extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text('Firebase AI Configured: ${EnvConfig.isFirebaseAIConfigured ? 'Yes' : 'No'}'),
+            Text(
+                'Firebase AI Configured: ${EnvConfig.isFirebaseAIConfigured ? 'Yes' : 'No'}'),
             const Text('API keys are managed by Firebase Console'),
             if (EnvConfig.isFirebaseAIConfigured) ...[
               const Text('✅ Firebase AI Logic is properly configured'),

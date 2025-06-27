@@ -3,10 +3,10 @@ import 'package:get_it/get_it.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
 
 /// Firebase AI Logic Demo Widget with Remote Config
-/// 
+///
 /// This widget demonstrates how to use Firebase AI Logic with Gemini Developer API
 /// and Firebase Remote Config for dynamic parameter control.
-/// 
+///
 /// Key features:
 /// - Uses Firebase-managed API keys (no .env required)
 /// - Dynamic configuration via Firebase Remote Config
@@ -39,10 +39,10 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
       // Get the Gemini AI service from service locator
       // This service now uses Remote Config for dynamic parameter control
       _geminiService = GetIt.instance<GeminiAIService>();
-      
+
       // Load current Remote Config values for display
       _refreshConfigValues();
-      
+
       setState(() {
         _status = '✅ Firebase AI Logic with Remote Config initialized';
       });
@@ -76,7 +76,7 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
     try {
       // Use the Gemini AI service which now uses Remote Config parameters
       final prompt = _promptController.text.trim();
-      
+
       // This call now uses the current Remote Config values for:
       // - Model selection, temperature, tokens, etc.
       // - System instructions and prompts
@@ -88,10 +88,9 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
         _status = '✅ Response received using Remote Config parameters';
         _isLoading = false;
       });
-      
+
       // Refresh config values to show what was actually used
       _refreshConfigValues();
-      
     } catch (e) {
       setState(() {
         _response = 'Error: $e';
@@ -109,15 +108,16 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
     try {
       await _geminiService.refreshConfig();
       _refreshConfigValues();
-      
+
       setState(() {
         _status = '✅ Remote Config refreshed successfully';
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Remote Config updated! Changes will apply to next request.'),
+            content: Text(
+                'Remote Config updated! Changes will apply to next request.'),
             backgroundColor: Colors.green,
           ),
         );
@@ -156,11 +156,11 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
           children: [
             // Status Card
             Card(
-              color: _status.contains('✅') 
-                ? Colors.green.shade50 
-                : _status.contains('❌') 
-                  ? Colors.red.shade50 
-                  : Colors.blue.shade50,
+              color: _status.contains('✅')
+                  ? Colors.green.shade50
+                  : _status.contains('❌')
+                      ? Colors.red.shade50
+                      : Colors.blue.shade50,
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -169,8 +169,8 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
                     Text(
                       'Status',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 8),
                     Text(_status),
@@ -178,9 +178,9 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Remote Config Values Card
             Card(
               child: Padding(
@@ -192,9 +192,10 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
                       children: [
                         Text(
                           'Current Remote Config Values',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         const Spacer(),
                         ElevatedButton.icon(
@@ -220,14 +221,16 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
                                 flex: 2,
                                 child: Text(
                                   entry.key,
-                                  style: const TextStyle(fontWeight: FontWeight.w500),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w500),
                                 ),
                               ),
                               Expanded(
                                 flex: 3,
                                 child: Text(
                                   entry.value.toString(),
-                                  style: const TextStyle(fontFamily: 'monospace'),
+                                  style:
+                                      const TextStyle(fontFamily: 'monospace'),
                                 ),
                               ),
                             ],
@@ -239,9 +242,9 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Input Section
             Card(
               child: Padding(
@@ -252,8 +255,8 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
                     Text(
                       'Test Prompt',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 8),
                     TextField(
@@ -269,23 +272,25 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: _isLoading ? null : _generateContent,
-                        icon: _isLoading 
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.send),
-                        label: Text(_isLoading ? 'Generating...' : 'Generate with AI'),
+                        icon: _isLoading
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.send),
+                        label: Text(
+                            _isLoading ? 'Generating...' : 'Generate with AI'),
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Response Section
             Card(
               child: Padding(
@@ -296,8 +301,8 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
                     Text(
                       'AI Response',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 8),
                     Container(
@@ -317,9 +322,9 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Instructions Card
             Card(
               color: Colors.amber.shade50,
@@ -334,10 +339,11 @@ class _FirebaseAIDemoWidgetState extends State<FirebaseAIDemoWidget> {
                         const SizedBox(width: 8),
                         Text(
                           'How to Control from Firebase Console',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.amber.shade700,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.amber.shade700,
+                                  ),
                         ),
                       ],
                     ),

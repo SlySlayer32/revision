@@ -45,7 +45,8 @@ void setupServiceLocator() {
         FirebaseAIRemoteConfigService.new,
       )
       ..registerLazySingleton<GeminiAIService>(
-        () => GeminiAIService(remoteConfigService: getIt<FirebaseAIRemoteConfigService>()),
+        () => GeminiAIService(
+            remoteConfigService: getIt<FirebaseAIRemoteConfigService>()),
       )
       ..registerLazySingleton<GeminiPipelineService>(
         () => GeminiPipelineService(generativeModel: getIt<GenerativeModel>()),
