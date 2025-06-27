@@ -140,7 +140,7 @@ class GeminiAIService implements AIService {
 
       final response = await _geminiModel
           .generateContent(content)
-          .timeout(FirebaseAIConstants.requestTimeout);
+          .timeout(_remoteConfig.requestTimeout);
 
       if (response.text == null || response.text!.isEmpty) {
         throw Exception('Empty response from Google AI');
