@@ -4,50 +4,74 @@ import 'dart:typed_data';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:revision/core/constants/firebase_ai_constants.dart';
 import 'package:revision/core/services/ai_service.dart';
+import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
 
 /// Google AI (Gemini API) service implementation
 /// Uses Google AI Studio API with Firebase AI SDK
 ///
 /// Configuration:
 /// - API key is managed through Firebase Console (not in code)
+/// - Model parameters controlled via Firebase Remote Config
 /// - Uses Gemini Developer API (not Vertex AI)
 /// - Requires Firebase project setup with AI Logic enabled
 class GeminiAIService implements AIService {
-  GeminiAIService() {
-    _initializeModels();
+  GeminiAIService({FirebaseAIRemoteConfigService? remoteConfigService}) 
+      : _remoteConfig = remoteConfigService ?? FirebaseAIRemoteConfigService() {
+    _initializeService();
   }
 
+  final FirebaseAIRemoteConfigService _remoteConfig;
   late final GenerativeModel _geminiModel;
   late final GenerativeModel _geminiImageModel;
+  bool _isInitialized = false;
+
+  Future<void> _initializeService() async {
+    if (_isInitialized) return;
+    
+    try {
+      log('🚀 Initializing Firebase AI Logic with Remote Config...');
+      
+      // Initialize Remote Config first
+      await _remoteConfig.initialize();
+      
+      // Initialize models with Remote Config values
+      _initializeModels();
+      
+      _isInitialized = true;
+      log('✅ Firebase AI Logic initialized successfully');
+      
+    } catch (e) {
+      log('❌ Failed to initialize Firebase AI Logic: $e');
+      // Fall back to constants if Remote Config fails
+      _initializeModelsWithConstants();
+      _isInitialized = true;
+    }
+  }
 
   void _initializeModels() {
     try {
-      log('🚀 Initializing Firebase AI Logic models...');
-
       // Initialize Firebase AI with Google AI backend (AI Studio)
       // API key is configured in Firebase Console, not passed here
       final firebaseAI = FirebaseAI.googleAI();
 
-      // Initialize Gemini model for text and analysis
+      // Initialize Gemini model for text and analysis using Remote Config
       _geminiModel = firebaseAI.generativeModel(
-        model: FirebaseAIConstants.geminiModel, // 'gemini-2.5-flash'
+        model: _remoteConfig.geminiModel,
         generationConfig: GenerationConfig(
-          temperature: FirebaseAIConstants.temperature,
-          maxOutputTokens: FirebaseAIConstants.maxOutputTokens,
-          topK: FirebaseAIConstants.topK,
-          topP: FirebaseAIConstants.topP,
+          temperature: _remoteConfig.temperature,
+          maxOutputTokens: _remoteConfig.maxOutputTokens,
+          topK: _remoteConfig.topK,
+          topP: _remoteConfig.topP,
         ),
-        systemInstruction:
-            Content.text(FirebaseAIConstants.analysisSystemPrompt),
+        systemInstruction: Content.text(_remoteConfig.analysisSystemPrompt),
       );
 
-      // Initialize Gemini model for image processing
+      // Initialize Gemini model for image processing using Remote Config
       _geminiImageModel = firebaseAI.generativeModel(
-        model: FirebaseAIConstants
-            .geminiImageModel, // Can use same model for images
+        model: _remoteConfig.geminiImageModel,
         generationConfig: GenerationConfig(
-          temperature: 0.3, // Lower temperature for more controlled responses
-          maxOutputTokens: 2048,
+          temperature: _remoteConfig.temperature * 0.75, // Slightly lower for images
+          maxOutputTokens: _remoteConfig.maxOutputTokens * 2, // More tokens for images
           topK: 32,
           topP: 0.9,
         ),
