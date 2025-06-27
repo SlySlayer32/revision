@@ -195,7 +195,7 @@ Future<void> _initializeFirebaseAI() async {
         FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash');
 
     // 2. Register the model instance with the service locator
-    sl.registerSingleton<GenerativeModel>(model);
+    getIt.registerSingleton<GenerativeModel>(model);
 
     log('✅ Firebase AI (GoogleAI) initialized and GenerativeModel registered with model: gemini-2.5-flash');
   } catch (e, stackTrace) {
