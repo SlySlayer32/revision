@@ -7,7 +7,7 @@ import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
-import 'package:revision/core/constants/environment_config.dart';
+import 'package:revision/core/config/env_config.dart';
 import 'package:revision/core/constants/firebase_constants.dart';
 import 'package:revision/core/di/service_locator.dart';
 import 'package:revision/firebase_options.dart';
@@ -68,7 +68,7 @@ Future<void> _initializeFirebase() async {
   try {
     debugPrint('_initializeFirebase: Starting Firebase initialization...');
     final environment = Environment.current;
-    debugPrint('_initializeFirebase: Environment is ${environment.name}');
+    debugPrint('_initializeFirebase: Environment is \${environment.name}');
 
     // Check if Firebase is already initialized to prevent duplicate app error
     if (Firebase.apps.isEmpty) {
@@ -174,11 +174,11 @@ Future<void> _initializeVertexAI() async {
     debugPrint('_initializeVertexAI: Starting Vertex AI initialization...');
 
     // IMPORTANT: Ensure API key is available before initializing Vertex AI
-    if (Environment.geminiApiKey.isEmpty) {
+    if (EnvConfig.geminiApiKey.isEmpty) {
       log('❌ CRITICAL: GEMINI_API_KEY is not set. AI features will fail.');
       log('👉 RUN WITH: flutter run --dart-define=GEMINI_API_KEY=YOUR_KEY_HERE');
       // Do not proceed with AI initialization if the key is missing.
-      return; 
+      return;
     }
 
     // Import the firebase_ai package
