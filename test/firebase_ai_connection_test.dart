@@ -80,20 +80,20 @@ void main() {
 
   group('Firebase AI Configuration Tests', () {
     test('should validate Firebase AI model creation', () {
-      // Test Firebase AI package is properly imported and working
-      expect(() => FirebaseAI.generativeModel(model: 'gemini-1.5-flash'), returnsNormally);
+      // Test Firebase AI package is properly imported and working with GoogleAI
+      expect(() => FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash'), returnsNormally);
     });
 
     test('should support various Gemini models', () {
-      // Test various model configurations
+      // Test various model configurations using GoogleAI
       final models = [
-        'gemini-1.5-flash',
+        'gemini-2.5-flash',
         'gemini-1.5-pro',
         'gemini-2.0-flash-exp',
       ];
       
       for (final modelName in models) {
-        expect(() => FirebaseAI.generativeModel(model: modelName), returnsNormally);
+        expect(() => FirebaseAI.googleAI().generativeModel(model: modelName), returnsNormally);
       }
     });
   });
