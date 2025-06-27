@@ -104,7 +104,17 @@ class LaunchConfigVerificationPage extends StatelessWidget {
             Text('Configured: ${EnvConfig.isConfigured ? 'Yes' : 'No'}'),
             Text('Key Length: ${EnvConfig.geminiApiKey.length} characters'),
             if (EnvConfig.isConfigured) ...[
-              Text('Key Preview: ${EnvConfig.geminiApiKey.substring(0, 20)}...'),
+              Text('Key Preview: ${EnvConfig.geminiApiKey.substring(0, Math.min(20, EnvConfig.geminiApiKey.length))}...'),
+              const SizedBox(height: 4),
+              Text(
+                'Expected API Key: AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: EnvConfig.geminiApiKey == 'AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM' 
+                    ? Colors.green 
+                    : Colors.orange,
+                ),
+              ),
             ],
           ],
         ),
