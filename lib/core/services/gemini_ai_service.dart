@@ -75,12 +75,14 @@ class GeminiAIService implements AIService {
           topK: 32,
           topP: 0.9,
         ),
-        systemInstruction:
-            Content.text(FirebaseAIConstants.editingSystemPrompt),
+        systemInstruction: Content.text(_remoteConfig.editingSystemPrompt),
       );
 
       log('✅ Google AI (Gemini API) models initialized successfully');
       log('🔑 API key source: Firebase Console configuration');
+      if (_remoteConfig.debugMode) {
+        log('🔍 Using Remote Config values: ${_remoteConfig.exportConfig()}');
+      }
     } catch (e, stackTrace) {
       log('❌ Failed to initialize Google AI models: $e',
           stackTrace: stackTrace);
