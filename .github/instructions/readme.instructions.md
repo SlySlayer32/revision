@@ -1,6 +1,7 @@
 ---
 applyTo: '**'
 ---
+
 # 📚 Revision Project - Master Instruction Index
 
 ## 🎯 Complete AI Co-Pilot Knowledge Base
