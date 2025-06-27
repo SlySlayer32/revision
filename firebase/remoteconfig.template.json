@@ -6,11 +6,6 @@
       "tagColor": "BLUE"
     },
     {
-      "name": "premium_users",
-      "expression": "app.userProperty['tier'].exactlyMatches(['premium'])",
-      "tagColor": "GREEN"
-    },
-    {
       "name": "debug_mode_users",
       "expression": "percent <= 5",
       "tagColor": "ORANGE"
