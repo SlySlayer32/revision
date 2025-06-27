@@ -100,7 +100,7 @@ Future<void> _initializeFirebase() async {
 
     // Initialize Vertex AI after Firebase is initialized
     debugPrint('_initializeFirebase: Starting Firebase AI initialization...');
-    await _initializeFirebaseAI();
+    await _initializeVertexAI();
     debugPrint('_initializeFirebase: Firebase AI initialization completed');
 
     log('✅ Firebase setup completed for ${EnvironmentDetector.environmentString} environment');
@@ -170,44 +170,45 @@ String _getPlatformSpecificEmulatorHost() {
     );
   }
   log(
-    'Defaulting to localhost for emulators (e.g., web, desktop, or fallback).',
+    'Defaulting to localhost for emulators (e.g., web, desktop, or fallback).'
   );
   return 'localhost';
 }
 
-/// Initialize Firebase AI and register the `GenerativeModel` with GetIt
-Future<void> _initializeFirebaseAI() async {
+/// Initialize Firebase AI with GoogleAI (Gemini Developer API)
+Future<void> _initializeVertexAI() async {
   try {
     debugPrint(
-        '_initializeFirebaseAI: Starting Firebase AI (GoogleAI) initialization...');
+        '_initializeVertexAI: Starting Firebase AI (GoogleAI) initialization...');
 
     // IMPORTANT: Ensure API key is available before initializing Firebase AI
     if (EnvConfig.geminiApiKey.isEmpty) {
       log('❌ CRITICAL: GEMINI_API_KEY is not set. AI features will fail.');
       log('👉 RUN WITH: flutter run --dart-define=GEMINI_API_KEY=YOUR_KEY_HERE');
-      // In a real app, you might want to throw an exception here
-      // if the AI features are critical to the app's function.
     }
 
-    // 1. Create the GenerativeModel instance
-    // Using the new 'gemini-2.5-flash' model as requested
-    final model =
-        FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash');
+    // Initialize the Gemini Developer API backend service
+    // Create a `GenerativeModel` instance with a model that supports your use case
+    final model = FirebaseAI.googleAI().generativeModel(
+      model: FirebaseConstants.geminiModel,
+    );
 
-    // 2. Register the model instance with the service locator
-    getIt.registerSingleton<GenerativeModel>(model);
+    // Register the model with the service locator if not already registered
+    if (!getIt.isRegistered<GenerativeModel>()) {
+      getIt.registerSingleton<GenerativeModel>(model);
+    }
 
-    log('✅ Firebase AI (GoogleAI) initialized and GenerativeModel registered with model: gemini-2.5-flash');
+    log('✅ Firebase AI (GoogleAI) initialized successfully with model: ${model.model}');
   } catch (e, stackTrace) {
-    debugPrint('❌ Firebase AI initialization failed: $e');
-    debugPrint('❌ Stack trace: $stackTrace');
     log(
-      '❌ Firebase AI initialization failed: $e',
+      '❌ Vertex AI initialization failed: $e',
       stackTrace: stackTrace,
     );
-    // Decide if you want to rethrow or handle gracefully
+    // Don't rethrow in development to allow app to continue
     if (!EnvironmentDetector.isDevelopment) {
       rethrow;
+    } else {
+      debugPrint('⚠️ Continuing in development mode despite Vertex AI error');
     }
   }
 }
