@@ -11,7 +11,41 @@
       "defaultValue": {
         "value": "gemini-2.5-flash"
       },
-      "description": "Primary Gemini model for text analysis and processing"
+      "description": "Primary Gemini model for text analysis and processing",
+      "conditionalValues": {
+        "debug_mode_users": {
+          "value": "gemini-1.5-pro"
+        }
+      }
+    },
+    "ai_gemini_image_model": {
+      "defaultValue": {
+        "value": "gemini-2.0-flash-preview-image-generation"
+      },
+      "description": "Gemini model for image generation and processing"
+    },
+    "ai_temperature": {
+      "defaultValue": {
+        "value": "0.4"
+      },
+      "description": "Controls creativity vs consistency (0.0-1.0). Lower = more focused, Higher = more creative"
+    },
+    "ai_max_output_tokens": {
+      "defaultValue": {
+        "value": "1024"
+      },
+      "description": "Maximum tokens in AI response. Higher = longer responses"
+    },
+    "ai_debug_mode": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "description": "Enable detailed logging for AI operations",
+      "conditionalValues": {
+        "debug_mode_users": {
+          "value": "true"
+        }
+      }
     }
   }
 }
