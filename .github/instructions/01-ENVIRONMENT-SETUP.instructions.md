@@ -672,7 +672,7 @@ FIREBASE_PROJECT_ID=revision-dev-xxxxx
 # .env.staging
 ENVIRONMENT=staging
 GEMINI_API_KEY_STAGING=your_staging_api_key_here
-FIREBASE_PROJECT_ID=aura-staging-xxxxx
+FIREBASE_PROJECT_ID=revision-staging-xxxxx
 
 # .env.production
 ENVIRONMENT=production
