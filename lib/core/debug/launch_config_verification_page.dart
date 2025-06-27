@@ -99,25 +99,20 @@ class LaunchConfigVerificationPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              '🔑 API Key Configuration',
+              '🔑 Firebase AI Configuration',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text('Configured: ${EnvConfig.isConfigured ? 'Yes' : 'No'}'),
-            const Text(
-                'Key Length: ${EnvConfig.geminiApiKey.length} characters'),
-            if (EnvConfig.isConfigured) ...[
-              Text(
-                  'Key Preview: ${EnvConfig.geminiApiKey.substring(0, math.min(20, EnvConfig.geminiApiKey.length))}...'),
+            Text('Firebase AI Configured: ${EnvConfig.isFirebaseAIConfigured ? 'Yes' : 'No'}'),
+            const Text('API keys are managed by Firebase Console'),
+            if (EnvConfig.isFirebaseAIConfigured) ...[
+              const Text('✅ Firebase AI Logic is properly configured'),
               const SizedBox(height: 4),
               const Text(
-                'Expected API Key: AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM',
+                'Using Firebase-managed API keys (recommended)',
                 style: TextStyle(
                   fontSize: 12,
-                  color: EnvConfig.geminiApiKey ==
-                          'AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM'
-                      ? Colors.green
-                      : Colors.orange,
+                  color: Colors.green,
                 ),
               ),
             ],
