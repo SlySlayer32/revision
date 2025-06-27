@@ -52,9 +52,9 @@ void main() async {
       print('4. Environment Status:');
       try {
         print(
-            '   • API key in .env: ${EnvConfig.geminiApiKey.isNotEmpty ? "✅ Present" : "❌ Missing"}');
+            '   • Firebase AI configured: ${EnvConfig.isFirebaseAIConfigured ? "✅ Yes" : "❌ No"}');
         print(
-            '   • Environment configured: ${EnvConfig.isConfigured ? "✅ Yes" : "❌ No"}');
+            '   • Environment: ${EnvConfig.environmentString}');
       } catch (e) {
         print('   • Environment: ⚠️ Not loaded in test (expected)');
         print('   • Production apps load .env automatically');
@@ -104,7 +104,8 @@ void main() async {
         } catch (e) {
           print('⚠️ Firebase initialization error in test environment');
           print('   Error type: ${e.runtimeType}');
-          print('   Details: ${e.toString().length > 100 ? e.toString().substring(0, 100) + "..." : e.toString()}');
+          print(
+              '   Details: ${e.toString().length > 100 ? e.toString().substring(0, 100) + "..." : e.toString()}');
           print('');
           print('💡 This is EXPECTED in test environment. In production:');
           print('   1. Firebase project must be properly configured');
@@ -116,7 +117,7 @@ void main() async {
           print('   → Complete Firebase Console configuration');
           print('   → Enable Firebase AI Logic in Console');
           print('   → Test on actual device/emulator with network');
-          
+
           // Don't rethrow - let tests continue with proper skipping
           firebaseInitialized = false;
           aiService = null;
