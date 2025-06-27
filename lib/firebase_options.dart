@@ -27,25 +27,6 @@ class DefaultFirebaseOptions {
     }
   }
 }
-        // Or handle macOS specifically if you have a separate configuration
-        throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for macOS.',
-        );
-      case TargetPlatform.windows:
-        // Or handle windows specifically if you have a separate configuration
-        throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for windows.',
-        );
-      case TargetPlatform.linux:
-        // Or handle linux specifically if you have a separate configuration
-        throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for linux.',
-        );
-      case TargetPlatform.fuchsia:
-        // Or handle fuchsia specifically if you have a separate configuration
-        throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for fuchsia.',
-        );
     }
   }
 
