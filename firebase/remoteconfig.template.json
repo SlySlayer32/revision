@@ -2,12 +2,12 @@
   "conditions": [
     {
       "name": "development_env",
-      "expression": "app.id.contains('dev')",
+      "expression": "app.id == 'com.revision.dev'",
       "tagColor": "BLUE"
     },
     {
       "name": "premium_users",
-      "expression": "app.userProperty.tier == 'premium'",
+      "expression": "app.userProperty['tier'] == 'premium'",
       "tagColor": "GREEN"
     },
     {
