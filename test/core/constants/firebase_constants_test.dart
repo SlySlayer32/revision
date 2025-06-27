@@ -50,7 +50,7 @@ void main() {
       });
 
       test('should have latest model names', () {
-        expect(FirebaseConstants.geminiModel, equals('gemini-2.0-flash-exp'));
+        expect(FirebaseConstants.geminiModel, equals('gemini-2.5-flash'));
         expect(
           FirebaseConstants.imagenModel,
           equals('imagen-3.0-generate-001'),
