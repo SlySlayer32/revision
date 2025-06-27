@@ -1,22 +1,27 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:revision/firebase_options.dart';
 
 /// Test Firebase AI connection and basic functionality
+/// Using Firebase AI Logic SDKs with Gemini Developer API
 void main() {
   group('Firebase AI Connection Tests', () {
     setUpAll(() async {
-      // Initialize Firebase for testing
+      // Initialize Firebase for testing using proper options
       try {
-        await Firebase.initializeApp();
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
       } catch (e) {
         // Already initialized
+        print('Firebase already initialized: $e');
       }
     });
 
-    test('should create GenerativeModel successfully', () async {
-      // Test basic Firebase AI model creation
-      expect(() => FirebaseAI.generativeModel(model: 'gemini-1.5-flash'), returnsNormally);
+    test('should create GenerativeModel successfully with GoogleAI', () async {
+      // Test Firebase AI model creation using GoogleAI (Gemini Developer API)
+      expect(() => FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash'), returnsNormally);
     });
 
     test('should have Gemini models available', () async {
