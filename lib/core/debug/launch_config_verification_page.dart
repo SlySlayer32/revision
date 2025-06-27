@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
 import 'dart:math' as math;
-import 'package:revision/core/config/environment_detector.dart';
+
+import 'package:flutter/material.dart';
 import 'package:revision/core/config/env_config.dart';
+import 'package:revision/core/config/environment_detector.dart';
 import 'package:revision/firebase_options.dart';
 
 /// A quick verification page for launch configuration
@@ -36,9 +37,9 @@ class LaunchConfigVerificationPage extends StatelessWidget {
   }
 
   Color _getStatusColor() {
-    if (EnvConfig.isConfigured && EnvironmentDetector.isDevelopment) {
+    if (EnvConfig.isFirebaseAIConfigured && EnvironmentDetector.isDevelopment) {
       return Colors.green;
-    } else if (EnvConfig.isConfigured) {
+    } else if (EnvConfig.isFirebaseAIConfigured) {
       return Colors.orange;
     } else {
       return Colors.red;
@@ -46,9 +47,9 @@ class LaunchConfigVerificationPage extends StatelessWidget {
   }
 
   Widget _buildStatusCard() {
-    final isConfigured = EnvConfig.isConfigured;
+    final isConfigured = EnvConfig.isFirebaseAIConfigured;
     final environment = EnvironmentDetector.environmentString;
-    
+
     return Card(
       color: _getStatusColor().withOpacity(0.1),
       child: Padding(
@@ -103,17 +104,20 @@ class LaunchConfigVerificationPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text('Configured: ${EnvConfig.isConfigured ? 'Yes' : 'No'}'),
-            Text('Key Length: ${EnvConfig.geminiApiKey.length} characters'),
+            const Text(
+                'Key Length: ${EnvConfig.geminiApiKey.length} characters'),
             if (EnvConfig.isConfigured) ...[
-              Text('Key Preview: ${EnvConfig.geminiApiKey.substring(0, math.min(20, EnvConfig.geminiApiKey.length))}...'),
-              const SizedBox(height: 4),
               Text(
+                  'Key Preview: ${EnvConfig.geminiApiKey.substring(0, math.min(20, EnvConfig.geminiApiKey.length))}...'),
+              const SizedBox(height: 4),
+              const Text(
                 'Expected API Key: AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM',
                 style: TextStyle(
                   fontSize: 12,
-                  color: EnvConfig.geminiApiKey == 'AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM' 
-                    ? Colors.green 
-                    : Colors.orange,
+                  color: EnvConfig.geminiApiKey ==
+                          'AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM'
+                      ? Colors.green
+                      : Colors.orange,
                 ),
               ),
             ],
@@ -199,17 +203,18 @@ class LaunchConfigVerificationPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
                 border: Border.all(color: Colors.green.withOpacity(0.3)),
               ),
-              child: Column(
+              child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     '✅ Web Configuration Fixed!',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.green),
                   ),
-                  const SizedBox(height: 4),
-                  const Text('• Removed deprecated --web-renderer flag'),
-                  const Text('• Uses modern Flutter web defaults (CanvasKit)'),
-                  const Text('• Added staging and production web configs'),
+                  SizedBox(height: 4),
+                  Text('• Removed deprecated --web-renderer flag'),
+                  Text('• Uses modern Flutter web defaults (CanvasKit)'),
+                  Text('• Added staging and production web configs'),
                 ],
               ),
             ),
