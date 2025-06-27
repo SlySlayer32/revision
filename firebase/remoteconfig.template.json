@@ -33,7 +33,12 @@
       "defaultValue": {
         "value": "0.4"
       },
-      "description": "Controls creativity vs consistency (0.0-1.0). Lower = more focused, Higher = more creative"
+      "description": "Controls creativity vs consistency (0.0-1.0). Lower = more focused, Higher = more creative",
+      "conditionalValues": {
+        "android_users": {
+          "value": "0.6"
+        }
+      }
     },
     "ai_max_output_tokens": {
       "defaultValue": {
