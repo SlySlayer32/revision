@@ -177,7 +177,8 @@ String _getPlatformSpecificEmulatorHost() {
 /// Initialize Firebase AI with GoogleAI (Gemini Developer API)
 Future<void> _initializeVertexAI() async {
   try {
-    debugPrint('_initializeVertexAI: Starting Firebase AI (GoogleAI) initialization...');
+    debugPrint(
+        '_initializeVertexAI: Starting Firebase AI (GoogleAI) initialization...');
 
     // IMPORTANT: Ensure API key is available before initializing Firebase AI
     if (EnvConfig.geminiApiKey.isEmpty) {
@@ -192,7 +193,7 @@ Future<void> _initializeVertexAI() async {
     // you do NOT add your Gemini API key into your app's codebase
     final firebaseAI = FirebaseAI.googleAI();
 
-    // Create a generative model instance for health check  
+    // Create a generative model instance for health check
     final model = firebaseAI.generativeModel(
       model: FirebaseConstants.geminiModel,
     );
@@ -209,7 +210,8 @@ Future<void> _initializeVertexAI() async {
   } catch (e, stackTrace) {
     debugPrint('⚠️ Firebase AI (GoogleAI) initialization failed: $e');
     debugPrint('⚠️ Stack trace: $stackTrace');
-    log('⚠️ Firebase AI (GoogleAI) initialization failed: $e', stackTrace: stackTrace);
+    log('⚠️ Firebase AI (GoogleAI) initialization failed: $e',
+        stackTrace: stackTrace);
     // Don't rethrow - app should be able to function without AI initially.
   }
 }
