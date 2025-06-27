@@ -138,7 +138,7 @@ void main() async {
           print('📝 Prompt: $prompt');
 
           // Use our Google AI service to generate content
-          final response = await aiService.processTextPrompt(prompt);
+          final response = await aiService!.processTextPrompt(prompt);
 
           print('');
           print('🎉 Response from Gemini 2.5 Flash:');
