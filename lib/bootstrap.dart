@@ -50,12 +50,9 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
     setupServiceLocator();
     debugPrint('bootstrap: Service locator setup completed');
 
-    // Add cross-flavor configuration here
-    final environment = EnvironmentDetector.currentEnvironment;
-    log('🚀 Starting app in ${EnvironmentDetector.environmentString} mode');
-    
     // Log comprehensive environment debug info
     final debugInfo = EnvConfig.getDebugInfo();
+    log('🚀 Starting app in ${EnvironmentDetector.environmentString} mode');
     log('🔍 Environment Debug Info: $debugInfo');
 
     debugPrint('bootstrap: Building app widget...');
