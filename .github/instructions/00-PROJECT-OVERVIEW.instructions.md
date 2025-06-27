@@ -2,11 +2,11 @@
 applyTo: 'project'
 ---
 
-# 📱 Aura: AI-Powered Photo Editor - Complete Project Overview
+# 📱 Revision: AI-Powered Photo Editor - Complete Project Overview
 
 ## 🎯 Project Vision & Mission
 
-**Aura** is a production-grade AI-powered photo editor that enables users to seamlessly remove objects from images and regenerate content using advanced AI. This application must work flawlessly across iOS, Android, and web platforms.
+**Revision** is a production-grade AI-powered photo editor that enables users to seamlessly remove objects from images and regenerate content using advanced AI. This application must work flawlessly across iOS, Android, and web platforms.
 
 ## 🚫 ABSOLUTE ZERO TOLERANCE POLICIES
 
