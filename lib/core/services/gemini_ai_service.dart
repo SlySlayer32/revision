@@ -273,7 +273,7 @@ Provide each suggestion as a clear, actionable sentence.
 
       final response = await _geminiImageModel
           .generateContent(content)
-          .timeout(FirebaseAIConstants.requestTimeout);
+          .timeout(_remoteConfig.requestTimeout);
 
       if (response.text == null || response.text!.isEmpty) {
         throw Exception('Empty response from Google AI');
