@@ -1,16 +1,16 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:revision/core/services/vertex_ai_service.dart';
+import 'package:revision/core/services/gemini_ai_service.dart';
 import 'package:revision/firebase_options_dev.dart';
 
-/// Test first request to Gemini 2.5 Flash using Firebase AI Logic SDK
-/// This test validates the complete Firebase AI setup and sends a real request
+/// Test first request to Gemini API using Google AI (AI Studio)
+/// This test validates the complete Google AI setup and sends a real request
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   
-  group('Gemini 2.5 Flash First Request Tests', () {
-    late VertexAIService aiService;
+  group('Gemini API First Request Tests', () {
+    late GeminiAIService aiService;
 
     setUpAll(() async {
       try {
@@ -20,9 +20,9 @@ void main() async {
         );
         print('✅ Firebase initialized successfully');
 
-        // Initialize our AI service
-        aiService = VertexAIService();
-        print('✅ AI service initialized successfully');
+        // Initialize our Google AI service
+        aiService = GeminiAIService();
+        print('✅ Google AI service initialized successfully');
       } catch (e) {
         print('⚠️ Initialization error: $e');
         rethrow;
