@@ -174,7 +174,7 @@ String _getPlatformSpecificEmulatorHost() {
   return 'localhost';
 }
 
-/// Initialize Firebase AI with GoogleAI (Gemini Developer API)
+/// Initialize Firebase AI and register the `GenerativeModel` with GetIt
 Future<void> _initializeFirebaseAI() async {
   try {
     debugPrint(
@@ -184,37 +184,29 @@ Future<void> _initializeFirebaseAI() async {
     if (EnvConfig.geminiApiKey.isEmpty) {
       log('❌ CRITICAL: GEMINI_API_KEY is not set. AI features will fail.');
       log('👉 RUN WITH: flutter run --dart-define=GEMINI_API_KEY=YOUR_KEY_HERE');
-      // Do not proceed with AI initialization if the key is missing.
-      return;
+      // In a real app, you might want to throw an exception here
+      // if the AI features are critical to the app's function.
     }
 
-    // Initialize Firebase AI with GoogleAI (Gemini Developer API)
-    // Note: When using Firebase AI Logic SDKs with Gemini Developer API,
-    // you do NOT add your Gemini API key into your app's codebase
-    final firebaseAI = FirebaseAI.googleAI();
+    // 1. Create the GenerativeModel instance
+    // Using the new 'gemini-2.5-flash' model as requested
+    final model =
+        FirebaseAI.googleAI().generativeModel(model: 'gemini-2.5-flash');
 
-    // Create a generative model instance for health check
-    final model = firebaseAI.generativeModel(
-      model: FirebaseConstants.geminiModel,
-    );
+    // 2. Register the model instance with the service locator
+    sl.registerSingleton<GenerativeModel>(model);
 
-    // Register the model instance with the service locator
-    getIt.registerLazySingleton<GenerativeModel>(() => model);
-
-    // Verify the model was created successfully
-    debugPrint('_initializeFirebaseAI: Model instance created: ${model.model}');
-
-    debugPrint(
-        '_initializeFirebaseAI: Firebase AI (GoogleAI) model configured: ${FirebaseConstants.geminiModel}');
-    debugPrint(
-        '✅ Firebase AI (GoogleAI) initialized and registered successfully with model: ${FirebaseConstants.geminiModel}');
-
-    log('✅ Firebase AI (GoogleAI) initialized and registered successfully with model: ${FirebaseConstants.geminiModel}');
+    log('✅ Firebase AI (GoogleAI) initialized and GenerativeModel registered with model: gemini-2.5-flash');
   } catch (e, stackTrace) {
-    debugPrint('⚠️ Firebase AI (GoogleAI) initialization failed: $e');
-    debugPrint('⚠️ Stack trace: $stackTrace');
-    log('⚠️ Firebase AI (GoogleAI) initialization failed: $e',
-        stackTrace: stackTrace);
-    // Don't rethrow - app should be able to function without AI initially.
+    debugPrint('❌ Firebase AI initialization failed: $e');
+    debugPrint('❌ Stack trace: $stackTrace');
+    log(
+      '❌ Firebase AI initialization failed: $e',
+      stackTrace: stackTrace,
+    );
+    // Decide if you want to rethrow or handle gracefully
+    if (!EnvironmentDetector.isDevelopment) {
+      rethrow;
+    }
   }
 }
