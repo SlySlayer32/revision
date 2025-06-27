@@ -3,6 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:revision/core/services/circuit_breaker.dart';
+import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
+import 'package:revision/core/services/gemini_ai_service.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/core/services/image_save_service.dart';
 import 'package:revision/features/ai_processing/domain/usecases/process_image_with_gemini_usecase.dart';
