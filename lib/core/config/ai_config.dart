@@ -6,8 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class AIConfig {
   /// Firebase AI configuration
   static const String geminiModel = 'gemini-2.5-flash';
-  static const String geminiImageModel =
-      'gemini-2.0-flash-preview-image-generation';
+  static const String geminiImageModel = 'gemini-2.0-vision-flash';
 
   /// API Keys (loaded from environment)
   static String get apiKey => _getConfigValue('FIREBASE_AI_API_KEY');
