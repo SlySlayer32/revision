@@ -6,18 +6,12 @@ import 'package:revision/features/image_editing/domain/entities/annotation_strok
 class AnnotationConverter {
   /// Convert an AnnotatedImage to a list of ImageMarkers for AI processing.
   static List<ImageMarker> annotationsToMarkers(AnnotatedImage annotatedImage) {
-    print('🔄 AnnotationConverter: Converting ${annotatedImage.annotations.length} annotations to markers');
-    
     final markers = <ImageMarker>[];
 
     for (final stroke in annotatedImage.annotations) {
-      print('🔄 Processing stroke: id=${stroke.id}, points=${stroke.points.length}');
-      
       // For each stroke, create markers at key points
       // For MVP, we'll create one marker per stroke at the center point
       final centerPoint = _calculateStrokeCenter(stroke);
-      
-      print('🔄 Calculated center point: x=${centerPoint.x}, y=${centerPoint.y}');
 
       final marker = ImageMarker(
         id: stroke.id,
@@ -25,12 +19,10 @@ class AnnotationConverter {
         y: centerPoint.y,
         label: 'marked_object',
       );
-      
+
       markers.add(marker);
-      print('✅ Created marker: id=${marker.id}, x=${marker.x}, y=${marker.y}, label=${marker.label}');
     }
 
-    print('✅ AnnotationConverter: Generated ${markers.length} markers');
     return markers;
   }
 
@@ -38,7 +30,6 @@ class AnnotationConverter {
   static ({double x, double y}) _calculateStrokeCenter(
       AnnotationStroke stroke) {
     if (stroke.points.isEmpty) {
-      print('⚠️ AnnotationConverter: Stroke has no points, using default center');
       return (x: 0.5, y: 0.5); // Default center
     }
 
@@ -53,8 +44,6 @@ class AnnotationConverter {
 
     final centerX = totalX / stroke.points.length;
     final centerY = totalY / stroke.points.length;
-    
-    print('🔄 Calculated center from ${stroke.points.length} points: x=$centerX, y=$centerY');
 
     return (
       x: centerX,
