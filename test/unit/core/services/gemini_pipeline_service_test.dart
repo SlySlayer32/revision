@@ -4,13 +4,16 @@ import 'dart:typed_data';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-
 import 'package:revision/core/services/gemini_pipeline_service.dart';
+
 import '../../../helpers/test_data/ai_test_data.dart';
 
 // Mock classes
 class MockGenerativeModel extends Mock implements GenerativeModel {}
-class MockGenerateContentResponse extends Mock implements GenerateContentResponse {}
+
+class MockGenerateContentResponse extends Mock
+    implements GenerateContentResponse {}
+
 class MockContent extends Mock implements Content {}
 
 void main() {
@@ -24,7 +27,7 @@ void main() {
       mockAnalysisModel = MockGenerativeModel();
       mockImageGenerationModel = MockGenerativeModel();
       mockResponse = MockGenerateContentResponse();
-      
+
       service = GeminiPipelineService(
         analysisModel: mockAnalysisModel,
         imageGenerationModel: mockImageGenerationModel,
@@ -112,7 +115,7 @@ void main() {
         // Arrange
         const expectedPrompt = 'Analysis with marked areas';
         when(() => mockResponse.text).thenReturn(expectedPrompt);
-        
+
         Content? capturedContent;
         when(() => mockAnalysisModel.generateContent(any()))
             .thenAnswer((invocation) async {
@@ -147,7 +150,8 @@ void main() {
         );
 
         // Assert
-        expect(result, equals(AITestData.testImageData)); // Currently returns original
+        expect(result,
+            equals(AITestData.testImageData)); // Currently returns original
         verify(() => mockImageGenerationModel.generateContent(any())).called(1);
       });
 
@@ -236,7 +240,8 @@ void main() {
         );
       });
 
-      test('should handle generation failure after successful analysis', () async {
+      test('should handle generation failure after successful analysis',
+          () async {
         // Arrange
         when(() => mockResponse.text).thenReturn('Analysis successful');
         when(() => mockAnalysisModel.generateContent(any()))
