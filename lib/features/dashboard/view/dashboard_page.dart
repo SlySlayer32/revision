@@ -108,7 +108,7 @@ class _DashboardViewState extends State<DashboardView> {
               ),
             ),
             const SizedBox(height: 16),
-            Row(
+            const Row(
               children: [
                 const Expanded(
                   child: Card(
