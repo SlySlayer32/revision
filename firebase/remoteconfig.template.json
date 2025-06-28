@@ -14,12 +14,12 @@
     "parameters": {
         "ai_gemini_model": {
             "defaultValue": {
-                "value": "gemini-2.5-flash"
+                "value": "gemini-2.0-flash"
             },
-            "description": "Primary Gemini model for text analysis and processing",
+            "description": "Step 3: Gemini 2.0 Flash for analyzing marked areas and generating removal prompts",
             "conditionalValues": {
                 "debug_mode_users": {
-                    "value": "gemini-1.5-pro"
+                    "value": "gemini-2.0-flash"
                 }
             }
         },
