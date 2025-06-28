@@ -280,7 +280,7 @@ void main() {
 
         // Act & Assert
         for (final score in validScores) {
-          const analysis = ImageAnalysis(
+          final analysis = ImageAnalysis(
             width: 800,
             height: 600,
             format: 'JPEG',
