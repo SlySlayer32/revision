@@ -15,8 +15,8 @@ class AppConstants {
   static const String stagingSuffix = '-staging';
   static const String productionSuffix = '';
 
-  // AI Processing Constants
-  static const String vertexAiModel = 'gemini-1.5-flash';
+  // AI Processing Constants (Firebase AI Logic with Google AI)
+  static const String geminiModel = 'gemini-2.5-flash'; // Updated to latest model
   static const int maxImageSize = 4 * 1024 * 1024; // 4MB
   static const int aiRequestTimeout = 30000; // 30 seconds
   static const int maxRetryAttempts = 3;
