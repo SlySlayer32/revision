@@ -22,4 +22,7 @@ final class AuthenticationStatusChanged extends AuthenticationEvent {
 }
 
 /// Event triggered when user requests to log out
-final class AuthenticationLogoutRequested extends AuthenticationEvent {}
+final class AuthenticationLogoutRequested extends AuthenticationEvent {
+  /// Creates a new [AuthenticationLogoutRequested]
+  const AuthenticationLogoutRequested();
+}
