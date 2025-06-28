@@ -108,10 +108,10 @@ Future<void> _initializeFirebase() async {
           '_initializeFirebase: Skipping emulator configuration for ${EnvironmentDetector.environmentString}');
     }
 
-    // Initialize Vertex AI after Firebase is initialized
-    debugPrint('_initializeFirebase: Starting Firebase AI initialization...');
-    await _initializeVertexAI();
-    debugPrint('_initializeFirebase: Firebase AI initialization completed');
+    // Initialize Firebase AI Logic after Firebase is initialized
+    debugPrint('_initializeFirebase: Starting Firebase AI Logic initialization...');
+    await _initializeFirebaseAI();
+    debugPrint('_initializeFirebase: Firebase AI Logic initialization completed');
 
     log('✅ Firebase setup completed for ${EnvironmentDetector.environmentString} environment');
   } catch (e, stackTrace) {
