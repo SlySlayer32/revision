@@ -3,20 +3,26 @@ import 'dart:typed_data';
 
 import 'package:firebase_ai/firebase_ai.dart';
 
-/// Gemini AI Pipeline Service - MVP Implementation
+/// Gemini AI Pipeline Service - Matching Expected Flow Diagram
 ///
-/// Implements the exact pipeline specified in MVP instructions:
-/// 1. Image Analysis using Gemini 2.5 Flash
-/// 2. Image Generation using Gemini 2.0 Flash Preview Image Generation
-///
-/// Following VGV architecture and Firebase/Vertex AI best practices
+/// Implements the exact pipeline as shown in the flow diagram:
+/// 1. User uploads image & marks object in Flutter app
+/// 2. Send marked image to AI pipeline
+/// 3. Gemini 2.0 Flash - Analyze marked area & generate removal prompt
+/// 4. Send image and prompt to next model
+/// 5. Gemini 2.0 Flash Preview - Generate new image using prompt
+/// 6. Return updated image to UI
 class GeminiPipelineService {
-  GeminiPipelineService({required GenerativeModel generativeModel})
-      : _analysisModel = generativeModel {
-    log('🔧 GeminiPipelineService initialized with provided GenerativeModel.');
+  GeminiPipelineService({
+    required GenerativeModel analysisModel,
+    required GenerativeModel imageGenerationModel,
+  })  : _analysisModel = analysisModel,
+        _imageGenerationModel = imageGenerationModel {
+    log('🔧 GeminiPipelineService initialized with analysis and image generation models.');
   }
 
-  final GenerativeModel _analysisModel;
+  final GenerativeModel _analysisModel; // Gemini 2.0 Flash for analysis
+  final GenerativeModel _imageGenerationModel; // Gemini 2.0 Flash Preview for generation
 
   /// Step 1: Analyze image and generate detailed prompt using Gemini 2.5 Flash
   ///
