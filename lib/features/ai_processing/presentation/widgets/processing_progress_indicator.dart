@@ -171,7 +171,7 @@ class _StageIndicator extends StatelessWidget {
                       : Theme.of(context)
                           .colorScheme
                           .outline
-                          .withOpacity(_opacity),
+                          .withValues(alpha: _opacity),
                 ),
               ),
               if (index < stages.length - 1) ...[
