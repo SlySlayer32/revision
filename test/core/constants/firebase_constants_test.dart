@@ -224,7 +224,6 @@ void main() {
         expect(FirebaseConstants.authDomain, isA<String>());
         expect(FirebaseConstants.firestoreDatabase, isA<String>());
         expect(FirebaseConstants.storageBucket, isA<String>());
-        expect(FirebaseConstants.vertexAiLocation, isA<String>());
         expect(FirebaseConstants.functionsRegion, isA<String>());
 
         expect(FirebaseConstants.geminiModel, isA<String>());
