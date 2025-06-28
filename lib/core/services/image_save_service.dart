@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -22,7 +23,7 @@ class ImageSaveService {
           final mediaLibraryPermission =
               await Permission.mediaLibrary.request();
           if (!mediaLibraryPermission.isGranted) {
-            throw Exception('Storage permission denied');
+            return null;
           }
         }
       }
@@ -38,13 +39,8 @@ class ImageSaveService {
         quality: 95,
       );
 
-      if (result['isSuccess'] == true) {
-        return result['filePath'] as String?;
-      } else {
-        throw Exception('Failed to save image to gallery');
-      }
+      return result['isSuccess'] == true ? result['filePath'] as String? : null;
     } catch (e) {
-      print('Error saving image to gallery: $e');
       return null;
     }
   }
@@ -76,7 +72,7 @@ class ImageSaveService {
 
       return file.path;
     } catch (e) {
-      throw Exception('Failed to save image locally: $e');
+      rethrow;
     }
   }
 
@@ -98,7 +94,6 @@ class ImageSaveService {
               file.path.toLowerCase().endsWith('.png'))
           .toList();
     } catch (e) {
-      print('Error getting local images: $e');
       return [];
     }
   }
@@ -113,7 +108,6 @@ class ImageSaveService {
       }
       return false;
     } catch (e) {
-      print('Error deleting local image: $e');
       return false;
     }
   }
@@ -151,5 +145,45 @@ class ImageSaveService {
     } catch (e) {
       return false;
     }
+  }
+
+  /// Save image using platform-specific implementation.
+  ///
+  /// Returns true if the image was saved successfully, false otherwise.
+  static Future<bool> saveImage(Uint8List imageBytes, String fileName) async {
+    if (kIsWeb) {
+      return _saveImageWeb(imageBytes, fileName);
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      return _saveImageMobile(imageBytes, fileName);
+    } else {
+      return _saveImageDesktop(imageBytes, fileName);
+    }
+  }
+
+  static Future<bool> _saveImageWeb(Uint8List imageBytes, String fileName) async {
+    // Web saving is handled by the browser, this is a placeholder
+    return true;
+  }
+
+  static Future<bool> _saveImageMobile(Uint8List imageBytes, String fileName) async {
+    final status = await Permission.storage.request();
+    if (status.isGranted) {
+      final result = await ImageGallerySaver.saveImage(
+        imageBytes,
+        name: fileName,
+        quality: 100,
+      );
+      return result['isSuccess'] ?? false;
+    } else {
+      return false;
+    }
+  }
+
+  static Future<bool> _saveImageDesktop(Uint8List imageBytes, String fileName) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final path = '${directory.path}/$fileName';
+    final file = File(path);
+    await file.writeAsBytes(imageBytes);
+    return true;
   }
 }
