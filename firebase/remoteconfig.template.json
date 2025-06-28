@@ -71,9 +71,9 @@
         },
         "ai_analysis_system_prompt": {
             "defaultValue": {
-                "value": "You are an expert image analysis AI. Analyze the provided image and marked object to create precise editing instructions.\\n\\nFocus on:\\n1. Object identification and boundaries\\n2. Background reconstruction techniques\\n3. Lighting and shadow analysis\\n4. Color harmony considerations\\n5. Realistic removal strategies\\n\\nProvide actionable editing instructions."
+                "value": "You are Gemini 2.0 Flash analyzing marked objects for removal. The user has marked specific areas they want removed from their photo.\\n\\nAnalyze the marked regions and generate a precise removal prompt for the next AI model:\\n\\n1. Identify what objects are marked for removal\\n2. Analyze the background texture and patterns\\n3. Consider lighting, shadows, and color harmony\\n4. Generate specific instructions for content-aware reconstruction\\n\\nProvide a technical prompt that will guide the image generation model to remove the marked objects seamlessly while preserving image quality and natural appearance."
             },
-            "description": "System instruction for image analysis tasks"
+            "description": "Step 3: Analysis prompt for Gemini 2.0 Flash to analyze marked objects and generate removal instructions"
         },
         "ai_editing_system_prompt": {
             "defaultValue": {
