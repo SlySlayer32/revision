@@ -36,8 +36,8 @@ class FirebaseConstants {
   static const String storageEmulatorHost = 'localhost';
   static const int storageEmulatorPort = 9199;
 
-  // Vertex AI Configuration
-  static const String vertexAiLocation = 'us-central1'; // Matches prompt
+  // Firebase AI Logic Configuration (Google AI Backend)
+  // Note: Vertex AI location not needed for Google AI backend
 
   // Updated model names per MVP requirements
   static const String analysisModel =
