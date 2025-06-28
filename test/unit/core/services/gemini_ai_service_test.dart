@@ -38,7 +38,7 @@ void main() {
       when(() => mockRemoteConfig.enableAdvancedFeatures).thenReturn(true);
       when(() => mockRemoteConfig.initialize()).thenAnswer((_) async {});
       when(() => mockRemoteConfig.refresh()).thenAnswer((_) async {});
-      when(() => mockRemoteConfig.exportConfig()).thenReturn({});
+      when(() => mockRemoteConfig.exportConfig()).thenReturn('{}');
       when(() => mockRemoteConfig.getAllValues()).thenReturn({});
       
       service = GeminiAIService(remoteConfigService: mockRemoteConfig);
