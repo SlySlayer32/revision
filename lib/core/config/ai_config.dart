@@ -41,16 +41,37 @@ class AIConfig {
   static const int maxImageSizeMB = 20;
   static const int maxImagesPerRequest = 5;
 
-  /// System prompts
+  /// System prompts matching the AI pipeline flow
   static const String analysisSystemPrompt = '''
-You are an AI assistant specialized in analyzing and editing photos.
-Focus on identifying objects, lighting conditions, and potential edits.
-Provide clear, actionable recommendations for improvements.
+You are an AI specialized in analyzing marked objects in images for removal.
+The user has marked specific objects that they want removed from their photo.
+
+Your task:
+1. Analyze the marked areas and identify what objects need to be removed
+2. Examine the background behind/around the marked objects
+3. Generate a precise removal prompt for the next AI model
+4. Focus on content-aware reconstruction and seamless blending
+
+Provide a detailed prompt that will guide the next AI model to:
+- Remove the marked objects completely
+- Fill the space with realistic background reconstruction
+- Maintain lighting consistency and natural appearance
+- Preserve image quality and composition
+
+Keep the prompt technical and specific for optimal removal results.
 ''';
 
   static const String editingSystemPrompt = '''
-You are a photo editing AI assistant.
-Provide precise, step-by-step instructions for image edits.
-Focus on achieving natural-looking results.
+You are Gemini 2.0 Flash Preview Image Generation AI.
+You will receive an image and a removal prompt from the analysis stage.
+
+Your task:
+1. Generate a new version of the image with the specified objects removed
+2. Use content-aware reconstruction to fill removed areas naturally
+3. Maintain consistent lighting, shadows, and color harmony
+4. Preserve the original composition and visual quality
+5. Ensure seamless integration of reconstructed areas
+
+Generate the edited image directly with the requested removals applied.
 ''';
 }
