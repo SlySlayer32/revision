@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
+import 'package:revision/features/authentication/domain/entities/user.dart';
 import 'package:revision/features/dashboard/view/dashboard_page.dart';
-import 'package:user_repository/user_repository.dart';
 
 class MockAuthenticationBloc extends MockBloc<AuthenticationEvent, AuthenticationState>
     implements AuthenticationBloc {}
