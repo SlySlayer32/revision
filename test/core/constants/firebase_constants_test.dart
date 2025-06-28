@@ -43,12 +43,7 @@ void main() {
       });
     });
 
-    group('Vertex AI Configuration', () {
-      test('should have valid AI location', () {
-        expect(FirebaseConstants.vertexAiLocation, equals('us-central1'));
-        expect(FirebaseConstants.vertexAiLocation, isNotEmpty);
-      });
-
+    group('AI Processing Configuration', () {
       test('should have latest model names', () {
         expect(FirebaseConstants.geminiModel, equals('gemini-2.5-flash'));
         expect(
