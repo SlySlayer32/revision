@@ -58,8 +58,7 @@ Provide a detailed prompt that will guide the next AI model to:
 - Maintain lighting consistency and natural appearance
 - Preserve image quality and composition
 
-Keep the prompt technical and specific for optimal removal results.
-''';
+Keep the prompt technical and specific for optimal removal results.''';
 
   static const String editingSystemPrompt = '''
 You are Gemini 2.0 Flash Preview Image Generation AI.
@@ -72,6 +71,5 @@ Your task:
 4. Preserve the original composition and visual quality
 5. Ensure seamless integration of reconstructed areas
 
-Generate the edited image directly with the requested removals applied.
-''';
+Generate the edited image directly with the requested removals applied.''';
 }
