@@ -97,15 +97,6 @@ Remove the marked objects using advanced inpainting techniques. Apply content-aw
         originalPrompt: 'User marked 2 objects for removal',
         enhancedPrompt: validAnalysisResponse,
         processingTime: const Duration(milliseconds: 1500),
-        imageAnalysis: ImageAnalysis(
-          width: 1920,
-          height: 1080,
-          format: 'PNG',
-          fileSize: testImageData.length,
-          dominantColors: const ['#FFFFFF'],
-          detectedObjects: const ['marked_objects'],
-          qualityScore: 0.95,
-        ),
         metadata: {
           'strokeCount': 2,
           'analysisModel': 'gemini-2.0-flash',
@@ -133,46 +124,4 @@ Remove the marked objects using advanced inpainting techniques. Apply content-aw
         'FIREBASE_AI_API_KEY': 'test-api-key-12345',
         'GOOGLE_CLOUD_PROJECT_ID': 'test-project-id',
       };
-}
-
-/// Test image wrapper
-class TestImage {
-  const TestImage({this.bytes, this.path});
-
-  final Uint8List? bytes;
-  final String? path;
-}
-
-/// Test annotation point
-class AnnotationPoint {
-  const AnnotationPoint({
-    required this.x,
-    required this.y,
-    required this.pressure,
-  });
-
-  final double x;
-  final double y;
-  final double pressure;
-}
-
-/// Image analysis result for testing
-class ImageAnalysis {
-  const ImageAnalysis({
-    required this.width,
-    required this.height,
-    required this.format,
-    required this.fileSize,
-    required this.dominantColors,
-    required this.detectedObjects,
-    required this.qualityScore,
-  });
-
-  final int width;
-  final int height;
-  final String format;
-  final int fileSize;
-  final List<String> dominantColors;
-  final List<String> detectedObjects;
-  final double qualityScore;
 }
