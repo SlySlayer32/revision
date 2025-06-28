@@ -1,13 +1,13 @@
 // test/helpers/test_data/ai_test_data.dart
 import 'dart:typed_data';
 
+import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_result.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
-import 'package:revision/features/image_editing/domain/entities/annotation_stroke.dart';
 import 'package:revision/features/image_editing/domain/entities/annotation_point.dart';
-import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
+import 'package:revision/features/image_editing/domain/entities/annotation_stroke.dart';
 import 'package:revision/features/image_selection/domain/entities/image_source.dart';
-import 'package:revision/core/services/gemini_pipeline_service.dart';
+import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
 
 /// Test data factory for AI processing tests
 class AITestData {
@@ -25,7 +25,8 @@ class AITestData {
       ]);
 
   /// Test image data (larger for size validation tests)
-  static Uint8List get largeTestImageData => Uint8List(25 * 1024 * 1024); // 25MB
+  static Uint8List get largeTestImageData =>
+      Uint8List(25 * 1024 * 1024); // 25MB
 
   /// Valid test user annotations
   static List<AnnotationStroke> get testAnnotations => [
@@ -97,7 +98,7 @@ Remove the marked objects using advanced inpainting techniques. Apply content-aw
         originalPrompt: 'User marked 2 objects for removal',
         enhancedPrompt: validAnalysisResponse,
         processingTime: const Duration(milliseconds: 1500),
-        metadata: {
+        metadata: const {
           'strokeCount': 2,
           'analysisModel': 'gemini-2.0-flash',
           'timestamp': '2025-06-28T10:00:00.000Z',
@@ -108,7 +109,8 @@ Remove the marked objects using advanced inpainting techniques. Apply content-aw
   static GeminiPipelineResult get mockPipelineResult => GeminiPipelineResult(
         originalImage: testImageData,
         analysisPrompt: validAnalysisResponse,
-        generatedImage: testImageData, // In real scenario, this would be the edited image
+        generatedImage:
+            testImageData, // In real scenario, this would be the edited image
         processingTimeMs: DateTime.now().millisecondsSinceEpoch,
         markedAreas: testMarkedAreas,
       );
