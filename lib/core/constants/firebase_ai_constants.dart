@@ -1,10 +1,10 @@
 /// Firebase AI Logic constants following latest best practices
 class FirebaseAIConstants {
-  // Model configurations following Firebase AI Logic documentation
+  // Model configurations following the AI pipeline flow
   static const String geminiModel =
-      'gemini-2.5-flash'; // For prompt generation and analysis
+      'gemini-2.0-flash'; // Step 3: Analyze marked area & generate removal prompt
   static const String geminiImageModel =
-      'gemini-2.0-flash-preview-image-generation'; // Real Gemini 2.0 Flash Preview Image Generation
+      'gemini-2.0-flash-preview-image-generation'; // Step 5: Generate new image using prompt
 
   // Legacy Imagen models (keeping for reference but using Gemini 2.0 Flash)
   static const String imagenModel = 'imagegeneration@006'; // Legacy - not used
