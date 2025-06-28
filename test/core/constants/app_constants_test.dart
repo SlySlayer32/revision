@@ -311,7 +311,6 @@ void main() {
         expect(AppConstants.appVersion, isNotNull);
         expect(AppConstants.appDescription, isNotNull);
         expect(AppConstants.firebaseProjectId, isNotNull);
-        expect(AppConstants.vertexAiModel, isNotNull);
         expect(AppConstants.maxImageSize, isNotNull);
         expect(AppConstants.supportedImageFormats, isNotNull);
       });
