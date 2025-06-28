@@ -49,7 +49,7 @@ class ProcessingProgressIndicator extends StatelessWidget {
                   backgroundColor: Theme.of(context)
                       .colorScheme
                       .outline
-                      .withOpacity(_stageOpacity),
+                      .withValues(alpha: _stageOpacity),
                   valueColor: AlwaysStoppedAnimation<Color>(
                     _getStageColor(context, progress.stage),
                   ),
