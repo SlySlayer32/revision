@@ -40,7 +40,7 @@ class ImageAnnotationCubit extends Cubit<ImageAnnotationState> {
     final newStroke = AnnotationStroke(
       id: _generateStrokeId(),
       points: [point],
-      color: const Color(0xFFFF0000).value, // Default marking color (red)
+      color: 0xFFFF0000, // Default marking color (red)
       strokeWidth: 4.0,
       timestamp: DateTime.now(),
     );
