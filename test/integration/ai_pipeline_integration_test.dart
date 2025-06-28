@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
 import 'package:revision/features/ai_processing/infrastructure/services/ai_analysis_service.dart';
 import '../helpers/test_data/ai_test_data.dart';
-import '../helpers/test_environment.dart';
 
 /// Integration tests for the complete AI pipeline
 /// 
@@ -16,17 +15,9 @@ void main() {
     late GeminiAIService geminiService;
     late AiAnalysisService analysisService;
 
-    setUpAll(() async {
-      await TestEnvironment.setUp();
-    });
-
     setUp(() {
       geminiService = GeminiAIService();
       analysisService = AiAnalysisService();
-    });
-
-    tearDown(() {
-      TestEnvironment.tearDown();
     });
 
     group('End-to-End AI Processing', () {
@@ -63,10 +54,7 @@ void main() {
       });
 
       test('should maintain consistent prompt format across pipeline', 
-          () async {
-        // Arrange
-        const testPrompt = 'Remove the red car from the background';
-        
+          () async {        
         // Act
         final editingPrompt = await geminiService.generateEditingPrompt(
           imageBytes: AITestData.testImageData,
