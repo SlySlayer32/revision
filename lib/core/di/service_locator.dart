@@ -40,7 +40,8 @@ void setupServiceLocator() {
   try {
     // Reset service locator for hot reload safety
     if (getIt.isRegistered<AuthRepository>()) {
-      debugPrint('setupServiceLocator: Dependencies already registered, resetting...');
+      debugPrint(
+          'setupServiceLocator: Dependencies already registered, resetting...');
       getIt.reset();
     }
 
@@ -55,7 +56,10 @@ void setupServiceLocator() {
             remoteConfigService: getIt<FirebaseAIRemoteConfigService>()),
       )
       ..registerLazySingleton<GeminiPipelineService>(
-        () => GeminiPipelineService(generativeModel: getIt<GenerativeModel>()),
+        () => GeminiPipelineService(
+          analysisModel: getIt<GeminiAIService>().analysisModel,
+          imageGenerationModel: getIt<GeminiAIService>().imageGenerationModel,
+        ),
       )
 
       // Data Sources
