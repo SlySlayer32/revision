@@ -125,8 +125,6 @@ class _ProcessingResultDisplayState extends State<ProcessingResultDisplay> {
         },
       );
     } catch (e) {
-      print(
-          '❌ ProcessingResultDisplay: Exception building processed image: $e');
       return _buildErrorPlaceholder();
     }
   }
