@@ -116,17 +116,11 @@ class _ProcessingResultDisplayState extends State<ProcessingResultDisplay> {
   }
 
   Widget _buildProcessedImage() {
-    print('🔄 ProcessingResultDisplay: Building processed image');
-    print(
-        '🔄 Processed image data size: ${widget.result.processedImageData.length} bytes');
-
     try {
       return Image.memory(
         widget.result.processedImageData,
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) {
-          print(
-              '❌ ProcessingResultDisplay: Error loading processed image: $error');
           return _buildErrorPlaceholder();
         },
       );
