@@ -1,4 +1,3 @@
-import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
