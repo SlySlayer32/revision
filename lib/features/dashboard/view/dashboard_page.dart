@@ -174,7 +174,7 @@ class _DashboardViewState extends State<DashboardView> {
               crossAxisCount: 2,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              children: [
+              children: const [
                 _buildToolCard(
                   context,
                   'AI Object Removal',
