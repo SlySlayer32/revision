@@ -108,7 +108,7 @@ void main() {
       test('prompts should be well-formatted and clear', () {
         expect(AIConfig.analysisSystemPrompt.trim(), isNotEmpty);
         expect(AIConfig.editingSystemPrompt.trim(), isNotEmpty);
-        
+
         // Should not have leading/trailing whitespace issues
         expect(
           AIConfig.analysisSystemPrompt,
