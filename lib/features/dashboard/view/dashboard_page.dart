@@ -38,7 +38,7 @@ class _DashboardViewState extends State<DashboardView> {
             icon: CircleAvatar(
               backgroundColor: Theme.of(context).primaryColor,
               child: Text(
-                user?.email?.substring(0, 1).toUpperCase() ?? 'U',
+                user?.email != null ? user!.email.substring(0, 1).toUpperCase() : 'U',
                 style: const TextStyle(color: Colors.white),
               ),
             ),
