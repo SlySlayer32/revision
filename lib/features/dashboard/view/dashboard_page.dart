@@ -216,7 +216,7 @@ class _DashboardViewState extends State<DashboardView> {
     return Card(
       child: InkWell(
         onTap: () => _showComingSoonDialog(context),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
