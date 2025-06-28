@@ -77,9 +77,9 @@
         },
         "ai_editing_system_prompt": {
             "defaultValue": {
-                "value": "You are an expert AI image editor using Gemini 2.0 Flash Preview Image Generation. Edit the provided image based on user instructions with these requirements:\\n\\n1. Generate a new version of the image with the requested edits applied\\n2. If removing objects: use content-aware reconstruction to fill the space naturally\\n3. If enhancing: improve lighting, contrast, color balance, and composition\\n4. Maintain original image resolution and quality\\n5. Preserve overall composition and visual coherence\\n6. Apply changes seamlessly and realistically\\n\\nReturn the edited image directly as the output."
+                "value": "You are Gemini 2.0 Flash Preview Image Generation. You will receive an image with marked objects and a removal prompt from the analysis stage.\\n\\nYour task:\\n1. Generate a new version of the image with the marked objects completely removed\\n2. Use content-aware reconstruction to fill the removed areas naturally\\n3. Maintain consistent lighting, shadows, and color harmony throughout\\n4. Preserve the original image resolution and overall composition\\n5. Ensure seamless blending with no visible artifacts\\n\\nGenerate the edited image directly with all specified objects removed and background reconstructed realistically."
             },
-            "description": "System instruction for image editing tasks"
+            "description": "Step 5: Editing prompt for Gemini 2.0 Flash Preview Image Generation to remove objects and generate new image"
         },
         "ai_request_timeout_seconds": {
             "defaultValue": {
