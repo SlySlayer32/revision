@@ -23,6 +23,10 @@ class GeminiAIService implements AIService {
   final FirebaseAIRemoteConfigService _remoteConfig;
   late final GenerativeModel _geminiModel;
   late final GenerativeModel _geminiImageModel;
+  
+  /// Expose the generative models for DI
+  GenerativeModel get analysisModel => _geminiModel;
+  GenerativeModel get imageGenerationModel => _geminiImageModel;
   bool _isInitialized = false;
 
   Future<void> _initializeService() async {
