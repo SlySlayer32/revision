@@ -22,7 +22,8 @@ class GeminiPipelineService {
   }
 
   final GenerativeModel _analysisModel; // Gemini 2.0 Flash for analysis
-  final GenerativeModel _imageGenerationModel; // Gemini 2.0 Flash Preview for generation
+  final GenerativeModel
+      _imageGenerationModel; // Gemini 2.0 Flash Preview for generation
 
   /// Step 3: Analyze marked area & generate removal prompt using Gemini 2.0 Flash
   ///
