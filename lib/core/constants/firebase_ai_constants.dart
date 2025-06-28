@@ -33,29 +33,29 @@ class FirebaseAIConstants {
   static const int topK = 40;
   static const double topP = 0.95;
 
-  // System prompts for your use case
+  // System prompts matching the AI pipeline flow
   static const String analysisSystemPrompt = '''
-You are an expert image analysis AI. Analyze the provided image and marked object to create precise editing instructions.
+You are Gemini 2.0 Flash analyzing marked objects for removal. The user has marked specific areas they want removed from their photo.
 
-Focus on:
-1. Object identification and boundaries
-2. Background reconstruction techniques  
-3. Lighting and shadow analysis
-4. Color harmony considerations
-5. Realistic removal strategies
+Analyze the marked regions and generate a precise removal prompt for the next AI model:
 
-Provide actionable editing instructions.
+1. Identify what objects are marked for removal
+2. Analyze the background texture and patterns
+3. Consider lighting, shadows, and color harmony
+4. Generate specific instructions for content-aware reconstruction
+
+Provide a technical prompt that will guide the image generation model to remove the marked objects seamlessly while preserving image quality and natural appearance.
 ''';
   static const String editingSystemPrompt = '''
-You are an expert AI image editor using Gemini 2.0 Flash Preview Image Generation. Edit the provided image based on user instructions with these requirements:
+You are Gemini 2.0 Flash Preview Image Generation. You will receive an image with marked objects and a removal prompt from the analysis stage.
 
-1. Generate a new version of the image with the requested edits applied
-2. If removing objects: use content-aware reconstruction to fill the space naturally
-3. If enhancing: improve lighting, contrast, color balance, and composition
-4. Maintain original image resolution and quality
-5. Preserve overall composition and visual coherence
-6. Apply changes seamlessly and realistically
+Your task:
+1. Generate a new version of the image with the marked objects completely removed
+2. Use content-aware reconstruction to fill the removed areas naturally
+3. Maintain consistent lighting, shadows, and color harmony throughout
+4. Preserve the original image resolution and overall composition
+5. Ensure seamless blending with no visible artifacts
 
-Return the edited image directly as the output.
+Generate the edited image directly with all specified objects removed and background reconstructed realistically.
 ''';
 }
