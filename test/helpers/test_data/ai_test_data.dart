@@ -2,8 +2,11 @@
 import 'dart:typed_data';
 
 import 'package:revision/features/ai_processing/domain/entities/processing_result.dart';
-import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
-import 'package:revision/features/image_editing/domain/entities/annotation_stroke.dart';
+import 'package:revision/features/image_editing\domain\entities\annotated_image.dart';
+import 'package:revision/features/image_editing\domain\entities\annotation_stroke.dart';
+import 'package:revision/features/image_editing\domain\entities\annotation_point.dart';
+import 'package:revision/features/image_selection\domain\entities\selected_image.dart';
+import 'package:revision/features/image_selection\domain\entities\image_source.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
 
 /// Test data factory for AI processing tests
@@ -27,21 +30,25 @@ class AITestData {
   /// Valid test user annotations
   static List<AnnotationStroke> get testAnnotations => [
         AnnotationStroke(
+          id: 'test-stroke-1',
           points: [
-            AnnotationPoint(x: 100, y: 100, pressure: 0.5),
-            AnnotationPoint(x: 150, y: 150, pressure: 0.6),
-            AnnotationPoint(x: 200, y: 200, pressure: 0.5),
+            const AnnotationPoint(x: 0.1, y: 0.1, pressure: 0.5),
+            const AnnotationPoint(x: 0.15, y: 0.15, pressure: 0.6),
+            const AnnotationPoint(x: 0.2, y: 0.2, pressure: 0.5),
           ],
           color: 0xFFFF0000, // Red
           strokeWidth: 5.0,
+          timestamp: DateTime(2025, 6, 28, 10, 0, 0),
         ),
         AnnotationStroke(
+          id: 'test-stroke-2',
           points: [
-            AnnotationPoint(x: 300, y: 300, pressure: 0.7),
-            AnnotationPoint(x: 350, y: 350, pressure: 0.8),
+            const AnnotationPoint(x: 0.3, y: 0.3, pressure: 0.7),
+            const AnnotationPoint(x: 0.35, y: 0.35, pressure: 0.8),
           ],
           color: 0xFF00FF00, // Green
           strokeWidth: 3.0,
+          timestamp: DateTime(2025, 6, 28, 10, 1, 0),
         ),
       ];
 
@@ -63,10 +70,20 @@ class AITestData {
         },
       ];
 
+  /// Test selected image
+  static SelectedImage get testSelectedImage => SelectedImage(
+        bytes: testImageData,
+        name: 'test_image.png',
+        sizeInBytes: testImageData.length,
+        source: ImageSource.gallery,
+      );
+
   /// Test annotated image
   static AnnotatedImage get testAnnotatedImage => AnnotatedImage(
-        originalImage: TestImage(bytes: testImageData),
+        originalImage: testSelectedImage,
         annotations: testAnnotations,
+        createdAt: DateTime(2025, 6, 28, 10, 0, 0),
+        instructions: 'Remove marked objects from the image',
       );
 
   /// Valid AI analysis response
