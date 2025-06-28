@@ -180,11 +180,11 @@ class _StageIndicator extends StatelessWidget {
                   height: _connectorHeight,
                   color: isActive
                       ? _getStageColor(context, stage)
-                          .withOpacity(_connectorOpacity)
+                          .withValues(alpha: _connectorOpacity)
                       : Theme.of(context)
                           .colorScheme
                           .outline
-                          .withOpacity(_opacity),
+                          .withValues(alpha: _opacity),
                   margin:
                       const EdgeInsets.symmetric(horizontal: _connectorMargin),
                 ),
