@@ -66,12 +66,12 @@ class FirebaseInitializationException extends AppException {
   String toString() => 'FirebaseInitializationException: $message';
 }
 
-/// Vertex AI-specific exceptions
-class VertexAIException extends AppException {
-  const VertexAIException(super.message, [super.code]);
+/// Firebase AI Logic-specific exceptions
+class FirebaseAIException extends AppException {
+  const FirebaseAIException(super.message, [super.code]);
 
   @override
-  String toString() => 'VertexAIException: $message';
+  String toString() => 'FirebaseAIException: $message';
 }
 
 /// Quota exceeded exceptions for AI services
