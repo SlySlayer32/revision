@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
 import 'package:revision/features/authentication/presentation/pages/welcome_page.dart';
+import 'package:revision/features/dashboard/dashboard.dart';
 
 /// A widget that listens to authentication state changes and
 /// shows the appropriate screen based on the authentication status
