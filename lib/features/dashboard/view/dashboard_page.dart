@@ -67,6 +67,16 @@ class _DashboardViewState extends State<DashboardView> {
           label: 'Home',
         ),
         NavigationDestination(
+          icon: Icon(Icons.photo_library_outlined),
+          selectedIcon: Icon(Icons.photo_library),
+          label: 'Gallery',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.auto_fix_high_outlined),
+          selectedIcon: Icon(Icons.auto_fix_high),
+          label: 'AI Tools',
+        ),
+        NavigationDestination(
           icon: Icon(Icons.settings_outlined),
           selectedIcon: Icon(Icons.settings),
           label: 'Settings',
