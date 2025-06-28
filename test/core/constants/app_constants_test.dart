@@ -273,7 +273,6 @@ void main() {
         expect(AppConstants.appVersion, isA<String>());
         expect(AppConstants.appDescription, isA<String>());
         expect(AppConstants.firebaseProjectId, isA<String>());
-        expect(AppConstants.vertexAiModel, isA<String>());
         expect(AppConstants.developmentSuffix, isA<String>());
         expect(AppConstants.stagingSuffix, isA<String>());
         expect(AppConstants.productionSuffix, isA<String>());
