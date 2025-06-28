@@ -183,41 +183,31 @@ String _getPlatformSpecificEmulatorHost() {
   return 'localhost';
 }
 
-/// Initialize Firebase AI with GoogleAI (Gemini Developer API)
-Future<void> _initializeVertexAI() async {
+/// Initialize Firebase AI Logic with Google AI (Gemini API)
+Future<void> _initializeFirebaseAI() async {
   try {
     debugPrint(
-        '_initializeVertexAI: Starting Firebase AI (GoogleAI) initialization...');
+        '_initializeFirebaseAI: Starting Firebase AI Logic (Google AI) initialization...');
 
-    // IMPORTANT: Ensure API key is available before initializing Firebase AI
     // Firebase AI Logic uses API keys managed by Firebase Console
-    if (!EnvConfig.isFirebaseAIConfigured) {
-      log('❌ CRITICAL: GEMINI_API_KEY is not set. AI features will fail.');
-      log('👉 RUN WITH: flutter run --dart-define=GEMINI_API_KEY=YOUR_KEY_HERE');
-    }
+    // No explicit API key initialization needed - handled by Firebase Console
+    debugPrint('_initializeFirebaseAI: Using Firebase Console managed API keys');
 
-    // Initialize the Gemini Developer API backend service
-    // Create a `GenerativeModel` instance with a model that supports your use case
-    final model = FirebaseAI.googleAI().generativeModel(
-      model: FirebaseConstants.geminiModel,
-    );
+    // Firebase AI Logic is automatically available when Firebase is initialized
+    // Models are created on-demand by GeminiAIService
+    debugPrint('_initializeFirebaseAI: Firebase AI Logic models will be initialized by GeminiAIService');
 
-    // Register the model with the service locator if not already registered
-    if (!getIt.isRegistered<GenerativeModel>()) {
-      getIt.registerSingleton<GenerativeModel>(model);
-    }
-
-    log('✅ Firebase AI (GoogleAI) initialized successfully with model: ${model.model}');
+    log('✅ Firebase AI Logic (Google AI) initialization completed successfully');
   } catch (e, stackTrace) {
     log(
-      '❌ Vertex AI initialization failed: $e',
+      '❌ Firebase AI Logic initialization failed: $e',
       stackTrace: stackTrace,
     );
     // Don't rethrow in development to allow app to continue
     if (!EnvironmentDetector.isDevelopment) {
       rethrow;
     } else {
-      debugPrint('⚠️ Continuing in development mode despite Vertex AI error');
+      debugPrint('⚠️ Continuing in development mode despite Firebase AI Logic error');
     }
   }
 }
