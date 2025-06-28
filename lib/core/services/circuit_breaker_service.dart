@@ -9,13 +9,13 @@ enum CircuitBreakerState { closed, open, halfOpen }
 class CircuitBreakerService {
   static final Map<String, CircuitBreaker> _breakers = {};
 
-  /// Get or create circuit breaker for Vertex AI
-  static CircuitBreaker get vertexAI => _breakers.putIfAbsent(
-        'vertex_ai',
+  /// Get or create circuit breaker for Firebase AI Logic
+  static CircuitBreaker get firebaseAI => _breakers.putIfAbsent(
+        'firebase_ai',
         () => CircuitBreaker(
           failureThreshold: 5,
           recoveryTimeout: const Duration(minutes: 2),
-          onStateChange: (state) => _logStateChange('vertex_ai', state),
+          onStateChange: (state) => _logStateChange('firebase_ai', state),
         ),
       );
 
