@@ -19,7 +19,7 @@ class AuthenticationWrapper extends StatelessWidget {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: switch (state.status) {
-            AuthenticationStatus.authenticated => const _HomePage(),
+            AuthenticationStatus.authenticated => _HomePage(),
             AuthenticationStatus.unauthenticated => const WelcomePage(),
             AuthenticationStatus.unknown => const Center(
                 child: CircularProgressIndicator(),
