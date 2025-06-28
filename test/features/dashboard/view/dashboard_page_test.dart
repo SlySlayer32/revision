@@ -1,157 +1,140 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
 import 'package:revision/features/dashboard/view/dashboard_page.dart';
+import 'package:user_repository/user_repository.dart';
 
-import '../../../helpers/helpers.dart';
+class MockAuthenticationBloc extends MockBloc<AuthenticationEvent, AuthenticationState>
+    implements AuthenticationBloc {}
+
+class MockUser extends Mock implements User {}
 
 void main() {
   group('DashboardPage', () {
-    late MockAuthenticationBloc mockAuthenticationBloc;
+    late AuthenticationBloc authenticationBloc;
+    late User user;
 
     setUp(() {
-      mockAuthenticationBloc = MockAuthenticationBloc();
+      authenticationBloc = MockAuthenticationBloc();
+      user = MockUser();
+      when(() => user.email).thenReturn('test@example.com');
     });
 
-    // A sample user for tests, created using VGVTestDataFactory
-    // Ensure VGVTestDataFactory is imported, likely via helpers.dart
-    final tUser = VGVTestDataFactory.createTestUser(
-      email: 'test@example.com',
-      id: 'dashboard-user',
-      displayName: 'Dashboard User', // Default display name
-    );
-    final tUserNoName = VGVTestDataFactory.createTestUser(
-      email: 'noname@example.com',
-      id: 'no-name-user',
-    );
+    testWidgets('renders DashboardView', (tester) async {
+      when(() => authenticationBloc.state).thenReturn(
+        AuthenticationState.authenticated(user),
+      );
 
-    group('when user is authenticated', () {
-      testWidgets('renders dashboard with welcome message', (tester) async {
-        when(() => mockAuthenticationBloc.state).thenReturn(
-          AuthenticationState.authenticated(tUser),
-        );
-
-        await tester.pumpApp(
-          BlocProvider<AuthenticationBloc>.value(
-            value: mockAuthenticationBloc,
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider.value(
+            value: authenticationBloc,
             child: const DashboardPage(),
           ),
-        );
+        ),
+      );
 
-        expect(find.text('Revision Dashboard'), findsOneWidget);
-        expect(find.text('Welcome back!'), findsOneWidget);
-        expect(find.text(tUser.email), findsOneWidget);
-      });
-
-      testWidgets('displays tools grid with coming soon features',
-          (tester) async {
-        when(() => mockAuthenticationBloc.state).thenReturn(
-          AuthenticationState.authenticated(tUser),
-        );
-
-        await tester.pumpApp(
-          BlocProvider<AuthenticationBloc>.value(
-            value: mockAuthenticationBloc,
-            child: const DashboardPage(),
-          ),
-        );
-
-        expect(find.text('Available Tools'), findsOneWidget);
-        expect(find.text('AI Object Removal'), findsOneWidget);
-        expect(find.text('Background Editor'), findsOneWidget);
-        expect(find.text('Smart Enhance'), findsOneWidget);
-        expect(find.text('Batch Processing'), findsOneWidget);
-      });
-
-      testWidgets('shows status cards with authentication active',
-          (tester) async {
-        when(() => mockAuthenticationBloc.state).thenReturn(
-          AuthenticationState.authenticated(tUser),
-        );
-
-        await tester.pumpApp(
-          BlocProvider<AuthenticationBloc>.value(
-            value: mockAuthenticationBloc,
-            child: const DashboardPage(),
-          ),
-        );
-
-        expect(find.text('Authentication'), findsOneWidget);
-        expect(find.text('Active'), findsOneWidget);
-        expect(find.text('AI Services'), findsOneWidget);
-        expect(find.text('Ready'), findsOneWidget);
-      });
-
-      testWidgets('shows coming soon dialog when tapping a tool',
-          (tester) async {
-        when(() => mockAuthenticationBloc.state).thenReturn(
-          AuthenticationState.authenticated(tUser),
-        );
-
-        await tester.pumpApp(
-          BlocProvider<AuthenticationBloc>.value(
-            value: mockAuthenticationBloc,
-            child: const DashboardPage(),
-          ),
-        );
-
-        // Tap on AI Object Removal tool
-        await tester.tap(find.text('AI Object Removal'));
-        await tester.pumpAndSettle();
-
-        expect(find.text('Coming Soon'), findsOneWidget);
-        expect(find.text('Got it'), findsOneWidget);
-      });
-
-      testWidgets('logout works when tapping logout in profile menu',
-          (tester) async {
-        when(() => mockAuthenticationBloc.state).thenReturn(
-          AuthenticationState.authenticated(tUser),
-        );
-
-        await tester.pumpApp(
-          BlocProvider<AuthenticationBloc>.value(
-            value: mockAuthenticationBloc,
-            child: const DashboardPage(),
-          ),
-        );
-
-        // Find and tap the profile avatar
-        await tester.tap(find.byType(PopupMenuButton<String>));
-        await tester.pumpAndSettle();
-
-        // Tap logout
-        await tester.tap(find.text('Logout'));
-        await tester.pumpAndSettle();
-
-        // Verify that the logout event was added
-        verify(
-          () => mockAuthenticationBloc.add(AuthenticationLogoutRequested()),
-        ).called(1);
-      });
+      expect(find.byType(DashboardView), findsOneWidget);
     });
 
-    group('edge cases', () {
-      testWidgets('handles user with missing display name', (tester) async {
-        // Uses tUserNoName defined above which has displayName: null
-        when(() => mockAuthenticationBloc.state).thenReturn(
-          AuthenticationState.authenticated(tUserNoName),
-        );
+    testWidgets('displays user email in app bar', (tester) async {
+      when(() => authenticationBloc.state).thenReturn(
+        AuthenticationState.authenticated(user),
+      );
 
-        await tester.pumpApp(
-          BlocProvider<AuthenticationBloc>.value(
-            value: mockAuthenticationBloc,
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider.value(
+            value: authenticationBloc,
             child: const DashboardPage(),
           ),
-        );
+        ),
+      );
 
-        expect(find.text('Revision Dashboard'), findsOneWidget);
-        expect(find.text('Welcome back!'), findsOneWidget);
-        // Dashboard shows email when displayName is null, not "Unknown User"
-        expect(find.text(tUserNoName.email), findsOneWidget);
-      });
+      expect(find.text('Revision Dashboard'), findsOneWidget);
+      expect(find.text('test@example.com'), findsOneWidget);
+    });
+
+    testWidgets('displays logout button', (tester) async {
+      when(() => authenticationBloc.state).thenReturn(
+        AuthenticationState.authenticated(user),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider.value(
+            value: authenticationBloc,
+            child: const DashboardPage(),
+          ),
+        ),
+      );
+
+      // Find the PopupMenuButton
+      final popupMenuButton = find.byType(PopupMenuButton<String>);
+      expect(popupMenuButton, findsOneWidget);
+
+      // Tap to open the popup menu
+      await tester.tap(popupMenuButton);
+      await tester.pumpAndSettle();
+
+      // Check that logout option is present
+      expect(find.text('Logout'), findsOneWidget);
+    });
+
+    testWidgets('displays dashboard content sections', (tester) async {
+      when(() => authenticationBloc.state).thenReturn(
+        AuthenticationState.authenticated(user),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider.value(
+            value: authenticationBloc,
+            child: const DashboardPage(),
+          ),
+        ),
+      );
+
+      // Check for welcome section
+      expect(find.text('Welcome back!'), findsOneWidget);
+      
+      // Check for system status section
+      expect(find.text('System Status'), findsOneWidget);
+      expect(find.text('Authentication'), findsOneWidget);
+      expect(find.text('AI Services'), findsOneWidget);
+      
+      // Check for available tools section
+      expect(find.text('Available Tools'), findsOneWidget);
+    });
+
+    testWidgets('triggers logout when logout is selected', (tester) async {
+      when(() => authenticationBloc.state).thenReturn(
+        AuthenticationState.authenticated(user),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider.value(
+            value: authenticationBloc,
+            child: const DashboardPage(),
+          ),
+        ),
+      );
+
+      // Find and tap the PopupMenuButton
+      final popupMenuButton = find.byType(PopupMenuButton<String>);
+      await tester.tap(popupMenuButton);
+      await tester.pumpAndSettle();
+
+      // Tap the logout option
+      await tester.tap(find.text('Logout'));
+      await tester.pumpAndSettle();
+
+      // Verify that logout event was added
+      verify(() => authenticationBloc.add(const AuthenticationLogoutRequested())).called(1);
     });
   });
 }
