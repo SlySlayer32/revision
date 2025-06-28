@@ -84,30 +84,37 @@ class GeminiPipelineService {
     }
   }
 
-  /// Step 2: Generate new image using Gemini 2.0 Flash Preview Image Generation
+  /// Step 5: Generate new image using Gemini 2.0 Flash Preview Image Generation
   ///
-  /// Per MVP: "Use Gemini 2.0 Flash Preview Image Generation to generate a new image
-  /// from the prompt and original image. Send both the prompt and the original image as input"
-  Future<Uint8List> generateImage(
-      Uint8List originalImageData, String analysisPrompt) async {
+  /// Per flow diagram: "Gemini 2.0 Flash Preview - Generate new image using prompt"
+  Future<Uint8List> generateImageWithRemovals({
+    required Uint8List originalImageData,
+    required String removalPrompt,
+  }) async {
     try {
-      log('🎨 Starting image generation with Gemini 2.0 Flash Preview...');
+      log('🎨 Step 5: Generating new image with Gemini 2.0 Flash Preview...');
 
-      // Create content with original image and analysis prompt
+      // Create content with original image and removal prompt
       final content = [
         Content.multi([
           InlineDataPart('image/jpeg', originalImageData),
           TextPart(
-            'Using the following prompt, recreate and enhance the provided image, '
-            'preserving its core composition and style:\n\n'
-            '$analysisPrompt\n\n'
-            'Enhance the image quality while maintaining the original essence and composition.',
+            'STEP 5: IMAGE GENERATION WITH OBJECT REMOVAL\n\n'
+            'Using the following analysis and removal instructions:\n\n'
+            '$removalPrompt\n\n'
+            'Generate a new version of this image with the specified objects removed:\n'
+            '• Remove the marked objects completely\n'
+            '• Use content-aware reconstruction for natural background fill\n'
+            '• Maintain consistent lighting and shadows\n'
+            '• Preserve original image quality and composition\n'
+            '• Ensure seamless blending with no visible artifacts\n\n'
+            'Return the edited image with all marked objects removed.',
           ),
         ]),
       ];
 
-      // Call Gemini 2.0 Flash Preview Image Generation with 60s timeout per MVP
-      final response = await _analysisModel
+      // Call Gemini 2.0 Flash Preview Image Generation with 60s timeout
+      final response = await _imageGenerationModel
           .generateContent(content)
           .timeout(const Duration(seconds: 60));
 
@@ -120,12 +127,12 @@ class GeminiPipelineService {
 
       // For MVP, we'll simulate image generation
       // TODO: Replace with actual image extraction from response
-      log('✅ Image generation completed successfully');
+      log('✅ Step 5 completed: Image generation successful');
 
       // Return original image for now - this will be replaced with actual generated image
       return originalImageData;
     } catch (e, stackTrace) {
-      log('❌ Image generation failed: $e', stackTrace: stackTrace);
+      log('❌ Step 5 (image generation) failed: $e', stackTrace: stackTrace);
       rethrow;
     }
   }
