@@ -207,25 +207,11 @@ class _ProcessingControlsState extends State<ProcessingControls> {
   }
 
   void _startProcessing() {
-    print('🔄 ProcessingControls: Starting processing...');
-    print('🔄 User prompt: "${_promptController.text.trim()}"');
-    print('🔄 Processing type: $_selectedType');
-    print('🔄 Quality level: $_selectedQuality');
-    print('🔄 Performance priority: $_selectedPriority');
-    print('🔄 Has annotated image: ${widget.annotatedImage != null}');
-    
     // Convert annotations to markers if available
     final markers =
         widget.annotatedImage != null && widget.annotatedImage!.hasAnnotations
             ? AnnotationConverter.annotationsToMarkers(widget.annotatedImage!)
             : <ImageMarker>[];
-
-    print('🔄 Generated markers: ${markers.length}');
-    for (final marker in markers) {
-      print('🔄 Marker: id=${marker.id}, x=${marker.x}, y=${marker.y}, label=${marker.label}');
-    }
-    
-    print('🔄 System instructions: prompt=${_promptSystemInstructions != null}, edit=${_editSystemInstructions != null}');
 
     final context = ProcessingContext(
       processingType: _selectedType,
@@ -236,7 +222,6 @@ class _ProcessingControlsState extends State<ProcessingControls> {
       markers: markers,
     );
 
-    print('✅ ProcessingControls: Calling onStartProcessing callback...');
     widget.onStartProcessing(_promptController.text.trim(), context);
   }
 
