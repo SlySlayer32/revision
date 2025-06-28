@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:revision/app/view/app.dart';
 import 'package:revision/core/widgets/adaptive_scaffold.dart';
 import 'package:revision/features/authentication/cubit/authentication_cubit.dart';
 import 'package:revision/features/dashboard/cubit/dashboard_cubit.dart';
