@@ -50,7 +50,7 @@ class _DashboardViewState extends State<DashboardView> {
               }
             },
             itemBuilder: (context) => [
-              PopupMenuItem(
+              PopupMenuItem<String>(
                 value: 'profile',
                 child: const ListTile(
                   leading: Icon(Icons.person),
