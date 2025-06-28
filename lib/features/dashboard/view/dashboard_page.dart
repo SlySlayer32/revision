@@ -160,7 +160,7 @@ class DashboardPage extends StatelessWidget {
             'Your AI-powered photo editing tools are ready to use.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color:
-                      Theme.of(context).colorScheme.onPrimary.withOpacity(0.8),
+                      Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.8),
                 ),
           ),
         ],
