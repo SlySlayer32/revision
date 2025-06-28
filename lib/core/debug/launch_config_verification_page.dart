@@ -49,7 +49,7 @@ class LaunchConfigVerificationPage extends StatelessWidget {
     final environment = EnvironmentDetector.environmentString;
 
     return Card(
-      color: _getStatusColor().withOpacity(0.1),
+      color: _getStatusColor().withValues(alpha: 0.1),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
