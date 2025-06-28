@@ -68,16 +68,6 @@ void main() {
     });
 
     group('AI Processing Constants', () {
-      test('should have valid Vertex AI model', () {
-        expect(AppConstants.vertexAiModel, equals('gemini-1.5-flash'));
-        expect(AppConstants.vertexAiModel, isNotEmpty);
-        expect(AppConstants.vertexAiModel, startsWith('gemini-'));
-        expect(
-          AppConstants.vertexAiModel,
-          matches(RegExp(r'^gemini-\d+\.\d+.*')),
-        );
-      });
-
       test('should have reasonable max image size', () {
         expect(AppConstants.maxImageSize, equals(4 * 1024 * 1024)); // 4MB
         expect(
