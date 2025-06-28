@@ -189,17 +189,19 @@ class GeminiPipelineService {
   }
 }
 
-/// Result of the complete Gemini AI Pipeline
+/// Result of the complete AI Pipeline matching the flow diagram
 class GeminiPipelineResult {
   const GeminiPipelineResult({
     required this.originalImage,
     required this.analysisPrompt,
     required this.generatedImage,
     required this.processingTimeMs,
+    this.markedAreas = const [],
   });
 
   final Uint8List originalImage;
-  final String analysisPrompt;
-  final Uint8List generatedImage;
+  final String analysisPrompt; // Removal prompt from Step 3
+  final Uint8List generatedImage; // New image from Step 5
   final int processingTimeMs;
+  final List<Map<String, dynamic>> markedAreas; // User-marked areas for removal
 }
