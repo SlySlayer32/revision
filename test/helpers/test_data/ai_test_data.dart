@@ -31,10 +31,10 @@ class AITestData {
   static List<AnnotationStroke> get testAnnotations => [
         AnnotationStroke(
           id: 'test-stroke-1',
-          points: [
-            const AnnotationPoint(x: 0.1, y: 0.1, pressure: 0.5),
-            const AnnotationPoint(x: 0.15, y: 0.15, pressure: 0.6),
-            const AnnotationPoint(x: 0.2, y: 0.2, pressure: 0.5),
+          points: const [
+            AnnotationPoint(x: 0.1, y: 0.1, pressure: 0.5),
+            AnnotationPoint(x: 0.15, y: 0.15, pressure: 0.6),
+            AnnotationPoint(x: 0.2, y: 0.2, pressure: 0.5),
           ],
           color: 0xFFFF0000, // Red
           strokeWidth: 5.0,
@@ -42,9 +42,9 @@ class AITestData {
         ),
         AnnotationStroke(
           id: 'test-stroke-2',
-          points: [
-            const AnnotationPoint(x: 0.3, y: 0.3, pressure: 0.7),
-            const AnnotationPoint(x: 0.35, y: 0.35, pressure: 0.8),
+          points: const [
+            AnnotationPoint(x: 0.3, y: 0.3, pressure: 0.7),
+            AnnotationPoint(x: 0.35, y: 0.35, pressure: 0.8),
           ],
           color: 0xFF00FF00, // Green
           strokeWidth: 3.0,
