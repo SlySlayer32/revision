@@ -45,7 +45,7 @@ class _HomePage extends StatelessWidget {
             icon: const Icon(Icons.logout),
             onPressed: () {
               context.read<AuthenticationBloc>().add(
-                    const AuthenticationLogoutRequested(),
+                    AuthenticationLogoutRequested(),
                   );
             },
           ),
