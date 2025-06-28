@@ -24,13 +24,15 @@ class GeminiPipelineService {
   final GenerativeModel _analysisModel; // Gemini 2.0 Flash for analysis
   final GenerativeModel _imageGenerationModel; // Gemini 2.0 Flash Preview for generation
 
-  /// Step 1: Analyze image and generate detailed prompt using Gemini 2.5 Flash
+  /// Step 3: Analyze marked area & generate removal prompt using Gemini 2.0 Flash
   ///
-  /// Per MVP: "Use Gemini 2.5 Flash for analyzing the selected image.
-  /// Send the image as input, request a detailed prompt describing the image"
-  Future<String> analyzeImage(Uint8List imageData) async {
+  /// Per flow diagram: "Gemini 2.0 Flash - Analyze marked area & generate removal prompt"
+  Future<String> analyzeMarkedImage({
+    required Uint8List imageData,
+    required List<Map<String, dynamic>> markedAreas,
+  }) async {
     try {
-      log('🔍 Starting image analysis with Gemini 2.5 Flash...');
+      log('🔍 Step 3: Analyzing marked areas with Gemini 2.0 Flash...');
 
       // Validate image size (max 10MB per MVP requirements)
       const maxSizeMB = 10;
@@ -40,38 +42,44 @@ class GeminiPipelineService {
             'Image too large: ${sizeMB.toStringAsFixed(1)}MB (max ${maxSizeMB}MB)');
       }
 
-      // Create content with image and analysis prompt
+      // Create marker descriptions
+      final markerDescriptions = markedAreas
+          .map((marker) =>
+              'Marked area at coordinates (${marker['x']}, ${marker['y']}) with size ${marker['width']}x${marker['height']}: ${marker['description'] ?? 'Object to remove'}')
+          .join('\n');
+
+      // Create content with image and marked area analysis prompt
       final content = [
         Content.multi([
           InlineDataPart('image/jpeg', imageData),
           TextPart(
-            'Analyze this image and generate a detailed, creative prompt describing '
-            'its content, style, and unique features. Include:\n'
-            '• Main subjects and their positioning\n'
-            '• Visual style and artistic elements\n'
-            '• Lighting conditions and mood\n'
-            '• Color palette and composition\n'
-            '• Technical quality and characteristics\n\n'
-            'Format as a comprehensive prompt suitable for image generation.',
+            'STEP 3: MARKED AREA ANALYSIS & REMOVAL PROMPT GENERATION\n\n'
+            'Marked areas for removal:\n$markerDescriptions\n\n'
+            'Analyze these marked areas and generate a precise removal prompt for Gemini 2.0 Flash Preview Image Generation:\n\n'
+            '1. Identify the objects in the marked areas\n'
+            '2. Analyze the background patterns and textures around them\n'
+            '3. Consider lighting, shadows, and color harmony\n'
+            '4. Generate specific content-aware reconstruction instructions\n\n'
+            'Provide a technical prompt that will guide the next AI model to remove these marked objects seamlessly.',
           ),
         ]),
       ];
 
-      // Call Gemini 2.5 Flash with 30s timeout per MVP
+      // Call Gemini 2.0 Flash with 30s timeout
       final response = await _analysisModel
           .generateContent(content)
           .timeout(const Duration(seconds: 30));
 
       if (response.text == null || response.text!.isEmpty) {
-        throw Exception('Empty response from Gemini 2.5 Flash analysis');
+        throw Exception('Empty response from Gemini 2.0 Flash analysis');
       }
 
-      final analysisPrompt = response.text!.trim();
-      log('✅ Image analysis completed. Generated prompt: ${analysisPrompt.substring(0, 100)}...');
+      final removalPrompt = response.text!.trim();
+      log('✅ Step 3 completed. Generated removal prompt: ${removalPrompt.substring(0, 100)}...');
 
-      return analysisPrompt;
+      return removalPrompt;
     } catch (e, stackTrace) {
-      log('❌ Image analysis failed: $e', stackTrace: stackTrace);
+      log('❌ Step 3 (marked area analysis) failed: $e', stackTrace: stackTrace);
       rethrow;
     }
   }
