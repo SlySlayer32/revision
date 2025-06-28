@@ -45,7 +45,7 @@ class _DashboardViewState extends State<DashboardView> {
             onSelected: (value) {
               if (value == 'logout') {
                 context.read<AuthenticationBloc>().add(
-                  const AuthenticationLogoutRequested(),
+                  AuthenticationLogoutRequested(),
                 );
               }
             },
