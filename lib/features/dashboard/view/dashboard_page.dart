@@ -58,9 +58,9 @@ class _DashboardViewState extends State<DashboardView> {
                   subtitle: Text('Profile Settings'),
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem<String>(
                 value: 'logout',
-                child: ListTile(
+                child: const ListTile(
                   leading: Icon(Icons.logout),
                   title: Text('Logout'),
                 ),
