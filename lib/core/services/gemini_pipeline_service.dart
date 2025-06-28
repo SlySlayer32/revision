@@ -137,33 +137,55 @@ class GeminiPipelineService {
     }
   }
 
-  /// Complete MVP Pipeline: Analysis + Generation
+  /// Complete Pipeline: Matching the Expected Flow Diagram
   ///
-  /// Per MVP: "User selects image → App sends image to Gemini 2.5 Flash for analysis →
-  /// App sends prompt + image to Gemini 2.0 Flash Preview Image Generation → receives new image"
-  Future<GeminiPipelineResult> processImage(Uint8List imageData) async {
+  /// Flow: User uploads image & marks object → Send marked image to AI pipeline →
+  /// Gemini 2.0 Flash (analyze marked area & generate removal prompt) →
+  /// Send image and prompt to next model → Gemini 2.0 Flash Preview (generate new image) →
+  /// Return updated image to UI
+  Future<GeminiPipelineResult> processImageWithMarkedObjects({
+    required Uint8List imageData,
+    required List<Map<String, dynamic>> markedAreas,
+  }) async {
     try {
-      log('🚀 Starting complete Gemini AI Pipeline...');
+      log('🚀 Starting complete AI Pipeline as per flow diagram...');
+      log('📍 Processing ${markedAreas.length} marked areas for removal');
 
-      // Step 1: Analyze image with Gemini 2.5 Flash
-      final analysisPrompt = await analyzeImage(imageData);
+      // Step 3: Analyze marked areas with Gemini 2.0 Flash
+      final removalPrompt = await analyzeMarkedImage(
+        imageData: imageData,
+        markedAreas: markedAreas,
+      );
 
-      // Step 2: Generate enhanced image with Gemini 2.0 Flash Preview
-      final generatedImageData = await generateImage(imageData, analysisPrompt);
+      // Step 5: Generate enhanced image with Gemini 2.0 Flash Preview
+      final generatedImageData = await generateImageWithRemovals(
+        originalImageData: imageData,
+        removalPrompt: removalPrompt,
+      );
 
       final result = GeminiPipelineResult(
         originalImage: imageData,
-        analysisPrompt: analysisPrompt,
+        analysisPrompt: removalPrompt,
         generatedImage: generatedImageData,
         processingTimeMs: DateTime.now().millisecondsSinceEpoch,
+        markedAreas: markedAreas,
       );
 
-      log('✅ Complete Gemini AI Pipeline finished successfully');
+      log('✅ Complete AI Pipeline finished successfully');
       return result;
     } catch (e, stackTrace) {
-      log('❌ Gemini AI Pipeline failed: $e', stackTrace: stackTrace);
+      log('❌ AI Pipeline failed: $e', stackTrace: stackTrace);
       rethrow;
     }
+  }
+
+  /// Backwards compatibility method for existing code
+  Future<GeminiPipelineResult> processImage(Uint8List imageData) async {
+    // Convert to new format with empty marked areas for compatibility
+    return processImageWithMarkedObjects(
+      imageData: imageData,
+      markedAreas: [],
+    );
   }
 }
 
