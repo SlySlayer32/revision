@@ -26,14 +26,6 @@ class _ProcessingResultDisplayState extends State<ProcessingResultDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    print('🔄 ProcessingResultDisplay: Building result display');
-    print(
-        '🔄 Result data size: ${widget.result.processedImageData.length} bytes');
-    print('🔄 Original image path: ${widget.originalImage.path}');
-    print(
-        '🔄 Original image bytes: ${widget.originalImage.bytes?.length ?? 'null'}');
-    print('🔄 Show original: $_showOriginal');
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
