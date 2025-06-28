@@ -5,8 +5,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 /// Configuration for AI services including API keys and rate limits
 class AIConfig {
   /// Firebase AI configuration - Updated to match AI pipeline flow
-  static const String geminiModel = 'gemini-2.0-flash'; // Step 3: Analyze marked area & generate removal prompt
-  static const String geminiImageModel = 'gemini-2.0-flash-preview-image-generation'; // Step 5: Generate new image using prompt
+  static const String geminiModel =
+      'gemini-2.0-flash'; // Step 3: Analyze marked area & generate removal prompt
+  static const String geminiImageModel =
+      'gemini-2.0-flash-preview-image-generation'; // Step 5: Generate new image using prompt
 
   /// API Keys (loaded from environment)
   static String get apiKey => _getConfigValue('FIREBASE_AI_API_KEY');
