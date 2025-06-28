@@ -380,7 +380,7 @@ class DashboardPage extends StatelessWidget {
                           ? Theme.of(context)
                               .colorScheme
                               .onSurface
-                              .withOpacity(0.7)
+                              .withValues(alpha: 0.7)
                           : Colors.grey,
                     ),
                 maxLines: 2,
