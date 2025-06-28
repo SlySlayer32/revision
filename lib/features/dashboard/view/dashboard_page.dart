@@ -139,7 +139,7 @@ class _DashboardViewState extends State<DashboardView> {
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.auto_awesome,
                             color: Colors.blue,
                             size: 32,
