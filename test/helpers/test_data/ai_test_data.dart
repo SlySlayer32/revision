@@ -2,11 +2,11 @@
 import 'dart:typed_data';
 
 import 'package:revision/features/ai_processing/domain/entities/processing_result.dart';
-import 'package:revision/features/image_editing\domain\entities\annotated_image.dart';
-import 'package:revision/features/image_editing\domain\entities\annotation_stroke.dart';
-import 'package:revision/features/image_editing\domain\entities\annotation_point.dart';
-import 'package:revision/features/image_selection\domain\entities\selected_image.dart';
-import 'package:revision/features/image_selection\domain\entities\image_source.dart';
+import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
+import 'package:revision/features/image_editing/domain/entities/annotation_stroke.dart';
+import 'package:revision/features/image_editing/domain/entities/annotation_point.dart';
+import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
+import 'package:revision/features/image_selection/domain/entities/image_source.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
 
 /// Test data factory for AI processing tests
