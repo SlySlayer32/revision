@@ -74,20 +74,7 @@
             "description": "Top-P (nucleus) sampling parameter. Lower = more focused responses",
             "valueType": "NUMBER"
         },
-        "ai_analysis_system_prompt": {
-            "defaultValue": {
-                "value": "You are an expert image analysis AI. Analyze the provided image and marked object to create precise editing instructions.\n\nFocus on:\n1. Object identification and boundaries\n2. Background reconstruction techniques\n3. Lighting and shadow analysis\n4. Color harmony considerations\n5. Realistic removal strategies\n\nProvide actionable editing instructions."
-            },
-            "description": "System instruction for image analysis tasks",
-            "valueType": "STRING"
-        },
-        "ai_editing_system_prompt": {
-            "defaultValue": {
-                "value": "You are an expert AI image editor using Gemini 2.0 Flash Preview Image Generation. Edit the provided image based on user instructions with these requirements:\n\n1. Generate a new version of the image with the requested edits applied\n2. If removing objects: use content-aware reconstruction to fill the space naturally\n3. If enhancing: improve lighting, contrast, color balance, and composition\n4. Maintain original image resolution and quality\n5. Preserve overall composition and visual coherence\n6. Apply changes seamlessly and realistically\n\nReturn the edited image directly as the output."
-            },
-            "description": "System instruction for image editing tasks",
-            "valueType": "STRING"
-        },
+
         "ai_request_timeout_seconds": {
             "defaultValue": {
                 "value": "30"
@@ -191,25 +178,7 @@
                 }
             }
         },
-        "System Instructions": {
-            "description": "AI system prompts and instructions that define AI behavior and personality",
-            "parameters": {
-                "ai_analysis_system_prompt": {
-                    "defaultValue": {
-                        "value": "You are an expert image analysis AI. Analyze the provided image and marked object to create precise editing instructions.\n\nFocus on:\n1. Object identification and boundaries\n2. Background reconstruction techniques\n3. Lighting and shadow analysis\n4. Color harmony considerations\n5. Realistic removal strategies\n\nProvide actionable editing instructions."
-                    },
-                    "description": "System instruction for image analysis tasks",
-                    "valueType": "STRING"
-                },
-                "ai_editing_system_prompt": {
-                    "defaultValue": {
-                        "value": "You are an expert AI image editor using Gemini 2.0 Flash Preview Image Generation. Edit the provided image based on user instructions with these requirements:\n\n1. Generate a new version of the image with the requested edits applied\n2. If removing objects: use content-aware reconstruction to fill the space naturally\n3. If enhancing: improve lighting, contrast, color balance, and composition\n4. Maintain original image resolution and quality\n5. Preserve overall composition and visual coherence\n6. Apply changes seamlessly and realistically\n\nReturn the edited image directly as the output."
-                    },
-                    "description": "System instruction for image editing tasks",
-                    "valueType": "STRING"
-                }
-            }
-        },
+
         "Performance & Control": {
             "description": "Performance settings and feature flags for AI operations",
             "parameters": {
