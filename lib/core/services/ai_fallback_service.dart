@@ -1,6 +1,6 @@
 import 'dart:typed_data';
-import 'dart:developer';
 
+import 'package:revision/core/error/exceptions.dart';
 import 'package:revision/core/services/ai_service.dart';
 import 'package:revision/core/utils/enhanced_logger.dart';
 
@@ -11,11 +11,17 @@ class AIFallbackService implements AIService {
 
   @override
   Future<String> processTextPrompt(String prompt) async {
-    logger.warning('Using fallback for processTextPrompt', operation: 'FALLBACK');
-    
+    // Input validation
+    if (prompt.isEmpty) {
+      throw const ValidationException('Text prompt cannot be empty');
+    }
+
+    logger.warning('Using fallback for processTextPrompt',
+        operation: 'FALLBACK');
+
     // Analyze the prompt to provide contextual response
     final analysis = _analyzePrompt(prompt);
-    
+
     return '''
 I understand you want to $analysis. Here are some general recommendations:
 
@@ -35,11 +41,20 @@ Please try again in a moment when our AI service is fully available.
 
   @override
   Future<String> processImagePrompt(Uint8List imageData, String prompt) async {
-    logger.warning('Using fallback for processImagePrompt', operation: 'FALLBACK');
-    
+    // Input validation
+    if (imageData.isEmpty) {
+      throw const ValidationException('Image data cannot be empty');
+    }
+    if (prompt.isEmpty) {
+      throw const ValidationException('Image prompt cannot be empty');
+    }
+
+    logger.warning('Using fallback for processImagePrompt',
+        operation: 'FALLBACK');
+
     // Analyze the prompt to provide contextual response
     final analysis = _analyzePrompt(prompt);
-    
+
     return '''
 I understand you want to $analysis. While I'm experiencing technical difficulties with image analysis, here are some general recommendations:
 
@@ -64,11 +79,17 @@ Please try again in a moment, or use these guidelines with your preferred editin
 
   @override
   Future<String> generateImageDescription(Uint8List imageData) async {
-    logger.warning('Using fallback for generateImageDescription', operation: 'FALLBACK');
-    
+    // Input validation
+    if (imageData.isEmpty) {
+      throw const ValidationException('Image data cannot be empty');
+    }
+
+    logger.warning('Using fallback for generateImageDescription',
+        operation: 'FALLBACK');
+
     // Basic image analysis based on file size and common patterns
     final sizeDescription = _getImageSizeDescription(imageData.length);
-    
+
     return '''
 This appears to be $sizeDescription image suitable for editing.
 
@@ -89,8 +110,14 @@ For detailed analysis, please try again when our AI service is fully available.
 
   @override
   Future<List<String>> suggestImageEdits(Uint8List imageData) async {
-    logger.warning('Using fallback for suggestImageEdits', operation: 'FALLBACK');
-    
+    // Input validation
+    if (imageData.isEmpty) {
+      throw const ValidationException('Image data cannot be empty');
+    }
+
+    logger.warning('Using fallback for suggestImageEdits',
+        operation: 'FALLBACK');
+
     return [
       'Enhance overall brightness and exposure for better visibility',
       'Adjust color balance and saturation to improve visual appeal',
@@ -102,8 +129,14 @@ For detailed analysis, please try again when our AI service is fully available.
 
   @override
   Future<bool> checkContentSafety(Uint8List imageData) async {
-    logger.warning('Using fallback for checkContentSafety - defaulting to safe', operation: 'FALLBACK');
-    
+    // Input validation
+    if (imageData.isEmpty) {
+      throw const ValidationException('Image data cannot be empty');
+    }
+
+    logger.warning('Using fallback for checkContentSafety - defaulting to safe',
+        operation: 'FALLBACK');
+
     // Default to safe when we can't analyze
     // In a production app, you might want to be more conservative
     return true;
@@ -114,15 +147,21 @@ For detailed analysis, please try again when our AI service is fully available.
     required Uint8List imageBytes,
     required List<Map<String, dynamic>> markers,
   }) async {
-    logger.warning('Using fallback for generateEditingPrompt', operation: 'FALLBACK');
-    
+    // Input validation
+    if (imageBytes.isEmpty) {
+      throw const ValidationException('Image data cannot be empty');
+    }
+
+    logger.warning('Using fallback for generateEditingPrompt',
+        operation: 'FALLBACK');
+
     if (markers.isEmpty) {
       return 'Enhance this image by improving overall quality, adjusting lighting, and optimizing composition for a more professional appearance.';
     }
-    
+
     final markerCount = markers.length;
     final coordinates = markers.map((m) => '(${m['x']}, ${m['y']})').join(', ');
-    
+
     return '''
 Remove $markerCount marked object${markerCount > 1 ? 's' : ''} at coordinates: $coordinates
 
@@ -147,30 +186,43 @@ Remove $markerCount marked object${markerCount > 1 ? 's' : ''} at coordinates: $
     required Uint8List imageBytes,
     required String editingPrompt,
   }) async {
-    logger.warning('Using fallback for processImageWithAI - returning original', operation: 'FALLBACK');
-    
+    // Input validation
+    if (imageBytes.isEmpty) {
+      throw const ValidationException('Image data cannot be empty');
+    }
+    if (editingPrompt.isEmpty) {
+      throw const ValidationException('Editing prompt cannot be empty');
+    }
+
+    logger.warning('Using fallback for processImageWithAI - returning original',
+        operation: 'FALLBACK');
+
     // When AI processing fails, return the original image
     // In a real production app, you might want to apply basic automated enhancements
     // or redirect to a different image processing service
-    
+
     return imageBytes;
   }
 
   /// Analyze the user's prompt to provide contextual guidance
   String _analyzePrompt(String prompt) {
     final lowercasePrompt = prompt.toLowerCase();
-    
+
     if (lowercasePrompt.contains('remove')) {
       return 'remove objects or unwanted elements from your image';
-    } else if (lowercasePrompt.contains('enhance') || lowercasePrompt.contains('improve')) {
+    } else if (lowercasePrompt.contains('enhance') ||
+        lowercasePrompt.contains('improve')) {
       return 'enhance and improve your image quality';
-    } else if (lowercasePrompt.contains('color') || lowercasePrompt.contains('colour')) {
+    } else if (lowercasePrompt.contains('color') ||
+        lowercasePrompt.contains('colour')) {
       return 'adjust colors and color balance in your image';
-    } else if (lowercasePrompt.contains('light') || lowercasePrompt.contains('bright')) {
+    } else if (lowercasePrompt.contains('light') ||
+        lowercasePrompt.contains('bright')) {
       return 'adjust lighting and brightness in your image';
     } else if (lowercasePrompt.contains('background')) {
       return 'modify or enhance the background of your image';
-    } else if (lowercasePrompt.contains('crop') || lowercasePrompt.contains('resize')) {
+    } else if (lowercasePrompt.contains('crop') ||
+        lowercasePrompt.contains('resize')) {
       return 'resize or crop your image for better composition';
     } else {
       return 'edit and enhance your image';
@@ -180,7 +232,7 @@ Remove $markerCount marked object${markerCount > 1 ? 's' : ''} at coordinates: $
   /// Get description based on image file size
   String _getImageSizeDescription(int bytes) {
     final mb = bytes / (1024 * 1024);
-    
+
     if (mb < 0.5) {
       return 'a small to medium-sized';
     } else if (mb < 2) {
@@ -205,32 +257,85 @@ class AIServiceSelector {
   final AIService? secondaryService;
   final AIService fallbackService;
 
-  /// Execute operation with automatic fallback
+  /// Execute operation with automatic fallback and comprehensive error tracking
   Future<T> executeWithFallback<T>(
     Future<T> Function(AIService service) operation,
     String operationName,
   ) async {
+    final startTime = DateTime.now();
+    Exception? primaryError;
+    Exception? secondaryError;
+
     // Try primary service first
     try {
       logger.debug('Trying primary service for $operationName');
-      return await operation(primaryService);
+      final result = await operation(primaryService);
+      _logSuccessMetrics(operationName, 'primary', startTime);
+      return result;
     } catch (e) {
+      primaryError = e is Exception ? e : Exception(e.toString());
       logger.warning('Primary service failed for $operationName: $e');
-      
+
       // Try secondary service if available
       if (secondaryService != null) {
         try {
           logger.debug('Trying secondary service for $operationName');
-          return await operation(secondaryService!);
+          final result = await operation(secondaryService!);
+          _logSuccessMetrics(operationName, 'secondary', startTime);
+          return result;
         } catch (e2) {
+          secondaryError = e2 is Exception ? e2 : Exception(e2.toString());
           logger.warning('Secondary service failed for $operationName: $e2');
         }
       }
-      
+
       // Use fallback service
-      logger.info('Using fallback service for $operationName');
-      return await operation(fallbackService);
+      try {
+        logger.info('Using fallback service for $operationName');
+        final result = await operation(fallbackService);
+        _logFallbackUsage(
+            operationName, primaryError, secondaryError, startTime);
+        return result;
+      } catch (e3) {
+        final fallbackError = e3 is Exception ? e3 : Exception(e3.toString());
+        _logCompleteFailure(operationName, primaryError, secondaryError,
+            fallbackError, startTime);
+        rethrow;
+      }
     }
+  }
+
+  /// Log successful operation metrics
+  void _logSuccessMetrics(
+      String operationName, String serviceType, DateTime startTime) {
+    final duration = DateTime.now().difference(startTime);
+    logger.info(
+        '✅ $operationName completed via $serviceType service in ${duration.inMilliseconds}ms');
+  }
+
+  /// Log fallback service usage with context
+  void _logFallbackUsage(String operationName, Exception? primaryError,
+      Exception? secondaryError, DateTime startTime) {
+    final duration = DateTime.now().difference(startTime);
+    logger.warning(
+      '⚠️ $operationName using FALLBACK after ${duration.inMilliseconds}ms. '
+      'Primary: ${primaryError?.toString() ?? "N/A"}, '
+      'Secondary: ${secondaryError?.toString() ?? "N/A"}',
+      operation: 'FALLBACK_USAGE',
+    );
+  }
+
+  /// Log complete service failure
+  void _logCompleteFailure(String operationName, Exception? primaryError,
+      Exception? secondaryError, Exception fallbackError, DateTime startTime) {
+    final duration = DateTime.now().difference(startTime);
+    logger.error(
+      '🚨 COMPLETE FAILURE for $operationName after ${duration.inMilliseconds}ms. '
+      'Primary: ${primaryError?.toString() ?? "N/A"}, '
+      'Secondary: ${secondaryError?.toString() ?? "N/A"}, '
+      'Fallback: ${fallbackError.toString()}',
+      operation: 'COMPLETE_FAILURE',
+    );
   }
 
   /// Process image prompt with fallback
@@ -255,20 +360,8 @@ class AIServiceSelector {
       (service) => service.suggestImageEdits(imageData),
       'suggestImageEdits',
     );
-  /// Process image with AI with fallback
-  Future<Uint8List> processImageWithAI({
-    required Uint8List imageBytes,
-    required String editingPrompt,
-  }) async {
-    return executeWithFallback<Uint8List>(
-      (service) => service.processImageWithAI(
-        imageBytes: imageBytes,
-        editingPrompt: editingPrompt,
-      ),
-      'processImageWithAI',
-    );
   }
-  
+
   /// Process text prompt with fallback
   Future<String> processTextPrompt(String prompt) async {
     return executeWithFallback<String>(
@@ -276,6 +369,10 @@ class AIServiceSelector {
       'processTextPrompt',
     );
   }
+
+  /// Generate editing prompt with fallback
+  Future<String> generateEditingPrompt({
+    required Uint8List imageBytes,
     required List<Map<String, dynamic>> markers,
   }) async {
     return executeWithFallback<String>(
