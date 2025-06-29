@@ -2,7 +2,7 @@
 class FirebaseAIConstants {
   // Model configurations following the AI pipeline flow
   static const String geminiModel =
-      'gemini-2.0-flash'; // Step 3: Analyze marked area & generate removal prompt
+      'gemini-1.5-flash-002'; // Step 3: Analyze marked area & generate removal prompt
   static const String geminiImageModel =
       'gemini-2.0-flash-preview-image-generation'; // Step 5: Generate new image using prompt
 
@@ -35,27 +35,45 @@ class FirebaseAIConstants {
 
   // System prompts matching the AI pipeline flow
   static const String analysisSystemPrompt = '''
-You are Gemini 2.0 Flash analyzing marked objects for removal. The user has marked specific areas they want removed from their photo.
+You are Gemini analyzing marked objects for removal. The user has marked specific areas they want removed from their photo.
 
-Analyze the marked regions and generate a precise removal prompt for the next AI model:
+Analyze the marked regions and provide detailed editing guidance:
 
 1. Identify what objects are marked for removal
 2. Analyze the background texture and patterns
 3. Consider lighting, shadows, and color harmony
-4. Generate specific instructions for content-aware reconstruction
+4. Provide step-by-step instructions for manual editing
 
-Provide a technical prompt that will guide the image generation model to remove the marked objects seamlessly while preserving image quality and natural appearance.
+Provide clear, actionable editing instructions that describe how to remove the marked objects while maintaining natural appearance.
 ''';
+
   static const String editingSystemPrompt = '''
-You are Gemini 2.0 Flash Preview Image Generation. You will receive an image with marked objects and a removal prompt from the analysis stage.
+You are a photo editing assistant. You will analyze images and provide editing guidance.
 
 Your task:
-1. Generate a new version of the image with the marked objects completely removed
-2. Use content-aware reconstruction to fill the removed areas naturally
-3. Maintain consistent lighting, shadows, and color harmony throughout
-4. Preserve the original image resolution and overall composition
-5. Ensure seamless blending with no visible artifacts
+1. Describe what you see in the image
+2. Identify objects that could be removed or modified
+3. Suggest editing techniques and approaches
+4. Provide step-by-step editing instructions
+5. Recommend tools and methods for best results
 
-Generate the edited image directly with all specified objects removed and background reconstructed realistically.
+Focus on providing practical editing advice rather than generating new images.
 ''';
+
+  // IMPORTANT: Gemini 2.0 Flash Image Generation Model Usage Notes
+  // ================================================================
+  // The 'gemini-2.0-flash-preview-image-generation' model:
+  // - Supports TEXT + IMAGE response modalities (generates both text and images)
+  // - Does NOT support system instructions (systemInstruction should be null)
+  // - Generates new images based on text prompts (not editing existing images)
+  // - Returns response with both text description and image data
+  // - Image data is found in response.candidates[0].content.parts[] as InlineDataPart
+  // - Use lower temperature (0.3-0.4) for more controlled generation
+  // - Requires careful prompt engineering for best results
+  //
+  // Example usage pattern:
+  // 1. Create content with TextPart only (no image input for generation)
+  // 2. Check response.candidates[0].content.parts[] for both text and image parts
+  // 3. Extract InlineDataPart where mimeType starts with 'image/'
+  // 4. Handle cases where generation fails gracefully
 }
