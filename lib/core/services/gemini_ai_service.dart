@@ -537,10 +537,10 @@ Focus on creating a clean, professional result that matches the editing intent.
             .timeout(_remoteConfig.requestTimeout);
 
         // Check if response contains image data
-        if (response.candidates != null && response.candidates!.isNotEmpty) {
-          final candidate = response.candidates!.first;
-          if (candidate.content != null && candidate.content!.parts != null) {
-            for (final part in candidate.content!.parts!) {
+        if (response.candidates.isNotEmpty) {
+          final candidate = response.candidates.first;
+          if (candidate.content.parts.isNotEmpty) {
+            for (final part in candidate.content.parts) {
               // Look for image data in the response parts
               if (part is InlineDataPart && part.mimeType.startsWith('image/')) {
                 log('✅ AI image generation completed successfully');
