@@ -53,8 +53,7 @@ void main() async {
       try {
         print(
             '   • Firebase AI configured: ${EnvConfig.isFirebaseAIConfigured ? "✅ Yes" : "❌ No"}');
-        print(
-            '   • Environment: ${EnvConfig.environmentString}');
+        print('   • Environment: ${EnvConfig.environmentString}');
       } catch (e) {
         print('   • Environment: ⚠️ Not loaded in test (expected)');
         print('   • Production apps load .env automatically');

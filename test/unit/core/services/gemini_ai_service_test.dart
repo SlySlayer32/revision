@@ -3,13 +3,13 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-
-import 'package:revision/core/services/gemini_ai_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
+import 'package:revision/core/services/gemini_ai_service.dart';
+
 import '../../../helpers/test_data/ai_test_data.dart';
 
 // Mock classes
-class MockFirebaseAIRemoteConfigService extends Mock 
+class MockFirebaseAIRemoteConfigService extends Mock
     implements FirebaseAIRemoteConfigService {}
 
 void main() {
@@ -19,7 +19,7 @@ void main() {
 
     setUp(() {
       mockRemoteConfig = MockFirebaseAIRemoteConfigService();
-      
+
       // Setup mock remote config responses
       when(() => mockRemoteConfig.geminiModel).thenReturn('gemini-2.0-flash');
       when(() => mockRemoteConfig.geminiImageModel)
@@ -40,7 +40,7 @@ void main() {
       when(() => mockRemoteConfig.refresh()).thenAnswer((_) async {});
       when(() => mockRemoteConfig.exportConfig()).thenReturn('{}');
       when(() => mockRemoteConfig.getAllValues()).thenReturn({});
-      
+
       service = GeminiAIService(remoteConfigService: mockRemoteConfig);
     });
 
@@ -101,11 +101,13 @@ void main() {
 
         // Assert
         expect(result, isNotEmpty);
-        expect(result, anyOf([
-          contains('unable to analyze'),
-          contains('object removal'),
-          contains('editing'),
-        ]));
+        expect(
+            result,
+            anyOf([
+              contains('unable to analyze'),
+              contains('object removal'),
+              contains('editing'),
+            ]));
       });
 
       test('should include prompt instructions in processing', () async {
@@ -132,12 +134,14 @@ void main() {
 
         // Assert
         expect(result, isNotEmpty);
-        expect(result, anyOf([
-          contains('Unable to analyze'),
-          contains('image'),
-          contains('lighting'),
-          contains('composition'),
-        ]));
+        expect(
+            result,
+            anyOf([
+              contains('Unable to analyze'),
+              contains('image'),
+              contains('lighting'),
+              contains('composition'),
+            ]));
       });
 
       test('should handle invalid image data', () async {
@@ -163,7 +167,7 @@ void main() {
         expect(result, isNotEmpty);
         expect(result.length, greaterThan(0));
         expect(result.length, lessThanOrEqualTo(5));
-        
+
         // Check that suggestions are meaningful
         for (final suggestion in result) {
           expect(suggestion.trim(), isNotEmpty);

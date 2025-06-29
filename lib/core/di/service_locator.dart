@@ -55,10 +55,7 @@ void setupServiceLocator() {
             remoteConfigService: getIt<FirebaseAIRemoteConfigService>()),
       )
       ..registerLazySingleton<GeminiPipelineService>(
-        () => GeminiPipelineService(
-          analysisModel: getIt<GeminiAIService>().analysisModel,
-          imageGenerationModel: getIt<GeminiAIService>().imageGenerationModel,
-        ),
+        () => GeminiPipelineService(getIt<GeminiAIService>()),
       )
 
       // Data Sources

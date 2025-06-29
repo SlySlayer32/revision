@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
+import 'package:revision/debug_gemini.dart';
+import 'package:revision/debug_remote_config.dart';
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
 import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
@@ -11,7 +13,7 @@ import 'package:revision/features/image_selection/domain/entities/selected_image
 ///
 /// This view provides the complete AI processing experience including
 /// image preview, controls, progress tracking, and results display.
-class AiProcessingView extends StatelessWidget {
+class AiProcessingView extends StatefulWidget {
   const AiProcessingView({
     required this.selectedImage,
     this.annotatedImage,
@@ -20,6 +22,29 @@ class AiProcessingView extends StatelessWidget {
 
   final SelectedImage selectedImage;
   final AnnotatedImage? annotatedImage;
+
+  @override
+  State<AiProcessingView> createState() => _AiProcessingViewState();
+}
+
+class _AiProcessingViewState extends State<AiProcessingView> {
+  @override
+  void initState() {
+    super.initState();
+    // Run debug tests first, then auto-start processing
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Debug test Remote Config first
+      await RemoteConfigDebugTester.testRemoteConfig();
+      
+      // Then debug test Gemini connection
+      await GeminiDebugTester.testGeminiConnection();
+      
+      // Auto-start processing when page loads if we have image data
+      if (widget.selectedImage.bytes != null) {
+        context.read<GeminiPipelineCubit>().processImage(widget.selectedImage.bytes!);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,9 +162,9 @@ class AiProcessingView extends StatelessWidget {
     return Builder(
       builder: (context) {
         // Priority 1: Use bytes if available (most reliable for processed images)
-        if (selectedImage.bytes != null) {
+        if (widget.selectedImage.bytes != null) {
           return Image.memory(
-            selectedImage.bytes!,
+            widget.selectedImage.bytes!,
             fit: BoxFit.contain,
             errorBuilder: (context, error, stackTrace) =>
                 _buildErrorPlaceholder(context),
@@ -147,16 +172,16 @@ class AiProcessingView extends StatelessWidget {
         }
 
         // Priority 2: Use file path for local images
-        if (selectedImage.path != null) {
-          if (selectedImage.path!.startsWith('http')) {
+        if (widget.selectedImage.path != null) {
+          if (widget.selectedImage.path!.startsWith('http')) {
             return Image.network(
-              selectedImage.path!,
+              widget.selectedImage.path!,
               fit: BoxFit.contain,
               errorBuilder: (context, error, stackTrace) =>
                   _buildErrorPlaceholder(context),
             );
           } else {
-            final file = File(selectedImage.path!);
+            final file = File(widget.selectedImage.path!);
             if (file.existsSync()) {
               return Image.file(
                 file,
@@ -179,10 +204,10 @@ class AiProcessingView extends StatelessWidget {
       child: switch (state) {
         GeminiPipelineInitial() || GeminiPipelineError() => ElevatedButton(
             onPressed: () {
-              if (selectedImage.bytes != null) {
+              if (widget.selectedImage.bytes != null) {
                 context
                     .read<GeminiPipelineCubit>()
-                    .processImage(selectedImage.bytes!);
+                    .processImage(widget.selectedImage.bytes!);
               }
             },
             child: const Text('Process with Gemini AI'),

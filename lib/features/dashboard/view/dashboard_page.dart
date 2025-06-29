@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
+import 'package:revision/features/image_selection/presentation/view/image_selection_page.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -47,6 +48,8 @@ class _DashboardViewState extends State<DashboardView> {
                 context.read<AuthenticationBloc>().add(
                   const AuthenticationLogoutRequested(),
                 );
+              } else if (value == 'profile') {
+                _showComingSoonDialog(context);
               }
             },
             itemBuilder: (context) => [
@@ -180,24 +183,28 @@ class _DashboardViewState extends State<DashboardView> {
                   'AI Object Removal',
                   Icons.auto_fix_high,
                   Colors.purple,
+                  '/image-selection',
                 ),
                 _buildToolCard(
                   context,
                   'Background Editor',
                   Icons.landscape,
                   Colors.green,
+                  null,
                 ),
                 _buildToolCard(
                   context,
                   'Smart Enhance',
                   Icons.tune,
                   Colors.orange,
+                  null,
                 ),
                 _buildToolCard(
                   context,
                   'Batch Processing',
                   Icons.inventory,
                   Colors.blue,
+                  null,
                 ),
               ],
             ),
@@ -212,10 +219,11 @@ class _DashboardViewState extends State<DashboardView> {
     String title,
     IconData icon,
     Color color,
+    String? route,
   ) {
     return Card(
       child: InkWell(
-        onTap: () => _showComingSoonDialog(context),
+        onTap: () => route != null ? _navigateToFeature(context, route) : _showComingSoonDialog(context),
         borderRadius: const BorderRadius.all(Radius.circular(12)),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -238,6 +246,20 @@ class _DashboardViewState extends State<DashboardView> {
         ),
       ),
     );
+  }
+
+  void _navigateToFeature(BuildContext context, String route) {
+    switch (route) {
+      case '/image-selection':
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (context) => const ImageSelectionPage(),
+          ),
+        );
+        break;
+      default:
+        _showComingSoonDialog(context);
+    }
   }
 
   void _showComingSoonDialog(BuildContext context) {

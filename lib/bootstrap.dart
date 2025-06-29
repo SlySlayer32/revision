@@ -11,6 +11,8 @@ import 'package:revision/core/config/env_config.dart';
 import 'package:revision/core/config/environment_detector.dart';
 import 'package:revision/core/constants/firebase_constants.dart';
 import 'package:revision/core/di/service_locator.dart';
+import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
+import 'package:revision/core/services/gemini_ai_service.dart';
 import 'package:revision/firebase_options.dart';
 
 class AppBlocObserver extends BlocObserver {
@@ -107,10 +109,32 @@ Future<void> _initializeFirebase() async {
           '_initializeFirebase: Skipping emulator configuration for ${EnvironmentDetector.environmentString}');
     }
 
+    // Initialize Firebase Remote Config first
+    debugPrint('_initializeFirebase: Initializing Firebase Remote Config...');
+    try {
+      final remoteConfigService = getIt<FirebaseAIRemoteConfigService>();
+      await remoteConfigService.initialize();
+      debugPrint('_initializeFirebase: Firebase Remote Config initialization completed');
+    } catch (e) {
+      debugPrint('⚠️ Firebase Remote Config initialization failed: $e');
+    }
+
     // Initialize Firebase AI Logic after Firebase is initialized
     debugPrint('_initializeFirebase: Starting Firebase AI Logic initialization...');
     await _initializeFirebaseAI();
     debugPrint('_initializeFirebase: Firebase AI Logic initialization completed');
+
+    // Initialize GeminiAI Service after Firebase AI is ready
+    debugPrint('_initializeFirebase: Starting GeminiAI Service initialization...');
+    try {
+      final geminiService = getIt<GeminiAIService>();
+      await geminiService.waitForInitialization();
+      debugPrint('_initializeFirebase: GeminiAI Service initialization completed');
+    } catch (e) {
+      debugPrint('⚠️ GeminiAI Service initialization failed: $e');
+    }
+
+    // Firebase AI is ready for use by services
 
     log('✅ Firebase setup completed for ${EnvironmentDetector.environmentString} environment');
   } catch (e, stackTrace) {

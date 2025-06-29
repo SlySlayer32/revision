@@ -1,6 +1,7 @@
 import 'dart:typed_data';
-import 'package:flutter_test/flutter_test.dart';
+
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 /// Test first request to Gemini API using Firebase AI with Google AI backend
 /// This demonstrates how to use Google AI (AI Studio) through Firebase AI SDK
@@ -17,14 +18,16 @@ void main() {
       print('Code example:');
       print('  // Configure your API key (see firebase_ai documentation)');
       print('  final firebaseAI = FirebaseAI.googleAI();');
-      print('  final model = firebaseAI.generativeModel(model: "gemini-2.5-flash");');
-      print('  final response = await model.generateContent([Content.text("Hello!")]);');
+      print(
+          '  final model = firebaseAI.generativeModel(model: "gemini-2.5-flash");');
+      print(
+          '  final response = await model.generateContent([Content.text("Hello!")]);');
       print('');
       print('🔑 API Key Setup:');
       print('  - For development: Set in Firebase project configuration');
       print('  - For production: Use secure environment variables');
       print('  - Never commit API keys to version control');
-      
+
       expect(true, isTrue);
     });
 
@@ -32,7 +35,7 @@ void main() {
       try {
         // This shows the correct pattern for creating models with Firebase AI
         final firebaseAI = FirebaseAI.googleAI();
-        
+
         final model = firebaseAI.generativeModel(
           model: 'gemini-2.5-flash',
           generationConfig: GenerationConfig(
@@ -42,7 +45,7 @@ void main() {
             topP: 0.95,
           ),
         );
-        
+
         expect(model, isNotNull);
         expect(model.model, equals('gemini-2.5-flash'));
         print('✅ Firebase AI GenerativeModel created successfully');
@@ -67,12 +70,13 @@ void main() {
         final model = firebaseAI.generativeModel(model: 'gemini-2.5-flash');
 
         final content = [
-          Content.text('Hello, Gemini! Please respond with a friendly greeting.')
+          Content.text(
+              'Hello, Gemini! Please respond with a friendly greeting.')
         ];
-        
+
         // This will work once API key is properly configured
         final response = await model.generateContent(content);
-        
+
         expect(response.text, isNotNull);
         expect(response.text!.isNotEmpty, true);
         print('🎉 Response from Gemini: ${response.text}');
@@ -98,17 +102,18 @@ void main() {
         final model = firebaseAI.generativeModel(model: 'gemini-2.5-flash');
 
         // Example of how to send image data (you would use real image bytes)
-        final mockImageBytes = Uint8List.fromList(List<int>.filled(100, 0)); // Mock image data
-        
+        final mockImageBytes =
+            Uint8List.fromList(List<int>.filled(100, 0)); // Mock image data
+
         final content = [
           Content.multi([
             InlineDataPart('image/jpeg', mockImageBytes),
             TextPart('Describe this image in detail.'),
           ]),
         ];
-        
+
         final response = await model.generateContent(content);
-        
+
         expect(response.text, isNotNull);
         print('🖼️ Image analysis response: ${response.text}');
       } catch (e) {

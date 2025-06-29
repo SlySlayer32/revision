@@ -4,10 +4,11 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
 import 'package:revision/features/ai_processing/infrastructure/services/ai_analysis_service.dart';
+
 import '../helpers/test_data/ai_test_data.dart';
 
 /// Integration tests for the complete AI pipeline
-/// 
+///
 /// These tests verify that all AI services work together correctly
 /// without mocking the actual AI calls (where possible in test environment)
 void main() {
@@ -21,11 +22,11 @@ void main() {
     });
 
     group('End-to-End AI Processing', () {
-      test('should process annotated image through complete pipeline', 
+      test('should process annotated image through complete pipeline',
           () async {
         // Arrange
         final annotatedImage = AITestData.testAnnotatedImage;
-        
+
         // Act
         final analysisResult = await analysisService.analyzeAnnotatedImage(
           annotatedImage,
@@ -43,24 +44,24 @@ void main() {
       test('should handle image size validation across services', () async {
         // Arrange
         final largeImage = Uint8List(25 * 1024 * 1024); // 25MB
-        
+
         // Act & Assert - Should fail before reaching AI services
         final result = await geminiService.processImagePrompt(
           largeImage,
           'Test prompt',
         );
-        
+
         expect(result, contains('unable to analyze'));
       });
 
-      test('should maintain consistent prompt format across pipeline', 
-          () async {        
+      test('should maintain consistent prompt format across pipeline',
+          () async {
         // Act
         final editingPrompt = await geminiService.generateEditingPrompt(
           imageBytes: AITestData.testImageData,
           markers: AITestData.testMarkedAreas,
         );
-        
+
         final processedImage = await geminiService.processImageWithAI(
           imageBytes: AITestData.testImageData,
           editingPrompt: editingPrompt,
@@ -74,7 +75,7 @@ void main() {
     });
 
     group('Service Integration', () {
-      test('should coordinate between analysis and generation services', 
+      test('should coordinate between analysis and generation services',
           () async {
         // Arrange
         final testImage = AITestData.testImageData;
@@ -133,11 +134,11 @@ void main() {
         final description = await geminiService.generateImageDescription(
           invalidImage,
         );
-        
+
         final suggestions = await geminiService.suggestImageEdits(
           invalidImage,
         );
-        
+
         final isSafe = await geminiService.checkContentSafety(invalidImage);
 
         // Assert - All should handle errors gracefully
@@ -149,7 +150,7 @@ void main() {
       test('should recover from network issues', () async {
         // This test simulates network recovery scenarios
         // In a real environment, you might temporarily disable network
-        
+
         // Act
         final result = await geminiService.processTextPrompt(
           'Test network resilience',
@@ -164,12 +165,12 @@ void main() {
       test('should complete analysis within reasonable time', () async {
         // Arrange
         final stopwatch = Stopwatch()..start();
-        
+
         // Act
         final result = await analysisService.analyzeAnnotatedImage(
           AITestData.testAnnotatedImage,
         );
-        
+
         stopwatch.stop();
 
         // Assert
@@ -179,8 +180,10 @@ void main() {
 
       test('should handle multiple concurrent requests', () async {
         // Arrange
-        final futures = List.generate(3, (index) => 
-          geminiService.generateImageDescription(AITestData.testImageData),
+        final futures = List.generate(
+          3,
+          (index) =>
+              geminiService.generateImageDescription(AITestData.testImageData),
         );
 
         // Act
@@ -199,7 +202,7 @@ void main() {
         // Act
         final debugInfo = geminiService.getConfigDebugInfo();
         await geminiService.refreshConfig();
-        
+
         final isAdvanced = geminiService.isAdvancedFeaturesEnabled;
         final isDebug = geminiService.isDebugMode;
 

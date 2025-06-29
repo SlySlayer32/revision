@@ -3,17 +3,21 @@
 ## ✅ **Fixed Issues:**
 
 ### 1. **Removed Deprecated `--web-renderer` Flag**
+
 - **Problem**: `--web-renderer html` flag is deprecated in newer Flutter versions
 - **Solution**: Removed the flag entirely - Flutter now uses CanvasKit by default
 - **Result**: Web launches work without errors
 
 ### 2. **Updated VS Code Launch Configurations**
+
 Updated `.vscode/launch.json` with:
+
 - ✅ **Development Web** - Clean web development config
 - ✅ **Staging Web** - Web staging environment  
 - ✅ **Production Web** - Web production environment (with --release flag)
 
 ### 3. **Modern Flutter Web Defaults**
+
 - **Renderer**: CanvasKit (default, better performance)
 - **Debugging**: Full debugging support enabled
 - **Environment Detection**: Runtime detection works on web
@@ -32,12 +36,14 @@ Updated `.vscode/launch.json` with:
 
 ## 🔧 **How to Use:**
 
-### In VS Code:
+### In VS Code
+
 1. Press `F5` or `Ctrl+F5`
 2. Select any configuration from the dropdown
 3. Web configurations will open Chrome automatically
 
-### From Terminal:
+### From Terminal
+
 ```bash
 # Development web
 flutter run -d chrome --dart-define=ENVIRONMENT=development --dart-define=GEMINI_API_KEY=AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM
@@ -50,14 +56,17 @@ flutter run -d chrome --dart-define=ENVIRONMENT=production --dart-define=GEMINI_
 ```
 
 ## ✅ **Verified Working:**
+
 - ✅ Environment detection on web
-- ✅ Firebase initialization 
+- ✅ Firebase initialization
 - ✅ API key configuration
 - ✅ Runtime environment switching
 - ✅ Debug logging and error handling
 
 ## 🎯 **Your Main Development Setup:**
+
 Use **🌐 Development Web** configuration for most web development work - it's now properly configured with:
+
 - Environment detection
 - Firebase initialization
 - Gemini API key

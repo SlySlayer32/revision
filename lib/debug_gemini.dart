@@ -1,0 +1,53 @@
+import 'dart:developer';
+import 'package:firebase_ai/firebase_ai.dart';
+import 'package:flutter/material.dart';
+
+/// Debug script to test Gemini AI connectivity
+class GeminiDebugTester {
+  static Future<void> testGeminiConnection() async {
+    try {
+      log('🔧 Starting Gemini Debug Test...');
+      
+      // Test 1: Initialize Firebase AI
+      log('Step 1: Creating Firebase AI instance...');
+      final firebaseAI = FirebaseAI.googleAI();
+      log('✅ Firebase AI instance created');
+      
+      // Test 2: Create a simple model
+      log('Step 2: Creating Gemini model...');
+      final model = firebaseAI.generativeModel(model: 'gemini-1.5-flash');
+      log('✅ Gemini model created');
+      
+      // Test 3: Simple text generation
+      log('Step 3: Testing simple text generation...');
+      final response = await model.generateContent([
+        Content.text('Hello, can you respond with just "Yes" if you are working?')
+      ]).timeout(const Duration(seconds: 30));
+      
+      if (response.text != null && response.text!.isNotEmpty) {
+        log('✅ SUCCESS: Gemini responded with: ${response.text}');
+      } else {
+        log('⚠️ WARNING: Gemini responded but with empty text');
+      }
+      
+    } catch (e, stackTrace) {
+      log('🚨 GEMINI TEST FAILED: $e');
+      log('Error Type: ${e.runtimeType}');
+      log('Stack Trace: $stackTrace');
+      
+      // Analyze the error
+      final errorString = e.toString().toLowerCase();
+      if (errorString.contains('403') || errorString.contains('forbidden')) {
+        log('💡 DIAGNOSIS: Access denied - check Firebase project billing and API permissions');
+      } else if (errorString.contains('404') || errorString.contains('not found')) {
+        log('💡 DIAGNOSIS: Model not found - check if gemini-1.5-flash is available in your region');
+      } else if (errorString.contains('quota') || errorString.contains('limit')) {
+        log('💡 DIAGNOSIS: Quota exceeded - check Firebase billing and usage limits');
+      } else if (errorString.contains('authentication') || errorString.contains('unauthorized')) {
+        log('💡 DIAGNOSIS: Authentication failed - check Firebase project configuration');
+      } else {
+        log('💡 DIAGNOSIS: Unknown error - check Firebase AI setup and network connectivity');
+      }
+    }
+  }
+}

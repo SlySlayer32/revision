@@ -1,17 +1,17 @@
 {
-  "conditions": [
-    {
-      "name": "android_users",
-      "expression": "device.os == 'android'",
-      "tagColor": "BLUE"
+    "conditions": [
+        {
+            "name": "android_users",
+            "expression": "device.os == 'android'",
+            "tagColor": "BLUE"
+        }
+    ],
+    "parameters": {
+        "ai_gemini_model": {
+            "defaultValue": {
+                "value": "gemini-2.5-flash"
+            },
+            "description": "Primary Gemini model for text analysis and processing"
+        }
     }
-  ],
-  "parameters": {
-    "ai_gemini_model": {
-      "defaultValue": {
-        "value": "gemini-2.5-flash"
-      },
-      "description": "Primary Gemini model for text analysis and processing"
-    }
-  }
 }

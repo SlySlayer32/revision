@@ -61,16 +61,16 @@ class EnvironmentDetector {
     final path = url.path.toLowerCase();
 
     // Check for specific domain patterns
-    if (host.contains('localhost') || 
-        host.contains('127.0.0.1') || 
+    if (host.contains('localhost') ||
+        host.contains('127.0.0.1') ||
         host.startsWith('192.168.') ||
         host.startsWith('10.0.') ||
         host.contains('dev.') ||
         path.contains('/dev/')) {
       return AppEnvironment.development;
     }
-    
-    if (host.contains('staging') || 
+
+    if (host.contains('staging') ||
         host.contains('stage') ||
         host.contains('test') ||
         path.contains('/staging/') ||
@@ -79,10 +79,12 @@ class EnvironmentDetector {
     }
 
     // Production patterns
-    if (host.contains('prod') || 
+    if (host.contains('prod') ||
         host.contains('app.') ||
         host.contains('www.') ||
-        (!host.contains('localhost') && !host.contains('dev') && !host.contains('staging'))) {
+        (!host.contains('localhost') &&
+            !host.contains('dev') &&
+            !host.contains('staging'))) {
       return AppEnvironment.production;
     }
 
@@ -103,19 +105,22 @@ class EnvironmentDetector {
   }
 
   /// Check if current environment is development
-  static bool get isDevelopment => currentEnvironment == AppEnvironment.development;
+  static bool get isDevelopment =>
+      currentEnvironment == AppEnvironment.development;
 
   /// Check if current environment is staging
   static bool get isStaging => currentEnvironment == AppEnvironment.staging;
 
   /// Check if current environment is production
-  static bool get isProduction => currentEnvironment == AppEnvironment.production;
+  static bool get isProduction =>
+      currentEnvironment == AppEnvironment.production;
 
   /// Get debug information about environment detection
   static Map<String, dynamic> getDebugInfo() {
     return {
       'currentEnvironment': environmentString,
-      'compileTimeEnv': const String.fromEnvironment('ENVIRONMENT', defaultValue: 'not_set'),
+      'compileTimeEnv':
+          const String.fromEnvironment('ENVIRONMENT', defaultValue: 'not_set'),
       'isWeb': kIsWeb,
       'isDebugMode': kDebugMode,
       'isReleaseMode': kReleaseMode,

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 /// Firestore setup validation test - shows configuration status without requiring Firebase connection
-/// 
+///
 /// This test validates that all Firestore configuration is complete and ready for production use.
 void main() {
   group('Firestore Setup Validation', () {
@@ -34,7 +34,8 @@ void main() {
       print('   • Type safety: Enforced');
       print('');
       print('✅ Performance Optimizations:');
-      print('   • Query indexes: users/{userId}/images [status, createdAt DESC]');
+      print(
+          '   • Query indexes: users/{userId}/images [status, createdAt DESC]');
       print('   • AI processing indexes: [type, status, createdAt DESC]');
       print('   • Edit history indexes: [createdAt DESC]');
       print('   • Efficient pagination: Supported');
@@ -54,17 +55,36 @@ void main() {
         'users': {
           'description': 'User profiles and account data',
           'security': 'User can only access own profile',
-          'fields': ['email', 'displayName', 'photoUrl', 'createdAt', 'lastLoginAt'],
+          'fields': [
+            'email',
+            'displayName',
+            'photoUrl',
+            'createdAt',
+            'lastLoginAt'
+          ],
         },
         'users/{userId}/images': {
           'description': 'User\'s edited images',
           'security': 'User can only access own images',
-          'fields': ['title', 'description', 'originalImageUrl', 'status', 'createdAt'],
+          'fields': [
+            'title',
+            'description',
+            'originalImageUrl',
+            'status',
+            'createdAt'
+          ],
         },
         'users/{userId}/ai_processing': {
           'description': 'AI processing jobs and results',
           'security': 'User can only access own processing jobs',
-          'fields': ['imageId', 'type', 'status', 'prompt', 'result', 'createdAt'],
+          'fields': [
+            'imageId',
+            'type',
+            'status',
+            'prompt',
+            'result',
+            'createdAt'
+          ],
         },
         'users/{userId}/images/{imageId}/edits': {
           'description': 'Edit history for each image',
@@ -119,7 +139,8 @@ void main() {
       print('   • Configure alerts and monitoring');
       print('');
       print('🎯 Development Ready!');
-      print('   Your Firestore database is fully configured and ready for development.');
+      print(
+          '   Your Firestore database is fully configured and ready for development.');
       print('   All security rules, indexes, and data models are in place.');
 
       expect(true, isTrue);
@@ -129,7 +150,7 @@ void main() {
       print('');
       print('🔧 Data Model Validation:');
       print('');
-      
+
       // This shows that our serialization patterns are correctly structured
       final expectedPatterns = [
         'UserProfileModel.fromFirestore() → UserProfile entity',

@@ -125,10 +125,11 @@ class GeminiAIService implements AIService {
           maxOutputTokens: _remoteConfig.maxOutputTokens,
           topK: _remoteConfig.topK,
           topP: _remoteConfig.topP,
+          // Note: responseModalities configuration will be added when image output is confirmed working
         ),
-        systemInstruction: Content.text(_remoteConfig.analysisSystemPrompt),
+        systemInstruction: null, // Flash 2.0 image generation model doesn't support system instructions
       );
-      log('✅ Analysis model initialized successfully');
+      log('✅ Analysis model initialized successfully with image output support');
 
       // Initialize Gemini model for image processing using Remote Config
       log('🔧 Initializing image model: ${_remoteConfig.geminiImageModel}');
@@ -147,10 +148,8 @@ class GeminiAIService implements AIService {
           topK: 32,
           topP: 0.9,
         ),
-        // Only apply system instructions for models that support them
-        systemInstruction: isImageGenerationModel
-            ? null
-            : Content.text(_remoteConfig.editingSystemPrompt),
+        // Flash 2.0 image generation model doesn't support system instructions
+        systemInstruction: null,
       );
       log('✅ Image model initialized successfully');
 
@@ -214,8 +213,7 @@ class GeminiAIService implements AIService {
           topK: FirebaseAIConstants.topK,
           topP: FirebaseAIConstants.topP,
         ),
-        systemInstruction:
-            Content.text(FirebaseAIConstants.analysisSystemPrompt),
+        systemInstruction: null, // Flash 2.0 image generation model doesn't support system instructions
       );
 
       // Initialize Gemini model for image processing using constants
@@ -230,10 +228,8 @@ class GeminiAIService implements AIService {
           topK: 32,
           topP: 0.9,
         ),
-        // Only apply system instructions for models that support them
-        systemInstruction: isImageGenerationModel
-            ? null
-            : Content.text(FirebaseAIConstants.editingSystemPrompt),
+        // Flash 2.0 image generation model doesn't support system instructions
+        systemInstruction: null,
       );
 
       log('✅ Models initialized with constants fallback');

@@ -25,7 +25,28 @@ class GeminiPipelineCubit extends Cubit<GeminiPipelineState> {
 
     result.fold(
       success: (pipelineResult) => emit(GeminiPipelineSuccess(pipelineResult)),
-      failure: (exception) => emit(GeminiPipelineError(exception.toString())),
+      failure: (exception) {
+        String errorMessage = exception.toString();
+        
+        // Provide helpful error messages for common Firebase AI setup issues
+        if (errorMessage.contains('400') || errorMessage.toLowerCase().contains('not initiated')) {
+          errorMessage = '''
+Firebase AI (Gemini) Setup Required:
+
+1. Enable Gemini AI in Firebase Console:
+   - Go to Firebase Console > Project Settings
+   - Navigate to "AI" tab
+   - Enable "Gemini API" for your project
+
+2. Verify API key configuration in Firebase Console
+
+3. Ensure Firebase AI Logic is properly initialized
+
+Original error: ${exception.toString()}''';
+        }
+        
+        emit(GeminiPipelineError(errorMessage));
+      },
     );
   }
 

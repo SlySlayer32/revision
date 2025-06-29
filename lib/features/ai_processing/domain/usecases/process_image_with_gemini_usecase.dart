@@ -43,9 +43,28 @@ class ProcessImageWithGeminiUseCase {
       final result = await _geminiPipelineService.processImage(imageData);
 
       return Success(result);
-    } catch (e) {
+    } catch (e, stackTrace) {
+      // Add detailed logging for debugging
+      print('🚨 Gemini AI Pipeline Error Details:');
+      print('Error: $e');
+      print('Error Type: ${e.runtimeType}');
+      print('Stack Trace: $stackTrace');
+      
+      String errorMessage = 'Gemini AI Pipeline failed: ${e.toString()}';
+      
+      // Provide specific guidance based on error type
+      if (e.toString().contains('403') || e.toString().contains('forbidden')) {
+        errorMessage = 'Firebase AI access denied. Check project billing and API permissions.';
+      } else if (e.toString().contains('404') || e.toString().contains('not found')) {
+        errorMessage = 'Gemini model not found. The model might not be available in your region.';
+      } else if (e.toString().contains('quota') || e.toString().contains('limit')) {
+        errorMessage = 'Gemini API quota exceeded. Check your Firebase billing and usage limits.';
+      } else if (e.toString().contains('authentication') || e.toString().contains('unauthorized')) {
+        errorMessage = 'Firebase AI authentication failed. Check your Firebase project configuration.';
+      }
+      
       return Failure(
-        GeminiPipelineException('Gemini AI Pipeline failed: ${e.toString()}'),
+        GeminiPipelineException(errorMessage),
       );
     }
   }

@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "286965129060",
+    "project_id": "revision-464202",
+    "storage_bucket": "revision-464202.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:286965129060:android:3199446fd73253bb13a471",
+        "android_client_info": {
+          "package_name": "com.sly.revision"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfcmiB-92MRTUx0kkMceMPgKdEUkiDxrU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:286965129060:android:a5885b518f8ba3a313a471",
+        "android_client_info": {
+          "package_name": "com.sly.revision.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfcmiB-92MRTUx0kkMceMPgKdEUkiDxrU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:286965129060:android:b2f50ff0b3f5594f13a471",
+        "android_client_info": {
+          "package_name": "com.sly.revision.stg"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfcmiB-92MRTUx0kkMceMPgKdEUkiDxrU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

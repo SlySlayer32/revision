@@ -27,6 +27,7 @@
     content="339796226996-u68ogqmkgmgp9l18thqv8r4dckujnc1d.apps.googleusercontent.com">
 
   <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Revision">
@@ -40,30 +41,185 @@
 </head>
 
 <body>
+  <!-- Loading indicator -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <p>Loading Revision...</p>
+  </div>
+
+  <!-- App container -->
+  <div id="app-container"></div>
+
+  <style>
+    /* Ensure full-screen Flutter container and loading screen styling */
+    html,
+    body,
+    #app-container {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #ffffff;
+      font-family: Arial, sans-serif;
+      z-index: 9999;
+    }
+
+    #loading .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 2s linear infinite;
+    }
+
+    #loading p {
+      margin-top: 10px;
+      color: #666666;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
   <script src="flutter.js" defer></script>
   <script>
+    // Improved Flutter loader with better error handling
     window.addEventListener('load', function (ev) {
-      if (window._flutter && window._flutter.loader) {
-        window._flutter.loader.loadEntrypoint({
-          serviceWorker: {
-            serviceWorkerVersion: null,
-          },
-        });
-      } else {
-        var script = document.createElement('script');
-        script.src = 'flutter.js';
-        script.defer = true;
-        script.onload = function () {
-          window._flutter.loader.loadEntrypoint({
-            serviceWorker: {
-              serviceWorkerVersion: null,
-            },
+      var loading = document.querySelector('#loading');
+
+      // Configure Flutter with proper error handling
+      window._flutter = window._flutter || {};
+      window._flutter.buildConfig = {
+        builds: [
+          {
+            compileTarget: 'dart2js',
+            renderer: 'html',
+            mainModule: 'main'
+          }
+        ]
+      };
+
+      // Load Flutter with enhanced error handling
+      _flutter.loader.load({
+        serviceWorker: {
+          serviceWorkerVersion: null,
+        },
+        onEntrypointLoaded: function (engineInitializer) {
+          engineInitializer.initializeEngine().then(function (appRunner) {
+            if (loading) {
+              loading.remove();
+            }
+            appRunner.runApp();
+          }).catch(function (error) {
+            console.error('Failed to initialize Flutter engine:', error);
+            if (loading) {
+              loading.innerHTML = 'Failed to load app: ' + error.message;
+            }
           });
-        };
-        document.body.appendChild(script);
-      }
+        }
+      });
     });
   </script>
+
+  <script>
+    // Environment detection for web
+    function detectEnvironment() {
+      const host = window.location.hostname.toLowerCase();
+      const path = window.location.pathname.toLowerCase();
+
+      // Development patterns
+      if (host.includes('localhost') ||
+        host.includes('127.0.0.1') ||
+        host.startsWith('192.168.') ||
+        host.startsWith('10.0.') ||
+        host.includes('dev.') ||
+        path.includes('/dev/')) {
+        return 'development';
+      }
+
+      // Staging patterns
+      if (host.includes('staging') ||
+        host.includes('stage') ||
+        host.includes('test') ||
+        path.includes('/staging/') ||
+        path.includes('/stage/')) {
+        return 'staging';
+      }
+
+      // Production (default)
+      return 'production';
+    }
+
+    // Firebase configurations for each environment
+    const firebaseConfigs = {
+      development: {
+        apiKey: "AIzaSyCMOEvNSrcXqh0n9FD4deqGxFRYhBmfbmg",
+        authDomain: "revision-464202.firebaseapp.com",
+        projectId: "revision-464202",
+        storageBucket: "revision-464202.firebasestorage.app",
+        messagingSenderId: "286965129060",
+        appId: "1:286965129060:web:c43635c372975dfd13a471",
+        measurementId: "G-M787R1D63W"
+      },
+      staging: {
+        apiKey: "AIzaSyDHpT7CJYmNq9K8lJBJ8t9uC1a7VqDU_Cg",
+        authDomain: "revision-staging-e8c6b.firebaseapp.com",
+        projectId: "revision-staging-e8c6b",
+        storageBucket: "revision-staging-e8c6b.firebasestorage.app",
+        messagingSenderId: "339796226996",
+        appId: "1:339796226996:web:96e623bdfe84cbc513a471",
+        measurementId: "G-2V0BFVWN45"
+      },
+      production: {
+        apiKey: "AIzaSyD2S1IDbCqj_Z9KnTHLKV1fCo5GofP5-Tw",
+        authDomain: "revision-production-2f8a2.firebaseapp.com",
+        projectId: "revision-production-2f8a2",
+        storageBucket: "revision-production-2f8a2.firebasestorage.app",
+        messagingSenderId: "525397094705",
+        appId: "1:525397094705:web:b8b7a5b9c2e2e5e613a471",
+        measurementId: "G-XLNG8M9RJ3"
+      }
+    };
+
+    // Detect environment and set config
+    const environment = detectEnvironment();
+    const firebaseConfig = firebaseConfigs[environment];
+
+    // Log environment detection for debugging
+    console.log('🌍 Environment detected:', environment);
+    console.log('🔥 Firebase config:', {
+      projectId: firebaseConfig.projectId,
+      appId: firebaseConfig.appId,
+      environment: environment
+    });
+
+    // Make config available globally for Flutter
+    window.firebaseConfig = firebaseConfig;
+    window.detectedEnvironment = environment;
+  </script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
 </body>
 
 </html>

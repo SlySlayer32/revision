@@ -30,8 +30,7 @@ class VertexAIService implements AIService {
           topK: FirebaseAIConstants.topK,
           topP: FirebaseAIConstants.topP,
         ),
-        systemInstruction:
-            Content.text(FirebaseAIConstants.analysisSystemPrompt),
+        systemInstruction: null, // Flash 2.0 image generation model doesn't support system instructions
       );
 
       // Initialize Gemini 2.0 Flash Preview Image Generation model
@@ -44,8 +43,7 @@ class VertexAIService implements AIService {
           topK: 32,
           topP: 0.9,
         ),
-        systemInstruction:
-            Content.text(FirebaseAIConstants.editingSystemPrompt),
+        systemInstruction: null, // Flash 2.0 image generation model doesn't support system instructions
       );
 
       log('✅ Firebase AI Logic models initialized successfully');

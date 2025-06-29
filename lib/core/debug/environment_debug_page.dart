@@ -84,7 +84,8 @@ class EnvironmentDebugPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text('Firebase AI Configured: ${EnvConfig.isFirebaseAIConfigured}'),
-            Text('Firebase AI: ${EnvConfig.isFirebaseAIConfigured ? 'Configured' : 'Not Configured'}'),
+            Text(
+                'Firebase AI: ${EnvConfig.isFirebaseAIConfigured ? 'Configured' : 'Not Configured'}'),
             const SizedBox(height: 8),
             const Text('Debug Info:',
                 style: TextStyle(fontWeight: FontWeight.bold)),

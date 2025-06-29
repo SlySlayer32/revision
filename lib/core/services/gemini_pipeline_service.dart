@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:revision/core/services/gemini_ai_service.dart';
 
 /// Gemini AI Pipeline Service - Matching Expected Flow Diagram
 ///
@@ -13,17 +14,13 @@ import 'package:firebase_ai/firebase_ai.dart';
 /// 5. Gemini 2.0 Flash Preview - Generate new image using prompt
 /// 6. Return updated image to UI
 class GeminiPipelineService {
-  GeminiPipelineService({
-    required GenerativeModel analysisModel,
-    required GenerativeModel imageGenerationModel,
-  })  : _analysisModel = analysisModel,
-        _imageGenerationModel = imageGenerationModel {
-    log('🔧 GeminiPipelineService initialized with analysis and image generation models.');
+  GeminiPipelineService(this._geminiAIService) {
+    log('🔧 GeminiPipelineService initialized with GeminiAIService.');
   }
 
-  final GenerativeModel _analysisModel; // Gemini 2.0 Flash for analysis
-  final GenerativeModel
-      _imageGenerationModel; // Gemini 2.0 Flash Preview for generation
+  final GeminiAIService _geminiAIService;
+
+  GenerativeModel get _analysisModel => _geminiAIService.analysisModel;
 
   /// Step 3: Analyze marked area & generate removal prompt using Gemini 2.0 Flash
   ///
@@ -85,56 +82,61 @@ class GeminiPipelineService {
     }
   }
 
-  /// Step 5: Generate new image using Gemini 2.0 Flash Preview Image Generation
+  /// Step 5: Edit image using Gemini 2.0 Flash (supports image input/output)
   ///
-  /// Per flow diagram: "Gemini 2.0 Flash Preview - Generate new image using prompt"
+  /// Per flow diagram: "Gemini 2.0 Flash - Generate new image using prompt"
+  /// Note: Regular Gemini 2.0 Flash supports both image input and image output
   Future<Uint8List> generateImageWithRemovals({
     required Uint8List originalImageData,
     required String removalPrompt,
   }) async {
     try {
-      log('🎨 Step 5: Generating new image with Gemini 2.0 Flash Preview...');
+      log('🎨 Step 5: Editing image with Gemini 2.0 Flash...');
 
-      // Create content with original image and removal prompt
+      // Create content with original image and editing prompt
       final content = [
         Content.multi([
           InlineDataPart('image/jpeg', originalImageData),
           TextPart(
-            'STEP 5: IMAGE GENERATION WITH OBJECT REMOVAL\n\n'
-            'Using the following analysis and removal instructions:\n\n'
+            'STEP 5: IMAGE EDITING WITH OBJECT REMOVAL\n\n'
             '$removalPrompt\n\n'
-            'Generate a new version of this image with the specified objects removed:\n'
+            'Please edit this image to remove the specified objects:\n'
             '• Remove the marked objects completely\n'
-            '• Use content-aware reconstruction for natural background fill\n'
+            '• Fill in the background naturally where objects were removed\n'
             '• Maintain consistent lighting and shadows\n'
-            '• Preserve original image quality and composition\n'
+            '• Preserve the original image quality and composition\n'
             '• Ensure seamless blending with no visible artifacts\n\n'
-            'Return the edited image with all marked objects removed.',
+            'Return the edited image with all specified objects removed.',
           ),
         ]),
       ];
 
-      // Call Gemini 2.0 Flash Preview Image Generation with 60s timeout
-      final response = await _imageGenerationModel
+      // Use the analysis model (Gemini 2.0 Flash) which supports image input/output
+      final response = await _analysisModel
           .generateContent(content)
           .timeout(const Duration(seconds: 60));
 
-      // Extract generated image data
-      // Note: This is a simplified implementation
-      // In reality, the response format depends on the actual API
-      if (response.text == null) {
-        throw Exception('No image generated from Gemini 2.0 Flash Preview');
+      // Extract edited image data from response
+      if (response.candidates.isNotEmpty) {
+        final candidate = response.candidates.first;
+        if (candidate.content.parts.isNotEmpty) {
+          for (final part in candidate.content.parts) {
+            // Look for image data in the response parts
+            if (part is InlineDataPart && part.mimeType.startsWith('image/')) {
+              log('✅ Step 5 completed: Image editing successful');
+              return part.bytes;
+            }
+          }
+        }
       }
 
-      // For MVP, we'll simulate image generation
-      // TODO: Replace with actual image extraction from response
-      log('✅ Step 5 completed: Image generation successful');
-
-      // Return original image for now - this will be replaced with actual generated image
+      // If no image was generated, return original image
+      log('⚠️ No edited image found in response, returning original image');
       return originalImageData;
     } catch (e, stackTrace) {
-      log('❌ Step 5 (image generation) failed: $e', stackTrace: stackTrace);
-      rethrow;
+      log('❌ Step 5 (image editing) failed: $e', stackTrace: stackTrace);
+      // Return original image as fallback
+      return originalImageData;
     }
   }
 

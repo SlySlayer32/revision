@@ -1,17 +1,109 @@
-// firestore.rules - Firestore security rules
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // User data
-    match /users/{userId} {
-      allow read, write: if request.auth != null
-        && request.auth.uid == userId;
+    
+    // Helper functions for authentication and authorization
+    function isAuthenticated() {
+      return request.auth != null;
     }
-
-    // Processing jobs
-    match /processing_jobs/{jobId} {
-      allow read, write: if request.auth != null
-        && resource.data.userId == request.auth.uid;
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isValidUserData() {
+      return request.resource.data.keys().hasAll(['email', 'displayName', 'photoUrl', 'createdAt', 'lastLoginAt']) &&
+             request.resource.data.email is string &&
+             request.resource.data.displayName is string &&
+             request.resource.data.photoUrl is string &&
+             request.resource.data.createdAt is timestamp &&
+             request.resource.data.lastLoginAt is timestamp;
+    }
+    
+    function isValidImageData() {
+      return request.resource.data.keys().hasAll(['title', 'description', 'originalImageUrl', 'status', 'createdAt', 'updatedAt']) &&
+             request.resource.data.title is string &&
+             request.resource.data.description is string &&
+             request.resource.data.originalImageUrl is string &&
+             request.resource.data.status in ['uploading', 'processing', 'completed', 'failed'] &&
+             request.resource.data.createdAt is timestamp &&
+             request.resource.data.updatedAt is timestamp;
+    }
+    
+    function isValidAIProcessingData() {
+      return request.resource.data.keys().hasAll(['imageId', 'type', 'status', 'prompt', 'createdAt', 'updatedAt']) &&
+             request.resource.data.imageId is string &&
+             request.resource.data.type in ['object_detection', 'image_analysis', 'background_removal', 'style_transfer', 'image_generation'] &&
+             request.resource.data.status in ['pending', 'processing', 'completed', 'failed'] &&
+             request.resource.data.prompt is string &&
+             request.resource.data.createdAt is timestamp &&
+             request.resource.data.updatedAt is timestamp;
+    }
+    
+    // User profiles - users can only access their own profile
+    match /users/{userId} {
+      allow read, write: if isOwner(userId) && isValidUserData();
+      allow create: if isOwner(userId) && isValidUserData();
+    }
+    
+    // User images - users can only access their own images
+    match /users/{userId}/images/{imageId} {
+      allow read, write: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidImageData();
+      allow update: if isOwner(userId) && isValidImageData();
+      allow delete: if isOwner(userId);
+    }
+    
+    // AI processing jobs - users can only access their own processing jobs
+    match /users/{userId}/ai_processing/{processingId} {
+      allow read, write: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidAIProcessingData();
+      allow update: if isOwner(userId) && isValidAIProcessingData();
+      allow delete: if isOwner(userId);
+    }
+    
+    // Image edit history - users can only access their own edit history
+    match /users/{userId}/images/{imageId}/edits/{editId} {
+      allow read, write: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
+    
+    // User preferences and settings
+    match /users/{userId}/preferences/{preferencesId} {
+      allow read, write: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+    }
+    
+    // Analytics and usage data (read-only for users, write for system)
+    match /analytics/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only server-side writes
+    }
+    
+    // System configuration (read-only)
+    match /system/{document=**} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only admin writes
+    }
+    
+    // Shared public galleries (if implementing social features)
+    match /public_galleries/{galleryId} {
+      allow read: if true; // Public read access
+      allow write: if isAuthenticated(); // Authenticated users can contribute
+    }
+    
+    // Rate limiting and abuse prevention
+    match /rate_limits/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+    
+    // Default deny rule for any other paths
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

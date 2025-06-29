@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../domain/entities/ai_processing_job.dart';
 
 /// Firestore data model for AI processing job
@@ -21,7 +22,7 @@ class AIProcessingJobModel extends AIProcessingJob {
   /// Convert from Firestore DocumentSnapshot
   factory AIProcessingJobModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    
+
     return AIProcessingJobModel(
       id: doc.id,
       userId: data['userId'] as String,

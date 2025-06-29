@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_result.dart';
+
 import '../../../../../helpers/test_data/ai_test_data.dart';
 
 void main() {
@@ -21,7 +22,8 @@ void main() {
         expect(result.processedImageData, equals(AITestData.testImageData));
         expect(result.originalPrompt, equals('Test prompt'));
         expect(result.enhancedPrompt, equals('Enhanced test prompt'));
-        expect(result.processingTime, equals(const Duration(milliseconds: 1500)));
+        expect(
+            result.processingTime, equals(const Duration(milliseconds: 1500)));
         expect(result.jobId, isNull);
         expect(result.imageAnalysis, isNull);
         expect(result.metadata, isNull);
@@ -30,13 +32,13 @@ void main() {
       test('should create instance with optional parameters', () {
         // Arrange
         const jobId = 'test-job-123';
-        final imageAnalysis = ImageAnalysis(
+        final imageAnalysis = const ImageAnalysis(
           width: 1920,
           height: 1080,
           format: 'PNG',
           fileSize: 1024,
-          dominantColors: const ['#FF0000', '#00FF00'],
-          detectedObjects: const ['person', 'car'],
+          dominantColors: ['#FF0000', '#00FF00'],
+          detectedObjects: ['person', 'car'],
           qualityScore: 0.85,
         );
         final metadata = {'test': 'value', 'count': 42};
@@ -115,7 +117,8 @@ void main() {
         );
 
         // Assert
-        expect(result.processingTime, equals(const Duration(milliseconds: 100)));
+        expect(
+            result.processingTime, equals(const Duration(milliseconds: 100)));
       });
 
       test('should accept zero processing time', () {
