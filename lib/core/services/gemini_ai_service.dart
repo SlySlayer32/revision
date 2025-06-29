@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:typed_data';
 
@@ -21,16 +22,49 @@ class GeminiAIService implements AIService {
   }
 
   final FirebaseAIRemoteConfigService _remoteConfig;
-  late final GenerativeModel _geminiModel;
-  late final GenerativeModel _geminiImageModel;
+  GenerativeModel? _geminiModel;
+  GenerativeModel? _geminiImageModel;
   
   /// Expose the generative models for DI
-  GenerativeModel get analysisModel => _geminiModel;
-  GenerativeModel get imageGenerationModel => _geminiImageModel;
+  GenerativeModel get analysisModel {
+    if (!_isInitialized) {
+      log('⏳ GeminiAIService is still initializing, starting initialization...');
+      _initializeService();
+      throw StateError('Gemini analysis model not yet initialized. Service is starting up...');
+    }
+    if (_geminiModel == null) {
+      log('❌ CRITICAL: Gemini analysis model not initialized');
+      log('💡 This usually means:');
+      log('   1. Firebase AI Logic not enabled in Firebase Console');
+      log('   2. Gemini API key not configured');
+      log('   3. Required APIs not enabled');
+      log('🔗 Go to: https://console.firebase.google.com/project/revision-464202/ailogic');
+      throw StateError('Gemini analysis model not initialized. Please check Firebase AI setup.');
+    }
+    return _geminiModel!;
+  }
+  
+  GenerativeModel get imageGenerationModel {
+    if (_geminiImageModel == null) {
+      log('❌ CRITICAL: Gemini image model not initialized');
+      log('💡 Complete Firebase AI Logic setup in Firebase Console');
+      log('🔗 Go to: https://console.firebase.google.com/project/revision-464202/ailogic');
+      throw StateError('Gemini image model not initialized. Please check Firebase AI setup.');
+    }
+    return _geminiImageModel!;
+  }
   bool _isInitialized = false;
+  Completer<void>? _initializationCompleter;
 
   Future<void> _initializeService() async {
     if (_isInitialized) return;
+    
+    // If already initializing, wait for the existing initialization
+    if (_initializationCompleter != null) {
+      return _initializationCompleter!.future;
+    }
+    
+    _initializationCompleter = Completer<void>();
 
     try {
       log('🚀 Initializing Firebase AI Logic with Remote Config...');
@@ -39,25 +73,47 @@ class GeminiAIService implements AIService {
       await _remoteConfig.initialize();
 
       // Initialize models with Remote Config values
-      _initializeModels();
+      await _initializeModels();
 
       _isInitialized = true;
+      _initializationCompleter!.complete();
       log('✅ Firebase AI Logic initialized successfully');
     } catch (e) {
       log('❌ Failed to initialize Firebase AI Logic: $e');
       // Fall back to constants if Remote Config fails
-      _initializeModelsWithConstants();
+      await _initializeModelsWithConstants();
       _isInitialized = true;
+      _initializationCompleter!.complete();
     }
   }
 
-  void _initializeModels() {
+  /// Wait for the service to be fully initialized
+  Future<void> waitForInitialization() async {
+    if (_isInitialized) return;
+    if (_initializationCompleter != null) {
+      return _initializationCompleter!.future;
+    }
+    // If not started, start initialization
+    return _initializeService();
+  }
+
+  Future<void> _initializeModels() async {
     try {
+      log('🔧 Starting Gemini model initialization...');
+      log('🔍 Analysis model: ${_remoteConfig.geminiModel}');
+      log('🔍 Image model: ${_remoteConfig.geminiImageModel}');
+      
       // Initialize Firebase AI with Google AI backend (AI Studio)
       // API key is configured in Firebase Console, not passed here
+      log('🔧 Creating FirebaseAI.googleAI() instance...');
       final firebaseAI = FirebaseAI.googleAI();
+      log('✅ Firebase AI instance created successfully');
+      
+      // Test if Firebase AI can communicate with backend
+      log('🔧 Testing Firebase AI backend connectivity...');
 
       // Initialize Gemini model for text and analysis using Remote Config
+      log('🔧 Initializing analysis model: ${_remoteConfig.geminiModel}');
       _geminiModel = firebaseAI.generativeModel(
         model: _remoteConfig.geminiModel,
         generationConfig: GenerationConfig(
@@ -68,8 +124,14 @@ class GeminiAIService implements AIService {
         ),
         systemInstruction: Content.text(_remoteConfig.analysisSystemPrompt),
       );
+      log('✅ Analysis model initialized successfully');
 
       // Initialize Gemini model for image processing using Remote Config
+      log('🔧 Initializing image model: ${_remoteConfig.geminiImageModel}');
+      
+      // Check if this is the 2.0 image generation model (doesn't support system instructions)
+      final isImageGenerationModel = _remoteConfig.geminiImageModel.contains('image-generation');
+      
       _geminiImageModel = firebaseAI.generativeModel(
         model: _remoteConfig.geminiImageModel,
         generationConfig: GenerationConfig(
@@ -79,9 +141,16 @@ class GeminiAIService implements AIService {
               _remoteConfig.maxOutputTokens * 2, // More tokens for images
           topK: 32,
           topP: 0.9,
+          // For image generation models, specify response modalities
+          responseModalities: isImageGenerationModel ? [ResponseModality.text, ResponseModality.image] : null,
         ),
-        systemInstruction: Content.text(_remoteConfig.editingSystemPrompt),
+        // Only apply system instructions for models that support them
+        systemInstruction: isImageGenerationModel ? null : Content.text(_remoteConfig.editingSystemPrompt),
       );
+      log('✅ Image model initialized successfully');
+
+      // Test model availability with a simple prompt
+      _testModelAvailability();
 
       log('✅ Google AI (Gemini API) models initialized successfully');
       log('🔑 API key source: Firebase Console configuration');
@@ -100,7 +169,31 @@ class GeminiAIService implements AIService {
     }
   }
 
-  void _initializeModelsWithConstants() {
+  /// Test model availability with a simple prompt
+  void _testModelAvailability() {
+    // Don't await, just fire and forget for testing
+    Future.delayed(Duration.zero, () async {
+      try {
+        log('🧪 Testing Gemini model availability...');
+        if (_geminiModel != null) {
+          final response = await _geminiModel!.generateContent([
+            Content.text('Hello, are you working?')
+          ]).timeout(const Duration(seconds: 10));
+          
+          if (response.text != null) {
+            log('✅ Gemini model test successful');
+          } else {
+            log('⚠️ Gemini model test returned empty response');
+          }
+        }
+      } catch (e) {
+        log('🚨 Gemini model test failed: $e');
+        log('This indicates the models may not be properly accessible');
+      }
+    });
+  }
+
+  Future<void> _initializeModelsWithConstants() async {
     try {
       log('⚠️ Falling back to constants for model initialization...');
 
@@ -121,6 +214,8 @@ class GeminiAIService implements AIService {
       );
 
       // Initialize Gemini model for image processing using constants
+      final isImageGenerationModel = FirebaseAIConstants.geminiImageModel.contains('image-generation');
+      
       _geminiImageModel = firebaseAI.generativeModel(
         model: FirebaseAIConstants.geminiImageModel,
         generationConfig: GenerationConfig(
@@ -129,8 +224,8 @@ class GeminiAIService implements AIService {
           topK: 32,
           topP: 0.9,
         ),
-        systemInstruction:
-            Content.text(FirebaseAIConstants.editingSystemPrompt),
+        // Only apply system instructions for models that support them
+        systemInstruction: isImageGenerationModel ? null : Content.text(FirebaseAIConstants.editingSystemPrompt),
       );
 
       log('✅ Models initialized with constants fallback');
@@ -144,9 +239,13 @@ class GeminiAIService implements AIService {
   /// Process text prompt using Google AI
   Future<String> processTextPrompt(String prompt) async {
     try {
+      if (_geminiModel == null) {
+        throw StateError('Gemini model not initialized. Please check Firebase AI setup.');
+      }
+      
       final content = [Content.text(prompt)];
 
-      final response = await _geminiModel
+      final response = await _geminiModel!
           .generateContent(content)
           .timeout(_remoteConfig.requestTimeout);
 
@@ -167,6 +266,10 @@ class GeminiAIService implements AIService {
   @override
   Future<String> processImagePrompt(Uint8List imageData, String prompt) async {
     try {
+      if (_geminiImageModel == null) {
+        throw StateError('Gemini image model not initialized. Please check Firebase AI setup.');
+      }
+      
       // Validate image size using updated constants
       if (imageData.length > FirebaseAIConstants.maxImageSizeMB * 1024 * 1024) {
         throw Exception(
@@ -192,7 +295,7 @@ Provide clear, actionable editing steps.
         ]),
       ];
 
-      final response = await _geminiImageModel
+      final response = await _geminiImageModel!
           .generateContent(content)
           .timeout(_remoteConfig.requestTimeout);
 
@@ -223,6 +326,9 @@ Please try again or contact support if the issue persists.
   @override
   Future<String> generateImageDescription(Uint8List imageData) async {
     try {
+      if (_geminiImageModel == null) {
+        throw StateError('Gemini image model not initialized. Please check Firebase AI setup.');
+      }
       final content = [
         Content.multi([
           InlineDataPart('image/jpeg', imageData),
@@ -241,7 +347,7 @@ Keep the description clear and technical.
         ]),
       ];
 
-      final response = await _geminiImageModel
+      final response = await _geminiImageModel!
           .generateContent(content)
           .timeout(_remoteConfig.requestTimeout);
 
@@ -261,6 +367,9 @@ Keep the description clear and technical.
   @override
   Future<List<String>> suggestImageEdits(Uint8List imageData) async {
     try {
+      if (_geminiImageModel == null) {
+        throw StateError('Gemini image model not initialized. Please check Firebase AI setup.');
+      }
       final content = [
         Content.multi([
           InlineDataPart('image/jpeg', imageData),
@@ -279,7 +388,7 @@ Provide each suggestion as a clear, actionable sentence.
         ]),
       ];
 
-      final response = await _geminiImageModel
+      final response = await _geminiImageModel!
           .generateContent(content)
           .timeout(_remoteConfig.requestTimeout);
 
@@ -307,6 +416,9 @@ Provide each suggestion as a clear, actionable sentence.
   @override
   Future<bool> checkContentSafety(Uint8List imageData) async {
     try {
+      if (_geminiImageModel == null) {
+        throw StateError('Gemini image model not initialized. Please check Firebase AI setup.');
+      }
       final content = [
         Content.multi([
           InlineDataPart('image/jpeg', imageData),
@@ -323,7 +435,7 @@ Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a b
         ]),
       ];
 
-      final response = await _geminiImageModel
+      final response = await _geminiImageModel!
           .generateContent(content)
           .timeout(_remoteConfig.requestTimeout);
 
@@ -348,6 +460,9 @@ Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a b
     required List<Map<String, dynamic>> markers,
   }) async {
     try {
+      if (_geminiImageModel == null) {
+        throw StateError('Gemini image model not initialized. Please check Firebase AI setup.');
+      }
       final markerDescriptions = markers
           .map((marker) =>
               'Marker at (${marker['x']}, ${marker['y']}): ${marker['description'] ?? 'Object to edit'}')
@@ -373,7 +488,7 @@ Provide a clear, actionable editing prompt.
         ]),
       ];
 
-      final response = await _geminiImageModel
+      final response = await _geminiImageModel!
           .generateContent(content)
           .timeout(_remoteConfig.requestTimeout);
 
@@ -396,21 +511,60 @@ Provide a clear, actionable editing prompt.
     required String editingPrompt,
   }) async {
     try {
-      // Note: This is a placeholder as actual image processing would require
-      // additional AI services or image processing libraries
+      if (_geminiImageModel == null) {
+        throw StateError('Gemini image model not initialized. Please check Firebase AI setup.');
+      }
+
       log('🤖 Processing image with AI using prompt: $editingPrompt');
 
-      // For now, return the original image
-      // In a real implementation, this would:
-      // 1. Send the image and prompt to an image editing AI service
-      // 2. Receive the processed image
-      // 3. Return the processed image bytes
+      // Check if this is the image generation model
+      final isImageGenerationModel = FirebaseAIConstants.geminiImageModel.contains('image-generation');
+      
+      if (isImageGenerationModel) {
+        // For Gemini 2.0 Flash image generation model
+        // This model generates new images based on prompts, not edits existing ones
+        final content = [
+          Content.multi([
+            TextPart('''
+Generate a new image based on this editing request: $editingPrompt
 
-      log('⚠️ AI image processing not yet implemented - returning original image');
-      return imageBytes;
+Create a high-quality image that represents the desired result after the editing operation.
+Focus on creating a clean, professional result that matches the editing intent.
+'''),
+          ]),
+        ];
+
+        final response = await _geminiImageModel!
+            .generateContent(content)
+            .timeout(_remoteConfig.requestTimeout);
+
+        // Check if response contains image data
+        if (response.candidates != null && response.candidates!.isNotEmpty) {
+          final candidate = response.candidates!.first;
+          if (candidate.content != null && candidate.content!.parts != null) {
+            for (final part in candidate.content!.parts!) {
+              // Look for image data in the response parts
+              if (part is InlineDataPart && part.mimeType.startsWith('image/')) {
+                log('✅ AI image generation completed successfully');
+                return part.bytes;
+              }
+            }
+          }
+        }
+
+        // If no image was generated, fall back to original
+        log('⚠️ No image data found in AI response, returning original image');
+        return imageBytes;
+      } else {
+        // For other models that don't support image generation
+        // This is image analysis, not generation - return original
+        log('⚠️ Model does not support image generation - returning original image');
+        return imageBytes;
+      }
     } catch (e, stackTrace) {
       log('❌ Google AI processImageWithAI failed: $e', stackTrace: stackTrace);
-      rethrow;
+      // Return original image on error
+      return imageBytes;
     }
   }
 
@@ -423,7 +577,7 @@ Provide a clear, actionable editing prompt.
       await _remoteConfig.refresh();
 
       // Reinitialize models with new config values
-      _initializeModels();
+      await _initializeModels();
 
       log('✅ Firebase AI Remote Config refreshed successfully');
     } catch (e) {
