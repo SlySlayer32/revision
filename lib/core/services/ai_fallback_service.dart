@@ -118,40 +118,19 @@ Remove $markerCount marked object${markerCount > 1 ? 's' : ''} at coordinates: $
 ''';
   }
 
-    @override
-    Future<Uint8List> processImageWithAI({
-      required Uint8List imageBytes,
-      required String editingPrompt,
-    }) async {
-      logger.warning('Using fallback for processImageWithAI - returning original', operation: 'FALLBACK');
-      
-      // When AI processing fails, return the original image
-      // In a real production app, you might want to apply basic automated enhancements
-      // or redirect to a different image processing service
-      
-      return imageBytes;
-    }
-  
-    @override
-    Future<String> processTextPrompt(String prompt) async {
-      logger.warning('Using fallback for processTextPrompt', operation: 'FALLBACK');
-      
-      // Analyze the prompt to provide contextual response
-      final analysis = _analyzePrompt(prompt);
-      
-      return '''
-  Based on your request to $analysis, here are some general recommendations:
-  
-  **Editing Tips:**
-  • Consider the composition and framing of your images
-  • Pay attention to lighting and color balance
-  • Focus on subtle adjustments rather than dramatic changes
-  • Preserve image quality during the editing process
-  
-  I'm currently experiencing technical difficulties with text processing. 
-  Please try again in a moment, or use these guidelines with your preferred editing software.
-  ''';
-    }
+  @override
+  Future<Uint8List> processImageWithAI({
+    required Uint8List imageBytes,
+    required String editingPrompt,
+  }) async {
+    logger.warning('Using fallback for processImageWithAI - returning original', operation: 'FALLBACK');
+    
+    // When AI processing fails, return the original image
+    // In a real production app, you might want to apply basic automated enhancements
+    // or redirect to a different image processing service
+    
+    return imageBytes;
+  }
 
   /// Analyze the user's prompt to provide contextual guidance
   String _analyzePrompt(String prompt) {
@@ -255,27 +234,19 @@ class AIServiceSelector {
   }
 
   /// Check content safety with fallback
-  /// Process image with AI with fallback
-  Future<Uint8List> processImageWithAI({
-    required Uint8List imageBytes,
-    required String editingPrompt,
-  }) async {
-    return executeWithFallback<Uint8List>(
-      (service) => service.processImageWithAI(
-        imageBytes: imageBytes,
-        editingPrompt: editingPrompt,
-      ),
-      'processImageWithAI',
+  Future<bool> checkContentSafety(Uint8List imageData) async {
+    return executeWithFallback<bool>(
+      (service) => service.checkContentSafety(imageData),
+      'checkContentSafety',
     );
   }
 
-  /// Process text prompt with fallback
-  Future<String> processTextPrompt(String prompt) async {
+  /// Generate editing prompt with fallback
+  Future<String> generateEditingPrompt({
+    required Uint8List imageBytes,
+    required List<Map<String, dynamic>> markers,
+  }) async {
     return executeWithFallback<String>(
-      (service) => service.processTextPrompt(prompt),
-      'processTextPrompt',
-    );
-  }
       (service) => service.generateEditingPrompt(
         imageBytes: imageBytes,
         markers: markers,
