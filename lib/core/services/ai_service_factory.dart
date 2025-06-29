@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:revision/core/services/ai_service.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
