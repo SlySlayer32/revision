@@ -10,6 +10,30 @@ class AIFallbackService implements AIService {
   const AIFallbackService();
 
   @override
+  Future<String> processTextPrompt(String prompt) async {
+    logger.warning('Using fallback for processTextPrompt', operation: 'FALLBACK');
+    
+    // Analyze the prompt to provide contextual response
+    final analysis = _analyzePrompt(prompt);
+    
+    return '''
+I understand you want to $analysis. Here are some general recommendations:
+
+**For Photo Editing:**
+• Consider what specific changes would enhance your image
+• Think about composition, lighting, and color balance
+• Choose appropriate tools based on your editing goals
+
+**General Tips:**
+• Start with subtle adjustments and evaluate results
+• Preserve the original essence of the image
+• Consider the intended use of your final image
+
+Please try again in a moment when our AI service is fully available.
+''';
+  }
+
+  @override
   Future<String> processImagePrompt(Uint8List imageData, String prompt) async {
     logger.warning('Using fallback for processImagePrompt', operation: 'FALLBACK');
     
@@ -231,19 +255,27 @@ class AIServiceSelector {
       (service) => service.suggestImageEdits(imageData),
       'suggestImageEdits',
     );
-  }
-
-  /// Check content safety with fallback
-  Future<bool> checkContentSafety(Uint8List imageData) async {
-    return executeWithFallback<bool>(
-      (service) => service.checkContentSafety(imageData),
-      'checkContentSafety',
+  /// Process image with AI with fallback
+  Future<Uint8List> processImageWithAI({
+    required Uint8List imageBytes,
+    required String editingPrompt,
+  }) async {
+    return executeWithFallback<Uint8List>(
+      (service) => service.processImageWithAI(
+        imageBytes: imageBytes,
+        editingPrompt: editingPrompt,
+      ),
+      'processImageWithAI',
     );
   }
-
-  /// Generate editing prompt with fallback
-  Future<String> generateEditingPrompt({
-    required Uint8List imageBytes,
+  
+  /// Process text prompt with fallback
+  Future<String> processTextPrompt(String prompt) async {
+    return executeWithFallback<String>(
+      (service) => service.processTextPrompt(prompt),
+      'processTextPrompt',
+    );
+  }
     required List<Map<String, dynamic>> markers,
   }) async {
     return executeWithFallback<String>(
