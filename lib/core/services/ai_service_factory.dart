@@ -133,8 +133,8 @@ class EnhancedAIService implements AIService {
   }
 
   @override
-  Future<dynamic> processImageWithAI({
-    required dynamic imageBytes,
+  Future<Uint8List> processImageWithAI({
+    required Uint8List imageBytes,
     required String editingPrompt,
   }) async {
     return _serviceSelector.processImageWithAI(
