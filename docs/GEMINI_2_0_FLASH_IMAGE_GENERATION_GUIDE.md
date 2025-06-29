@@ -9,11 +9,13 @@ This guide provides comprehensive instructions for properly integrating and usin
 The Gemini 2.0 Flash image generation model has unique characteristics that require specific handling:
 
 ### Response Modalities
+
 - **Supports**: TEXT + IMAGE response modalities
 - **Generates**: Both text descriptions AND image data in the same response
 - **Does NOT support**: System instructions (`systemInstruction` must be `null`)
 
 ### Key Differences from Analysis Models
+
 | Feature | Gemini 1.5 Flash (Analysis) | Gemini 2.0 Flash (Generation) |
 |---------|----------------------------|--------------------------------|
 | System Instructions | ✅ Supported | ❌ Not supported |
@@ -91,6 +93,7 @@ if (response.candidates.isNotEmpty) {
 **Cause**: Trying to use the model incorrectly or with unsupported configurations.
 
 **Solutions**:
+
 1. ✅ Remove `systemInstruction` for image generation models
 2. ✅ Use text-only input (no image input for generation)
 3. ✅ Handle both text and image in response
@@ -101,6 +104,7 @@ if (response.candidates.isNotEmpty) {
 **Cause**: Setting `systemInstruction` on image generation model.
 
 **Solution**:
+
 ```dart
 // ✅ CORRECT
 systemInstruction: isImageGenerationModel ? null : Content.text(prompt),
@@ -109,23 +113,27 @@ systemInstruction: isImageGenerationModel ? null : Content.text(prompt),
 ## 📋 Implementation Checklist
 
 ### Model Configuration
+
 - [ ] Model name: `gemini-2.0-flash-preview-image-generation`
 - [ ] System instruction: `null` (not supported)
 - [ ] Temperature: 0.3-0.4 (controlled generation)
 - [ ] Max output tokens: 2048+ (for both text and image)
 
 ### Content Creation
+
 - [ ] Use `Content.multi([TextPart(...)])` only
 - [ ] Include detailed, specific prompts
 - [ ] No image input for generation (text prompts only)
 
 ### Response Processing
+
 - [ ] Check `response.candidates[0].content.parts[]`
 - [ ] Handle both `TextPart` and `InlineDataPart`
 - [ ] Extract image data from `InlineDataPart.bytes`
 - [ ] Verify MIME type starts with `image/`
 
 ### Error Handling
+
 - [ ] Graceful fallback when no image generated
 - [ ] Proper timeout handling (30+ seconds)
 - [ ] Return original image on failure
@@ -134,6 +142,7 @@ systemInstruction: isImageGenerationModel ? null : Content.text(prompt),
 ## 🎨 Use Cases and Prompting
 
 ### Image Generation Prompts
+
 ```dart
 // ✅ Good prompts for image generation
 "Create a clean background image suitable for photo editing"
@@ -202,6 +211,7 @@ Future<Uint8List?> generateImageWithAI(String prompt) async {
 ## 📊 Performance Optimization
 
 ### Best Practices
+
 1. **Caching**: Cache generated images when possible
 2. **Timeouts**: Use 30+ second timeouts for generation
 3. **Retry Logic**: Implement exponential backoff for failures
@@ -209,6 +219,7 @@ Future<Uint8List?> generateImageWithAI(String prompt) async {
 5. **User Feedback**: Show progress indicators during generation
 
 ### Monitoring
+
 - Track generation success rates
 - Monitor response times
 - Log detailed error information
@@ -217,12 +228,14 @@ Future<Uint8List?> generateImageWithAI(String prompt) async {
 ## 🔐 Security Considerations
 
 ### Content Safety
+
 - Always validate generated content
 - Implement content filtering
 - Monitor for inappropriate generations
 - Provide user reporting mechanisms
 
 ### Privacy
+
 - Don't log sensitive prompt data
 - Secure image data in transit
 - Implement proper data retention policies
