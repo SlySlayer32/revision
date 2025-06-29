@@ -99,22 +99,22 @@ class EnhancedAIService implements AIService {
   }
 
   @override
-  Future<String> processImagePrompt(dynamic imageData, String prompt) async {
+  Future<String> processImagePrompt(Uint8List imageData, String prompt) async {
     return _serviceSelector.processImagePrompt(imageData, prompt);
   }
 
   @override
-  Future<String> generateImageDescription(dynamic imageData) async {
+  Future<String> generateImageDescription(Uint8List imageData) async {
     return _serviceSelector.generateImageDescription(imageData);
   }
 
   @override
-  Future<List<String>> suggestImageEdits(dynamic imageData) async {
+  Future<List<String>> suggestImageEdits(Uint8List imageData) async {
     return _serviceSelector.suggestImageEdits(imageData);
   }
 
   @override
-  Future<bool> checkContentSafety(dynamic imageData) async {
+  Future<bool> checkContentSafety(Uint8List imageData) async {
     // Use executeWithFallback to provide consistent error handling
     return _serviceSelector.executeWithFallback<bool>(
       (service) => service.checkContentSafety(imageData),
@@ -124,8 +124,8 @@ class EnhancedAIService implements AIService {
 
   @override
   Future<String> generateEditingPrompt({
-    required dynamic imageBytes,
-    required dynamic markers,
+    required Uint8List imageBytes,
+    required List<Map<String, dynamic>> markers,
   }) async {
     return _serviceSelector.generateEditingPrompt(
       imageBytes: imageBytes,
