@@ -141,8 +141,6 @@ class GeminiAIService implements AIService {
               _remoteConfig.maxOutputTokens * 2, // More tokens for images
           topK: 32,
           topP: 0.9,
-          // For image generation models, specify response modalities
-          responseModalities: isImageGenerationModel ? [ResponseModality.text, ResponseModality.image] : null,
         ),
         // Only apply system instructions for models that support them
         systemInstruction: isImageGenerationModel ? null : Content.text(_remoteConfig.editingSystemPrompt),
