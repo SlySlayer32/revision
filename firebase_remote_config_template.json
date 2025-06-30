@@ -17,6 +17,18 @@
         }
     ],
     "parameters": {
+        "active_ai_model_type": {
+            "defaultValue": {
+                "value": "gemini_with_system_instructions"
+            },
+            "description": "Active AI model type - determines which model configuration to use and whether system instructions are supported",
+            "valueType": "STRING",
+            "conditionalValues": {
+                "development_env": {
+                    "value": "gemini_with_system_instructions"
+                }
+            }
+        },
         "ai_gemini_model": {
             "defaultValue": {
                 "value": "gemini-2.5-flash"
