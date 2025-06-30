@@ -45,7 +45,21 @@
             "defaultValue": {
                 "value": "gemini-2.0-flash-preview-image-generation"
             },
-            "description": "Gemini model for image generation and processing",
+            "description": "Gemini model for image generation and processing (does NOT support system instructions)",
+            "valueType": "STRING"
+        },
+        "user_prompt_template": {
+            "defaultValue": {
+                "value": "Analyze this image and provide detailed editing instructions for the marked objects."
+            },
+            "description": "Template or base text for user prompts, used regardless of AI model",
+            "valueType": "STRING"
+        },
+        "vertex_location": {
+            "defaultValue": {
+                "value": "global"
+            },
+            "description": "Geographic location for AI operations",
             "valueType": "STRING"
         },
         "ai_temperature": {
