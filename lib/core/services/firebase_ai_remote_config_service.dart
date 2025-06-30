@@ -102,6 +102,12 @@ class FirebaseAIRemoteConfigService {
     }
   }
 
+  /// Get active AI model type (determines which model configuration to use)
+  String get activeModelType {
+    if (!_isInitialized) return _defaultValues[_activeModelTypeKey] as String;
+    return _remoteConfig.getString(_activeModelTypeKey);
+  }
+
   /// Get Gemini model name for text/analysis
   String get geminiModel {
     if (!_isInitialized) return _defaultValues[_geminiModelKey] as String;
@@ -112,6 +118,18 @@ class FirebaseAIRemoteConfigService {
   String get geminiImageModel {
     if (!_isInitialized) return _defaultValues[_geminiImageModelKey] as String;
     return _remoteConfig.getString(_geminiImageModelKey);
+  }
+
+  /// Get user prompt template for consistent prompting
+  String get userPromptTemplate {
+    if (!_isInitialized) return _defaultValues[_userPromptTemplateKey] as String;
+    return _remoteConfig.getString(_userPromptTemplateKey);
+  }
+
+  /// Get Vertex AI location for geographic routing
+  String get vertexLocation {
+    if (!_isInitialized) return _defaultValues[_vertexLocationKey] as String;
+    return _remoteConfig.getString(_vertexLocationKey);
   }
 
   /// Get temperature parameter for generation
