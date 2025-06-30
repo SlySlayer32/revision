@@ -96,7 +96,13 @@
             "defaultValue": {
                 "value": "You are an AI specialized in analyzing marked objects in images for removal. The user has marked specific objects that they want removed from their photo. Analyze the marked areas and generate precise text prompts for image generation."
             },
-            "description": "System instructions for the analysis model (only analysis model supports system instructions, not image generation model)"
+            "description": "System instructions for the analysis model (ONLY analysis model supports system instructions, NOT image generation model)"
+        },
+        "ai_editing_system_prompt": {
+            "defaultValue": {
+                "value": "This prompt is for reference only. The image generation model does NOT support system instructions. Include editing instructions directly in the user prompt instead."
+            },
+            "description": "Reference prompt for editing tasks - NOTE: Image generation model ignores system instructions"
         },
         "ai_request_timeout_seconds": {
             "defaultValue": {
