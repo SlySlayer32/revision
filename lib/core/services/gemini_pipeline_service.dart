@@ -51,19 +51,17 @@ class GeminiPipelineService {
 
         // Create content with image and marked area analysis prompt
         final content = [
-          Content.multi([
-            DataPart('image/jpeg', imageData),
-            TextPart(
-              'STEP 3: MARKED AREA ANALYSIS & REMOVAL PROMPT GENERATION\n\n'
-              'Marked areas for removal:\n$markerDescriptions\n\n'
-              'Analyze these marked areas and generate a precise removal prompt for Gemini 2.0 Flash Preview Image Generation:\n\n'
-              '1. Identify the objects in the marked areas\n'
-              '2. Analyze the background patterns and textures around them\n'
-              '3. Consider lighting, shadows, and color harmony\n'
-              '4. Generate specific content-aware reconstruction instructions\n\n'
-              'Provide a technical prompt that will guide the next AI model to remove these marked objects seamlessly.',
-            ),
-          ]),
+          Content.data('image/jpeg', imageData),
+          Content.text(
+            'STEP 3: MARKED AREA ANALYSIS & REMOVAL PROMPT GENERATION\n\n'
+            'Marked areas for removal:\n$markerDescriptions\n\n'
+            'Analyze these marked areas and generate a precise removal prompt for Gemini 2.0 Flash Preview Image Generation:\n\n'
+            '1. Identify the objects in the marked areas\n'
+            '2. Analyze the background patterns and textures around them\n'
+            '3. Consider lighting, shadows, and color harmony\n'
+            '4. Generate specific content-aware reconstruction instructions\n\n'
+            'Provide a technical prompt that will guide the next AI model to remove these marked objects seamlessly.',
+          ),
         ];
 
         // Call Gemini 2.0 Flash with 30s timeout
