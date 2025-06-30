@@ -194,13 +194,17 @@ class FirebaseAIRemoteConfigService {
   /// Get all current config values as a map (useful for debugging)
   Map<String, dynamic> getAllValues() {
     return {
+      'activeModelType': activeModelType,
       'geminiModel': geminiModel,
       'geminiImageModel': geminiImageModel,
+      'userPromptTemplate': userPromptTemplate,
+      'vertexLocation': vertexLocation,
       'temperature': temperature,
       'maxOutputTokens': maxOutputTokens,
       'topK': topK,
       'topP': topP,
       'analysisSystemPrompt': analysisSystemPrompt,
+      'editingSystemPrompt': editingSystemPrompt,
       'requestTimeoutSeconds': requestTimeoutSeconds,
       'enableAdvancedFeatures': enableAdvancedFeatures,
       'debugMode': debugMode,
