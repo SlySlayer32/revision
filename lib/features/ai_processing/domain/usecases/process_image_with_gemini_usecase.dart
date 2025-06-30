@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/core/utils/result.dart';
+import 'package:revision/core/utils/enhanced_logger.dart';
 
 /// Use case for processing images with the Gemini AI Pipeline
 ///
@@ -9,17 +10,22 @@ import 'package:revision/core/utils/result.dart';
 /// 1. Image Analysis using Gemini 2.5 Flash
 /// 2. Image Generation using Gemini 2.0 Flash Preview Image Generation
 class ProcessImageWithGeminiUseCase {
-  const ProcessImageWithGeminiUseCase(this._geminiPipelineService);
+  ProcessImageWithGeminiUseCase(this._geminiPipelineService);
 
   final GeminiPipelineService _geminiPipelineService;
+  final EnhancedLogger _logger = EnhancedLogger();
 
   /// Process an image through the complete Gemini AI Pipeline
   ///
   /// [imageData] - The original image as bytes (max 10MB per MVP)
+  /// [markedAreas] - List of marked areas for object removal
   ///
   /// Returns [GeminiPipelineResult] with original image, analysis prompt,
   /// and generated image, or [Exception] on failure.
-  Future<Result<GeminiPipelineResult>> call(Uint8List imageData) async {
+  Future<Result<GeminiPipelineResult>> call(
+    Uint8List imageData, {
+    List<Map<String, dynamic>> markedAreas = const [],
+  }) async {
     try {
       // Validate image data
       if (imageData.isEmpty) {
@@ -39,16 +45,28 @@ class ProcessImageWithGeminiUseCase {
         );
       }
 
-      // Execute the complete Gemini AI Pipeline
-      final result = await _geminiPipelineService.processImage(imageData);
+      // Execute the complete Gemini AI Pipeline with marked areas
+      final result = markedAreas.isNotEmpty
+          ? await _geminiPipelineService.processImageWithMarkedObjects(
+              imageData: imageData,
+              markedAreas: markedAreas,
+            )
+          : await _geminiPipelineService.processImage(imageData);
 
       return Success(result);
     } catch (e, stackTrace) {
       // Add detailed logging for debugging
-      print('🚨 Gemini AI Pipeline Error Details:');
-      print('Error: $e');
-      print('Error Type: ${e.runtimeType}');
-      print('Stack Trace: $stackTrace');
+      _logger.error(
+        'Gemini AI Pipeline Error Details',
+        operation: 'GEMINI_PIPELINE_PROCESSING',
+        error: e,
+        stackTrace: stackTrace,
+        context: {
+          'errorType': e.runtimeType.toString(),
+          'imageSize': imageData.length,
+          'markedAreasCount': markedAreas.length,
+        },
+      );
       
       String errorMessage = 'Gemini AI Pipeline failed: ${e.toString()}';
       

@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:flutter/material.dart';
 
 /// Debug script to test Gemini AI connectivity
 class GeminiDebugTester {

@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:revision/core/services/logging_service.dart';
+import 'package:revision/core/services/performance_service.dart';
 import 'package:revision/features/authentication/data/models/user_model.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
 import 'package:revision/features/authentication/domain/exceptions/auth_exception.dart';
@@ -99,24 +101,42 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
     required String email,
     required String password,
   }) async {
-    try {
-      final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+    return await PerformanceService.instance.timeAsync(
+      'auth_sign_in',
+      () async {
+        try {
+          LoggingService.instance.info('User sign in attempt', data: {'email': email});
+          
+          final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
 
-      if (userCredential.user == null) {
-        throw const UnexpectedAuthException('Sign in failed');
-      }
+          if (userCredential.user == null) {
+            throw const UnexpectedAuthException('Sign in failed');
+          }
 
-      return await _createUserWithClaims(userCredential.user!);
-    } on firebase_auth.FirebaseAuthException catch (e) {
-      log('Firebase sign in error: ${e.code}', error: e);
-      throw _mapFirebaseAuthExceptionToDomainException(e);
-    } catch (e) {
-      log('Unexpected sign in error', error: e);
-      throw UnexpectedAuthException(e.toString());
-    }
+          final user = await _createUserWithClaims(userCredential.user!);
+          LoggingService.instance.info('User sign in successful', data: {'userId': user.id});
+          
+          return user;
+        } on firebase_auth.FirebaseAuthException catch (e) {
+          LoggingService.instance.warning(
+            'Firebase sign in error: ${e.code}',
+            error: e,
+            data: {'email': email, 'errorCode': e.code},
+          );
+          throw _mapFirebaseAuthExceptionToDomainException(e);
+        } catch (e) {
+          LoggingService.instance.error(
+            'Unexpected sign in error',
+            error: e,
+            data: {'email': email},
+          );
+          throw UnexpectedAuthException(e.toString());
+        }
+      },
+    );
   }
 
   @override

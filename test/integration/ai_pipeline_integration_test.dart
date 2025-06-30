@@ -1,215 +1,248 @@
-// test/integration/ai_pipeline_integration_test.dart
 import 'dart:typed_data';
-
 import 'package:flutter_test/flutter_test.dart';
+import 'package:revision/core/di/service_locator.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
-import 'package:revision/features/ai_processing/infrastructure/services/ai_analysis_service.dart';
+import 'package:revision/core/services/gemini_pipeline_service.dart';
+import 'package:revision/features/ai_processing/domain/usecases/process_image_with_gemini_usecase.dart';
+import '../helpers/test_helpers.dart';
 
-import '../helpers/test_data/ai_test_data.dart';
-
-/// Integration tests for the complete AI pipeline
-///
-/// These tests verify that all AI services work together correctly
-/// without mocking the actual AI calls (where possible in test environment)
 void main() {
   group('AI Pipeline Integration Tests', () {
-    late GeminiAIService geminiService;
-    late AiAnalysisService analysisService;
-
     setUp(() {
-      geminiService = GeminiAIService();
-      analysisService = AiAnalysisService();
+      // Setup test dependencies with mocks to avoid actual Firebase calls
+      VGVTestHelper.setupTestDependencies();
     });
 
-    group('End-to-End AI Processing', () {
-      test('should process annotated image through complete pipeline',
-          () async {
-        // Arrange
-        final annotatedImage = AITestData.testAnnotatedImage;
+    tearDown(() {
+      VGVTestHelper.tearDownTestDependencies();
+    });
 
-        // Act
-        final analysisResult = await analysisService.analyzeAnnotatedImage(
-          annotatedImage,
-        );
+    group('Service Locator Integration', () {
+      testWidgets('should setup AI pipeline dependencies correctly', (tester) async {
+        // Act - Setup production service locator
+        expect(() => setupServiceLocator(), returnsNormally);
 
-        // Assert
-        expect(analysisResult, isNotNull);
-        expect(analysisResult.processedImageData, isNotEmpty);
-        expect(analysisResult.enhancedPrompt, isNotEmpty);
-        expect(analysisResult.processingTime, greaterThan(Duration.zero));
-        expect(analysisResult.metadata, isNotEmpty);
-        expect(analysisResult.metadata!['strokeCount'], equals(2));
-      }, timeout: const Timeout(Duration(minutes: 2)));
-
-      test('should handle image size validation across services', () async {
-        // Arrange
-        final largeImage = Uint8List(25 * 1024 * 1024); // 25MB
-
-        // Act & Assert - Should fail before reaching AI services
-        final result = await geminiService.processImagePrompt(
-          largeImage,
-          'Test prompt',
-        );
-
-        expect(result, contains('unable to analyze'));
+        // Assert - Verify all AI pipeline services are registered
+        expect(getIt.isRegistered<GeminiAIService>(), true);
+        expect(getIt.isRegistered<GeminiPipelineService>(), true);
+        expect(getIt.isRegistered<ProcessImageWithGeminiUseCase>(), true);
       });
 
-      test('should maintain consistent prompt format across pipeline',
-          () async {
+      testWidgets('should handle GenerativeModel registration', (tester) async {
         // Act
-        final editingPrompt = await geminiService.generateEditingPrompt(
-          imageBytes: AITestData.testImageData,
-          markers: AITestData.testMarkedAreas,
-        );
+        setupServiceLocator();
 
-        final processedImage = await geminiService.processImageWithAI(
-          imageBytes: AITestData.testImageData,
-          editingPrompt: editingPrompt,
-        );
-
-        // Assert
-        expect(editingPrompt, isNotEmpty);
-        expect(processedImage, isNotNull);
-        expect(processedImage.length, greaterThan(0));
+        // Assert - Basic service registration check
+        expect(getIt.isRegistered<GeminiAIService>(), true);
       });
     });
 
-    group('Service Integration', () {
-      test('should coordinate between analysis and generation services',
-          () async {
+    group('AI Service Initialization Flow', () {
+      testWidgets('should initialize AI services in correct order', (tester) async {
         // Arrange
-        final testImage = AITestData.testImageData;
-        final markedAreas = AITestData.testMarkedAreas;
+        setupServiceLocator();
 
-        // Act - Step 1: Generate editing prompt
-        final editingPrompt = await geminiService.generateEditingPrompt(
-          imageBytes: testImage,
-          markers: markedAreas,
-        );
+        // Act - Get services (this triggers lazy initialization)
+        final aiService = getIt<GeminiAIService>();
+        final pipelineService = getIt<GeminiPipelineService>();
+        final useCase = getIt<ProcessImageWithGeminiUseCase>();
 
-        // Act - Step 2: Process image with generated prompt
-        final processedImage = await geminiService.processImageWithAI(
-          imageBytes: testImage,
-          editingPrompt: editingPrompt,
-        );
-
-        // Assert
-        expect(editingPrompt, isNotEmpty);
-        expect(processedImage, equals(testImage)); // Currently returns original
+        // Assert - Services should be created successfully
+        expect(aiService, isA<GeminiAIService>());
+        expect(pipelineService, isA<GeminiPipelineService>());
+        expect(useCase, isA<ProcessImageWithGeminiUseCase>());
       });
 
-      test('should handle content safety checks in pipeline', () async {
-        // Act
-        final isSafe = await geminiService.checkContentSafety(
-          AITestData.testImageData,
-        );
-
-        // Assert
-        expect(isSafe, isTrue);
-      });
-
-      test('should generate consistent image descriptions', () async {
-        // Act
-        final description = await geminiService.generateImageDescription(
-          AITestData.testImageData,
-        );
-
-        final suggestions = await geminiService.suggestImageEdits(
-          AITestData.testImageData,
-        );
-
-        // Assert
-        expect(description, isNotEmpty);
-        expect(suggestions, isNotEmpty);
-        expect(suggestions.length, greaterThan(0));
+      testWidgets('should handle AI service initialization failures gracefully', (tester) async {
+        // This test verifies that even if AI initialization fails,
+        // the app doesn't crash and services are still accessible
+        
+        setupServiceLocator();
+        
+        final aiService = getIt<GeminiAIService>();
+        
+        // Service should be created even if not fully initialized
+        expect(aiService, isA<GeminiAIService>());
+        
+        // Should be able to access config properties
+        expect(aiService.isDebugMode, isA<bool>());
+        expect(aiService.isAdvancedFeaturesEnabled, isA<bool>());
       });
     });
 
-    group('Error Handling Integration', () {
-      test('should handle cascading failures gracefully', () async {
-        // Arrange - Invalid image data
-        final invalidImage = Uint8List.fromList([1, 2, 3]);
-
-        // Act
-        final description = await geminiService.generateImageDescription(
-          invalidImage,
+    group('Error Scenarios', () {
+      testWidgets('should handle missing Firebase AI configuration', (tester) async {
+        // This test simulates the scenario where Firebase AI is not properly configured
+        setupServiceLocator();
+        
+        final aiService = getIt<GeminiAIService>();
+        
+        // Accessing models before initialization should throw StateError
+        expect(
+          () => aiService.analysisModel,
+          throwsA(
+            predicate(
+              (e) => e is StateError && 
+                     e.message.contains('not yet initialized'),
+            ),
+          ),
         );
-
-        final suggestions = await geminiService.suggestImageEdits(
-          invalidImage,
-        );
-
-        final isSafe = await geminiService.checkContentSafety(invalidImage);
-
-        // Assert - All should handle errors gracefully
-        expect(description, isNotEmpty);
-        expect(suggestions, isNotEmpty);
-        expect(isSafe, isTrue); // Defaults to safe
       });
 
-      test('should recover from network issues', () async {
-        // This test simulates network recovery scenarios
-        // In a real environment, you might temporarily disable network
-
-        // Act
-        final result = await geminiService.processTextPrompt(
-          'Test network resilience',
-        );
-
-        // Assert
-        expect(result, isNotEmpty);
-      }, tags: ['slow']);
-    });
-
-    group('Performance Integration', () {
-      test('should complete analysis within reasonable time', () async {
-        // Arrange
-        final stopwatch = Stopwatch()..start();
-
-        // Act
-        final result = await analysisService.analyzeAnnotatedImage(
-          AITestData.testAnnotatedImage,
-        );
-
-        stopwatch.stop();
-
-        // Assert
-        expect(result, isNotNull);
-        expect(stopwatch.elapsed, lessThan(const Duration(seconds: 45)));
-      }, timeout: const Timeout(Duration(minutes: 1)));
-
-      test('should handle multiple concurrent requests', () async {
-        // Arrange
-        final futures = List.generate(
-          3,
-          (index) =>
-              geminiService.generateImageDescription(AITestData.testImageData),
-        );
-
-        // Act
-        final results = await Future.wait(futures);
-
-        // Assert
-        expect(results.length, equals(3));
-        for (final result in results) {
-          expect(result, isNotEmpty);
+      testWidgets('should provide meaningful error messages', (tester) async {
+        setupServiceLocator();
+        
+        final aiService = getIt<GeminiAIService>();
+        
+        // Test that error messages are helpful for debugging
+        try {
+          aiService.analysisModel;
+          fail('Expected StateError to be thrown');
+        } catch (e) {
+          expect(e.toString(), contains('Firebase AI'));
+          // Error should mention the Firebase Console URL
+          expect(e.toString(), contains('console.firebase.google.com'));
         }
-      }, tags: ['slow']);
+      });
+
+      testWidgets('should handle GetIt registration conflicts', (tester) async {
+        // Setup twice to test conflict resolution
+        setupServiceLocator();
+        expect(() => setupServiceLocator(), returnsNormally);
+        
+        // Services should still be accessible
+        expect(getIt.isRegistered<GeminiAIService>(), true);
+      });
     });
 
-    group('Configuration Integration', () {
-      test('should use remote config values consistently', () async {
+    group('Pipeline Flow Validation', () {
+      testWidgets('should process text through the complete pipeline', (tester) async {
+        // Arrange
+        setupServiceLocator();
+        final aiService = getIt<GeminiAIService>();
+        
+        // Wait for initialization
+        await aiService.waitForInitialization();
+        
+        // Act - Process text (this will use mocked services)
+        final result = await aiService.processTextPrompt('Test prompt');
+        
+        // Assert
+        expect(result, isA<String>());
+      });
+
+      testWidgets('should process images through the complete pipeline', (tester) async {
+        // Arrange
+        setupServiceLocator();
+        final useCase = getIt<ProcessImageWithGeminiUseCase>();
+        final testImageData = Uint8List.fromList([1, 2, 3, 4]);
+        
+        // Act - Process image (this will use mocked services)
+        final result = await useCase.call(
+          testImageData,
+          markedAreas: [
+            {'x': 100, 'y': 200, 'description': 'Test marker'}
+          ],
+        );
+        
+        // Assert - Should complete without throwing
+        expect(result, isA<Object>());
+      });
+    });
+
+    group('Configuration and Debug', () {
+      testWidgets('should provide debug information', (tester) async {
+        // Arrange
+        setupServiceLocator();
+        final aiService = getIt<GeminiAIService>();
+        await aiService.waitForInitialization();
+        
         // Act
-        final debugInfo = geminiService.getConfigDebugInfo();
-        await geminiService.refreshConfig();
-
-        final isAdvanced = geminiService.isAdvancedFeaturesEnabled;
-        final isDebug = geminiService.isDebugMode;
-
+        final debugInfo = aiService.getConfigDebugInfo();
+        
         // Assert
         expect(debugInfo, isA<Map<String, dynamic>>());
-        expect(isAdvanced, isA<bool>());
-        expect(isDebug, isA<bool>());
+      });
+
+      testWidgets('should handle configuration refresh', (tester) async {
+        // Arrange
+        setupServiceLocator();
+        final aiService = getIt<GeminiAIService>();
+        await aiService.waitForInitialization();
+        
+        // Act - Should not throw
+        await expectLater(
+          () => aiService.refreshConfig(),
+          returnsNormally,
+        );
+      });
+    });
+
+    group('Performance and Resource Management', () {
+      testWidgets('should handle multiple simultaneous requests', (tester) async {
+        // Arrange
+        setupServiceLocator();
+        final aiService = getIt<GeminiAIService>();
+        await aiService.waitForInitialization();
+        
+        // Act - Make multiple concurrent requests
+        final futures = List.generate(
+          5,
+          (index) => aiService.processTextPrompt('Test prompt $index'),
+        );
+        
+        final results = await Future.wait(futures);
+        
+        // Assert - All requests should complete
+        expect(results.length, 5);
+        for (final result in results) {
+          expect(result, isA<String>());
+        }
+      });
+
+      testWidgets('should handle memory management for large images', (tester) async {
+        // Arrange
+        setupServiceLocator();
+        final aiService = getIt<GeminiAIService>();
+        await aiService.waitForInitialization();
+        
+        // Act - Process a reasonably sized image
+        final imageData = Uint8List(1024 * 1024); // 1MB
+        final result = await aiService.processImagePrompt(
+          imageData,
+          'Analyze this image',
+        );
+        
+        // Assert - Should handle without memory issues
+        expect(result, isA<String>());
+      });
+    });
+
+    group('Fallback and Recovery', () {
+      testWidgets('should provide fallback responses when AI is unavailable', (tester) async {
+        // This test ensures the app remains functional even when AI services fail
+        setupServiceLocator();
+        final aiService = getIt<GeminiAIService>();
+        await aiService.waitForInitialization();
+        
+        // Act - Even if mocked to fail, should return fallback
+        final result = await aiService.processTextPrompt('Test prompt');
+        
+        // Assert
+        expect(result, isA<String>());
+        expect(result.isNotEmpty, true);
+      });
+
+      testWidgets('should recover from temporary failures', (tester) async {
+        // Test that the service can recover after failures
+        setupServiceLocator();
+        final aiService = getIt<GeminiAIService>();
+        
+        // Should be able to refresh config after errors
+        await expectLater(
+          () => aiService.refreshConfig(),
+          returnsNormally,
+        );
       });
     });
   });

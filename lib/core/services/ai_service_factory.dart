@@ -3,18 +3,16 @@ import 'dart:typed_data';
 
 import 'package:revision/core/services/ai_service.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
-import 'package:revision/core/services/vertex_ai_service.dart';
 import 'package:revision/core/services/ai_fallback_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
 
-/// Factory for creating AI services with proper fallback configuration
+/// Factory for creating AI services with Firebase AI Logic only
 /// 
-/// This factory provides a centralized way to initialize and configure AI services
-/// with proper error handling and fallback mechanisms. It ensures that the application
-/// always has a working AI service available, even if individual services fail to initialize.
+/// This factory provides a centralized way to initialize Firebase AI Logic service
+/// with proper error handling and fallback mechanisms. Uses only Firebase AI Logic
+/// (not Vertex AI) to ensure backend-free operation.
 class AIServiceFactory {
   static AIService? _primaryService;
-  static AIService? _secondaryService;
   static AIServiceSelector? _serviceSelector;
   static bool _isInitialized = false;
 
@@ -32,7 +30,7 @@ class AIServiceFactory {
     
     _serviceSelector = AIServiceSelector(
       primaryService: _primaryService!,
-      secondaryService: _secondaryService,
+      secondaryService: null, // No secondary service - Firebase AI Logic only
       fallbackService: const AIFallbackService(),
     );
 
@@ -42,21 +40,18 @@ class AIServiceFactory {
 
   /// Initialize AI services with comprehensive error handling
   /// 
-  /// Attempts to initialize primary and secondary AI services.
-  /// Falls back to AIFallbackService if all other services fail.
+  /// Attempts to initialize Firebase AI Logic service only.
+  /// Falls back to AIFallbackService if initialization fails.
   static void _initializeServices() {
     if (_isInitialized) {
       return;
     }
 
     try {
-      log('🔧 Initializing AI services...');
+      log('🔧 Initializing Firebase AI Logic service...');
 
-      // Try to initialize Gemini AI Service (Google AI Studio)
+      // Try to initialize Firebase AI Logic Service (Google AI backend only)
       _initializePrimaryService();
-
-      // Try to initialize Vertex AI Service as secondary
-      _initializeSecondaryService();
 
       // Ensure we have at least one service
       _ensureServiceAvailability();
@@ -68,32 +63,21 @@ class AIServiceFactory {
     }
   }
 
-  /// Initialize the primary AI service (Gemini)
+  /// Initialize the primary AI service (Firebase AI Logic)
   static void _initializePrimaryService() {
     try {
       final remoteConfig = FirebaseAIRemoteConfigService();
       _primaryService = GeminiAIService(remoteConfigService: remoteConfig);
-      log('✅ Primary service: GeminiAIService initialized');
+      log('✅ Primary service: GeminiAIService (Firebase AI Logic) initialized');
     } catch (e) {
       log('⚠️ Failed to initialize GeminiAIService: $e');
       _primaryService = null;
     }
   }
 
-  /// Initialize the secondary AI service (Vertex AI)
-  static void _initializeSecondaryService() {
-    try {
-      _secondaryService = VertexAIService();
-      log('✅ Secondary service: VertexAIService initialized');
-    } catch (e) {
-      log('⚠️ Failed to initialize VertexAIService: $e');
-      _secondaryService = null;
-    }
-  }
-
   /// Ensure at least one service is available
   static void _ensureServiceAvailability() {
-    if (_primaryService == null && _secondaryService == null) {
+    if (_primaryService == null) {
       log('❌ No AI services available, using fallback only');
       _primaryService = const AIFallbackService();
     }
@@ -105,23 +89,22 @@ class AIServiceFactory {
   /// and allow for fresh initialization in test environments.
   static void reset() {
     _primaryService = null;
-    _secondaryService = null;
     _serviceSelector = null;
     _isInitialized = false;
   }
 
   /// Get comprehensive service health status
   /// 
-  /// Returns detailed information about the current state of all AI services
+  /// Returns detailed information about the current state of Firebase AI Logic service
   /// including initialization status and available services.
   static Map<String, dynamic> getServiceStatus() {
     return {
       'is_initialized': _isInitialized,
       'primary_service': _primaryService?.runtimeType.toString() ?? 'None',
-      'secondary_service': _secondaryService?.runtimeType.toString() ?? 'None',
+      'secondary_service': 'None (Firebase AI Logic only)',
       'fallback_available': true,
       'has_selector': _serviceSelector != null,
-      'service_count': [_primaryService, _secondaryService].where((s) => s != null).length,
+      'service_count': _primaryService != null ? 1 : 0,
     };
   }
 

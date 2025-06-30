@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
+import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
 import 'package:revision/features/ai_processing/domain/usecases/process_image_with_gemini_usecase.dart';
 
 /// Cubit for managing Gemini AI Pipeline state and operations
@@ -18,10 +19,13 @@ class GeminiPipelineCubit extends Cubit<GeminiPipelineState> {
   final ProcessImageWithGeminiUseCase _processImageWithGeminiUseCase;
 
   /// Process an image through the complete Gemini AI Pipeline
-  Future<void> processImage(Uint8List imageData) async {
+  Future<void> processImage(Uint8List imageData, {ProcessingContext? context}) async {
     emit(const GeminiPipelineLoading());
 
-    final result = await _processImageWithGeminiUseCase(imageData);
+    // Convert ImageMarker objects to the Map format expected by the pipeline
+    final markedAreas = context?.markers.map((marker) => marker.toAIMap()).toList() ?? <Map<String, dynamic>>[];
+
+    final result = await _processImageWithGeminiUseCase(imageData, markedAreas: markedAreas);
 
     result.fold(
       success: (pipelineResult) => emit(GeminiPipelineSuccess(pipelineResult)),

@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_ai/firebase_ai.dart';
-import 'package:revision/test_firebase_ai.dart';
 
 /// Unit test to verify Firebase AI setup
 /// Run with: flutter test test/firebase_ai_test.dart

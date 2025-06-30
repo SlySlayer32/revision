@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -68,7 +67,7 @@ Future<void> testFirebaseAI() async {
       throw Exception('Empty response from Gemini API');
     }
     
-  } catch (e, stackTrace) {
+  } catch (e, _) {
     print('❌ Firebase AI test failed: $e');
     
     // Provide helpful error guidance

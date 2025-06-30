@@ -12,7 +12,7 @@ void main() {
   }
 
   // Check GenerationConfig constructor
-  final config = GenerationConfig(
+  GenerationConfig(
     temperature: 0.3,
     maxOutputTokens: 1024,
     topK: 32,

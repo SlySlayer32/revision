@@ -3,19 +3,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-// TODO: Enable when integration_test package is added to dependencies
-// import 'package:integration_test/integration_test.dart';
+import 'package:integration_test/integration_test.dart';
 
 /// Utilities for integration testing following VGV patterns
 class IntegrationTestHelper {
-  // TODO: Enable when integration_test package is added to dependencies
-  // static late IntegrationTestWidgetsFlutterBinding _binding;
+  static late IntegrationTestWidgetsFlutterBinding _binding;
 
   /// Initialize integration test environment
   static void initialize() {
-    // TODO: Enable when integration_test package is added to dependencies
     // Use the standard integration_test package binding
-    // _binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+    _binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   }
 
   /// Helper method to pump a widget for integration testing
@@ -37,8 +34,7 @@ class IntegrationTestHelper {
     WidgetTester tester,
     String name,
   ) async {
-    // TODO: Enable when integration_test package is added to dependencies
-    // await _binding.takeScreenshot(name);
+    await _binding.takeScreenshot(name);
   }
 
   /// Helper method to tap on a finder and wait for the UI to settle

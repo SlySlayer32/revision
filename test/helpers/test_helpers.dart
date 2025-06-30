@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
+
 import 'package:revision/core/di/service_locator.dart';
 import 'package:revision/core/error/failures.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
@@ -44,6 +45,7 @@ class VGVTestHelper {
     final mockLoginBloc = MockLoginBloc();
     final mockSignupBloc = MockSignupBloc();
 
+
     // Configure mock behaviors to return proper values
     when(mockGetAuthStateChangesUseCase.call)
         .thenAnswer((_) => Stream<User?>.value(null));
@@ -71,7 +73,19 @@ class VGVTestHelper {
 
       // BLoCs - Remove AuthenticationBloc from here since app creates it directly
       ..registerFactory<LoginBloc>(() => mockLoginBloc)
-      ..registerFactory<SignupBloc>(() => mockSignupBloc);
+      ..registerFactory<SignupBloc>(() => mockSignupBloc)
+      
+      // Mock GenerativeModel instances - commented out because GenerativeModel is final
+      // and can't be properly mocked. Services that need these will handle gracefully.
+      // ..registerLazySingleton<GenerativeModel>(
+      //   () => mockAnalysisModel,
+      //   instanceName: 'analysisModel',
+      // )
+      // ..registerLazySingleton<GenerativeModel>(
+      //   () => mockImageModel,
+      //   instanceName: 'imageGenerationModel',
+      // )
+      ;
   }
 
   /// Tears down test dependencies

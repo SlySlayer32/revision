@@ -26,7 +26,6 @@ void main(List<String> args) async {
 }
 
 class TestRunner {
-  static const Duration _timeout = Duration(minutes: 10);
 
   /// Run tests with optimized strategy
   Future<void> run(List<String> args) async {

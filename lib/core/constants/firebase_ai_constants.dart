@@ -4,7 +4,7 @@ class FirebaseAIConstants {
   static const String geminiModel =
       'gemini-1.5-flash-002'; // Step 3: Analyze marked area & generate removal prompt
   static const String geminiImageModel =
-      'gemini-2.0-flash-preview-image-generation'; // Step 5: Generate new image using prompt
+      'gemini-2.0-flash-preview-image-generation'; // Step 5: Generate new image using prompt (your 2nd model)
 
   // Legacy Imagen models (keeping for reference but using Gemini 2.0 Flash)
   static const String imagenModel = 'imagegeneration@006'; // Legacy - not used
@@ -13,10 +13,18 @@ class FirebaseAIConstants {
   static const String imagenGenerateModel =
       'imagen-3.0-generate-002'; // Legacy - not used
 
-  // Request limits and timeouts
-  static const Duration requestTimeout = Duration(seconds: 30);
+  // Request limits and timeouts - Enhanced for error resilience
+  static const Duration requestTimeout = Duration(seconds: 45); // Increased for stability
+  static const Duration quickTimeout = Duration(seconds: 15); // For quick operations
+  static const Duration longTimeout = Duration(seconds: 90); // For image generation
   static const int maxImageSizeMB = 20; // Firebase AI Logic supports up to 20MB
-  static const int maxRetries = 2;
+  static const int maxRetries = 3; // Increased for better reliability
+  
+  // Error handling constants
+  static const Duration retryBaseDelay = Duration(seconds: 1);
+  static const Duration retryMaxDelay = Duration(seconds: 16);
+  static const int circuitBreakerThreshold = 5;
+  static const Duration circuitBreakerTimeout = Duration(minutes: 2);
 
   // Image processing constants
   static const int maxImageWidth = 3072; // Auto-scaled by Firebase AI

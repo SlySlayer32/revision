@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart'; // Required for WidgetsFlutterBinding
 import 'package:integration_test/integration_test_driver.dart';
+import 'dart:developer' as dev;
 
 import '../test/helpers/firebase_emulator_helper.dart'; // Import the helper
 
@@ -9,14 +10,14 @@ Future<void> main() async {
 
   // Initialize Firebase for testing, using the emulator.
   // This should ideally use a shared configuration or the helper if appropriate.
-  print('Driver: Initializing Firebase for integration tests...');
+  dev.log('Driver: Initializing Firebase for integration tests...');
   try {
     // Use the existing helper to initialize Firebase and connect to emulators
     await FirebaseEmulatorHelper.initializeForTesting();
-    print('Driver: Firebase initialized successfully with emulator settings.');
+    dev.log('Driver: Firebase initialized successfully with emulator settings.');
   } catch (e) {
-    print('Driver: Firebase initialization failed: $e');
-    print(
+    dev.log('Driver: Firebase initialization failed: $e');
+    dev.log(
         'Driver: Ensure Firebase emulators are running (firebase emulators:start --only auth).');
     // Optionally, rethrow or exit if Firebase initialization is critical for all tests.
     // For now, we'll let individual tests handle failures if they depend on Firebase.

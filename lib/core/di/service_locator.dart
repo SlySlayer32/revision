@@ -1,11 +1,15 @@
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:revision/core/services/circuit_breaker.dart';
+import 'package:revision/core/services/error_handler_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/core/services/image_save_service.dart';
+import 'package:revision/core/services/logging_service.dart';
+import 'package:revision/features/ai_processing/data/services/ai_result_save_service.dart';
 import 'package:revision/features/ai_processing/domain/usecases/process_image_with_gemini_usecase.dart';
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
 import 'package:revision/features/authentication/data/datasources/firebase_auth_data_source.dart';
@@ -47,6 +51,8 @@ void setupServiceLocator() {
     getIt
       // Core Services
       ..registerLazySingleton<CircuitBreaker>(CircuitBreaker.new)
+      ..registerLazySingleton(() => LoggingService.instance)
+      ..registerLazySingleton(() => ErrorHandlerService.instance)
       ..registerLazySingleton<FirebaseAIRemoteConfigService>(
         FirebaseAIRemoteConfigService.new,
       )
@@ -56,6 +62,17 @@ void setupServiceLocator() {
       )
       ..registerLazySingleton<GeminiPipelineService>(
         () => GeminiPipelineService(getIt<GeminiAIService>()),
+      )
+      
+      // Register GenerativeModel instances through GeminiAIService
+      // Note: These are lazy-loaded to ensure GeminiAIService initializes first
+      ..registerLazySingleton<GenerativeModel>(
+        () => getIt<GeminiAIService>().analysisModel,
+        instanceName: 'analysisModel',
+      )
+      ..registerLazySingleton<GenerativeModel>(
+        () => getIt<GeminiAIService>().imageGenerationModel,
+        instanceName: 'imageGenerationModel',
       )
 
       // Data Sources
@@ -103,6 +120,7 @@ void setupServiceLocator() {
         () => SelectImageUseCase(getIt<image_selection.ImageRepository>()),
       )
       ..registerLazySingleton<ImageSaveService>(ImageSaveService.new)
+      ..registerLazySingleton<AIResultSaveService>(AIResultSaveService.new)
 
       // Gemini AI Pipeline (MVP Implementation)
       ..registerLazySingleton<ProcessImageWithGeminiUseCase>(

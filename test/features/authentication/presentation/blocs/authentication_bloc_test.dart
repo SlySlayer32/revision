@@ -103,7 +103,7 @@ void main() {
               .thenAnswer((_) async => const Right<Failure, void>(null));
           return authenticationBloc;
         },
-        act: (bloc) => bloc.add(AuthenticationLogoutRequested()),
+        act: (bloc) => bloc.add(const AuthenticationLogoutRequested()),
         verify: (_) {
           verify(() => mockSignOut()).called(1);
         },
@@ -119,7 +119,7 @@ void main() {
               (_) async => const Left<Failure, void>(tSignOutFailure));
           return authenticationBloc;
         },
-        act: (bloc) => bloc.add(AuthenticationLogoutRequested()),
+        act: (bloc) => bloc.add(const AuthenticationLogoutRequested()),
         verify: (_) {
           verify(() => mockSignOut()).called(1);
         },

@@ -30,8 +30,6 @@ void main() {
       when(() => mockRemoteConfig.topP).thenReturn(0.95);
       when(() => mockRemoteConfig.analysisSystemPrompt)
           .thenReturn('Test analysis prompt');
-      when(() => mockRemoteConfig.editingSystemPrompt)
-          .thenReturn('Test editing prompt');
       when(() => mockRemoteConfig.requestTimeout)
           .thenReturn(const Duration(seconds: 30));
       when(() => mockRemoteConfig.debugMode).thenReturn(false);

@@ -180,8 +180,8 @@ class _DashboardViewState extends State<DashboardView> {
               children: [
                 _buildToolCard(
                   context,
-                  'AI Object Removal',
-                  Icons.auto_fix_high,
+                  'AI Image Generation',
+                  Icons.auto_awesome,
                   Colors.purple,
                   '/image-selection',
                 ),

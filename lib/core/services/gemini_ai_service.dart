@@ -6,6 +6,7 @@ import 'package:firebase_ai/firebase_ai.dart';
 import 'package:revision/core/constants/firebase_ai_constants.dart';
 import 'package:revision/core/services/ai_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
+import 'package:revision/core/services/ai_error_handler.dart';
 
 /// Google AI (Gemini API) service implementation
 /// Uses Google AI Studio API with Firebase AI SDK
@@ -22,6 +23,7 @@ class GeminiAIService implements AIService {
   }
 
   final FirebaseAIRemoteConfigService _remoteConfig;
+  final AIErrorHandler _errorHandler = AIErrorHandler();
   GenerativeModel? _geminiModel;
   GenerativeModel? _geminiImageModel;
 
@@ -125,18 +127,13 @@ class GeminiAIService implements AIService {
           maxOutputTokens: _remoteConfig.maxOutputTokens,
           topK: _remoteConfig.topK,
           topP: _remoteConfig.topP,
-          // Note: responseModalities configuration will be added when image output is confirmed working
         ),
-        systemInstruction: null, // Flash 2.0 image generation model doesn't support system instructions
+        systemInstruction: Content.text(_remoteConfig.analysisSystemPrompt),
       );
       log('✅ Analysis model initialized successfully with image output support');
 
       // Initialize Gemini model for image processing using Remote Config
       log('🔧 Initializing image model: ${_remoteConfig.geminiImageModel}');
-
-      // Check if this is the 2.0 image generation model (doesn't support system instructions)
-      final isImageGenerationModel =
-          _remoteConfig.geminiImageModel.contains('image-generation');
 
       _geminiImageModel = firebaseAI.generativeModel(
         model: _remoteConfig.geminiImageModel,
@@ -147,6 +144,8 @@ class GeminiAIService implements AIService {
               _remoteConfig.maxOutputTokens * 2, // More tokens for images
           topK: 32,
           topP: 0.9,
+          // Specify both TEXT and IMAGE response modalities for image generation model
+          responseModalities: [ResponseModalities.text, ResponseModalities.image],
         ),
         // Flash 2.0 image generation model doesn't support system instructions
         systemInstruction: null,
@@ -213,12 +212,10 @@ class GeminiAIService implements AIService {
           topK: FirebaseAIConstants.topK,
           topP: FirebaseAIConstants.topP,
         ),
-        systemInstruction: null, // Flash 2.0 image generation model doesn't support system instructions
+        systemInstruction: Content.text(FirebaseAIConstants.analysisSystemPrompt),
       );
 
       // Initialize Gemini model for image processing using constants
-      final isImageGenerationModel =
-          FirebaseAIConstants.geminiImageModel.contains('image-generation');
 
       _geminiImageModel = firebaseAI.generativeModel(
         model: FirebaseAIConstants.geminiImageModel,
@@ -227,6 +224,8 @@ class GeminiAIService implements AIService {
           maxOutputTokens: 2048,
           topK: 32,
           topP: 0.9,
+          // Specify both TEXT and IMAGE response modalities for image generation model
+          responseModalities: [ResponseModalities.text, ResponseModalities.image],
         ),
         // Flash 2.0 image generation model doesn't support system instructions
         systemInstruction: null,
@@ -240,54 +239,54 @@ class GeminiAIService implements AIService {
     }
   }
 
-  /// Process text prompt using Google AI
+  /// Process text prompt using Google AI with robust error handling
   Future<String> processTextPrompt(String prompt) async {
-    try {
-      if (_geminiModel == null) {
-        throw StateError(
-            'Gemini model not initialized. Please check Firebase AI setup.');
-      }
+    return _errorHandler.executeWithRetry<String>(
+      () async {
+        if (_geminiModel == null) {
+          throw StateError(
+              'Gemini model not initialized. Please check Firebase AI setup.');
+        }
 
-      final content = [Content.text(prompt)];
+        final content = [Content.text(prompt)];
 
-      final response = await _geminiModel!
-          .generateContent(content)
-          .timeout(_remoteConfig.requestTimeout);
+        final response = await _geminiModel!
+            .generateContent(content)
+            .timeout(_remoteConfig.requestTimeout);
 
-      if (response.text == null || response.text!.isEmpty) {
-        throw Exception('Empty response from Google AI');
-      }
-
-      log('✅ Google AI processTextPrompt completed successfully');
-      return response.text!;
-    } catch (e, stackTrace) {
-      log('❌ Google AI processTextPrompt failed: $e', stackTrace: stackTrace);
-
+        // Validate response using AIResponseValidator
+        return AIResponseValidator.validateAndExtractText(response);
+      },
+      'processTextPrompt',
+    ).catchError((e) {
+      log('❌ Google AI processTextPrompt failed after all retries: $e');
+      
       // Return fallback response for MVP
       return 'Sorry, I encountered an error processing your request. Please try again.';
-    }
+    });
   }
 
   @override
   Future<String> processImagePrompt(Uint8List imageData, String prompt) async {
-    try {
-      if (_geminiImageModel == null) {
-        throw StateError(
-            'Gemini image model not initialized. Please check Firebase AI setup.');
-      }
+    return _errorHandler.executeWithRetry<String>(
+      () async {
+        if (_geminiImageModel == null) {
+          throw StateError(
+              'Gemini image model not initialized. Please check Firebase AI setup.');
+        }
 
-      // Validate image size using updated constants
-      if (imageData.length > FirebaseAIConstants.maxImageSizeMB * 1024 * 1024) {
-        throw Exception(
-          'Image too large: ${imageData.length ~/ (1024 * 1024)}MB',
-        );
-      }
+        // Validate image size using updated constants
+        if (imageData.length > FirebaseAIConstants.maxImageSizeMB * 1024 * 1024) {
+          throw Exception(
+            'Image too large: ${imageData.length ~/ (1024 * 1024)}MB',
+          );
+        }
 
-      // Create content with image and text using Google AI
-      final content = [
-        Content.multi([
-          InlineDataPart('image/jpeg', imageData),
-          TextPart('''
+        // Create content with image and text using Google AI
+        final content = [
+          Content.multi([
+            InlineDataPart('image/jpeg', imageData),
+            TextPart('''
 Analyze this image and provide editing instructions based on: $prompt
 
 Focus on:
@@ -298,21 +297,19 @@ Focus on:
 
 Provide clear, actionable editing steps.
 '''),
-        ]),
-      ];
+          ]),
+        ];
 
-      final response = await _geminiImageModel!
-          .generateContent(content)
-          .timeout(_remoteConfig.requestTimeout);
+        final response = await _geminiImageModel!
+            .generateContent(content)
+            .timeout(_remoteConfig.requestTimeout);
 
-      if (response.text == null || response.text!.isEmpty) {
-        throw Exception('Empty response from Google AI');
-      }
-
-      log('✅ Google AI processImagePrompt completed successfully');
-      return response.text!;
-    } catch (e, stackTrace) {
-      log('❌ Google AI processImagePrompt failed: $e', stackTrace: stackTrace);
+        // Validate response using AIResponseValidator
+        return AIResponseValidator.validateAndExtractText(response);
+      },
+      'processImagePrompt',
+    ).catchError((e) {
+      log('❌ Google AI processImagePrompt failed after all retries: $e');
 
       // Return fallback response for MVP
       return '''
@@ -326,20 +323,22 @@ For object removal, I generally recommend:
 
 Please try again or contact support if the issue persists.
 ''';
-    }
+    });
   }
 
   @override
   Future<String> generateImageDescription(Uint8List imageData) async {
-    try {
-      if (_geminiImageModel == null) {
-        throw StateError(
-            'Gemini image model not initialized. Please check Firebase AI setup.');
-      }
-      final content = [
-        Content.multi([
-          InlineDataPart('image/jpeg', imageData),
-          TextPart('''
+    return _errorHandler.executeWithRetry<String>(
+      () async {
+        if (_geminiImageModel == null) {
+          throw StateError(
+              'Gemini image model not initialized. Please check Firebase AI setup.');
+        }
+        
+        final content = [
+          Content.multi([
+            InlineDataPart('image/jpeg', imageData),
+            TextPart('''
 Describe this image in detail for photo editing purposes.
 
 Include:
@@ -351,37 +350,36 @@ Include:
 
 Keep the description clear and technical.
 '''),
-        ]),
-      ];
+          ]),
+        ];
 
-      final response = await _geminiImageModel!
-          .generateContent(content)
-          .timeout(_remoteConfig.requestTimeout);
+        final response = await _geminiImageModel!
+            .generateContent(content)
+            .timeout(_remoteConfig.requestTimeout);
 
-      if (response.text == null || response.text!.isEmpty) {
-        throw Exception('Empty response from Google AI');
-      }
-
-      log('✅ Google AI generateImageDescription completed successfully');
-      return response.text!;
-    } catch (e, stackTrace) {
-      log('❌ Google AI generateImageDescription failed: $e',
-          stackTrace: stackTrace);
+        // Validate response using AIResponseValidator
+        return AIResponseValidator.validateAndExtractText(response);
+      },
+      'generateImageDescription',
+    ).catchError((e) {
+      log('❌ Google AI generateImageDescription failed after all retries: $e');
       return 'Unable to analyze image at this time.';
-    }
+    });
   }
 
   @override
   Future<List<String>> suggestImageEdits(Uint8List imageData) async {
-    try {
-      if (_geminiImageModel == null) {
-        throw StateError(
-            'Gemini image model not initialized. Please check Firebase AI setup.');
-      }
-      final content = [
-        Content.multi([
-          InlineDataPart('image/jpeg', imageData),
-          TextPart('''
+    return _errorHandler.executeWithRetry<List<String>>(
+      () async {
+        if (_geminiImageModel == null) {
+          throw StateError(
+              'Gemini image model not initialized. Please check Firebase AI setup.');
+        }
+        
+        final content = [
+          Content.multi([
+            InlineDataPart('image/jpeg', imageData),
+            TextPart('''
 Analyze this image and provide 5 specific editing suggestions to improve it.
 
 Focus on:
@@ -393,45 +391,47 @@ Focus on:
 
 Provide each suggestion as a clear, actionable sentence.
 '''),
-        ]),
-      ];
+          ]),
+        ];
 
-      final response = await _geminiImageModel!
-          .generateContent(content)
-          .timeout(_remoteConfig.requestTimeout);
+        final response = await _geminiImageModel!
+            .generateContent(content)
+            .timeout(_remoteConfig.requestTimeout);
 
-      if (response.text == null || response.text!.isEmpty) {
-        throw Exception('Empty response from Google AI');
-      }
+        // Validate response using AIResponseValidator
+        final responseText = AIResponseValidator.validateAndExtractText(response);
 
-      // Parse response into suggestions
-      final suggestions = response.text!
-          .split('\n')
-          .where((line) => line.trim().isNotEmpty)
-          .map((line) => line.replaceAll(RegExp(r'^\d+\.?\s*'), '').trim())
-          .where((suggestion) => suggestion.isNotEmpty)
-          .take(5)
-          .toList();
+        // Parse response into suggestions
+        final suggestions = responseText
+            .split('\n')
+            .where((line) => line.trim().isNotEmpty)
+            .map((line) => line.replaceAll(RegExp(r'^\d+\.?\s*'), '').trim())
+            .where((suggestion) => suggestion.isNotEmpty)
+            .take(5)
+            .toList();
 
-      log('✅ Google AI suggestImageEdits completed successfully');
-      return suggestions.isNotEmpty ? suggestions : _getFallbackSuggestions();
-    } catch (e, stackTrace) {
-      log('❌ Google AI suggestImageEdits failed: $e', stackTrace: stackTrace);
+        return suggestions.isNotEmpty ? suggestions : _getFallbackSuggestions();
+      },
+      'suggestImageEdits',
+    ).catchError((e) {
+      log('❌ Google AI suggestImageEdits failed after all retries: $e');
       return _getFallbackSuggestions();
-    }
+    });
   }
 
   @override
   Future<bool> checkContentSafety(Uint8List imageData) async {
-    try {
-      if (_geminiImageModel == null) {
-        throw StateError(
-            'Gemini image model not initialized. Please check Firebase AI setup.');
-      }
-      final content = [
-        Content.multi([
-          InlineDataPart('image/jpeg', imageData),
-          TextPart('''
+    return _errorHandler.executeWithRetry<bool>(
+      () async {
+        if (_geminiImageModel == null) {
+          throw StateError(
+              'Gemini image model not initialized. Please check Firebase AI setup.');
+        }
+        
+        final content = [
+          Content.multi([
+            InlineDataPart('image/jpeg', imageData),
+            TextPart('''
 Analyze this image for content safety. Is this image appropriate for a photo editing application?
 
 Consider:
@@ -441,26 +441,24 @@ Consider:
 
 Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a brief reason.
 '''),
-        ]),
-      ];
+          ]),
+        ];
 
-      final response = await _geminiImageModel!
-          .generateContent(content)
-          .timeout(_remoteConfig.requestTimeout);
+        final response = await _geminiImageModel!
+            .generateContent(content)
+            .timeout(_remoteConfig.requestTimeout);
 
-      if (response.text == null || response.text!.isEmpty) {
-        // Default to safe if we can't analyze
-        return true;
-      }
-
-      final responseText = response.text!.toUpperCase();
-      log('✅ Google AI checkContentSafety completed successfully');
-      return responseText.contains('SAFE') && !responseText.contains('UNSAFE');
-    } catch (e, stackTrace) {
-      log('❌ Google AI checkContentSafety failed: $e', stackTrace: stackTrace);
+        // Validate response using AIResponseValidator
+        final responseText = AIResponseValidator.validateAndExtractText(response).toUpperCase();
+        
+        return responseText.contains('SAFE') && !responseText.contains('UNSAFE');
+      },
+      'checkContentSafety',
+    ).catchError((e) {
+      log('❌ Google AI checkContentSafety failed after all retries: $e');
       // Default to safe on error
       return true;
-    }
+    });
   }
 
   @override
@@ -468,20 +466,22 @@ Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a b
     required Uint8List imageBytes,
     required List<Map<String, dynamic>> markers,
   }) async {
-    try {
-      if (_geminiImageModel == null) {
-        throw StateError(
-            'Gemini image model not initialized. Please check Firebase AI setup.');
-      }
-      final markerDescriptions = markers
-          .map((marker) =>
-              'Marker at (${marker['x']}, ${marker['y']}): ${marker['description'] ?? 'Object to edit'}')
-          .join('\n');
+    return _errorHandler.executeWithRetry<String>(
+      () async {
+        if (_geminiImageModel == null) {
+          throw StateError(
+              'Gemini image model not initialized. Please check Firebase AI setup.');
+        }
+        
+        final markerDescriptions = markers
+            .map((marker) =>
+                'Marker at (${marker['x']}, ${marker['y']}): ${marker['description'] ?? 'Object to edit'}')
+            .join('\n');
 
-      final content = [
-        Content.multi([
-          InlineDataPart('image/jpeg', imageBytes),
-          TextPart('''
+        final content = [
+          Content.multi([
+            InlineDataPart('image/jpeg', imageBytes),
+            TextPart('''
 Generate a detailed editing prompt for this image based on the user's markers:
 
 $markerDescriptions
@@ -495,54 +495,6 @@ Create a comprehensive editing instruction that includes:
 
 Provide a clear, actionable editing prompt.
 '''),
-        ]),
-      ];
-
-      final response = await _geminiImageModel!
-          .generateContent(content)
-          .timeout(_remoteConfig.requestTimeout);
-
-      if (response.text == null || response.text!.isEmpty) {
-        throw Exception('Empty response from Google AI');
-      }
-
-      log('✅ Google AI generateEditingPrompt completed successfully');
-      return response.text!;
-    } catch (e, stackTrace) {
-      log('❌ Google AI generateEditingPrompt failed: $e',
-          stackTrace: stackTrace);
-      return 'Remove marked objects and blend the background seamlessly.';
-    }
-  }
-
-  @override
-  Future<Uint8List> processImageWithAI({
-    required Uint8List imageBytes,
-    required String editingPrompt,
-  }) async {
-    try {
-      if (_geminiImageModel == null) {
-        throw StateError(
-            'Gemini image model not initialized. Please check Firebase AI setup.');
-      }
-
-      log('🤖 Processing image with AI using prompt: $editingPrompt');
-
-      // Check if this is the image generation model
-      final isImageGenerationModel =
-          FirebaseAIConstants.geminiImageModel.contains('image-generation');
-
-      if (isImageGenerationModel) {
-        // For Gemini 2.0 Flash image generation model
-        // This model generates new images based on prompts, not edits existing ones
-        final content = [
-          Content.multi([
-            TextPart('''
-Generate a new image based on this editing request: $editingPrompt
-
-Create a high-quality image that represents the desired result after the editing operation.
-Focus on creating a clean, professional result that matches the editing intent.
-'''),
           ]),
         ];
 
@@ -550,35 +502,75 @@ Focus on creating a clean, professional result that matches the editing intent.
             .generateContent(content)
             .timeout(_remoteConfig.requestTimeout);
 
-        // Check if response contains image data
-        if (response.candidates.isNotEmpty) {
-          final candidate = response.candidates.first;
-          if (candidate.content.parts.isNotEmpty) {
-            for (final part in candidate.content.parts) {
-              // Look for image data in the response parts
-              if (part is InlineDataPart &&
-                  part.mimeType.startsWith('image/')) {
-                log('✅ AI image generation completed successfully');
-                return part.bytes;
-              }
-            }
-          }
+        // Validate response using AIResponseValidator
+        return AIResponseValidator.validateAndExtractText(response);
+      },
+      'generateEditingPrompt',
+    ).catchError((e) {
+      log('❌ Google AI generateEditingPrompt failed after all retries: $e');
+      return 'Remove marked objects and blend the background seamlessly.';
+    });
+  }
+
+  @override
+  Future<Uint8List> processImageWithAI({
+    required Uint8List imageBytes,
+    required String editingPrompt,
+  }) async {
+    return _errorHandler.executeWithRetry<Uint8List>(
+      () async {
+        if (_geminiImageModel == null) {
+          throw StateError(
+              'Gemini image model not initialized. Please check Firebase AI setup.');
         }
 
-        // If no image was generated, fall back to original
-        log('⚠️ No image data found in AI response, returning original image');
-        return imageBytes;
-      } else {
-        // For other models that don't support image generation
-        // This is image analysis, not generation - return original
-        log('⚠️ Model does not support image generation - returning original image');
-        return imageBytes;
-      }
-    } catch (e, stackTrace) {
-      log('❌ Google AI processImageWithAI failed: $e', stackTrace: stackTrace);
+        log('🤖 Processing image with AI using prompt: $editingPrompt');
+
+        // Check if this is the image generation model
+        final isImageGenerationModel =
+            FirebaseAIConstants.geminiImageModel.contains('image-generation');
+
+        if (isImageGenerationModel) {
+          // For Gemini 2.0 Flash image generation model
+          // This model generates new images based on prompts, not edits existing ones
+          final content = [
+            Content.multi([
+              TextPart('''
+Generate a new image based on this editing request: $editingPrompt
+
+Create a high-quality image that represents the desired result after the editing operation.
+Focus on creating a clean, professional result that matches the editing intent.
+'''),
+            ]),
+          ];
+
+          final response = await _geminiImageModel!
+              .generateContent(content)
+              .timeout(_remoteConfig.requestTimeout);
+
+          // Use AIResponseValidator to extract image data
+          try {
+            final imageData = AIResponseValidator.validateAndExtractImageData(response);
+            log('✅ AI image generation completed successfully');
+            return Uint8List.fromList(imageData);
+          } catch (e) {
+            // If no image was generated, fall back to original
+            log('⚠️ No image data found in AI response, returning original image');
+            return imageBytes;
+          }
+        } else {
+          // For other models that don't support image generation
+          // This is image analysis, not generation - return original
+          log('⚠️ Model does not support image generation - returning original image');
+          return imageBytes;
+        }
+      },
+      'processImageWithAI',
+    ).catchError((e) {
+      log('❌ Google AI processImageWithAI failed after all retries: $e');
       // Return original image on error
       return imageBytes;
-    }
+    });
   }
 
   /// Refresh Remote Config and reinitialize models with new values

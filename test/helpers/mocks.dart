@@ -65,6 +65,13 @@ class MockLoginBloc extends MockBloc<LoginEvent, LoginState>
 class MockSignupBloc extends MockBloc<SignupEvent, SignupState>
     implements SignupBloc {}
 
+// VGV Pattern: Firebase AI Mocks
+// Note: GenerativeModel is a final class, so we can't implement it directly
+// Instead, we use a wrapper approach for testing
+class MockGenerativeModel extends Mock {
+  // We'll mock the methods we need rather than implementing the interface
+}
+
 // VGV Pattern: Generic Function Mocks
 class MockFunction extends Mock {
   void call();

@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:revision/core/di/service_locator.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/debug_gemini.dart';
 import 'package:revision/debug_remote_config.dart';
+import 'package:revision/features/ai_processing/data/services/ai_result_save_service.dart';
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
 import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
@@ -272,12 +274,91 @@ class _AiProcessingViewState extends State<AiProcessingView> {
 
   Future<void> _saveResult(
       BuildContext context, GeminiPipelineResult result) async {
-    // TODO: Implement save functionality
-    // For MVP, just show a success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Save functionality coming soon!'),
-      ),
-    );
+    try {
+      // Show loading state
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              SizedBox(width: 16),
+              Text('Saving AI processed image...'),
+            ],
+          ),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      final saveService = getIt<AIResultSaveService>();
+      final saveResult = await saveService.saveResultToGallery(result);
+
+      saveResult.fold(
+        success: (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(success),
+              backgroundColor: Colors.green,
+              action: SnackBarAction(
+                label: 'Save Both',
+                onPressed: () => _saveWithComparison(context, result),
+              ),
+            ),
+          );
+        },
+        failure: (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Save failed: ${error.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unexpected error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _saveWithComparison(
+      BuildContext context, GeminiPipelineResult result) async {
+    try {
+      final saveService = getIt<AIResultSaveService>();
+      final saveResult = await saveService.saveResultWithComparison(result);
+
+      saveResult.fold(
+        success: (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(success),
+              backgroundColor: Colors.green,
+            ),
+          );
+        },
+        failure: (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Save failed: ${error.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unexpected error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

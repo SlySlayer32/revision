@@ -36,9 +36,6 @@ class GoldenTestHelper {
         final themeName =
             theme.brightness == Brightness.light ? 'light' : 'dark';
         final testName = '$description ${device.name} $themeName';
-        final goldenFile = goldenPath != null
-            ? '$goldenPath/${device.name}_$themeName.png'
-            : 'goldens/${description.replaceAll(' ', '_')}_${device.name}_$themeName.png';
 
         testGoldens(testName, (tester) async {
           await tester.pumpDeviceBuilder(

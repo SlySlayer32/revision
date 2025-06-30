@@ -1,23 +1,44 @@
 import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
 import 'package:revision/features/image_editing/domain/entities/annotation_stroke.dart';
+import 'package:revision/features/image_editing/domain/utils/advanced_segmentation.dart';
 
 /// Utility to convert annotation data to AI processing markers.
 class AnnotationConverter {
   /// Convert an AnnotatedImage to a list of ImageMarkers for AI processing.
-  static List<ImageMarker> annotationsToMarkers(AnnotatedImage annotatedImage) {
+  /// Uses advanced segmentation for better object detection.
+  static List<ImageMarker> annotationsToMarkers(AnnotatedImage annotatedImage, {
+    bool useAdvancedSegmentation = true,
+  }) {
+    if (annotatedImage.annotations.isEmpty) return [];
+
+    if (useAdvancedSegmentation) {
+      // Use advanced segmentation for intelligent grouping and sizing
+      return AdvancedSegmentation.createIntelligentMarkers(
+        annotatedImage.annotations,
+      );
+    } else {
+      // Fallback to simple per-stroke conversion
+      return _simpleStrokeToMarkers(annotatedImage.annotations);
+    }
+  }
+
+  /// Simple conversion - one marker per stroke (fallback method)
+  static List<ImageMarker> _simpleStrokeToMarkers(List<AnnotationStroke> strokes) {
     final markers = <ImageMarker>[];
 
-    for (final stroke in annotatedImage.annotations) {
-      // For each stroke, create markers at key points
-      // For MVP, we'll create one marker per stroke at the center point
+    for (final stroke in strokes) {
+      final boundingBox = _calculateStrokeBoundingBox(stroke);
       final centerPoint = _calculateStrokeCenter(stroke);
 
       final marker = ImageMarker(
         id: stroke.id,
         x: centerPoint.x,
         y: centerPoint.y,
+        width: boundingBox.width,
+        height: boundingBox.height,
         label: 'marked_object',
+        description: 'Object marked for removal at (${(centerPoint.x * 100).toStringAsFixed(0)}%, ${(centerPoint.y * 100).toStringAsFixed(0)}%)',
       );
 
       markers.add(marker);
@@ -48,6 +69,40 @@ class AnnotationConverter {
     return (
       x: centerX,
       y: centerY,
+    );
+  }
+
+  /// Calculate bounding box of a stroke for better object detection.
+  static ({double width, double height}) _calculateStrokeBoundingBox(
+      AnnotationStroke stroke) {
+    if (stroke.points.isEmpty) {
+      return (width: 0.1, height: 0.1); // Default small box
+    }
+
+    // Find min/max coordinates
+    double minX = stroke.points.first.x;
+    double maxX = stroke.points.first.x;
+    double minY = stroke.points.first.y;
+    double maxY = stroke.points.first.y;
+
+    for (final point in stroke.points) {
+      minX = minX < point.x ? minX : point.x;
+      maxX = maxX > point.x ? maxX : point.x;
+      minY = minY < point.y ? minY : point.y;
+      maxY = maxY > point.y ? maxY : point.y;
+    }
+
+    // Calculate dimensions with minimum size and padding
+    final width = (maxX - minX).clamp(0.05, 1.0); // Min 5% width
+    final height = (maxY - minY).clamp(0.05, 1.0); // Min 5% height
+
+    // Add padding around the stroke (20% on each side)
+    final paddedWidth = (width * 1.4).clamp(0.1, 1.0);
+    final paddedHeight = (height * 1.4).clamp(0.1, 1.0);
+
+    return (
+      width: paddedWidth,
+      height: paddedHeight,
     );
   }
 
