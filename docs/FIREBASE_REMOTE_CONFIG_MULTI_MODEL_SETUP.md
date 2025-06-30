@@ -5,7 +5,7 @@
 **✅ SUCCESSFULLY DEPLOYED** - `firebase deploy --only remoteconfig` completed successfully  
 **📅 Deployed:** June 30, 2025  
 **🎯 Project:** revision-464202  
-**🔗 Console:** https://console.firebase.google.com/project/revision-464202/remoteconfig  
+**🔗 Console:** <https://console.firebase.google.com/project/revision-464202/remoteconfig>
 
 ---
 
