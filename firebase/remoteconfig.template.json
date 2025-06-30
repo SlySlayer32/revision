@@ -12,11 +12,22 @@
         }
     ],
     "parameters": {
+        "active_ai_model_type": {
+            "defaultValue": {
+                "value": "gemini_with_system_instructions"
+            },
+            "description": "Active AI model type - determines which model configuration to use",
+            "conditionalValues": {
+                "debug_mode_users": {
+                    "value": "gemini_with_system_instructions"
+                }
+            }
+        },
         "ai_gemini_model": {
             "defaultValue": {
                 "value": "gemini-2.5-flash"
             },
-            "description": "Primary Gemini model for text analysis and processing",
+            "description": "Primary Gemini model for text analysis and processing (supports system instructions)",
             "conditionalValues": {
                 "debug_mode_users": {
                     "value": "gemini-2.5-flash"
@@ -68,6 +79,12 @@
                 "value": "0.95"
             },
             "description": "Top-P (nucleus) sampling parameter. Lower = more focused responses"
+        },
+        "ai_analysis_system_prompt": {
+            "defaultValue": {
+                "value": "You are an AI specialized in analyzing marked objects in images for removal. The user has marked specific objects that they want removed from their photo. Analyze the marked areas and generate precise text prompts for image generation."
+            },
+            "description": "System instructions for the analysis model (only analysis model supports system instructions, not image generation model)"
         },
         "ai_request_timeout_seconds": {
             "defaultValue": {
