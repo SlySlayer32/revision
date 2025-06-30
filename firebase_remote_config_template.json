@@ -140,11 +140,23 @@
         "AI Model Configuration": {
             "description": "Core AI model selection and configuration parameters",
             "parameters": {
+                "active_ai_model_type": {
+                    "defaultValue": {
+                        "value": "gemini_with_system_instructions"
+                    },
+                    "description": "Active AI model type - determines which model configuration to use and whether system instructions are supported",
+                    "valueType": "STRING",
+                    "conditionalValues": {
+                        "development_env": {
+                            "value": "gemini_with_system_instructions"
+                        }
+                    }
+                },
                 "ai_gemini_model": {
                     "defaultValue": {
                         "value": "gemini-2.5-flash"
                     },
-                    "description": "Primary Gemini model for text analysis and processing",
+                    "description": "Primary Gemini model for text analysis and processing (supports system instructions)",
                     "valueType": "STRING",
                     "conditionalValues": {
                         "premium_users": {
@@ -156,7 +168,21 @@
                     "defaultValue": {
                         "value": "gemini-2.0-flash-preview-image-generation"
                     },
-                    "description": "Gemini model for image generation and processing",
+                    "description": "Gemini model for image generation and processing (does NOT support system instructions)",
+                    "valueType": "STRING"
+                },
+                "user_prompt_template": {
+                    "defaultValue": {
+                        "value": "Analyze this image and provide detailed editing instructions for the marked objects."
+                    },
+                    "description": "Template or base text for user prompts, used regardless of AI model",
+                    "valueType": "STRING"
+                },
+                "vertex_location": {
+                    "defaultValue": {
+                        "value": "global"
+                    },
+                    "description": "Geographic location for AI operations",
                     "valueType": "STRING"
                 }
             }
