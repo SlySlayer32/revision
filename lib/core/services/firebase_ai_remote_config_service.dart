@@ -162,6 +162,12 @@ class FirebaseAIRemoteConfigService {
     return _remoteConfig.getString(_analysisSystemPromptKey);
   }
 
+  /// Get system prompt for editing model (reference only - image model doesn't support system instructions)
+  String get editingSystemPrompt {
+    if (!_isInitialized) return _defaultValues[_editingSystemPromptKey] as String;
+    return _remoteConfig.getString(_editingSystemPromptKey);
+  }
+
   /// Get request timeout in seconds
   int get requestTimeoutSeconds {
     if (!_isInitialized)
