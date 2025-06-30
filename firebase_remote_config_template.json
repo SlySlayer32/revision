@@ -100,7 +100,6 @@
             "description": "Top-P (nucleus) sampling parameter. Lower = more focused responses",
             "valueType": "NUMBER"
         },
-
         "ai_request_timeout_seconds": {
             "defaultValue": {
                 "value": "30"
@@ -230,7 +229,6 @@
                 }
             }
         },
-
         "Performance & Control": {
             "description": "Performance settings and feature flags for AI operations",
             "parameters": {
