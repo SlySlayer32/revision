@@ -211,6 +211,44 @@ class FirebaseAIRemoteConfigService {
     };
   }
 
+  /// Get the model name to use based on active model type and operation
+  String getModelForOperation(String operation) {
+    final activeType = activeModelType;
+    
+    switch (activeType) {
+      case 'gemini_with_system_instructions':
+        return operation == 'analysis' ? geminiModel : geminiImageModel;
+      case 'other_ai_no_system_instructions':
+        // If you had another AI model type, you'd handle it here
+        return operation == 'analysis' ? geminiModel : geminiImageModel;
+      default:
+        log('⚠️ Unknown model type: $activeType, using default');
+        return operation == 'analysis' ? geminiModel : geminiImageModel;
+    }
+  }
+
+  /// Check if the current active model supports system instructions
+  bool get supportsSystemInstructions {
+    final activeType = activeModelType;
+    return activeType == 'gemini_with_system_instructions';
+  }
+
+  /// Get appropriate system instruction for the operation (null if not supported)
+  String? getSystemInstructionForOperation(String operation) {
+    if (!supportsSystemInstructions) {
+      return null; // Model doesn't support system instructions
+    }
+    
+    switch (operation) {
+      case 'analysis':
+        return analysisSystemPrompt;
+      case 'editing':
+        return null; // Even Gemini image generation doesn't support system instructions
+      default:
+        return null;
+    }
+  }
+
   void _logCurrentValues() {
     log('🔍 Current AI Remote Config values:');
     log('  Initialized: $_isInitialized');
