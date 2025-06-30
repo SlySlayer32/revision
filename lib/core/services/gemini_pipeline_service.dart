@@ -52,7 +52,7 @@ class GeminiPipelineService {
         // Create content with image and marked area analysis prompt
         final content = [
           Content.multi([
-            BlobPart('image/jpeg', imageData),
+            InlineDataPart('image/jpeg', imageData),
             TextPart(
               'STEP 3: MARKED AREA ANALYSIS & REMOVAL PROMPT GENERATION\n\n'
               'Marked areas for removal:\n$markerDescriptions\n\n'
