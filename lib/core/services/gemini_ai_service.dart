@@ -127,6 +127,10 @@ class GeminiAIService implements AIService {
           maxOutputTokens: _remoteConfig.maxOutputTokens,
           topK: _remoteConfig.topK,
           topP: _remoteConfig.topP,
+          responseModalities: [
+            ResponseModalities.text,
+            ResponseModalities.image
+          ],
         ),
         systemInstruction: Content.text(_remoteConfig.analysisSystemPrompt),
       );
@@ -145,7 +149,10 @@ class GeminiAIService implements AIService {
           topK: 32,
           topP: 0.9,
           // Specify both TEXT and IMAGE response modalities for image generation model
-          responseModalities: [ResponseModalities.text, ResponseModalities.image],
+          responseModalities: [
+            ResponseModalities.text,
+            ResponseModalities.image
+          ],
         ),
         // Flash 2.0 image generation model doesn't support system instructions
         systemInstruction: null,
@@ -211,8 +218,13 @@ class GeminiAIService implements AIService {
           maxOutputTokens: FirebaseAIConstants.maxOutputTokens,
           topK: FirebaseAIConstants.topK,
           topP: FirebaseAIConstants.topP,
+          responseModalities: [
+            ResponseModalities.text,
+            ResponseModalities.image
+          ],
         ),
-        systemInstruction: Content.text(FirebaseAIConstants.analysisSystemPrompt),
+        systemInstruction:
+            Content.text(FirebaseAIConstants.analysisSystemPrompt),
       );
 
       // Initialize Gemini model for image processing using constants
@@ -225,7 +237,10 @@ class GeminiAIService implements AIService {
           topK: 32,
           topP: 0.9,
           // Specify both TEXT and IMAGE response modalities for image generation model
-          responseModalities: [ResponseModalities.text, ResponseModalities.image],
+          responseModalities: [
+            ResponseModalities.text,
+            ResponseModalities.image
+          ],
         ),
         // Flash 2.0 image generation model doesn't support system instructions
         systemInstruction: null,
@@ -260,7 +275,7 @@ class GeminiAIService implements AIService {
       'processTextPrompt',
     ).catchError((e) {
       log('❌ Google AI processTextPrompt failed after all retries: $e');
-      
+
       // Return fallback response for MVP
       return 'Sorry, I encountered an error processing your request. Please try again.';
     });
@@ -276,7 +291,8 @@ class GeminiAIService implements AIService {
         }
 
         // Validate image size using updated constants
-        if (imageData.length > FirebaseAIConstants.maxImageSizeMB * 1024 * 1024) {
+        if (imageData.length >
+            FirebaseAIConstants.maxImageSizeMB * 1024 * 1024) {
           throw Exception(
             'Image too large: ${imageData.length ~/ (1024 * 1024)}MB',
           );
@@ -334,7 +350,7 @@ Please try again or contact support if the issue persists.
           throw StateError(
               'Gemini image model not initialized. Please check Firebase AI setup.');
         }
-        
+
         final content = [
           Content.multi([
             InlineDataPart('image/jpeg', imageData),
@@ -375,7 +391,7 @@ Keep the description clear and technical.
           throw StateError(
               'Gemini image model not initialized. Please check Firebase AI setup.');
         }
-        
+
         final content = [
           Content.multi([
             InlineDataPart('image/jpeg', imageData),
@@ -399,7 +415,8 @@ Provide each suggestion as a clear, actionable sentence.
             .timeout(_remoteConfig.requestTimeout);
 
         // Validate response using AIResponseValidator
-        final responseText = AIResponseValidator.validateAndExtractText(response);
+        final responseText =
+            AIResponseValidator.validateAndExtractText(response);
 
         // Parse response into suggestions
         final suggestions = responseText
@@ -427,7 +444,7 @@ Provide each suggestion as a clear, actionable sentence.
           throw StateError(
               'Gemini image model not initialized. Please check Firebase AI setup.');
         }
-        
+
         final content = [
           Content.multi([
             InlineDataPart('image/jpeg', imageData),
@@ -449,9 +466,11 @@ Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a b
             .timeout(_remoteConfig.requestTimeout);
 
         // Validate response using AIResponseValidator
-        final responseText = AIResponseValidator.validateAndExtractText(response).toUpperCase();
-        
-        return responseText.contains('SAFE') && !responseText.contains('UNSAFE');
+        final responseText =
+            AIResponseValidator.validateAndExtractText(response).toUpperCase();
+
+        return responseText.contains('SAFE') &&
+            !responseText.contains('UNSAFE');
       },
       'checkContentSafety',
     ).catchError((e) {
@@ -472,7 +491,7 @@ Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a b
           throw StateError(
               'Gemini image model not initialized. Please check Firebase AI setup.');
         }
-        
+
         final markerDescriptions = markers
             .map((marker) =>
                 'Marker at (${marker['x']}, ${marker['y']}): ${marker['description'] ?? 'Object to edit'}')
@@ -550,7 +569,8 @@ Focus on creating a clean, professional result that matches the editing intent.
 
           // Use AIResponseValidator to extract image data
           try {
-            final imageData = AIResponseValidator.validateAndExtractImageData(response);
+            final imageData =
+                AIResponseValidator.validateAndExtractImageData(response);
             log('✅ AI image generation completed successfully');
             return Uint8List.fromList(imageData);
           } catch (e) {
