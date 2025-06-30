@@ -52,7 +52,7 @@ class GeminiPipelineService {
         // Create content with image and marked area analysis prompt
         final content = [
           Content.multi([
-            InlineDataPart('image/jpeg', imageData),
+            DataPart('image/jpeg', imageData),
             TextPart(
               'STEP 3: MARKED AREA ANALYSIS & REMOVAL PROMPT GENERATION\n\n'
               'Marked areas for removal:\n$markerDescriptions\n\n'
@@ -72,7 +72,8 @@ class GeminiPipelineService {
             .timeout(const Duration(seconds: 30));
 
         // Validate response using AIResponseValidator
-        final removalPrompt = AIResponseValidator.validateAndExtractText(response);
+        final removalPrompt =
+            AIResponseValidator.validateAndExtractText(response);
         log('✅ Step 3 completed. Generated removal prompt: ${removalPrompt.substring(0, 100)}...');
 
         return removalPrompt;
@@ -80,12 +81,12 @@ class GeminiPipelineService {
       'analyzeMarkedImage',
     ).catchError((e) {
       log('❌ Step 3 (marked area analysis) failed after all retries: $e');
-      
+
       // Return fallback prompt
       final fallbackPrompt = markedAreas.isNotEmpty
           ? 'Remove the marked objects at coordinates ${markedAreas.map((m) => '(${m['x']}, ${m['y']})').join(', ')} and seamlessly fill the background using content-aware techniques.'
           : 'Enhance this image by improving overall quality, lighting, and composition.';
-      
+
       return fallbackPrompt;
     });
   }
@@ -103,20 +104,19 @@ class GeminiPipelineService {
 
         // Use the dedicated image generation model with proper configuration
         // Gemini 2.0 Flash image generation model - text-only input for generation
-        final response = await _geminiAIService.imageGenerationModel
-            .generateContent([
-              Content.text(
-                'Generate a new image based on this editing instruction: $removalPrompt\n\n'
-                'Create a high-quality, realistic image that would result from applying the described edits. '
-                'Focus on natural lighting, proper composition, and seamless integration of all elements.',
-              ),
-            ])
-            .timeout(const Duration(seconds: 60));
+        final response =
+            await _geminiAIService.imageGenerationModel.generateContent([
+          Content.text(
+            'Generate a new image based on this editing instruction: $removalPrompt\n\n'
+            'Create a high-quality, realistic image that would result from applying the described edits. '
+            'Focus on natural lighting, proper composition, and seamless integration of all elements.',
+          ),
+        ]).timeout(const Duration(seconds: 60));
 
         // Extract image from response
         if (response.candidates.isNotEmpty) {
           final candidate = response.candidates.first;
-          
+
           for (final part in candidate.content.parts) {
             if (part is InlineDataPart && part.mimeType.startsWith('image/')) {
               log('✅ Step 5 completed: Image generated successfully');
@@ -124,7 +124,7 @@ class GeminiPipelineService {
             }
           }
         }
-        
+
         throw const AIEmptyResponseException('No image data found in response');
       },
       'generateImageWithRemovals',
