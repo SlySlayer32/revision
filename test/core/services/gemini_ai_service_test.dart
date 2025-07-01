@@ -57,7 +57,7 @@ void main() {
       // Setup basic mock behaviors
       when(() => mockRemoteConfigService.initialize())
           .thenAnswer((_) async => {});
-      when(() => mockRemote-config-service.geminiModel)
+      when(() => mockRemoteConfigService.geminiModel)
           .thenReturn('gemini-1.5-flash');
       when(() => mockRemoteConfigService.geminiImageModel)
           .thenReturn('gemini-1.5-flash');
