@@ -19,12 +19,9 @@ import 'core/services/gemini_ai_service_test.dart' as gemini_service_tests;
 import 'core/di/service_locator_test.dart' as service_locator_tests;
 import 'integration/ai_pipeline_integration_test.dart' as integration_tests;
 import 'core/services/ai_error_scenarios_test.dart' as error_scenario_tests;
-import 'helpers/test_helpers.dart';
 
 void main() {
   group('🤖 AI Pipeline Test Suite', () {
-    setUpAll(VGVTestHelper.setupTestDependencies);
-    tearDownAll(VGVTestHelper.tearDownTestDependencies);
     group('🧠 GeminiAIService Tests', () {
       gemini_service_tests.main();
     });
