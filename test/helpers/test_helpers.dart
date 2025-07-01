@@ -10,7 +10,8 @@ typedef Callback = void Function(MethodCall call);
 void setupFirebaseMocks([Callback? customHandlers]) {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  MethodChannelFirebase.channel.setMockMethodCallHandler((call) async {
+  TestDefaultBinaryMessenger.instance.setMockMethodCallHandler(
+      MethodChannelFirebase.channel, (call) async {
     if (call.method == 'Firebase#initializeCore') {
       return [
         {
