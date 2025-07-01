@@ -2,28 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:revision/core/di/service_locator.dart';
-import 'firebase_options_for_testing.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
-import 'package:google_sign_in_mocks/google_sign_in_mocks.dart';
 import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
+import 'package:flutter/services.dart';
 
-// Mock Firebase Core
-class MockFirebaseCore extends Mock implements FirebasePlatform {
-  @override
-  Future<FirebaseAppPlatform> initializeApp({
-    String? name,
-    FirebaseOptions? options,
-  }) async {
-    return MockFirebaseApp();
-  }
+typedef Callback = void Function(MethodCall call);
+
+void setupFirebaseMocks([Callback? customHandlers]) {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  MethodChannelFirebase.channel.setMockMethodCallHandler((call) async {
+    if (call.method == 'Firebase#initializeCore') {
+      return [
+        {
+          'name': defaultFirebaseAppName,
+          'options': {
+            'apiKey': '123',
+            'appId': '123',
+            'messagingSenderId': '123',
+            'projectId': '123',
+          },
+          'pluginConstants': {},
+        }
+      ];
+    }
+
+    if (call.method == 'Firebase#initializeApp') {
+      return {
+        'name': call.arguments['appName'],
+        'options': call.arguments['options'],
+        'pluginConstants': {},
+      };
+    }
+
+    if (customHandlers != null) {
+      customHandlers(call);
+    }
+
+    return null;
+  });
 }
-
-class MockFirebaseApp extends Mock implements FirebaseAppPlatform {}
 
 class VGVTestHelper {
   static Future<void> setupTestDependencies() async {
-    TestWidgetsFlutterBinding.ensureInitialized();
-    Firebase.delegatePackingProperty = MockFirebaseCore();
+    setupFirebaseMocks();
+    await Firebase.initializeApp();
     // Reset the service locator to ensure a clean state for each test
     getIt.reset();
     // Setup the service locator with test dependencies
