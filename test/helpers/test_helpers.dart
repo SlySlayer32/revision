@@ -5,16 +5,25 @@ import 'package:revision/core/di/service_locator.dart';
 import 'firebase_options_for_testing.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:google_sign_in_mocks/google_sign_in_mocks.dart';
+import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
+
+// Mock Firebase Core
+class MockFirebaseCore extends Mock implements FirebasePlatform {
+  @override
+  Future<FirebaseAppPlatform> initializeApp({
+    String? name,
+    FirebaseOptions? options,
+  }) async {
+    return MockFirebaseApp();
+  }
+}
+
+class MockFirebaseApp extends Mock implements FirebaseAppPlatform {}
 
 class VGVTestHelper {
   static Future<void> setupTestDependencies() async {
     TestWidgetsFlutterBinding.ensureInitialized();
-    // Mock Firebase Core
-    final auth = MockFirebaseAuth();
-    final googleSignIn = MockGoogleSignIn();
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    Firebase.delegatePackingProperty = MockFirebaseCore();
     // Reset the service locator to ensure a clean state for each test
     getIt.reset();
     // Setup the service locator with test dependencies
