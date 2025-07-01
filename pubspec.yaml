@@ -49,9 +49,6 @@ dev_dependencies:
     sdk: flutter
   mocktail: ^1.0.4
   network_image_mock: ^2.1.1
-  firebase_auth_mocks: ^0.14.2
-  google_sign_in_mocks: ^0.3.0
-  firebase_core_platform_interface: ^5.0.0
   # very_good_analysis: ^6.0.0 # Temporarily disabled due to pub cache issue
 
 flutter:
