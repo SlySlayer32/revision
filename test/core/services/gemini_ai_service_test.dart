@@ -2,6 +2,40 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
+
+void setupFirebaseCoreMocks() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  final binaryMessenger = TestWidgetsFlutterBinding.instance.defaultBinaryMessenger;
+  binaryMessenger.setMockMethodCallHandler(
+    const MethodChannel('plugins.flutter.io/firebase_core'),
+    (MethodCall methodCall) async {
+      if (methodCall.method == 'Firebase#initializeCore') {
+        return [
+          {
+            'name': defaultFirebaseAppName,
+            'options': {
+              'apiKey': 'mock_api_key',
+              'appId': 'mock_app_id',
+              'messagingSenderId': 'mock_sender_id',
+              'projectId': 'mock_project_id',
+            },
+            'pluginConstants': {},
+          }
+        ];
+      }
+      if (methodCall.method == 'Firebase#initializeApp') {
+        return {
+          'name': methodCall.arguments['appName'],
+          'options': methodCall.arguments['options'],
+          'pluginConstants': {},
+        };
+      }
+      return null;
+    },
+  );
+}
 
 // Simple mock for testing - Firebase AI classes are final and can't be mocked directly
 class MockFirebaseAIRemoteConfigService extends Mock
@@ -11,7 +45,9 @@ void main() {
   group('GeminiAIService', () {
     late MockFirebaseAIRemoteConfigService mockRemoteConfigService;
 
-    setUp(() {
+    setUp(() async {
+      setupFirebaseCoreMocks();
+      await Firebase.initializeApp();
       mockRemoteConfigService = MockFirebaseAIRemoteConfigService();
 
       // Setup basic mock behaviors
