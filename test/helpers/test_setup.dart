@@ -14,7 +14,7 @@ import 'package:dartz/dartz.dart';
 // Mock classes
 class MockAuthRepository extends Mock implements AuthRepository {
   @override
-  Stream<User?> getAuthStateChanges() => Stream.value(null);
+  Stream<User?> get authStateChanges => Stream.value(null);
 }
 
 class MockGetAuthStateChangesUseCase extends Mock implements GetAuthStateChangesUseCase {
