@@ -169,7 +169,9 @@ void main() {
         expect(
           circuitBreaker.failureCount,
           1,
-        ); // Resets to 1 after trial failure
+        ); 
+>>>>>>> Stashed changes
+        // Resets to 1 after trial failure
 
         // 4. Subsequent requests should still be blocked
         expect(
