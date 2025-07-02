@@ -15,3 +15,17 @@ class GeminiPipelineResult {
     required this.processingTimeMs,
   });
 }
+
+class GeminiPipelineService {
+  Future<GeminiPipelineResult> processImage(
+      Uint8List imageBytes, String prompt) async {
+    // TODO: Implement Gemini API call
+    return GeminiPipelineResult(
+      originalImage: imageBytes,
+      generatedImage: imageBytes,
+      analysisPrompt: prompt,
+      markedAreas: [],
+      processingTimeMs: 0,
+    );
+  }
+}
