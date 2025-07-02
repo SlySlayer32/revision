@@ -351,7 +351,7 @@ Please try again or contact support if the issue persists.
 
         final content = [
           Content.multi([
-            DataPart('image/jpeg', imageData),
+            new DataPart('image/jpeg', imageData),
             TextPart('''
 Describe this image in detail for photo editing purposes.
 
