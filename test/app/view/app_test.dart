@@ -3,22 +3,14 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revision/app/app.dart';
-import 'package:revision/core/di/service_locator.dart';
-import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_use_case.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:revision/app/app.dart';
 
 import '../../helpers/test_helpers.dart';
 
-class MockGetAuthStateChangesUseCase extends Mock
-    implements GetAuthStateChangesUseCase {}
-
 void main() {
   group('App', () {
-    setUpAll(() {
-      VGVTestHelper.setupTestDependencies();
-      sl.registerLazySingleton<GetAuthStateChangesUseCase>(
-          () => MockGetAuthStateChangesUseCase());
-    });
+    setUpAll(VGVTestHelper.setupTestDependencies);
 
     tearDownAll(VGVTestHelper.tearDownTestDependencies);
 
