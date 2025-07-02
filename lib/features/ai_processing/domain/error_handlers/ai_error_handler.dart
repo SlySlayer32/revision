@@ -11,7 +11,7 @@ class AIErrorHandler {
   /// domain exceptions with user-friendly messages
   static AIProcessingException mapException(Object error) {
     final errorString = error.toString().toLowerCase();
-    
+
     // HTTP status code based mapping
     if (_containsHttpStatus(errorString, AIProcessingConstants.httpForbidden) ||
         errorString.contains('forbidden')) {
@@ -19,22 +19,23 @@ class AIErrorHandler {
         'Firebase AI access denied. Check project billing and API permissions.',
       );
     }
-    
+
     if (_containsHttpStatus(errorString, AIProcessingConstants.httpNotFound) ||
         errorString.contains('not found')) {
       return const ModelNotFoundException(
         'Gemini model not found. The model might not be available in your region.',
       );
     }
-    
-    if (_containsHttpStatus(errorString, AIProcessingConstants.httpUnauthorized) ||
+
+    if (_containsHttpStatus(
+            errorString, AIProcessingConstants.httpUnauthorized) ||
         errorString.contains('authentication') ||
         errorString.contains('unauthorized')) {
       return const APIAuthenticationException(
         'Firebase AI authentication failed. Check your Firebase project configuration.',
       );
     }
-    
+
     // Quota and limit detection
     if (errorString.contains('quota') ||
         errorString.contains('limit') ||
@@ -44,7 +45,7 @@ class AIErrorHandler {
         'Gemini API quota exceeded. Check your Firebase billing and usage limits.',
       );
     }
-    
+
     // Network-related errors
     if (errorString.contains('timeout') ||
         errorString.contains('connection') ||
@@ -54,7 +55,7 @@ class AIErrorHandler {
         'Network error occurred: ${_extractRelevantErrorMessage(errorString)}',
       );
     }
-    
+
     // Model-specific errors
     if (errorString.contains('model') ||
         errorString.contains('invalid request') ||
@@ -63,7 +64,7 @@ class AIErrorHandler {
         'Model error: ${_extractRelevantErrorMessage(errorString)}',
       );
     }
-    
+
     // Validation errors (if they escape the validators)
     if (errorString.contains('validation') ||
         errorString.contains('invalid') ||
@@ -72,7 +73,7 @@ class AIErrorHandler {
         'Validation error: ${_extractRelevantErrorMessage(errorString)}',
       );
     }
-    
+
     // Default mapping for unknown errors
     return GeminiPipelineException(
       'Unexpected error occurred: ${_extractRelevantErrorMessage(errorString)}',
@@ -82,8 +83,8 @@ class AIErrorHandler {
   /// Checks if error string contains a specific HTTP status code
   static bool _containsHttpStatus(String errorString, int statusCode) {
     return errorString.contains(statusCode.toString()) ||
-           errorString.contains('$statusCode ') ||
-           errorString.contains(' $statusCode');
+        errorString.contains('$statusCode ') ||
+        errorString.contains(' $statusCode');
   }
 
   /// Extracts relevant parts of error message for user display
@@ -124,15 +125,18 @@ class AIErrorHandler {
   }
 
   /// Gets recommended retry delay for retryable exceptions
-  static Duration getRetryDelay(AIProcessingException exception, int attemptNumber) {
+  static Duration getRetryDelay(
+      AIProcessingException exception, int attemptNumber) {
     if (!isRetryableException(exception)) {
       return Duration.zero;
     }
 
     // Exponential backoff with jitter
-    final baseDelay = Duration(seconds: 2 << attemptNumber); // 2, 4, 8, 16 seconds
-    final jitter = Duration(milliseconds: (baseDelay.inMilliseconds * 0.1).round());
-    
+    final baseDelay =
+        Duration(seconds: 2 << attemptNumber); // 2, 4, 8, 16 seconds
+    final jitter =
+        Duration(milliseconds: (baseDelay.inMilliseconds * 0.1).round());
+
     return baseDelay + jitter;
   }
 }
