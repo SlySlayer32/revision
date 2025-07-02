@@ -2,7 +2,8 @@ import 'package:flutter/widgets.dart'; // Required for WidgetsFlutterBinding
 import 'package:integration_test/integration_test_driver.dart';
 import 'dart:developer' as dev;
 
-import '../test/helpers/firebase_emulator_helper.dart'; // Import the helper
+// TODO: Create firebase_emulator_helper.dart or remove this import
+// import '../test/helpers/firebase_emulator_helper.dart'; // Import the helper
 
 Future<void> main() async {
   // Ensure Flutter bindings are initialized before any Flutter services are used.
@@ -14,7 +15,8 @@ Future<void> main() async {
   try {
     // Use the existing helper to initialize Firebase and connect to emulators
     await FirebaseEmulatorHelper.initializeForTesting();
-    dev.log('Driver: Firebase initialized successfully with emulator settings.');
+    dev.log(
+        'Driver: Firebase initialized successfully with emulator settings.');
   } catch (e) {
     dev.log('Driver: Firebase initialization failed: $e');
     dev.log(
