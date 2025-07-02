@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
 import 'package:revision/features/ai_processing/domain/entities/image_marker.dart';
+import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
 import 'package:revision/features/ai_processing/domain/services/processing_context_builder.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
 import 'package:revision/features/image_editing/domain/utils/annotation_converter.dart';
@@ -13,12 +12,10 @@ import 'package:revision/features/image_editing/domain/utils/annotation_converte
 class ProcessingControlsController extends ChangeNotifier {
   ProcessingControlsController({
     required this.onStartProcessing,
-    required this.contextBuilder,
     this.annotatedImage,
   });
 
   final void Function(String prompt, ProcessingContext context) onStartProcessing;
-  final ProcessingContextBuilder contextBuilder;
   final AnnotatedImage? annotatedImage;
 
   final promptController = TextEditingController();
@@ -157,7 +154,7 @@ class ProcessingControlsController extends ChangeNotifier {
     final markers =
         annotatedImage != null && annotatedImage!.hasAnnotations
             ? AnnotationConverter.annotationsToMarkers(annotatedImage!.annotations)
-            : [];
+            : <ImageMarker>[];
 
     final context = ProcessingContextBuilder.build(
       type: _selectedType,
