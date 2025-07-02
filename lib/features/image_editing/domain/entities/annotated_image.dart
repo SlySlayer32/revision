@@ -14,4 +14,6 @@ class AnnotatedImage extends Equatable {
 
   @override
   List<Object?> get props => [imageBytes, annotations];
+
+  bool get hasAnnotations => annotations.isNotEmpty;
 }
