@@ -13,10 +13,10 @@ Future<void> main() async {
   // This should ideally use a shared configuration or the helper if appropriate.
   dev.log('Driver: Initializing Firebase for integration tests...');
   try {
-    // Use the existing helper to initialize Firebase and connect to emulators
-    await FirebaseEmulatorHelper.initializeForTesting();
+    // TODO: Implement Firebase emulator initialization
+    // await FirebaseEmulatorHelper.initializeForTesting();
     dev.log(
-        'Driver: Firebase initialized successfully with emulator settings.');
+        'Driver: Firebase initialization skipped - helper not implemented.');
   } catch (e) {
     dev.log('Driver: Firebase initialization failed: $e');
     dev.log(
