@@ -163,23 +163,23 @@ class FirebaseAIRemoteConfigService {
     if (!_isInitialized)
       return _defaultValues[_enableAdvancedFeaturesKey] as bool;
     return _remoteConfig.getBool(_enableAdvancedFeaturesKey);
-      return _defaultValues[_analysisSystemPromptKey] as String;
-    return _remoteConfig.getString(_analysisSystemPromptKey);
   }
 
-  /// Get system prompt for editing model (reference only - image model doesn't support system instructions)
-  String get editingSystemPrompt {
-    if (!_isInitialized)
-      return _defaultValues[_editingSystemPromptKey] as String;
-    return _remoteConfig.getString(_editingSystemPromptKey);
-  }
 
-  /// Get request timeout in seconds
-  int get requestTimeoutSeconds {
-    if (!_isInitialized)
-      return _defaultValues[_requestTimeoutSecondsKey] as int;
-    return _remoteConfig.getInt(_requestTimeoutSecondsKey);
-  }
+  /// Get all current config values as a map (useful for debugging)
+  Map<String, dynamic> getAllValues() {
+    return {
+      'geminiModel': geminiModel,
+      'geminiImageModel': geminiImageModel,
+      'userPromptTemplate': userPromptTemplate,
+      'temperature': temperature,
+      'maxOutputTokens': maxOutputTokens,
+      'topK': topK,
+      'topP': topP,
+      'analysisSystemPrompt': analysisSystemPrompt,
+      'requestTimeoutSeconds': requestTimeoutSeconds,
+      'enableAdvancedFeatures': enableAdvancedFeatures,
+    };
 
   /// Get request timeout as Duration
   Duration get requestTimeout => Duration(seconds: requestTimeoutSeconds);
