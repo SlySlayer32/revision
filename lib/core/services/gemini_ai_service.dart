@@ -407,6 +407,7 @@ Focus on:
 Provide each suggestion as a clear, actionable sentence.
 '''),
           ]),
+        ];
 
         final response = await _geminiImageModel!
             .generateContent(content)
@@ -445,7 +446,7 @@ Provide each suggestion as a clear, actionable sentence.
 
         final content = [
           Content.multi([
-            new DataPart('image/jpeg', imageData),
+            Part.blob('image/jpeg', imageData),
             TextPart('''
 Analyze this image for content safety. Is this image appropriate for a photo editing application?
 
@@ -497,7 +498,7 @@ Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a b
 
         final content = [
           Content.multi([
-            new DataPart('image/jpeg', imageBytes),
+            Part.blob('image/jpeg', imageBytes),
             TextPart('''
 Generate a detailed editing prompt for this image based on the user's markers:
 
