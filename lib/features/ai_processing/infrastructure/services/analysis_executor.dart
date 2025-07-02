@@ -16,10 +16,14 @@ import 'package:revision/features/image_editing/domain/entities/annotation_strok
 /// Handles the actual communication with AI services and response processing
 /// following Single Responsibility Principle.
 class AnalysisExecutor {
-  AnalysisExecutor({http.Client? httpClient})
-      : _httpClient = httpClient ?? http.Client();
+  AnalysisExecutor({
+    http.Client? httpClient,
+    AuthRepository? authRepository,
+  })  : _httpClient = httpClient ?? http.Client(),
+        _authRepository = authRepository;
 
   final http.Client _httpClient;
+  final AuthRepository? _authRepository;
 
   /// Executes AI analysis request and returns processing result
   ///
