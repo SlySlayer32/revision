@@ -8,3 +8,7 @@ class MockFirebaseAuth extends Mock implements FirebaseAuth {}
 class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
 
 class MockFirebaseStorage extends Mock implements FirebaseStorage {}
+
+void setupFirebaseAuthMocks() {
+  // TODO: Implement mock setup
+}
