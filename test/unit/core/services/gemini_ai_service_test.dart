@@ -12,10 +12,16 @@ import '../../../helpers/test_data/ai_test_data.dart';
 class MockFirebaseAIRemoteConfigService extends Mock
     implements FirebaseAIRemoteConfigService {}
 
+import 'package:firebase_core/firebase_core.dart';
+
 void main() {
   group('GeminiAIService', () {
     late GeminiAIService service;
     late MockFirebaseAIRemoteConfigService mockRemoteConfig;
+
+    setUpAll(() async {
+      await Firebase.initializeApp();
+    });
 
     setUp(() {
       mockRemoteConfig = MockFirebaseAIRemoteConfigService();
