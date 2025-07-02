@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
 import 'package:revision/features/ai_processing/presentation/widgets/processing_controls.dart';
 import 'package:revision/features/ai_processing/presentation/widgets/processing_status_display.dart';
-import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
 import 'package:revision/features/image_selection/presentation/cubit/image_selection_cubit.dart';
 import 'package:revision/features/image_selection/presentation/cubit/image_selection_state.dart';
 
