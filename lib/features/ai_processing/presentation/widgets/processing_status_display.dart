@@ -22,8 +22,7 @@ class ProcessingStatusDisplay extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Text(state.progressMessage!),
                 ),
-            ],
-            if (state.status == GeminiPipelineStatus.error)
+            ] else if (state.status == GeminiPipelineStatus.error)
               Text(state.errorMessage ?? 'An unknown error occurred.', style: const TextStyle(color: Colors.red)),
           ],
         );
