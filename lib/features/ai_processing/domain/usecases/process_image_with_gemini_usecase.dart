@@ -138,13 +138,3 @@ class ProcessImageWithGeminiUseCase {
     return Failure(mappedException);
   }
 }
-
-/// Exception thrown during Gemini AI Pipeline processing
-class GeminiPipelineException implements Exception {
-  const GeminiPipelineException(this.message);
-
-  final String message;
-
-  @override
-  String toString() => 'GeminiPipelineException: $message';
-}
