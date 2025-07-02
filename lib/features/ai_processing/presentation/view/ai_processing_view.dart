@@ -45,95 +45,78 @@ class AiProcessingView extends StatelessWidget {
         ),
         body: Padding(
           padding: const EdgeInsets.all(16),
-          child: BlocBuilder<ImageSelectionCubit, ImageSelectionState>(
-            builder: (context, state) {
-              if (state is ImageSelectionLoading) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (state is ImageSelectionSuccess) {
-                final selectedImage = state.selectedImage;
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 2,
+                child: Column(
                   children: [
                     Expanded(
-                      flex: 2,
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child:
-                                BlocBuilder<ImageEditorCubit, ImageEditorState>(
-                              builder: (context, editorState) {
-                                return GestureDetector(
-                                  onPanStart: (details) {
-                                    context
-                                        .read<ImageEditorCubit>()
-                                        .startDrawing(details.localPosition);
-                                  },
-                                  onPanUpdate: (details) {
-                                    context
-                                        .read<ImageEditorCubit>()
-                                        .drawing(details.localPosition);
-                                  },
-                                  onPanEnd: (_) {
-                                    context
-                                        .read<ImageEditorCubit>()
-                                        .endDrawing();
-                                  },
-                                  child: CustomPaint(
-                                    painter: AnnotationPainter(
-                                      strokes: editorState.strokes,
-                                    ),
-                                    child: Image.memory(
-                                      selectedImage.bytes!,
-                                      fit: BoxFit.contain,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          const ProcessingStatusDisplay(),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 24),
-                    Expanded(
-                      flex: 1,
                       child: BlocBuilder<ImageEditorCubit, ImageEditorState>(
                         builder: (context, editorState) {
-                          final annotatedImage = AnnotatedImage(
-                            imageBytes: selectedImage.bytes!,
-                            annotations: editorState.strokes,
-                          );
-                          return ProcessingControls(
-                            selectedImage: selectedImage,
-                            annotatedImage: annotatedImage,
-                            onStartProcessing: (prompt, processingContext) {
+                          return GestureDetector(
+                            onPanStart: (details) {
                               context
-                                  .read<GeminiPipelineCubit>()
-                                  .startImageProcessing(
-                                    selectedImage: selectedImage,
-                                    prompt: prompt,
-                                    annotatedImage: annotatedImage,
-                                    processingContext: processingContext,
-                                  );
+                                  .read<ImageEditorCubit>()
+                                  .startDrawing(details.localPosition);
                             },
+                            onPanUpdate: (details) {
+                              context
+                                  .read<ImageEditorCubit>()
+                                  .drawing(details.localPosition);
+                            },
+                            onPanEnd: (_) {
+                              context
+                                  .read<ImageEditorCubit>()
+                                  .endDrawing();
+                            },
+                            child: CustomPaint(
+                              painter: AnnotationPainter(
+                                strokes: editorState.strokes,
+                              ),
+                              child: Image.memory(
+                                image.bytes!,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
                           );
                         },
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    const ProcessingStatusDisplay(),
                   ],
-                );
-              } else if (state is ImageSelectionError) {
-                return Center(
-                  child: Text('Error selecting image: ${state.message}'),
-                );
-              } else {
-                return const Center(
-                  child: Text('Select an image to begin.'),
-                );
-              }
-            },
+                ),
+              ),
+              const SizedBox(width: 24),
+              Expanded(
+                flex: 1,
+                child: BlocBuilder<ImageEditorCubit, ImageEditorState>(
+                  builder: (context, editorState) {
+                    final currentAnnotatedImage = annotatedImage ?? 
+                        AnnotatedImage(
+                          imageBytes: image.bytes!,
+                          annotations: editorState.strokes,
+                        );
+                    return ProcessingControls(
+                      selectedImage: image,
+                      annotatedImage: currentAnnotatedImage,
+                      onStartProcessing: (prompt, processingContext) {
+                        context
+                            .read<GeminiPipelineCubit>()
+                            .startImageProcessing(
+                              selectedImage: image,
+                              prompt: prompt,
+                              annotatedImage: currentAnnotatedImage,
+                              processingContext: processingContext,
+                            );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
