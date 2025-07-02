@@ -1,5 +1,3 @@
-import 'package:revision/core/config/env_config.dart';
-
 /// Configuration for analysis service endpoints and settings
 abstract class AnalysisServiceConfig {
   /// Base URL for Vertex AI services
