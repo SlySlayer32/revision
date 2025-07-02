@@ -423,13 +423,13 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   Future<String> getIdToken() async {
     final firebaseUser = _firebaseAuth.currentUser;
     if (firebaseUser == null) {
-      throw AuthNoUserException();
+      throw const UserNotFoundException('No authenticated user found');
     }
 
     try {
       final idToken = await firebaseUser.getIdToken();
       if (idToken == null) {
-        throw AuthTokenException('Failed to retrieve ID token');
+        throw const UnexpectedAuthException('Failed to retrieve ID token');
       }
       return idToken;
     } on firebase_auth.FirebaseAuthException catch (e) {
@@ -437,7 +437,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       throw _mapFirebaseAuthExceptionToDomainException(e);
     } catch (e) {
       log('Unexpected error getting ID token', error: e);
-      throw AuthTokenException('Failed to get ID token: ${e.toString()}');
+      throw UnexpectedAuthException('Failed to get ID token: ${e.toString()}');
     }
   }
 }
