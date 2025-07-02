@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
+import 'package:revision/features/ai_processing/domain/entities/image_marker.dart';
 
 /// Represents the context for AI image processing
-class ProcessingContext extends Equatable {
   const ProcessingContext({
     required this.processingType,
     required this.qualityLevel,
