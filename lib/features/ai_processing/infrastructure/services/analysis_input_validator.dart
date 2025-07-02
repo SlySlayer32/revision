@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:revision/features/ai_processing/domain/exceptions/ai_processing_exception.dart';
 import 'package:revision/features/ai_processing/infrastructure/config/analysis_service_config.dart';
@@ -17,9 +16,8 @@ class AnalysisInputValidator {
   /// Returns Success if valid, Failure with specific exception if invalid.
   static Future<Result<void>> validate(AnnotatedImage annotatedImage) async {
     try {
-      // Get image data for validation
-      final imageData = annotatedImage.originalImage.bytes ??
-          await File(annotatedImage.originalImage.path!).readAsBytes();
+      // Get image data for validation (AnnotatedImage has imageBytes directly)
+      final imageData = annotatedImage.imageBytes;
       
       // Validate image data exists
       if (imageData.isEmpty) {
