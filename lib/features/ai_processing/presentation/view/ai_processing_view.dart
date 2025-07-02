@@ -67,9 +67,7 @@ class AiProcessingView extends StatelessWidget {
                                   .drawing(details.localPosition);
                             },
                             onPanEnd: (_) {
-                              context
-                                  .read<ImageEditorCubit>()
-                                  .endDrawing();
+                              context.read<ImageEditorCubit>().endDrawing();
                             },
                             child: CustomPaint(
                               painter: AnnotationPainter(
@@ -94,7 +92,7 @@ class AiProcessingView extends StatelessWidget {
                 flex: 1,
                 child: BlocBuilder<ImageEditorCubit, ImageEditorState>(
                   builder: (context, editorState) {
-                    final currentAnnotatedImage = annotatedImage ?? 
+                    final currentAnnotatedImage = annotatedImage ??
                         AnnotatedImage(
                           imageBytes: image.bytes!,
                           annotations: editorState.strokes,
