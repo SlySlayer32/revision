@@ -3,11 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:revision/core/config/env_config.dart';
 import 'package:revision/core/config/environment_detector.dart';
 import 'package:revision/firebase_options.dart';
-import '../../helpers/test_setup.dart';
+import '../../helpers/helpers.dart';
 
 void main() {
-  setUpAll(() async {
-    await TestSetup.setupTestEnvironment();
+  setUpAll(() {
+    setupFirebaseAuthMocks();
     // Load test environment variables
     dotenv.testLoad(fileInput: '''
 ENVIRONMENT=test
@@ -16,8 +16,8 @@ GEMINI_API_KEY=test-gemini-key
 ''');
   });
 
-  tearDownAll(() async {
-    await TestSetup.tearDownTestEnvironment();
+  tearDownAll(() {
+    // No-op
   });
 
   group('Environment Detection Tests', () {
@@ -50,7 +50,8 @@ GEMINI_API_KEY=test-gemini-key
     test('should provide debug information', () {
       final debugInfo = EnvironmentDetector.getDebugInfo();
       expect(debugInfo, isA<Map<String, dynamic>>());
-      expect(debugInfo, containsPair('currentEnvironment', isA<AppEnvironment>()));
+      expect(
+          debugInfo, containsPair('currentEnvironment', isA<AppEnvironment>()));
       expect(debugInfo, containsPair('compileTimeEnv', isA<String>()));
       expect(debugInfo, containsPair('isWeb', isA<bool>()));
       expect(debugInfo, containsPair('isDebugMode', isA<bool>()));
