@@ -497,7 +497,7 @@ Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a b
 
         final content = [
           Content.multi([
-            DataPart('image/jpeg', imageBytes),
+            new DataPart('image/jpeg', imageBytes),
             TextPart('''
 Generate a detailed editing prompt for this image based on the user's markers:
 
