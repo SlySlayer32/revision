@@ -10,6 +10,6 @@ class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
 
 class MockFirebaseStorage extends Mock implements FirebaseStorage {}
 
-Future<void> setupFirebaseAuthMocks() async {
+void setupFirebaseAuthMocks() {
   TestWidgetsFlutterBinding.ensureInitialized();
 }
