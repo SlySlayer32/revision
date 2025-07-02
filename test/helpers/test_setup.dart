@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mockito/mockito.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,12 +8,25 @@ import 'package:revision/core/di/service_locator.dart';
 import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_out_usecase.dart';
-import 'firebase_test_helper.dart';
+import 'package:revision/core/error/failures.dart';
+import 'package:dartz/dartz.dart';
 
 // Mock classes
-class MockAuthRepository extends Mock implements AuthRepository {}
-class MockGetAuthStateChangesUseCase extends Mock implements GetAuthStateChangesUseCase {}
-class MockSignOutUseCase extends Mock implements SignOutUseCase {}
+class MockAuthRepository extends Mock implements AuthRepository {
+  @override
+  Stream<User?> getAuthStateChanges() => Stream.value(null);
+}
+
+class MockGetAuthStateChangesUseCase extends Mock implements GetAuthStateChangesUseCase {
+  @override
+  Stream<User?> call() => Stream.value(null);
+}
+
+class MockSignOutUseCase extends Mock implements SignOutUseCase {
+  @override
+  Future<Either<Failure, void>> call() async => const Right(null);
+}
+
 class MockFirebaseAuth extends Mock implements FirebaseAuth {}
 class MockFirestore extends Mock implements FirebaseFirestore {}
 
@@ -55,24 +68,9 @@ class TestSetup {
     await getIt.reset();
     
     // Register test doubles
-    getIt.registerLazySingleton<AuthRepository>(() {
-      final mock = MockAuthRepository();
-      // Setup default behaviors
-      when(mock.getAuthStateChanges()).thenAnswer((_) => Stream.value(null));
-      return mock;
-    });
-    
-    getIt.registerLazySingleton<GetAuthStateChangesUseCase>(() {
-      final mock = MockGetAuthStateChangesUseCase();
-      when(mock.call()).thenAnswer((_) => Stream.value(null));
-      return mock;
-    });
-    
-    getIt.registerLazySingleton<SignOutUseCase>(() {
-      final mock = MockSignOutUseCase();
-      when(mock.call()).thenAnswer((_) async {});
-      return mock;
-    });
+    getIt.registerLazySingleton<AuthRepository>(() => MockAuthRepository());
+    getIt.registerLazySingleton<GetAuthStateChangesUseCase>(() => MockGetAuthStateChangesUseCase());
+    getIt.registerLazySingleton<SignOutUseCase>(() => MockSignOutUseCase());
   }
 
   static Future<void> tearDownTestEnvironment() async {
