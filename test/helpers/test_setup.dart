@@ -8,6 +8,7 @@ import 'package:revision/core/di/service_locator.dart';
 import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_out_usecase.dart';
+import 'package:revision/features/authentication/domain/entities/user.dart';
 import 'package:revision/core/error/failures.dart';
 import 'package:dartz/dartz.dart';
 
