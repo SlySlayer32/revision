@@ -25,8 +25,6 @@ void main() {
 
     group('canSaveToGallery', () {
       test('returns true on supported platforms', () async {
-        // This test will pass on any platform since the implementation
-        // handles platform detection internally
         when(mockImageSaveService.canSaveToGallery())
             .thenAnswer((_) async => true);
         final result = await mockImageSaveService.canSaveToGallery();
@@ -43,11 +41,19 @@ void main() {
           source: ImageSource.gallery,
         );
         when(mockImageSaveService.saveToTemp(any))
-            .thenAnswer((_) async => const Success('Success'));
+            .thenAnswer((_) async => const Success('Image saved to temporary location'));
 
         final result = await mockImageSaveService.saveToTemp(selectedImage);
 
         expect(result, isA<Success<String>>());
+        result.when(
+          success: (message) {
+            expect(message, contains('Image saved to temporary location'));
+          },
+          failure: (error) {
+            fail('Expected success but got failure: $error');
+          },
+        );
       });
 
       test('handles file not found error', () async {
@@ -58,13 +64,20 @@ void main() {
           source: ImageSource.gallery,
         );
         when(mockImageSaveService.saveToTemp(any)).thenAnswer(
-            (_) async => const Failure('File not found'));
+            (_) async => const Failure(AppException.fileNotFound()));
 
         final result = await mockImageSaveService.saveToTemp(selectedImage);
 
-        expect(result, isA<Failure<String>>());
+        expect(result, isA<Failure<AppException>>());
+        result.when(
+          success: (message) {
+            fail('Expected failure but got success: $message');
+          },
+          failure: (error) {
+            expect(error, const AppException.fileNotFound());
+          },
+        );
       });
->>>>>>> Stashed changes
     });
 
     group('_getFileExtension', () {
