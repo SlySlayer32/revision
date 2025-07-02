@@ -32,7 +32,6 @@ void main() {
           .thenReturn('Test analysis prompt');
       when(() => mockRemoteConfig.requestTimeout)
           .thenReturn(const Duration(seconds: 30));
-      when(() => mockRemoteConfig.debugMode).thenReturn(false);
       when(() => mockRemoteConfig.enableAdvancedFeatures).thenReturn(true);
       when(() => mockRemoteConfig.initialize()).thenAnswer((_) async {});
       when(() => mockRemoteConfig.refresh()).thenAnswer((_) async {});
@@ -318,11 +317,9 @@ void main() {
       test('should return feature flags correctly', () {
         // Act
         final advancedFeatures = service.isAdvancedFeaturesEnabled;
-        final debugMode = service.isDebugMode;
 
         // Assert
         expect(advancedFeatures, isTrue);
-        expect(debugMode, isFalse);
       });
     });
   });
