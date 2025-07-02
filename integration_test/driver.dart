@@ -3,8 +3,7 @@ import 'dart:developer' as dev;
 import 'package:flutter/widgets.dart'; // Required for WidgetsFlutterBinding
 import 'package:integration_test/integration_test_driver.dart';
 
-// TODO: Create firebase_emulator_helper.dart or remove this import
-// import '../test/helpers/firebase_emulator_helper.dart'; // Import the helper
+import '../test/helpers/firebase_emulator_helper.dart';
 
 Future<void> main() async {
   // Ensure Flutter bindings are initialized before any Flutter services are used.
