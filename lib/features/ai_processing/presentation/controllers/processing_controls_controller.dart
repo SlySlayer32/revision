@@ -1,21 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
 import 'package:revision/features/ai_processing/domain/entities/image_marker.dart';
-import 'package:revision/features\ai_processing\domain\services\processing_context_builder.dart';
+import 'package:revision/features/ai_processing/domain/services/processing_context_builder.dart';
 
 /// Controller for managing processing controls state
 /// 
 /// Separates state management logic from UI widgets following
 /// VGV Clean Architecture principles for better testability.
 class ProcessingControlsController extends ChangeNotifier {
-  ProcessingControlsController() {
-    // Set default values
-    _selectedType = ProcessingType.enhance;
-    _selectedQuality = QualityLevel.standard;
-    _selectedPriority = PerformancePriority.balanced;
-    _promptSystemInstructions = null;
-    _editSystemInstructions = null;
-  }
+  ProcessingControlsController()
+      : _selectedType = ProcessingType.enhance,
+        _selectedQuality = QualityLevel.standard,
+        _selectedPriority = PerformancePriority.balanced;
   
   // Private state variables
   ProcessingType _selectedType;
