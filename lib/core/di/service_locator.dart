@@ -171,7 +171,6 @@ void _registerUseCases() {
       ..registerLazySingleton<GetAuthStateChangesUseCase>(
         () {
           try {
-          try {
             return GetAuthStateChangesUseCase(getIt<AuthRepository>());
           } catch (e) {
             debugPrint('Error while creating GetAuthStateChangesUseCase: $e');
@@ -179,11 +178,9 @@ void _registerUseCases() {
             rethrow;
           }
         },
-      );
-  }
-
-  getIt
+      )
     ..registerLazySingleton<SelectImageUseCase>(
+>>>>>>> Stashed changes
       () => SelectImageUseCase(getIt<image_selection.ImageRepository>()),
     );
 }
