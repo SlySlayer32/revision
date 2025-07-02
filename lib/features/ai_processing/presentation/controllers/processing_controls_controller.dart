@@ -1,22 +1,32 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
 import 'package:revision/features/ai_processing/domain/entities/image_marker.dart';
 import 'package:revision/features/ai_processing/domain/services/processing_context_builder.dart';
+import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
+import 'package:revision/features/image_editing/domain/utils/annotation_converter.dart';
 
 /// Controller for managing processing controls state
 /// 
 /// Separates state management logic from UI widgets following
 /// VGV Clean Architecture principles for better testability.
 class ProcessingControlsController extends ChangeNotifier {
-  ProcessingControlsController()
-      : _selectedType = ProcessingType.enhance,
-        _selectedQuality = QualityLevel.standard,
-        _selectedPriority = PerformancePriority.balanced;
+  ProcessingControlsController({
+    required this.onStartProcessing,
+    required this.contextBuilder,
+    this.annotatedImage,
+  });
+
+  final void Function(String prompt, ProcessingContext context) onStartProcessing;
+  final ProcessingContextBuilder contextBuilder;
+  final AnnotatedImage? annotatedImage;
+
+  final promptController = TextEditingController();
   
   // Private state variables
-  ProcessingType _selectedType;
-  QualityLevel _selectedQuality;
-  PerformancePriority _selectedPriority;
+  ProcessingType _selectedType = ProcessingType.enhance;
+  QualityLevel _selectedQuality = QualityLevel.standard;
+  PerformancePriority _selectedPriority = PerformancePriority.balanced;
   String? _promptSystemInstructions;
   String? _editSystemInstructions;
   
@@ -27,6 +37,22 @@ class ProcessingControlsController extends ChangeNotifier {
   String? get promptSystemInstructions => _promptSystemInstructions;
   String? get editSystemInstructions => _editSystemInstructions;
   
+  void initialize() {
+    if (annotatedImage != null && annotatedImage!.hasAnnotations) {
+      promptController.text =
+          AnnotationConverter.generatePromptFromAnnotations(
+        annotatedImage!.annotations,
+        promptController.text,
+      );
+    }
+  }
+  
+  @override
+  void dispose() {
+    promptController.dispose();
+    super.dispose();
+  }
+
   // Setters with validation and notification
   set selectedType(ProcessingType type) {
     if (_selectedType != type) {
@@ -125,5 +151,23 @@ class ProcessingControlsController extends ChangeNotifier {
       }
     }
     return null;
+  }
+  
+  void startProcessing() {
+    final markers =
+        annotatedImage != null && annotatedImage!.hasAnnotations
+            ? AnnotationConverter.annotationsToMarkers(annotatedImage!.annotations)
+            : [];
+
+    final context = ProcessingContextBuilder.build(
+      type: _selectedType,
+      quality: _selectedQuality,
+      priority: _selectedPriority,
+      markers: markers,
+      promptInstructions: _promptSystemInstructions,
+      editInstructions: _editSystemInstructions,
+    );
+
+    onStartProcessing(promptController.text.trim(), context);
   }
 }
