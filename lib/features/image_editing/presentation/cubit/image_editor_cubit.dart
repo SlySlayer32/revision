@@ -9,7 +9,11 @@ class ImageEditorCubit extends Cubit<ImageEditorState> {
   ImageEditorCubit() : super(const ImageEditorInitial());
 
   void startDrawing(Offset startPoint) {
-    final newStroke = AnnotationStroke(points: [startPoint]);
+    final newStroke = AnnotationStroke(
+      points: [startPoint],
+      color: Colors.red,
+      strokeWidth: 4.0,
+    );
     emit(ImageEditorDrawing(strokes: [...state.strokes, newStroke]));
   }
 
