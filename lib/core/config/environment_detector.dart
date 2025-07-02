@@ -118,7 +118,7 @@ class EnvironmentDetector {
   /// Get debug information about environment detection
   static Map<String, dynamic> getDebugInfo() {
     return {
-      'currentEnvironment': environmentString,
+      'currentEnvironment': currentEnvironment,
       'compileTimeEnv':
           const String.fromEnvironment('ENVIRONMENT', defaultValue: 'not_set'),
       'isWeb': kIsWeb,
