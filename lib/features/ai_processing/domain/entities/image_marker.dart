@@ -11,4 +11,11 @@ class ImageMarker extends Equatable {
 
   @override
   List<Object?> get props => [id, label];
+
+  Map<String, dynamic> toAIMap() {
+    return {
+      'id': id,
+      'label': label,
+    };
+  }
 }
