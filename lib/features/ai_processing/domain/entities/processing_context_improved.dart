@@ -28,10 +28,7 @@ class ProcessingContext extends Equatable {
     this.targetFormat,
     this.promptSystemInstructions,
     this.editSystemInstructions,
-  }) : assert(
-          _isValidCombination(processingType, qualityLevel, performancePriority),
-          'Invalid processing context combination',
-        );
+  });
 
   /// Factory constructor for quick image enhancement
   factory ProcessingContext.quickEnhance({
