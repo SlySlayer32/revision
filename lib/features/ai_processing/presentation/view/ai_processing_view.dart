@@ -6,15 +6,21 @@ import 'package:revision/features/ai_processing/presentation/widgets/processing_
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
 import 'package:revision/features/image_editing/presentation/cubit/image_editor_cubit.dart';
 import 'package:revision/features/image_editing/presentation/widgets/annotation_painter.dart';
-import 'package:revision/features/image_selection/presentation/cubit/image_selection_cubit.dart';
-import 'package:revision/features/image_selection/presentation/cubit/image_selection_state.dart';
+import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
 
 /// Main view for AI processing functionality.
 ///
 /// This view provides the complete AI processing experience including
 /// image preview, controls, progress tracking, and results display.
 class AiProcessingView extends StatelessWidget {
-  const AiProcessingView({super.key});
+  const AiProcessingView({
+    required this.image,
+    this.annotatedImage,
+    super.key,
+  });
+
+  final SelectedImage image;
+  final AnnotatedImage? annotatedImage;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +35,8 @@ class AiProcessingView extends StatelessWidget {
                 return IconButton(
                   icon: const Icon(Icons.clear),
                   onPressed: state.strokes.isNotEmpty
-                      ? () => context.read<ImageEditorCubit>().clearAnnotations()
+                      ? () =>
+                          context.read<ImageEditorCubit>().clearAnnotations()
                       : null,
                 );
               },
@@ -52,7 +59,8 @@ class AiProcessingView extends StatelessWidget {
                       child: Column(
                         children: [
                           Expanded(
-                            child: BlocBuilder<ImageEditorCubit, ImageEditorState>(
+                            child:
+                                BlocBuilder<ImageEditorCubit, ImageEditorState>(
                               builder: (context, editorState) {
                                 return GestureDetector(
                                   onPanStart: (details) {
@@ -66,7 +74,9 @@ class AiProcessingView extends StatelessWidget {
                                         .drawing(details.localPosition);
                                   },
                                   onPanEnd: (_) {
-                                    context.read<ImageEditorCubit>().endDrawing();
+                                    context
+                                        .read<ImageEditorCubit>()
+                                        .endDrawing();
                                   },
                                   child: CustomPaint(
                                     painter: AnnotationPainter(
