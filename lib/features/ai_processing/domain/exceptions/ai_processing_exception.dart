@@ -64,6 +64,18 @@ class NetworkException extends AIProcessingException {
       : super(message, ExceptionCategory.network);
 }
 
+/// Exception thrown when analysis validation fails
+class AnalysisValidationException extends AIProcessingException {
+  const AnalysisValidationException(String message)
+      : super(message, ExceptionCategory.validation);
+}
+
+/// Exception thrown when analysis network operations fail
+class AnalysisNetworkException extends AIProcessingException {
+  const AnalysisNetworkException(String message)
+      : super(message, ExceptionCategory.network);
+}
+
 /// Original exception from the current implementation for backward compatibility
 class GeminiPipelineException extends AIProcessingException {
   const GeminiPipelineException(super.message);
