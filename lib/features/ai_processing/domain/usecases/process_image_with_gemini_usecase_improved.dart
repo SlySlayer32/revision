@@ -83,14 +83,34 @@ class ProcessImageWithGeminiUseCaseImproved {
     Uint8List imageData,
     List<MarkedArea> markedAreas,
   ) async {
-    // TODO: Current service only supports basic processing
-    // This is a placeholder until the service supports marked areas
-    final prompt = markedAreas.isNotEmpty
-        ? 'Remove objects in marked areas: ${markedAreas.map((area) => area.description ?? 'unmarked area').join(', ')}'
-        : 'Process and enhance this image';
+    try {
+      if (markedAreas.isNotEmpty) {
+        // Convert MarkedArea objects to Map format for the service
+        final markedAreaMaps = markedAreas.map((area) => {
+          'x': area.x,
+          'y': area.y,
+          'width': area.width,
+          'height': area.height,
+          'description': area.description ?? 'unmarked area',
+        }).toList();
 
-    final result = await _geminiPipelineService.processImage(imageData, prompt);
-    return Success(result);
+        // Use marked object removal for specific areas
+        final result = await _geminiPipelineService.processImageWithMarkedObjects(
+          imageData: imageData,
+          markedAreas: markedAreaMaps,
+        );
+        return Success(result);
+      } else {
+        // Use general image processing for enhancement
+        final result = await _geminiPipelineService.processImage(
+          imageData, 
+          'Process and enhance this image for better quality and appearance',
+        );
+        return Success(result);
+      }
+    } catch (e) {
+      return _handleError(e, StackTrace.current);
+    }
   }
 
   /// Handles errors with proper logging and exception mapping
