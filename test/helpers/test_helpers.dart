@@ -1,31 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:revision/core/di/service_locator.dart';
+import 'package:mockito/mockito.dart';
+import 'package:revision/features/image_editor/data/services/image_save_service.dart';
 
-class VGVTestHelper {
-  static Future<void> setupTestDependencies() async {
-    // Reset the service locator to ensure a clean state for each test
-    await getIt.reset();
-    // Setup the service locator with test dependencies
-    setupServiceLocator();
-    // Ensure all async dependencies are ready
-    await getIt.allReady();
-  }
-
-  static Future<void> tearDownTestDependencies() async {
-    // Reset the service locator after each test
-    getIt.reset();
-  }
-
-  static Future<void> pumpAndSettle(
-    WidgetTester tester,
-    Widget widget,
-  ) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: widget,
-      ),
-    );
-    await tester.pumpAndSettle();
-  }
-}
+class MockImageSaveService extends Mock implements ImageSaveService {}
