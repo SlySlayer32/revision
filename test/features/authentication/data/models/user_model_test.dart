@@ -4,7 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:revision/features/authentication/data/models/user_model.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
 
-import '../../../../helpers/helpers.dart'; // Import the helper
+import '../../../../helpers/helpers.dart';
 
 class MockFirebaseUser extends Mock implements firebase_auth.User {}
 
