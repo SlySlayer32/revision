@@ -1,6 +1,7 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/widgets.dart'; // Required for WidgetsFlutterBinding
 import 'package:integration_test/integration_test_driver.dart';
-import 'dart:developer' as dev;
 
 // TODO: Create firebase_emulator_helper.dart or remove this import
 // import '../test/helpers/firebase_emulator_helper.dart'; // Import the helper
