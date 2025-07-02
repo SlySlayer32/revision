@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/core/di/service_locator.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
-import 'package:revision/debug_gemini.dart';
-import 'package:revision/debug_remote_config.dart';
 import 'package:revision/features/ai_processing/data/services/ai_result_save_service.dart';
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
@@ -30,24 +28,6 @@ class AiProcessingView extends StatefulWidget {
 }
 
 class _AiProcessingViewState extends State<AiProcessingView> {
-  @override
-  void initState() {
-    super.initState();
-    // Run debug tests first, then auto-start processing
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Debug test Remote Config first
-      await RemoteConfigDebugTester.testRemoteConfig();
-      
-      // Then debug test Gemini connection
-      await GeminiDebugTester.testGeminiConnection();
-      
-      // Auto-start processing when page loads if we have image data
-      if (widget.selectedImage.bytes != null) {
-        context.read<GeminiPipelineCubit>().processImage(widget.selectedImage.bytes!);
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<GeminiPipelineCubit, GeminiPipelineState>(
