@@ -26,7 +26,8 @@ String _generateSystemPrompt(List<AnnotationStroke> strokes) {
 
 **Fix**: Removed all orphaned code blocks that were floating outside the class definition.
 
-**Impact**: 
+**Impact**:
+
 - ✅ Eliminates compilation errors
 - ✅ Reduces file size by ~200 lines
 - ✅ Improves code maintainability
@@ -61,6 +62,7 @@ import 'package:revision/core/utils/result.dart';
 ```
 
 **Impact**:
+
 - ✅ Eliminates "Undefined name" errors
 - ✅ Ensures code compiles successfully
 - ✅ Follows clean import practices
@@ -91,6 +93,7 @@ Future<http.MultipartRequest> _createAnalysisRequest() { /* bypass pattern */ }
 **Fix**: Removed all legacy methods, keeping only the clean delegation pattern.
 
 **Impact**:
+
 - ✅ Maintains consistent Single Responsibility Principle
 - ✅ Eliminates code duplication
 - ✅ Ensures all processing goes through validated services
@@ -114,6 +117,7 @@ Future<ProcessingResult> _createFallbackResult() { }
 **Fix**: Completely removed unreachable code blocks.
 
 **Impact**:
+
 - ✅ Eliminates confusing dead code
 - ✅ Reduces cognitive load for developers
 - ✅ Prevents maintenance overhead
@@ -139,6 +143,7 @@ void dispose() {
 ```
 
 **Impact**:
+
 - ✅ Prevents memory leaks
 - ✅ Ensures proper cleanup
 - ✅ Maintains consistent disposal pattern
