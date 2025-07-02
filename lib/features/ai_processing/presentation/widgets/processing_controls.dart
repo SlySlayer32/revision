@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:revision/features/ai_processing/domain/services/processing_context_builder.dart';
 import 'package:revision/features/ai_processing/presentation/constants/ui_constants.dart';
 import 'package:revision/features/ai_processing/presentation/controllers/processing_controls_controller.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
@@ -27,14 +26,12 @@ class ProcessingControls extends StatefulWidget {
 
 class _ProcessingControlsState extends State<ProcessingControls> {
   late final ProcessingControlsController _controller;
-  final _contextBuilder = ProcessingContextBuilder();
 
   @override
   void initState() {
     super.initState();
     _controller = ProcessingControlsController(
       onStartProcessing: widget.onStartProcessing,
-      contextBuilder: _contextBuilder,
       annotatedImage: widget.annotatedImage,
     )..addListener(_rebuild);
     _controller.initialize();
