@@ -70,8 +70,8 @@ Format your response as a direct prompt ready for an AI image editing model.
     for (int i = 1; i < stroke.points.length; i++) {
       final prev = stroke.points[i - 1];
       final curr = stroke.points[i];
-      final dx = curr.x - prev.x;
-      final dy = curr.y - prev.y;
+      final dx = curr.dx - prev.dx;
+      final dy = curr.dy - prev.dy;
       totalDistance += (dx * dx + dy * dy).sqrt();
     }
     
@@ -82,16 +82,16 @@ Format your response as a direct prompt ready for an AI image editing model.
   static double _estimateCoverageArea(AnnotationStroke stroke) {
     if (stroke.points.isEmpty) return 0.0;
     
-    double minX = stroke.points.first.x;
+    double minX = stroke.points.first.dx;
     double maxX = minX;
-    double minY = stroke.points.first.y;
+    double minY = stroke.points.first.dy;
     double maxY = minY;
     
     for (final point in stroke.points) {
-      minX = minX < point.x ? minX : point.x;
-      maxX = maxX > point.x ? maxX : point.x;
-      minY = minY < point.y ? minY : point.y;
-      maxY = maxY > point.y ? maxY : point.y;
+      minX = minX < point.dx ? minX : point.dx;
+      maxX = maxX > point.dx ? maxX : point.dx;
+      minY = minY < point.dy ? minY : point.dy;
+      maxY = maxY > point.dy ? maxY : point.dy;
     }
     
     return (maxX - minX) * (maxY - minY);
