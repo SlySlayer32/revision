@@ -5,13 +5,14 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:revision/core/utils/result.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_result.dart';
-import 'package:revision/features/ai_processing/domain/exceptions/ai_processing_exception.dart';
-import 'package:revision/features/ai_processing/infrastructure/config/analysis_service_config.dart';
-import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
-import 'package:revision/features/image_editing/domain/entities/annotation_stroke.dart';
+import 'package:revision/features/ai_processing\domain\exceptions\ai_processing_exception.dart';
+import 'package:revision/features/ai_processing\infrastructure\config\analysis_service_config.dart';
+import 'package:revision/features/authentication\domain\repositories\auth_repository.dart';
+import 'package:revision/features/image_editing\domain\entities\annotated_image.dart';
+import 'package:revision/features/image_editing\domain\entities\annotation_stroke.dart';
 
 /// Service responsible for executing AI analysis requests
-/// 
+///
 /// Handles the actual communication with AI services and response processing
 /// following Single Responsibility Principle.
 class AnalysisExecutor {
@@ -21,7 +22,7 @@ class AnalysisExecutor {
   final http.Client _httpClient;
 
   /// Executes AI analysis request and returns processing result
-  /// 
+  ///
   /// Takes validated input and generated prompt, sends to AI service,
   /// and processes the response into a structured result.
   Future<Result<ProcessingResult>> execute(
@@ -49,10 +50,11 @@ class AnalysisExecutor {
       stopwatch.stop();
 
       log('✅ AI analysis execution completed in ${stopwatch.elapsedMilliseconds}ms');
-      
+
       final result = ProcessingResult(
         processedImageData: annotatedImage.imageBytes,
-        originalPrompt: 'User marked ${annotatedImage.annotations.length} objects for removal',
+        originalPrompt:
+            'User marked ${annotatedImage.annotations.length} objects for removal',
         enhancedPrompt: generatedPrompt,
         processingTime: stopwatch.elapsed,
         imageAnalysis: _createImageAnalysis(annotatedImage.imageBytes),
@@ -67,11 +69,11 @@ class AnalysisExecutor {
     } catch (e, stackTrace) {
       stopwatch.stop();
       log('❌ AI analysis execution failed: $e', stackTrace: stackTrace);
-      
+
       if (e is AnalysisNetworkException) {
         return Failure(e);
       }
-      
+
       return Failure(AnalysisNetworkException(
         'Analysis execution failed: ${e.toString()}',
       ));
@@ -89,7 +91,8 @@ class AnalysisExecutor {
 
     // Note: In a real implementation, you would need to get an actual access token
     // For now, this is a placeholder showing the structure
-    final accessToken = 'PLACEHOLDER_ACCESS_TOKEN'; // TODO: Implement actual auth
+    final accessToken =
+        'PLACEHOLDER_ACCESS_TOKEN'; // TODO: Implement actual auth
 
     // Add headers
     request.headers.addAll(AnalysisServiceConfig.getAuthHeaders(accessToken));
@@ -108,7 +111,8 @@ class AnalysisExecutor {
     request.fields['model'] = AnalysisServiceConfig.analysisModel;
     request.fields['annotation_data'] = jsonEncode(_strokesToJson(strokes));
     request.fields['max_tokens'] = '512';
-    request.fields['temperature'] = '0.3'; // Lower temperature for consistent results
+    request.fields['temperature'] =
+        '0.3'; // Lower temperature for consistent results
 
     return request;
   }
@@ -122,7 +126,8 @@ class AnalysisExecutor {
                   .map((point) => {
                         'x': point.dx,
                         'y': point.dy,
-                        'pressure': 1.0, // Default pressure since Offset doesn't have pressure
+                        'pressure':
+                            1.0, // Default pressure since Offset doesn't have pressure
                       })
                   .toList(),
               'color': stroke.color.value,
@@ -138,11 +143,14 @@ class AnalysisExecutor {
   ) async {
     Exception? lastException;
 
-    for (int attempt = 0; attempt <= AnalysisServiceConfig.maxRetries; attempt++) {
+    for (int attempt = 0;
+        attempt <= AnalysisServiceConfig.maxRetries;
+        attempt++) {
       try {
         log('🔄 Sending AI analysis request (attempt ${attempt + 1}/${AnalysisServiceConfig.maxRetries + 1})');
 
-        final response = await request.send().timeout(AnalysisServiceConfig.requestTimeout);
+        final response =
+            await request.send().timeout(AnalysisServiceConfig.requestTimeout);
 
         if (response.statusCode == 200) {
           log('✅ AI analysis request successful');
@@ -162,7 +170,8 @@ class AnalysisExecutor {
       }
     }
 
-    throw lastException ?? AnalysisNetworkException('All retry attempts failed');
+    throw lastException ??
+        const AnalysisNetworkException('All retry attempts failed');
   }
 
   /// Parses the AI analysis response and extracts the editing prompt
