@@ -25,7 +25,7 @@ void main() {
 
     group('canSaveToGallery', () {
       test('returns true on supported platforms', () async {
-        when(mockImageSaveService.canSaveToGallery())
+        when(() => mockImageSaveService.canSaveToGallery())
             .thenAnswer((_) async => true);
         final result = await mockImageSaveService.canSaveToGallery();
         expect(result, isA<bool>());
