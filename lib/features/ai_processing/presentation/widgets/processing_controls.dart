@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
 import 'package:revision/features/ai_processing/presentation/widgets/system_instructions_panel.dart';
+import 'package:revision/features/ai_processing/domain/entities/image_marker.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
 import 'package:revision/features/image_editing/domain/utils/annotation_converter.dart';
-import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
 
 /// Widget for controlling AI processing parameters and starting processing.
 class ProcessingControls extends StatefulWidget {
