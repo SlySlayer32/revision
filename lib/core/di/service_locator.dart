@@ -80,19 +80,24 @@ void _registerCoreServices() {
 }
 
 void _registerDataSources() {
+  // Skip Firebase data sources if already registered (test mode)
+  if (!getIt.isRegistered<FirebaseAuthDataSource>()) {
+    getIt
+      // Data Sources
+      ..registerLazySingleton<FirebaseAuthDataSource>(
+        () {
+          try {
+            return FirebaseAuthDataSourceImpl();
+          } catch (e) {
+            debugPrint('Error while creating FirebaseAuthDataSource: $e');
+            debugPrint('Stack trace: ${StackTrace.current}');
+            rethrow;
+          }
+        },
+      );
+  }
+  
   getIt
-    // Data Sources
-    ..registerLazySingleton<FirebaseAuthDataSource>(
-      () {
-        try {
-          return FirebaseAuthDataSourceImpl();
-        } catch (e) {
-          debugPrint('Error while creating FirebaseAuthDataSource: $e');
-          debugPrint('Stack trace: ${StackTrace.current}');
-          rethrow;
-        }
-      },
-    )
     ..registerLazySingleton<ImagePicker>(ImagePicker.new)
     ..registerLazySingleton<ImagePickerDataSource>(
       () => ImagePickerDataSource(getIt<ImagePicker>()),
