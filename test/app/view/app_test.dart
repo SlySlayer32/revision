@@ -1,40 +1,39 @@
 // VGV-compliant app widget tests
 // Following Very Good Ventures testing patterns
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revision/app/app.dart';
 import '../../helpers/test_setup.dart';
 
 void main() {
   group('App', () {
-    setUpAll(setupTestEnvironment);
+    setUpAll(() async {
+      await TestSetup.setupTestEnvironment();
+    });
 
-    tearDownAll(tearDownTestEnvironment);
+    tearDownAll(() async {
+      await TestSetup.tearDownTestEnvironment();
+    });
 
     testWidgets('renders MaterialApp correctly', (tester) async {
-      // VGV Pattern: Test widget rendering without external dependencies
-      await VGVTestHelper.pumpAndSettle(
-        tester,
-        const App(),
-      );
+      await tester.pumpWidget(const App());
+      await tester.pumpAndSettle();
 
-      // VGV Pattern: Verify the app structure exists
-      expect(find.byType(App), findsOneWidget);
+      // Verify the app structure exists
+      expect(find.byType(MaterialApp), findsOneWidget);
     });
 
     testWidgets('has correct app structure', (tester) async {
-      // VGV Pattern: Test core app configuration
-      await VGVTestHelper.pumpAndSettle(
-        tester,
-        const App(),
-      );
+      await tester.pumpWidget(const App());
+      await tester.pumpAndSettle();
 
-      // VGV Pattern: Verify material design setup
-      expect(find.byType(App), findsOneWidget);
+      // Verify material design setup
+      expect(find.byType(MaterialApp), findsOneWidget);
     });
 
     testWidgets('initializes without errors', (tester) async {
-      // VGV Pattern: Test initialization without throwing
+      // Test initialization without throwing
       expect(() => const App(), returnsNormally);
     });
   });
