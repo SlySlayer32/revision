@@ -3,12 +3,22 @@ import 'dart:typed_data';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/core/utils/result.dart';
 import 'package:revision/core/utils/enhanced_logger.dart';
+import 'package:revision/features/ai_processing/domain/constants/ai_processing_constants.dart';
+import 'package:revision/features/ai_processing/domain/exceptions/ai_processing_exception.dart';
+import 'package:revision/features/ai_processing/domain/validators/image_validator.dart';
+import 'package:revision/features/ai_processing/domain/error_handlers/ai_error_handler.dart';
 
 /// Use case for processing images with the Gemini AI Pipeline
 ///
-/// Implements the MVP requirements:
+/// Implements the MVP requirements with improved separation of concerns:
 /// 1. Image Analysis using Gemini 2.5 Flash
 /// 2. Image Generation using Gemini 2.0 Flash Preview Image Generation
+///
+/// This implementation addresses identified code smells:
+/// - Extracted constants to dedicated file
+/// - Created proper exception hierarchy
+/// - Separated validation logic
+/// - Improved error handling and mapping
 class ProcessImageWithGeminiUseCase {
   ProcessImageWithGeminiUseCase(this._geminiPipelineService);
 
@@ -67,20 +77,27 @@ class ProcessImageWithGeminiUseCase {
           'markedAreasCount': markedAreas.length,
         },
       );
-      
+
       String errorMessage = 'Gemini AI Pipeline failed: ${e.toString()}';
-      
+
       // Provide specific guidance based on error type
       if (e.toString().contains('403') || e.toString().contains('forbidden')) {
-        errorMessage = 'Firebase AI access denied. Check project billing and API permissions.';
-      } else if (e.toString().contains('404') || e.toString().contains('not found')) {
-        errorMessage = 'Gemini model not found. The model might not be available in your region.';
-      } else if (e.toString().contains('quota') || e.toString().contains('limit')) {
-        errorMessage = 'Gemini API quota exceeded. Check your Firebase billing and usage limits.';
-      } else if (e.toString().contains('authentication') || e.toString().contains('unauthorized')) {
-        errorMessage = 'Firebase AI authentication failed. Check your Firebase project configuration.';
+        errorMessage =
+            'Firebase AI access denied. Check project billing and API permissions.';
+      } else if (e.toString().contains('404') ||
+          e.toString().contains('not found')) {
+        errorMessage =
+            'Gemini model not found. The model might not be available in your region.';
+      } else if (e.toString().contains('quota') ||
+          e.toString().contains('limit')) {
+        errorMessage =
+            'Gemini API quota exceeded. Check your Firebase billing and usage limits.';
+      } else if (e.toString().contains('authentication') ||
+          e.toString().contains('unauthorized')) {
+        errorMessage =
+            'Firebase AI authentication failed. Check your Firebase project configuration.';
       }
-      
+
       return Failure(
         GeminiPipelineException(errorMessage),
       );
