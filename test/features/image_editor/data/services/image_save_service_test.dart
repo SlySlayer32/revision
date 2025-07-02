@@ -40,7 +40,7 @@ void main() {
           sizeInBytes: 100,
           source: ImageSource.gallery,
         );
-        when(mockImageSaveService.saveToTemp(any))
+        when(() => mockImageSaveService.saveToTemp(any()))
             .thenAnswer((_) async => const Success('Image saved to temporary location'));
 
         final result = await mockImageSaveService.saveToTemp(selectedImage);
