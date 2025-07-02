@@ -92,7 +92,7 @@ class AiProcessingView extends StatelessWidget {
                       child: BlocBuilder<ImageEditorCubit, ImageEditorState>(
                         builder: (context, editorState) {
                           final annotatedImage = AnnotatedImage(
-                            originalImage: selectedImage,
+                            imageBytes: selectedImage.bytes!,
                             annotations: editorState.strokes,
                           );
                           return ProcessingControls(
