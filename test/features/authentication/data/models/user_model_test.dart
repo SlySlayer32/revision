@@ -11,14 +11,8 @@ class MockFirebaseUser extends Mock implements firebase_auth.User {}
 class MockUserMetadata extends Mock implements firebase_auth.UserMetadata {}
 
 void main() {
-  // Ensure Firebase is initialized before tests run
-  setUpAll(() async {
-    try {
-      await setupFirebaseAuthMocks();
-    } catch (e) {
-      // Skip Firebase initialization errors in test environment
-      print('Firebase mock setup failed: $e (continuing with tests)');
-    }
+  setUpAll(() {
+    setupFirebaseAuthMocks();
   });
 
   group('UserModel', () {
