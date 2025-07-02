@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:revision/core/services/gemini_ai_service.dart';
-import 'package:revision/features/ai_processing/domain/value_objects/marked_area.dart';
 
 class GeminiPipelineResult {
   final Uint8List originalImage;
@@ -33,10 +32,10 @@ class GeminiPipelineService {
       // Wait for service initialization
       await _geminiAIService.waitForInitialization();
 
-      // Generate image analysis and new image using Gemini
-      final result = await _geminiAIService.generateImageFromText(
-        prompt: prompt,
-        inputImage: imageBytes,
+      // Generate image using Gemini AI
+      final result = await _geminiAIService.processImageWithAI(
+        imageBytes: imageBytes,
+        editingPrompt: prompt,
       );
 
       stopwatch.stop();
@@ -44,7 +43,7 @@ class GeminiPipelineService {
       // Return the processed result
       return GeminiPipelineResult(
         originalImage: imageBytes,
-        generatedImage: result ?? imageBytes, // Fallback to original if no result
+        generatedImage: result,
         analysisPrompt: prompt,
         markedAreas: [],
         processingTimeMs: stopwatch.elapsedMilliseconds,
