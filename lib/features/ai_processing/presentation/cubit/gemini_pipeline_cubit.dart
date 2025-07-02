@@ -1,9 +1,10 @@
-import 'dart:typed_data';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
 import 'package:revision/features/ai_processing/domain/usecases/process_image_with_gemini_usecase.dart';
+import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_state.dart';
+import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
+import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
 
 /// Cubit for managing Gemini AI Pipeline state and operations
 ///
@@ -14,25 +15,30 @@ import 'package:revision/features/ai_processing/domain/usecases/process_image_wi
 /// 4. Results display
 class GeminiPipelineCubit extends Cubit<GeminiPipelineState> {
   GeminiPipelineCubit(this._processImageWithGeminiUseCase)
-      : super(const GeminiPipelineInitial());
+      : super(const GeminiPipelineState());
 
   final ProcessImageWithGeminiUseCase _processImageWithGeminiUseCase;
 
   /// Process an image through the complete Gemini AI Pipeline
-  Future<void> processImage(Uint8List imageData,
-      {ProcessingContext? context}) async {
-    emit(const GeminiPipelineLoading());
+  Future<void> startImageProcessing({
+    required SelectedImage selectedImage,
+    required String prompt,
+    required ProcessingContext processingContext,
+    AnnotatedImage? annotatedImage,
+  }) async {
+    emit(state.copyWith(status: GeminiPipelineStatus.processing, progressMessage: 'Starting analysis...'));
 
     // Convert ImageMarker objects to the Map format expected by the pipeline
-    final markedAreas =
-        context?.markers.map((marker) => marker.toAIMap()).toList() ??
-            <Map<String, dynamic>>[];
+    final markedAreas = processingContext.markers.map((marker) => marker.toAIMap()).toList();
 
-    final result = await _processImageWithGeminiUseCase(imageData,
+    final result = await _processImageWithGeminiUseCase(selectedImage.bytes,
         markedAreas: markedAreas);
 
     result.fold(
-      success: (pipelineResult) => emit(GeminiPipelineSuccess(pipelineResult)),
+      success: (pipelineResult) => emit(state.copyWith(
+        status: GeminiPipelineStatus.success,
+        processingResult: pipelineResult,
+      )),
       failure: (exception) {
         String errorMessage = exception.toString();
 
@@ -54,42 +60,13 @@ Firebase AI (Gemini) Setup Required:
 Original error: ${exception.toString()}''';
         }
 
-        emit(GeminiPipelineError(errorMessage));
+        emit(state.copyWith(status: GeminiPipelineStatus.error, errorMessage: errorMessage));
       },
     );
   }
 
   /// Clear the current pipeline state
   void clearPipeline() {
-    emit(const GeminiPipelineInitial());
+    emit(const GeminiPipelineState());
   }
-}
-
-/// Base state for Gemini AI Pipeline
-abstract class GeminiPipelineState {
-  const GeminiPipelineState();
-}
-
-/// Initial state - no processing started
-class GeminiPipelineInitial extends GeminiPipelineState {
-  const GeminiPipelineInitial();
-}
-
-/// Loading state - pipeline is processing
-class GeminiPipelineLoading extends GeminiPipelineState {
-  const GeminiPipelineLoading();
-}
-
-/// Success state - pipeline completed successfully
-class GeminiPipelineSuccess extends GeminiPipelineState {
-  const GeminiPipelineSuccess(this.result);
-
-  final GeminiPipelineResult result;
-}
-
-/// Error state - pipeline failed
-class GeminiPipelineError extends GeminiPipelineState {
-  const GeminiPipelineError(this.message);
-
-  final String message;
 }
