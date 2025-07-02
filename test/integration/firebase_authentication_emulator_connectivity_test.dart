@@ -2,13 +2,9 @@
 // VGV-compliant integration test for Firebase Auth emulator connectivity
 // Tests emulator connection and basic Firebase Auth operations
 
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
-import 'package:revision/core/configs/firebase_config.dart';
-import 'package:revision/core/constants/firebase_constants.dart';
+import 'package:firebase_core/firebase_core.dart';
 import '../helpers/firebase_helpers.dart';
 
 void main() {
