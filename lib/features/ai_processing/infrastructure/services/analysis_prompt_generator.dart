@@ -74,7 +74,7 @@ Format your response as a direct prompt ready for an AI image editing model.
       final curr = stroke.points[i];
       final dx = curr.dx - prev.dx;
       final dy = curr.dy - prev.dy;
-      totalDistance += (dx * dx + dy * dy).sqrt();
+      totalDistance += sqrt(dx * dx + dy * dy);
     }
     
     return stroke.points.length / (totalDistance + 1); // +1 to avoid division by zero
