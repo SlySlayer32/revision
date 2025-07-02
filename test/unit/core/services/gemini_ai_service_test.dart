@@ -1,6 +1,7 @@
 // test/unit/core/services/gemini_ai_service_test.dart
 import 'dart:typed_data';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
@@ -11,8 +12,6 @@ import '../../../helpers/test_data/ai_test_data.dart';
 // Mock classes
 class MockFirebaseAIRemoteConfigService extends Mock
     implements FirebaseAIRemoteConfigService {}
-
-import 'package:firebase_core/firebase_core.dart';
 
 void main() {
   group('GeminiAIService', () {
