@@ -1,12 +1,12 @@
 import 'dart:typed_data';
 
 import 'package:revision/core/services/gemini_pipeline_service.dart';
-import 'package:revision/core/utils/result.dart';
 import 'package:revision/core/utils/enhanced_logger.dart';
+import 'package:revision/core/utils/result.dart';
 import 'package:revision/features/ai_processing/domain/constants/ai_processing_constants.dart';
+import 'package:revision/features/ai_processing/domain/error_handlers/ai_error_handler.dart';
 import 'package:revision/features/ai_processing/domain/exceptions/ai_processing_exception.dart';
 import 'package:revision/features/ai_processing/domain/validators/image_validator.dart';
-import 'package:revision/features/ai_processing/domain/error_handlers/ai_error_handler.dart';
 
 /// Use case for processing images with the Gemini AI Pipeline
 ///
@@ -67,10 +67,13 @@ class ProcessImageWithGeminiUseCase {
     // Simple validation for marked areas structure
     for (int i = 0; i < markedAreas.length; i++) {
       final area = markedAreas[i];
-      if (!area.containsKey('x') || !area.containsKey('y') ||
-          !area.containsKey('width') || !area.containsKey('height')) {
+      if (!area.containsKey('x') ||
+          !area.containsKey('y') ||
+          !area.containsKey('width') ||
+          !area.containsKey('height')) {
         return Failure(
-          MarkedAreaValidationException('Marked area $i missing required coordinates'),
+          MarkedAreaValidationException(
+              'Marked area $i missing required coordinates'),
         );
       }
     }
