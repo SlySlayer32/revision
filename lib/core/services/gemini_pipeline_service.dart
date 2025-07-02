@@ -69,24 +69,59 @@ class GeminiPipelineService {
     required Uint8List imageData,
     required List<Map<String, dynamic>> markedAreas,
   }) async {
-    // TODO: Implement marked object removal using AI
-    // This should analyze the marked areas and generate a new image
-    // with those objects removed using Gemini AI services
+    final stopwatch = Stopwatch()..start();
 
-    // For now, convert marked areas to strings and use basic processing
-    final markedAreaDescriptions = markedAreas
-        .map((area) => area['description']?.toString() ?? 'unmarked area')
-        .toList();
+    try {
+      // Wait for service initialization
+      await _geminiAIService.waitForInitialization();
 
-    final prompt =
-        'Remove objects in marked areas: ${markedAreaDescriptions.join(', ')}';
+      // Convert marked areas to descriptions
+      final markedAreaDescriptions = markedAreas
+          .map((area) => area['description']?.toString() ?? 'unmarked area')
+          .toList();
 
-    return GeminiPipelineResult(
-      originalImage: imageData,
-      generatedImage: imageData, // Placeholder - should be processed image
-      analysisPrompt: prompt,
-      markedAreas: markedAreaDescriptions,
-      processingTimeMs: DateTime.now().millisecondsSinceEpoch,
-    );
+      // Create a detailed prompt for object removal
+      final prompt = '''
+Remove the following objects from this image: ${markedAreaDescriptions.join(', ')}
+
+Instructions:
+- Carefully remove each marked object from the image
+- Fill in the background naturally where objects were removed
+- Maintain the overall composition and lighting
+- Ensure the result looks natural and seamless
+- Preserve the quality and style of the original image
+
+Objects to remove: ${markedAreaDescriptions.join(', ')}
+''';
+
+      // Use the AI service to process the image
+      final result = await _geminiAIService.processImageWithAI(
+        imageBytes: imageData,
+        editingPrompt: prompt,
+      );
+
+      stopwatch.stop();
+
+      return GeminiPipelineResult(
+        originalImage: imageData,
+        generatedImage: result,
+        analysisPrompt: prompt,
+        markedAreas: markedAreaDescriptions,
+        processingTimeMs: stopwatch.elapsedMilliseconds,
+      );
+    } catch (e) {
+      stopwatch.stop();
+      
+      // Return original image on error
+      return GeminiPipelineResult(
+        originalImage: imageData,
+        generatedImage: imageData, // Return original on error
+        analysisPrompt: 'Error processing marked objects: ${e.toString()}',
+        markedAreas: markedAreas
+            .map((area) => area['description']?.toString() ?? 'unmarked area')
+            .toList(),
+        processingTimeMs: stopwatch.elapsedMilliseconds,
+      );
+    }
   }
 }
