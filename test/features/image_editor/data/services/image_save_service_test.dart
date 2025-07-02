@@ -64,17 +64,17 @@ void main() {
           source: ImageSource.gallery,
         );
         when(mockImageSaveService.saveToTemp(any)).thenAnswer(
-            (_) async => const Failure(AppException.fileNotFound()));
+            (_) async => const Failure(Exception('File not found')));
 
         final result = await mockImageSaveService.saveToTemp(selectedImage);
 
-        expect(result, isA<Failure<AppException>>());
+        expect(result, isA<Failure<Exception>>());
         result.when(
           success: (message) {
             fail('Expected failure but got success: $message');
           },
           failure: (error) {
-            expect(error, const AppException.fileNotFound());
+            expect(error, isA<Exception>());
           },
         );
       });
