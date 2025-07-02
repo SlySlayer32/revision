@@ -31,77 +31,105 @@ class ProcessImageWithGeminiUseCase {
   /// [markedAreas] - List of marked areas for object removal
   ///
   /// Returns [GeminiPipelineResult] with original image, analysis prompt,
-  /// and generated image, or [Exception] on failure.
+  /// and generated image, or [AIProcessingException] on failure.
   Future<Result<GeminiPipelineResult>> call(
     Uint8List imageData, {
     List<Map<String, dynamic>> markedAreas = const [],
   }) async {
     try {
-      // Validate image data
-      if (imageData.isEmpty) {
-        return const Failure(
-          GeminiPipelineException('Image data cannot be empty'),
-        );
+      // Step 1: Validate all inputs
+      final validationResult = _validateInputs(imageData, markedAreas);
+      if (validationResult.isFailure) {
+        return validationResult.cast<GeminiPipelineResult>();
       }
 
-      // Validate image size (max 10MB per MVP requirements)
-      const maxSizeMB = 10;
-      final sizeMB = imageData.length / (1024 * 1024);
-      if (sizeMB > maxSizeMB) {
-        return Failure(
-          GeminiPipelineException(
-            'Image too large: ${sizeMB.toStringAsFixed(1)}MB (max ${maxSizeMB}MB)',
-          ),
-        );
-      }
-
-      // Execute the complete Gemini AI Pipeline with marked areas
-      final result = markedAreas.isNotEmpty
-          ? await _geminiPipelineService.processImageWithMarkedObjects(
-              imageData: imageData,
-              markedAreas: markedAreas,
-            )
-          : await _geminiPipelineService.processImage(imageData);
-
-      return Success(result);
+      // Step 2: Execute processing
+      return await _executeProcessing(imageData, markedAreas);
     } catch (e, stackTrace) {
-      // Add detailed logging for debugging
-      _logger.error(
-        'Gemini AI Pipeline Error Details',
-        operation: 'GEMINI_PIPELINE_PROCESSING',
-        error: e,
-        stackTrace: stackTrace,
-        context: {
-          'errorType': e.runtimeType.toString(),
-          'imageSize': imageData.length,
-          'markedAreasCount': markedAreas.length,
-        },
-      );
-
-      String errorMessage = 'Gemini AI Pipeline failed: ${e.toString()}';
-
-      // Provide specific guidance based on error type
-      if (e.toString().contains('403') || e.toString().contains('forbidden')) {
-        errorMessage =
-            'Firebase AI access denied. Check project billing and API permissions.';
-      } else if (e.toString().contains('404') ||
-          e.toString().contains('not found')) {
-        errorMessage =
-            'Gemini model not found. The model might not be available in your region.';
-      } else if (e.toString().contains('quota') ||
-          e.toString().contains('limit')) {
-        errorMessage =
-            'Gemini API quota exceeded. Check your Firebase billing and usage limits.';
-      } else if (e.toString().contains('authentication') ||
-          e.toString().contains('unauthorized')) {
-        errorMessage =
-            'Firebase AI authentication failed. Check your Firebase project configuration.';
-      }
-
-      return Failure(
-        GeminiPipelineException(errorMessage),
-      );
+      return _handleError(e, stackTrace, imageData, markedAreas);
     }
+  }
+
+  /// Validates all inputs for processing
+  ///
+  /// Separates validation concerns for better testability
+  Result<void> _validateInputs(
+    Uint8List imageData,
+    List<Map<String, dynamic>> markedAreas,
+  ) {
+    // Validate image data
+    final imageValidation = ImageValidator.validateImageData(imageData);
+    if (imageValidation.isFailure) {
+      return imageValidation;
+    }
+
+    // Validate marked areas
+    final areasValidation = ImageValidator.validateMarkedAreas(markedAreas);
+    if (areasValidation.isFailure) {
+      return areasValidation;
+    }
+
+    return const Success(null);
+  }
+
+  /// Executes the core processing logic
+  ///
+  /// Delegates to the appropriate service method based on marked areas
+  Future<Result<GeminiPipelineResult>> _executeProcessing(
+    Uint8List imageData,
+    List<Map<String, dynamic>> markedAreas,
+  ) async {
+    // Generate appropriate prompt based on marked areas
+    final prompt = _generatePrompt(markedAreas);
+
+    // Execute processing based on whether we have marked areas
+    final result = markedAreas.isNotEmpty
+        ? await _geminiPipelineService.processImageWithMarkedObjects(
+            imageData: imageData,
+            markedAreas: markedAreas,
+          )
+        : await _geminiPipelineService.processImage(imageData, prompt);
+
+    return Success(result);
+  }
+
+  /// Generates appropriate prompt based on marked areas
+  String _generatePrompt(List<Map<String, dynamic>> markedAreas) {
+    if (markedAreas.isEmpty) {
+      return 'Enhance this image by improving quality, lighting, and composition';
+    }
+
+    return 'Remove objects in marked areas: ${markedAreas.length} areas marked for removal';
+  }
+
+  /// Handles errors with proper logging and exception mapping
+  ///
+  /// Maps generic exceptions to domain-specific exceptions
+  /// Provides structured logging with relevant context
+  Result<GeminiPipelineResult> _handleError(
+    Object error,
+    StackTrace stackTrace,
+    Uint8List imageData,
+    List<Map<String, dynamic>> markedAreas,
+  ) {
+    // Map to domain-specific exception
+    final mappedException = AIErrorHandler.mapException(error);
+
+    // Log with structured context
+    _logger.error(
+      'Gemini AI Pipeline Error',
+      operation: AIProcessingConstants.operationName,
+      error: mappedException,
+      stackTrace: stackTrace,
+      context: {
+        'errorCategory': mappedException.category.toString(),
+        'imageSize': imageData.length,
+        'markedAreasCount': markedAreas.length,
+        'isRetryable': AIErrorHandler.isRetryableException(mappedException),
+      },
+    );
+
+    return Failure(mappedException);
   }
 }
 
