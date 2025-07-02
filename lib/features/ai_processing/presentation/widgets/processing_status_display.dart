@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
@@ -14,7 +13,7 @@ class ProcessingStatusDisplay extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Status: \${state.status.name}', style: Theme.of(context).textTheme.titleMedium),
+            Text('Status: ${state.status.name}', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             if (state.status == GeminiPipelineStatus.processing)
               const LinearProgressIndicator(),
