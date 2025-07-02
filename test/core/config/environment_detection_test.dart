@@ -34,7 +34,7 @@ void main() {
     test('should provide debug information', () {
       final debugInfo = EnvironmentDetector.getDebugInfo();
       expect(debugInfo, isA<Map<String, dynamic>>());
-      expect(debugInfo, containsPair('currentEnvironment', isA<String>()));
+      expect(debugInfo, containsPair('currentEnvironment', isA<AppEnvironment>()));
       expect(debugInfo, containsPair('compileTimeEnv', isA<String>()));
       expect(debugInfo, containsPair('isWeb', isA<bool>()));
       expect(debugInfo, containsPair('isDebugMode', isA<bool>()));
