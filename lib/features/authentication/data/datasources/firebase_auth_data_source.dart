@@ -418,4 +418,20 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       return UserModel.fromFirebaseUser(firebaseUser);
     }
   }
+
+  @override
+  Future<String> getIdToken() async {
+    final firebaseUser = _firebaseAuth.currentUser;
+    if (firebaseUser == null) {
+      throw const AuthException('No authenticated user found');
+    }
+
+    try {
+      final idToken = await firebaseUser.getIdToken();
+      return idToken;
+    } catch (e) {
+      log('Error getting ID token', error: e);
+      throw _mapFirebaseAuthExceptionToDomainException(e);
+    }
+  }
 }
