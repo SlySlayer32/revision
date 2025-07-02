@@ -2,14 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:revision/core/di/service_locator.dart';
-import 'package:revision/core/services/gemini_pipeline_service.dart';
-import 'package:revision/features/ai_processing/data/services/ai_result_save_service.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
 import 'package:revision/features/ai_processing/presentation/widgets/processing_controls.dart';
 import 'package:revision/features/ai_processing/presentation/widgets/processing_status_display.dart';
-import 'package:revision/features/image_editing/presentation/cubit/image_editing_cubit.dart';
+import 'package:revision/features/image_editor/presentation/cubit/image_editor_cubit.dart';
 import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
 import 'package:revision/features/image_selection/presentation/cubit/image_selection_cubit.dart';
 import 'package:revision/features/image_selection/presentation/cubit/image_selection_state.dart';
@@ -24,7 +21,7 @@ class AiProcessingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final annotatedImage =
-        context.watch<ImageEditingCubit>().state.annotatedImage;
+        context.watch<ImageEditorCubit>().state.annotatedImage;
 
     return Scaffold(
       appBar: AppBar(
