@@ -63,7 +63,6 @@ void main() {
           .thenReturn('Test analysis prompt');
       when(() => mockRemoteConfigService.requestTimeout)
           .thenReturn(const Duration(seconds: 30));
-      when(() => mockRemoteConfigService.debugMode).thenReturn(false);
       when(() => mockRemoteConfigService.enableAdvancedFeatures)
           .thenReturn(true);
     });
@@ -91,18 +90,6 @@ void main() {
       verify(() => mockRemoteConfigService.initialize()).called(1);
     });
 
-    test('should expose debug mode setting', () async {
-      // Arrange
-      final service = GeminiAIService(
-        remoteConfigService: mockRemoteConfigService,
-      );
-
-      // Act
-      await service.waitForInitialization();
-
-      // Assert
-      expect(service.isDebugMode, false);
-    });
 
     test('should expose advanced features setting', () async {
       // Arrange
