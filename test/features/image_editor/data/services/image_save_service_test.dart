@@ -63,7 +63,7 @@ void main() {
           sizeInBytes: 1000,
           source: ImageSource.gallery,
         );
-        when(mockImageSaveService.saveToTemp(any)).thenAnswer(
+        when(() => mockImageSaveService.saveToTemp(any())).thenAnswer(
             (_) async => const Failure(Exception('File not found')));
 
         final result = await mockImageSaveService.saveToTemp(selectedImage);
