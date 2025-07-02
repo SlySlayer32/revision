@@ -109,7 +109,7 @@ class ProcessImageWithGeminiUseCaseImproved {
         return Success(result);
       }
     } catch (e) {
-      return _handleError(e, StackTrace.current);
+      return _handleError(e, StackTrace.current, imageData, markedAreas);
     }
   }
 
