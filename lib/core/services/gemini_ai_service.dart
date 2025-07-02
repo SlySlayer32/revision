@@ -164,9 +164,7 @@ class GeminiAIService implements AIService {
 
       log('✅ Google AI (Gemini API) models initialized successfully');
       log('🔑 API key source: Firebase Console configuration');
-      if (_remoteConfig.debugMode) {
-        log('🔍 Using Remote Config values: ${_remoteConfig.exportConfig()}');
-      }
+      log('🔍 Using Remote Config values: ${_remoteConfig.exportConfig()}');
     } catch (e, stackTrace) {
       log('❌ Failed to initialize Google AI models: $e',
           stackTrace: stackTrace);
@@ -618,8 +616,6 @@ Focus on creating a clean, professional result that matches the editing intent.
   /// Check if advanced features are enabled
   bool get isAdvancedFeaturesEnabled => _remoteConfig.enableAdvancedFeatures;
 
-  /// Check if debug mode is enabled
-  bool get isDebugMode => _remoteConfig.debugMode;
 
   List<String> _getFallbackSuggestions() {
     return [
