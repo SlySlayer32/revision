@@ -93,10 +93,17 @@ class AnalysisExecutor {
     final uri = Uri.parse(AnalysisServiceConfig.fullEndpoint);
     final request = http.MultipartRequest('POST', uri);
 
-    // Note: In a real implementation, you would need to get an actual access token
-    // For now, this is a placeholder showing the structure
-    final accessToken =
-        'PLACEHOLDER_ACCESS_TOKEN'; // TODO: Implement actual auth
+    // Get Firebase Auth token for authentication
+    String accessToken = 'PLACEHOLDER_ACCESS_TOKEN';
+    if (_authRepository != null) {
+      final tokenResult = await _authRepository!.getIdToken();
+      tokenResult.fold(
+        (failure) => log('⚠️ Failed to get auth token: ${failure.message}'),
+        (token) => accessToken = token,
+      );
+    } else {
+      log('⚠️ No auth repository provided, using placeholder token');
+    }
 
     // Add headers
     request.headers.addAll(AnalysisServiceConfig.getAuthHeaders(accessToken));
