@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:firebase_ai/firebase_ai.dart';
+import 'package:http/http.dart' as http;
 import 'package:revision/core/constants/firebase_ai_constants.dart';
 import 'package:revision/core/services/ai_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
@@ -299,7 +300,7 @@ class GeminiAIService implements AIService {
         // Create content with image and text using Google AI
         final content = [
           Content.multi([
-            new DataPart('image/jpeg', imageData),
+            Part.blob('image/jpeg', imageData),
             TextPart('''
 Analyze this image and provide editing instructions based on: $prompt
 
@@ -351,7 +352,7 @@ Please try again or contact support if the issue persists.
 
         final content = [
           Content.multi([
-            new DataPart('image/jpeg', imageData),
+            Part.blob('image/jpeg', imageData),
             TextPart('''
 Describe this image in detail for photo editing purposes.
 
@@ -392,7 +393,7 @@ Keep the description clear and technical.
 
         final content = [
           Content.multi([
-            new DataPart('image/jpeg', imageData),
+            Part.blob('image/jpeg', imageData),
             TextPart('''
 Analyze this image and provide 5 specific editing suggestions to improve it.
 
@@ -406,7 +407,6 @@ Focus on:
 Provide each suggestion as a clear, actionable sentence.
 '''),
           ]),
-        ];
 
         final response = await _geminiImageModel!
             .generateContent(content)
