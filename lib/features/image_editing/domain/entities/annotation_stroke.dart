@@ -13,6 +13,18 @@ class AnnotationStroke extends Equatable {
   final Color color;
   final double strokeWidth;
 
+  AnnotationStroke copyWith({
+    List<Offset>? points,
+    Color? color,
+    double? strokeWidth,
+  }) {
+    return AnnotationStroke(
+      points: points ?? this.points,
+      color: color ?? this.color,
+      strokeWidth: strokeWidth ?? this.strokeWidth,
+    );
+  }
+
   @override
   List<Object?> get props => [points, color, strokeWidth];
 }
