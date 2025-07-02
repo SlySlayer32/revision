@@ -8,7 +8,11 @@ import '../../helpers/test_helpers.dart';
 
 void main() {
   group('App', () {
-    setUpAll(VGVTestHelper.setupTestDependencies);
+    setUpAll(() {
+      VGVTestHelper.setupTestDependencies();
+      sl.registerLazySingleton<GetAuthStateChangesUseCase>(
+          () => MockGetAuthStateChangesUseCase());
+    });
 
     tearDownAll(VGVTestHelper.tearDownTestDependencies);
 
