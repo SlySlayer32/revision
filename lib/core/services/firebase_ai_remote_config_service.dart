@@ -18,41 +18,35 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 /// 3. Set default values and publish
 /// 4. Optionally create conditions for A/B testing
 class FirebaseAIRemoteConfigService {
-  static const String _activeModelTypeKey = 'active_ai_model_type';
   static const String _geminiModelKey = 'ai_gemini_model';
   static const String _geminiImageModelKey = 'ai_gemini_image_model';
   static const String _userPromptTemplateKey = 'user_prompt_template';
-  static const String _vertexLocationKey = 'vertex_location';
   static const String _temperatureKey = 'ai_temperature';
   static const String _maxOutputTokensKey = 'ai_max_output_tokens';
   static const String _topKKey = 'ai_top_k';
   static const String _topPKey = 'ai_top_p';
   static const String _analysisSystemPromptKey = 'ai_analysis_system_prompt';
-  static const String _editingSystemPromptKey = 'ai_editing_system_prompt';
   static const String _requestTimeoutSecondsKey = 'ai_request_timeout_seconds';
   static const String _enableAdvancedFeaturesKey =
       'ai_enable_advanced_features';
-  static const String _debugModeKey = 'ai_debug_mode';
 
   late final FirebaseRemoteConfig _remoteConfig;
   bool _isInitialized = false;
 
-  /// Default values that match current FirebaseAIConstants
-  static const Map<String, dynamic> _defaultValues = {
-    _activeModelTypeKey: 'gemini_with_system_instructions',
-    _geminiModelKey: 'gemini-2.5-flash',
-    _geminiImageModelKey: 'gemini-2.0-flash-preview-image-generation',
-    _userPromptTemplateKey: 'Analyze this image and provide detailed editing instructions for the marked objects.',
-    _vertexLocationKey: 'global',
-    _temperatureKey: 0.4,
+  /// Default values that match the remote config template
+  static final Map<String, dynamic> _defaultValues = {
+    _geminiModelKey: "gemini-2.0-flash-preview-text-generation",
+    _geminiImageModelKey: "gemini-2.0-flash-preview-image-generation",
+    _analysisSystemPromptKey:
+        "You are an AI specialized in analyzing marked objects in images for removal...",
+    _userPromptTemplateKey:
+        "Analyze this image and provide detailed editing instructions for the marked objects.",
+    _enableAdvancedFeaturesKey: true,
     _maxOutputTokensKey: 1024,
+    _requestTimeoutSecondsKey: 30,
+    _temperatureKey: 0.4,
     _topKKey: 40,
     _topPKey: 0.95,
-    _analysisSystemPromptKey: 'You are an AI specialized in analyzing marked objects in images for removal. The user has marked specific objects that they want removed from their photo. Analyze the marked areas and generate precise text prompts for image generation.',
-    _editingSystemPromptKey: 'This prompt is for reference only. The image generation model does NOT support system instructions. Include editing instructions directly in the user prompt instead.',
-    _requestTimeoutSecondsKey: 30,
-    _enableAdvancedFeaturesKey: true,
-    _debugModeKey: false,
   };
 
   /// Initialize Remote Config with default values
@@ -100,6 +94,15 @@ class FirebaseAIRemoteConfigService {
     } catch (e) {
       log('⚠️ Failed to refresh Remote Config: $e');
     }
+
+    try {
+      log('🔄 Refreshing Remote Config values...');
+      await _remoteConfig.fetchAndActivate();
+      log('✅ Remote Config refreshed successfully');
+      _logCurrentValues();
+    } catch (e) {
+      log('⚠️ Failed to refresh Remote Config: $e');
+    }
   }
 
   /// Get active AI model type (determines which model configuration to use)
@@ -122,7 +125,8 @@ class FirebaseAIRemoteConfigService {
 
   /// Get user prompt template for consistent prompting
   String get userPromptTemplate {
-    if (!_isInitialized) return _defaultValues[_userPromptTemplateKey] as String;
+    if (!_isInitialized)
+      return _defaultValues[_userPromptTemplateKey] as String;
     return _remoteConfig.getString(_userPromptTemplateKey);
   }
 
@@ -158,13 +162,15 @@ class FirebaseAIRemoteConfigService {
 
   /// Get system prompt for analysis model
   String get analysisSystemPrompt {
-    if (!_isInitialized) return _defaultValues[_analysisSystemPromptKey] as String;
+    if (!_isInitialized)
+      return _defaultValues[_analysisSystemPromptKey] as String;
     return _remoteConfig.getString(_analysisSystemPromptKey);
   }
 
   /// Get system prompt for editing model (reference only - image model doesn't support system instructions)
   String get editingSystemPrompt {
-    if (!_isInitialized) return _defaultValues[_editingSystemPromptKey] as String;
+    if (!_isInitialized)
+      return _defaultValues[_editingSystemPromptKey] as String;
     return _remoteConfig.getString(_editingSystemPromptKey);
   }
 
@@ -214,7 +220,7 @@ class FirebaseAIRemoteConfigService {
   /// Get the model name to use based on active model type and operation
   String getModelForOperation(String operation) {
     final activeType = activeModelType;
-    
+
     switch (activeType) {
       case 'gemini_with_system_instructions':
         return operation == 'analysis' ? geminiModel : geminiImageModel;
@@ -238,7 +244,7 @@ class FirebaseAIRemoteConfigService {
     if (!supportsSystemInstructions) {
       return null; // Model doesn't support system instructions
     }
-    
+
     switch (operation) {
       case 'analysis':
         return analysisSystemPrompt;
