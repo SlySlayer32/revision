@@ -10,13 +10,10 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase for testing, using the emulator.
-  // This should ideally use a shared configuration or the helper if appropriate.
   dev.log('Driver: Initializing Firebase for integration tests...');
   try {
-    // TODO: Implement Firebase emulator initialization
-    // await FirebaseEmulatorHelper.initializeForTesting();
-    dev.log(
-        'Driver: Firebase initialization skipped - helper not implemented.');
+    await FirebaseEmulatorHelper.initializeForTesting();
+    dev.log('Driver: Firebase emulator initialized successfully.');
   } catch (e) {
     dev.log('Driver: Firebase initialization failed: $e');
     dev.log(
