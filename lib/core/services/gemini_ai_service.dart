@@ -392,7 +392,7 @@ Keep the description clear and technical.
 
         final content = [
           Content.multi([
-            DataPart('image/jpeg', imageData),
+            Part.data('image/jpeg', imageData),
             TextPart('''
 Analyze this image and provide 5 specific editing suggestions to improve it.
 
