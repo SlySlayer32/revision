@@ -96,7 +96,7 @@ void _registerDataSources() {
         },
       );
   }
-  
+
   getIt
     ..registerLazySingleton<ImagePicker>(ImagePicker.new)
     ..registerLazySingleton<ImagePickerDataSource>(
@@ -123,7 +123,7 @@ void _registerRepositories() {
         },
       );
   }
-  
+
   getIt
     ..registerLazySingleton<image_selection.ImageRepository>(
       () => ImageSelectionRepositoryImpl(getIt<ImagePickerDataSource>()),
@@ -131,11 +131,10 @@ void _registerRepositories() {
 }
 
 void _registerUseCases() {
-  // Skip auth use cases if already registered (test mode)
-  if (!getIt.isRegistered<GetAuthStateChangesUseCase>()) {
-    getIt
-      // Use Cases
-      ..registerLazySingleton<SignInUseCase>(
+  getIt
+    // Use Cases
+    ..registerLazySingleton<SignInUseCase>(
+>>>>>>> Stashed changes
         () {
           try {
             return SignInUseCase(getIt<AuthRepository>());
@@ -172,6 +171,7 @@ void _registerUseCases() {
       ..registerLazySingleton<GetAuthStateChangesUseCase>(
         () {
           try {
+          try {
             return GetAuthStateChangesUseCase(getIt<AuthRepository>());
           } catch (e) {
             debugPrint('Error while creating GetAuthStateChangesUseCase: $e');
@@ -181,7 +181,7 @@ void _registerUseCases() {
         },
       );
   }
-  
+
   getIt
     ..registerLazySingleton<SelectImageUseCase>(
       () => SelectImageUseCase(getIt<image_selection.ImageRepository>()),
@@ -189,8 +189,7 @@ void _registerUseCases() {
 }
 
 void _registerServices() {
-  getIt
-    ..registerLazySingleton<ImageSaveService>(ImageSaveService.new);
+  getIt..registerLazySingleton<ImageSaveService>(ImageSaveService.new);
 }
 
 void _registerBlocs() {
