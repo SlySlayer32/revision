@@ -34,13 +34,6 @@ void main() {
   tearDownAll(() async {
     await TestSetup.tearDownTestEnvironment();
   });
-    try {
-      await setupFirebaseAuthMocks();
-    } catch (e) {
-      // Skip Firebase initialization errors in test environment
-      print('Firebase mock setup failed: $e (continuing with tests)');
-    }
-  });
 
   group('FirebaseAuthDataSourceImpl', () {
     late FirebaseAuthDataSourceImpl dataSource;
