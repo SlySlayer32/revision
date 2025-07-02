@@ -151,7 +151,7 @@ class ProcessingControlsController extends ChangeNotifier {
   }
   
   void startProcessing() {
-    final markers =
+    final List<ImageMarker> markers =
         annotatedImage != null && annotatedImage!.hasAnnotations
             ? AnnotationConverter.annotationsToMarkers(annotatedImage!.annotations)
             : <ImageMarker>[];
