@@ -1,8 +1,8 @@
 // test/unit/core/services/gemini_ai_service_test.dart
 import 'dart:typed_data';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../../helpers/firebase_core_mocks.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
@@ -18,9 +18,8 @@ void main() {
     late GeminiAIService service;
     late MockFirebaseAIRemoteConfigService mockRemoteConfig;
 
-    setUpAll(() async {
-      TestWidgetsFlutterBinding.ensureInitialized();
-      await Firebase.initializeApp();
+    setUpAll(() {
+      setupFirebaseCoreMocks();
     });
 
     setUp(() {
