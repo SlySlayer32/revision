@@ -4,6 +4,7 @@ import 'package:revision/features/ai_processing/presentation/widgets/system_inst
 import 'package:revision/features/ai_processing/domain/entities/image_marker.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
 import 'package:revision/features/image_editing/domain/utils/annotation_converter.dart';
+import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
 
 /// Widget for controlling AI processing parameters and starting processing.
 class ProcessingControls extends StatefulWidget {
@@ -39,7 +40,8 @@ class _ProcessingControlsState extends State<ProcessingControls> {
         widget.annotatedImage!.hasAnnotations) {
       _promptController.text =
           AnnotationConverter.generatePromptFromAnnotations(
-        widget.annotatedImage!,
+        widget.annotatedImage!.annotations,
+        _promptController.text,
       );
     }
   }
@@ -210,7 +212,7 @@ class _ProcessingControlsState extends State<ProcessingControls> {
     // Convert annotations to markers if available
     final markers =
         widget.annotatedImage != null && widget.annotatedImage!.hasAnnotations
-            ? AnnotationConverter.annotationsToMarkers(widget.annotatedImage!)
+            ? AnnotationConverter.annotationsToMarkers(widget.annotatedImage!.annotations)
             : <ImageMarker>[];
 
     final context = ProcessingContext(
