@@ -59,6 +59,9 @@ abstract class FirebaseAuthDataSource {
   Future<void> reauthenticateWithPassword({
     required String password,
   });
+
+  /// Get Firebase ID token for API authentication
+  Future<String> getIdToken();
 }
 
 /// Implementation of FirebaseAuthDataSource that uses Firebase Auth
