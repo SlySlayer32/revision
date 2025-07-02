@@ -7,7 +7,7 @@ import 'package:revision/features/image_editor/data/services/image_save_service.
 import 'package:revision/features/image_selection/domain/entities/image_source.dart';
 import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
 import 'package:mockito/mockito.dart';
-import '../../../helpers/test_helpers.dart';
+import '../../helpers/test_helpers.dart';
 
 void main() {
   group('ImageSaveService', () {
