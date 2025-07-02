@@ -49,4 +49,7 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> reauthenticateWithPassword({
     required String password,
   });
+
+  /// Get Firebase ID token for API authentication
+  Future<Either<Failure, String>> getIdToken();
 }
