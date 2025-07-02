@@ -1,4 +1,4 @@
-
+import 'package:revision/features/ai_processing/domain/entities/image_marker.dart';
 import 'package:revision/features/image_editing/domain/entities/annotation_stroke.dart';
 
 class AnnotationConverter {
@@ -36,12 +36,19 @@ class AnnotationConverter {
     return promptParts.join('\n');
   }
 
-  static List<String> annotationsToMarkers(List<AnnotationStroke> annotations) {
-    return annotations.map((stroke) {
+  static List<ImageMarker> annotationsToMarkers(
+      List<AnnotationStroke> annotations) {
+    return annotations.asMap().entries.map((entry) {
+      final index = entry.key;
+      final stroke = entry.value;
       final color = stroke.color;
       final colorName =
           '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
-      return 'Area marked with color $colorName and width ${stroke.strokeWidth.toStringAsFixed(2)}';
+      return ImageMarker(
+        id: 'marker_${index + 1}',
+        label:
+            'Area marked with color $colorName and width ${stroke.strokeWidth.toStringAsFixed(2)}',
+      );
     }).toList();
   }
 }
