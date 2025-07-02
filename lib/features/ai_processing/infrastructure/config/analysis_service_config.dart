@@ -17,8 +17,8 @@ abstract class AnalysisServiceConfig {
   /// Delay between retry attempts
   static const Duration retryDelay = Duration(seconds: 2);
   
-  /// Default project ID from environment
-  static String get projectId => EnvConfig.firebaseProjectId ?? 'revision-464202';
+  /// Default project ID (static for now, could be moved to env config later)
+  static const String projectId = 'revision-464202';
   
   /// Default location for AI services
   static const String location = 'us-central1';
