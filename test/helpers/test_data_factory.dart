@@ -6,7 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:revision/features/authentication/data/models/user_model.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
 
-import 'vgv_mocks.dart';
+class MockFirebaseUser extends Mock implements firebase_auth.User {}
 
 /// VGV Test Data Factory for creating consistent test data
 /// Provides factory methods for creating test objects following VGV patterns
