@@ -180,79 +180,16 @@ class FirebaseAIRemoteConfigService {
       'requestTimeoutSeconds': requestTimeoutSeconds,
       'enableAdvancedFeatures': enableAdvancedFeatures,
     };
-
-  /// Get request timeout as Duration
-  Duration get requestTimeout => Duration(seconds: requestTimeoutSeconds);
-
-  /// Check if advanced features are enabled
-  bool get enableAdvancedFeatures {
-    if (!_isInitialized)
-      return _defaultValues[_enableAdvancedFeaturesKey] as bool;
-    return _remoteConfig.getBool(_enableAdvancedFeaturesKey);
   }
 
-  /// Check if debug mode is enabled
-  bool get debugMode {
-    if (!_isInitialized) return _defaultValues[_debugModeKey] as bool;
-    return _remoteConfig.getBool(_debugModeKey);
-  }
-
-  /// Get all current config values as a map (useful for debugging)
-  Map<String, dynamic> getAllValues() {
-    return {
-      'activeModelType': activeModelType,
-      'geminiModel': geminiModel,
-      'geminiImageModel': geminiImageModel,
-      'userPromptTemplate': userPromptTemplate,
-      'vertexLocation': vertexLocation,
-      'temperature': temperature,
-      'maxOutputTokens': maxOutputTokens,
-      'topK': topK,
-      'topP': topP,
-      'analysisSystemPrompt': analysisSystemPrompt,
-      'editingSystemPrompt': editingSystemPrompt,
-      'requestTimeoutSeconds': requestTimeoutSeconds,
-      'enableAdvancedFeatures': enableAdvancedFeatures,
-      'debugMode': debugMode,
-    };
-  }
-
-  /// Get the model name to use based on active model type and operation
-  String getModelForOperation(String operation) {
-    final activeType = activeModelType;
-
-    switch (activeType) {
-      case 'gemini_with_system_instructions':
-        return operation == 'analysis' ? geminiModel : geminiImageModel;
-      case 'other_ai_no_system_instructions':
-        // If you had another AI model type, you'd handle it here
-        return operation == 'analysis' ? geminiModel : geminiImageModel;
-      default:
-        log('⚠️ Unknown model type: $activeType, using default');
-        return operation == 'analysis' ? geminiModel : geminiImageModel;
-    }
-  }
-
-  /// Check if the current active model supports system instructions
-  bool get supportsSystemInstructions {
-    final activeType = activeModelType;
-    return activeType == 'gemini_with_system_instructions';
-  }
 
   /// Get appropriate system instruction for the operation (null if not supported)
   String? getSystemInstructionForOperation(String operation) {
-    if (!supportsSystemInstructions) {
-      return null; // Model doesn't support system instructions
+    // Gemini image generation model does not support system instructions
+    if (operation == 'editing') {
+      return null;
     }
-
-    switch (operation) {
-      case 'analysis':
-        return analysisSystemPrompt;
-      case 'editing':
-        return null; // Even Gemini image generation doesn't support system instructions
-      default:
-        return null;
-    }
+    return analysisSystemPrompt;
   }
 
   void _logCurrentValues() {
@@ -268,7 +205,6 @@ class FirebaseAIRemoteConfigService {
     log('  Top-P: ${topP}');
     log('  Timeout: ${requestTimeoutSeconds}s');
     log('  Advanced Features: ${enableAdvancedFeatures}');
-    log('  Debug Mode: ${debugMode}');
   }
 
   /// Export current config for backup/sharing
