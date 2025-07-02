@@ -36,4 +36,14 @@ class AnnotationConverter {
 
     return promptParts.join('\n');
   }
+
+  static List<String> annotationsToMarkers(
+      List<AnnotationStroke> annotations) {
+    return annotations.map((stroke) {
+      final color = stroke.color;
+      final colorName =
+          '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
+      return 'Area marked with color $colorName and width ${stroke.strokeWidth.toStringAsFixed(2)}';
+    }).toList();
+  }
 }
