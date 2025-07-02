@@ -5,9 +5,11 @@ import 'package:revision/core/di/service_locator.dart';
 class VGVTestHelper {
   static Future<void> setupTestDependencies() async {
     // Reset the service locator to ensure a clean state for each test
-    getIt.reset();
+    await getIt.reset();
     // Setup the service locator with test dependencies
     setupServiceLocator();
+    // Ensure all async dependencies are ready
+    await getIt.allReady();
   }
 
   static Future<void> tearDownTestDependencies() async {
