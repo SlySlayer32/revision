@@ -24,6 +24,9 @@ abstract class AnalysisServiceConfig {
   /// Analysis model identifier
   static const String analysisModel = 'gemini-1.5-flash-002';
   
+  /// Maximum image size in bytes (10MB)
+  static const int maxImageSizeBytes = 10 * 1024 * 1024;
+  
   /// Constructs the full analysis endpoint URL
   static String get fullEndpoint {
     return '$baseUrl/$analysisEndpoint'
