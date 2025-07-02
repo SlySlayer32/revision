@@ -445,7 +445,7 @@ Provide each suggestion as a clear, actionable sentence.
 
         final content = [
           Content.multi([
-            InlineDataPart('image/jpeg', imageData),
+            DataPart('image/jpeg', imageData),
             TextPart('''
 Analyze this image for content safety. Is this image appropriate for a photo editing application?
 
