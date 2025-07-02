@@ -40,7 +40,8 @@ class ProcessImageWithGeminiUseCase {
       // Step 1: Validate all inputs
       final validationResult = _validateInputs(imageData, markedAreas);
       if (validationResult.isFailure) {
-        return validationResult.cast<GeminiPipelineResult>();
+        // Convert validation failure to processing failure
+        return Failure<GeminiPipelineResult>(validationResult.error);
       }
 
       // Step 2: Execute processing
@@ -63,10 +64,15 @@ class ProcessImageWithGeminiUseCase {
       return imageValidation;
     }
 
-    // Validate marked areas
-    final areasValidation = ImageValidator.validateMarkedAreas(markedAreas);
-    if (areasValidation.isFailure) {
-      return areasValidation;
+    // Simple validation for marked areas structure
+    for (int i = 0; i < markedAreas.length; i++) {
+      final area = markedAreas[i];
+      if (!area.containsKey('x') || !area.containsKey('y') ||
+          !area.containsKey('width') || !area.containsKey('height')) {
+        return Failure(
+          MarkedAreaValidationException('Marked area $i missing required coordinates'),
+        );
+      }
     }
 
     return const Success(null);
