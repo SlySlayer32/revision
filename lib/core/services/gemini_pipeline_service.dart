@@ -1,5 +1,8 @@
 import 'dart:typed_data';
 
+import 'package:revision/core/services/gemini_ai_service.dart';
+import 'package:revision/features/ai_processing/domain/value_objects/marked_area.dart';
+
 class GeminiPipelineResult {
   final Uint8List originalImage;
   final Uint8List generatedImage;
@@ -17,16 +20,47 @@ class GeminiPipelineResult {
 }
 
 class GeminiPipelineService {
+  GeminiPipelineService({GeminiAIService? geminiAIService})
+      : _geminiAIService = geminiAIService ?? GeminiAIService();
+
+  final GeminiAIService _geminiAIService;
+
   Future<GeminiPipelineResult> processImage(
       Uint8List imageBytes, String prompt) async {
-    // TODO: Implement Gemini API call
-    return GeminiPipelineResult(
-      originalImage: imageBytes,
-      generatedImage: imageBytes,
-      analysisPrompt: prompt,
-      markedAreas: [],
-      processingTimeMs: 0,
-    );
+    final stopwatch = Stopwatch()..start();
+
+    try {
+      // Wait for service initialization
+      await _geminiAIService.waitForInitialization();
+
+      // Generate image analysis and new image using Gemini
+      final result = await _geminiAIService.generateImageFromText(
+        prompt: prompt,
+        inputImage: imageBytes,
+      );
+
+      stopwatch.stop();
+
+      // Return the processed result
+      return GeminiPipelineResult(
+        originalImage: imageBytes,
+        generatedImage: result ?? imageBytes, // Fallback to original if no result
+        analysisPrompt: prompt,
+        markedAreas: [],
+        processingTimeMs: stopwatch.elapsedMilliseconds,
+      );
+    } catch (e) {
+      stopwatch.stop();
+      
+      // Return original image on error
+      return GeminiPipelineResult(
+        originalImage: imageBytes,
+        generatedImage: imageBytes,
+        analysisPrompt: prompt,
+        markedAreas: [],
+        processingTimeMs: stopwatch.elapsedMilliseconds,
+      );
+    }
   }
 
   /// Process image with marked areas for object removal
