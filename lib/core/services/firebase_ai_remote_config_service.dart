@@ -94,22 +94,8 @@ class FirebaseAIRemoteConfigService {
     } catch (e) {
       log('⚠️ Failed to refresh Remote Config: $e');
     }
-
-    try {
-      log('🔄 Refreshing Remote Config values...');
-      await _remoteConfig.fetchAndActivate();
-      log('✅ Remote Config refreshed successfully');
-      _logCurrentValues();
-    } catch (e) {
-      log('⚠️ Failed to refresh Remote Config: $e');
-    }
   }
 
-  /// Get active AI model type (determines which model configuration to use)
-  String get activeModelType {
-    if (!_isInitialized) return _defaultValues[_activeModelTypeKey] as String;
-    return _remoteConfig.getString(_activeModelTypeKey);
-  }
 
   /// Get Gemini model name for text/analysis
   String get geminiModel {
@@ -128,12 +114,6 @@ class FirebaseAIRemoteConfigService {
     if (!_isInitialized)
       return _defaultValues[_userPromptTemplateKey] as String;
     return _remoteConfig.getString(_userPromptTemplateKey);
-  }
-
-  /// Get Vertex AI location for geographic routing
-  String get vertexLocation {
-    if (!_isInitialized) return _defaultValues[_vertexLocationKey] as String;
-    return _remoteConfig.getString(_vertexLocationKey);
   }
 
   /// Get temperature parameter for generation
@@ -163,6 +143,26 @@ class FirebaseAIRemoteConfigService {
   /// Get system prompt for analysis model
   String get analysisSystemPrompt {
     if (!_isInitialized)
+      return _defaultValues[_analysisSystemPromptKey] as String;
+    return _remoteConfig.getString(_analysisSystemPromptKey);
+  }
+
+
+  /// Get request timeout in seconds
+  int get requestTimeoutSeconds {
+    if (!_isInitialized)
+      return _defaultValues[_requestTimeoutSecondsKey] as int;
+    return _remoteConfig.getInt(_requestTimeoutSecondsKey);
+  }
+
+  /// Get request timeout as Duration
+  Duration get requestTimeout => Duration(seconds: requestTimeoutSeconds);
+
+  /// Check if advanced features are enabled
+  bool get enableAdvancedFeatures {
+    if (!_isInitialized)
+      return _defaultValues[_enableAdvancedFeaturesKey] as bool;
+    return _remoteConfig.getBool(_enableAdvancedFeaturesKey);
       return _defaultValues[_analysisSystemPromptKey] as String;
     return _remoteConfig.getString(_analysisSystemPromptKey);
   }
