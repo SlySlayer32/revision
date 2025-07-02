@@ -74,7 +74,7 @@ class AIErrorHandler {
     }
     
     // Default mapping for unknown errors
-    return AIProcessingException(
+    return GeminiPipelineException(
       'Unexpected error occurred: ${_extractRelevantErrorMessage(errorString)}',
     );
   }
