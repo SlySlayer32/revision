@@ -9,9 +9,10 @@ import 'package:revision/features/ai_processing/domain/entities/processing_conte
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
 import 'package:revision/features/ai_processing/presentation/widgets/processing_controls.dart';
 import 'package:revision/features/ai_processing/presentation/widgets/processing_status_display.dart';
-import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
+import 'package:revision/features/image_editing/presentation/cubit/image_editing_cubit.dart';
 import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
-import 'package:revision/features/image_editing/presentation/bloc/image_editing_bloc.dart';
+import 'package:revision/features/image_selection/presentation/cubit/image_selection_cubit.dart';
+import 'package:revision/features/image_selection/presentation/cubit/image_selection_state.dart';
 
 /// Main view for AI processing functionality.
 ///
@@ -23,23 +24,15 @@ class AiProcessingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final annotatedImage =
-        context.watch<ImageEditingBloc>().state.annotatedImage;
+        context.watch<ImageEditingCubit>().state.annotatedImage;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('AI-Powered Revision'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: () {
-              // TODO(you): Show help/info dialog
-            },
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: BlocBuilder<ImageSelectionBloc, ImageSelectionState>(
+        child: BlocBuilder<ImageSelectionCubit, ImageSelectionState>(
           builder: (context, state) {
             if (state.status == ImageSelectionStatus.loading) {
               return const Center(child: CircularProgressIndicator());
@@ -61,7 +54,7 @@ class AiProcessingView extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Image.memory(
-                          selectedImage.bytes,
+                          selectedImage.bytes!,
                           fit: BoxFit.contain,
                         ),
                       ),
