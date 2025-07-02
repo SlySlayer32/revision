@@ -96,7 +96,7 @@ class AnalysisExecutor {
     // Get Firebase Auth token for authentication
     String accessToken = 'PLACEHOLDER_ACCESS_TOKEN';
     if (_authRepository != null) {
-      final tokenResult = await _authRepository!.getIdToken();
+      final tokenResult = await _authRepository.getIdToken();
       tokenResult.fold(
         (failure) => log('⚠️ Failed to get auth token: ${failure.message}'),
         (token) => accessToken = token,
