@@ -23,44 +23,44 @@ enum ExceptionCategory {
 
 /// Exception thrown when image validation fails
 class ImageValidationException extends AIProcessingException {
-  const ImageValidationException(super.message) 
-      : super(ExceptionCategory.validation);
+  const ImageValidationException(String message) 
+      : super(message, ExceptionCategory.validation);
 }
 
 /// Exception thrown when marked areas validation fails
 class MarkedAreaValidationException extends AIProcessingException {
-  const MarkedAreaValidationException(super.message) 
-      : super(ExceptionCategory.validation);
+  const MarkedAreaValidationException(String message) 
+      : super(message, ExceptionCategory.validation);
 }
 
 /// Exception thrown when API quota is exceeded
 class APIQuotaExceededException extends AIProcessingException {
-  const APIQuotaExceededException(super.message) 
-      : super(ExceptionCategory.apiLimit);
+  const APIQuotaExceededException(String message) 
+      : super(message, ExceptionCategory.apiLimit);
 }
 
 /// Exception thrown when API authentication fails
 class APIAuthenticationException extends AIProcessingException {
-  const APIAuthenticationException(super.message) 
-      : super(ExceptionCategory.authentication);
+  const APIAuthenticationException(String message) 
+      : super(message, ExceptionCategory.authentication);
 }
 
 /// Exception thrown when the AI model is not found or unavailable
 class ModelNotFoundException extends AIProcessingException {
-  const ModelNotFoundException(super.message) 
-      : super(ExceptionCategory.modelError);
+  const ModelNotFoundException(String message) 
+      : super(message, ExceptionCategory.modelError);
 }
 
 /// Exception thrown when API permissions are insufficient
 class APIPermissionException extends AIProcessingException {
-  const APIPermissionException(super.message) 
-      : super(ExceptionCategory.authentication);
+  const APIPermissionException(String message) 
+      : super(message, ExceptionCategory.authentication);
 }
 
 /// Exception thrown for general network-related issues
 class NetworkException extends AIProcessingException {
-  const NetworkException(super.message) 
-      : super(ExceptionCategory.network);
+  const NetworkException(String message) 
+      : super(message, ExceptionCategory.network);
 }
 
 /// Original exception from the current implementation for backward compatibility
