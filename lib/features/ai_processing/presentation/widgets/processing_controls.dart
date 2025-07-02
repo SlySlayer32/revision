@@ -102,7 +102,7 @@ class _ProcessingControlsState extends State<ProcessingControls> {
                     items: ProcessingType.values,
                     onChanged: (value) => _controller.selectedType = value!,
                     itemBuilder: (type) =>
-                        UIConstants.processingTypeLabels[type]!,
+                        ProcessingUIConstants.processingTypeLabels[type.name]!,
                   ),
 
                   const SizedBox(height: 16),
@@ -114,7 +114,7 @@ class _ProcessingControlsState extends State<ProcessingControls> {
                     items: QualityLevel.values,
                     onChanged: (value) => _controller.selectedQuality = value!,
                     itemBuilder: (quality) =>
-                        UIConstants.qualityLevelLabels[quality]!,
+                        ProcessingUIConstants.qualityLevelLabels[quality.name]!,
                   ),
 
                   const SizedBox(height: 16),
@@ -127,7 +127,7 @@ class _ProcessingControlsState extends State<ProcessingControls> {
                     onChanged: (value) =>
                         _controller.selectedPriority = value!,
                     itemBuilder: (priority) =>
-                        UIConstants.performancePriorityLabels[priority]!,
+                        ProcessingUIConstants.performancePriorityLabels[priority.name]!,
                   ),
                 ],
               ),
