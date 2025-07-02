@@ -26,6 +26,7 @@ class GeminiPipelineCubit extends Cubit<GeminiPipelineState> {
     required ProcessingContext processingContext,
     AnnotatedImage? annotatedImage,
   }) async {
+    final stopwatch = Stopwatch()..start();
     if (selectedImage.bytes == null) {
       emit(state.copyWith(
           status: GeminiPipelineStatus.error,
@@ -49,10 +50,10 @@ class GeminiPipelineCubit extends Cubit<GeminiPipelineState> {
         // The result from the use case is GeminiPipelineResult, which needs to be
         // adapted to the ProcessingResult expected by the state.
         final processingResult = ProcessingResult(
-          originalImage: pipelineResult.originalImage,
-          generatedImage: pipelineResult.generatedImage,
-          analysisPrompt: pipelineResult.analysisPrompt,
-          analysisResponse: pipelineResult.analysisResponse,
+          processedImageData: pipelineResult.generatedImage,
+          originalPrompt: prompt,
+          enhancedPrompt: pipelineResult.analysisPrompt,
+          processingTime: stopwatch.elapsed,
         );
         emit(state.copyWith(
           status: GeminiPipelineStatus.success,
