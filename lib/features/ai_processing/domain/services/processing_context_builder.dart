@@ -5,7 +5,7 @@ import 'package:revision/features/ai_processing/domain/entities/image_marker.dar
 /// 
 /// Separates business logic from UI components for better testability
 /// and maintainability following VGV Clean Architecture principles.
-abstract class ProcessingContextBuilder {
+class ProcessingContextBuilder {
   /// Builds a ProcessingContext with validated parameters
   /// 
   /// Takes UI selections and converts them to domain entities.
