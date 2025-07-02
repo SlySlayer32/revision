@@ -19,6 +19,7 @@ void main() {
     late MockFirebaseAIRemoteConfigService mockRemoteConfig;
 
     setUpAll(() async {
+      TestWidgetsFlutterBinding.ensureInitialized();
       await Firebase.initializeApp();
     });
 
