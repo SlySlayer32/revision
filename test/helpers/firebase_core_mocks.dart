@@ -1,4 +1,3 @@
-import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -6,6 +5,7 @@ typedef Callback = void Function(MethodCall call);
 
 void setupFirebaseCoreMocks() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  final apps = <String>[];
 
   const MethodChannel('plugins.flutter.io/firebase_core')
       .setMockMethodCallHandler((call) async {
@@ -24,8 +24,17 @@ void setupFirebaseCoreMocks() {
       ];
     }
     if (call.method == 'Firebase#initializeApp') {
+      final appName = call.arguments['appName'] as String;
+      if (apps.contains(appName)) {
+        return {
+          'name': appName,
+          'options': call.arguments['options'],
+          'pluginConstants': {},
+        };
+      }
+      apps.add(appName);
       return {
-        'name': call.arguments['appName'],
+        'name': appName,
         'options': call.arguments['options'],
         'pluginConstants': {},
       };
