@@ -131,53 +131,58 @@ void _registerRepositories() {
 }
 
 void _registerUseCases() {
+  // Skip auth use cases if already registered (test mode)
+  if (!getIt.isRegistered<GetAuthStateChangesUseCase>()) {
+    getIt
+      // Use Cases
+      ..registerLazySingleton<SignInUseCase>(
+        () {
+          try {
+            return SignInUseCase(getIt<AuthRepository>());
+          } catch (e) {
+            debugPrint('Error while creating SignInUseCase: $e');
+            debugPrint('Stack trace: ${StackTrace.current}');
+            rethrow;
+          }
+        },
+      )
+      ..registerLazySingleton<SignInWithGoogleUseCase>(
+        () => SignInWithGoogleUseCase(getIt<AuthRepository>()),
+      )
+      ..registerLazySingleton<SignUpUseCase>(
+        () => SignUpUseCase(getIt<AuthRepository>()),
+      )
+      ..registerLazySingleton<SignOutUseCase>(
+        () {
+          try {
+            return SignOutUseCase(getIt<AuthRepository>());
+          } catch (e) {
+            debugPrint('Error while creating SignOutUseCase: $e');
+            debugPrint('Stack trace: ${StackTrace.current}');
+            rethrow;
+          }
+        },
+      )
+      ..registerLazySingleton<SendPasswordResetEmailUseCase>(
+        () => SendPasswordResetEmailUseCase(getIt<AuthRepository>()),
+      )
+      ..registerLazySingleton<GetCurrentUserUseCase>(
+        () => GetCurrentUserUseCase(getIt<AuthRepository>()),
+      )
+      ..registerLazySingleton<GetAuthStateChangesUseCase>(
+        () {
+          try {
+            return GetAuthStateChangesUseCase(getIt<AuthRepository>());
+          } catch (e) {
+            debugPrint('Error while creating GetAuthStateChangesUseCase: $e');
+            debugPrint('Stack trace: ${StackTrace.current}');
+            rethrow;
+          }
+        },
+      );
+  }
+  
   getIt
-    // Use Cases
-    ..registerLazySingleton<SignInUseCase>(
-      () {
-        try {
-          return SignInUseCase(getIt<AuthRepository>());
-        } catch (e) {
-          debugPrint('Error while creating SignInUseCase: $e');
-          debugPrint('Stack trace: ${StackTrace.current}');
-          rethrow;
-        }
-      },
-    )
-    ..registerLazySingleton<SignInWithGoogleUseCase>(
-      () => SignInWithGoogleUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<SignUpUseCase>(
-      () => SignUpUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<SignOutUseCase>(
-      () {
-        try {
-          return SignOutUseCase(getIt<AuthRepository>());
-        } catch (e) {
-          debugPrint('Error while creating SignOutUseCase: $e');
-          debugPrint('Stack trace: ${StackTrace.current}');
-          rethrow;
-        }
-      },
-    )
-    ..registerLazySingleton<SendPasswordResetEmailUseCase>(
-      () => SendPasswordResetEmailUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<GetCurrentUserUseCase>(
-      () => GetCurrentUserUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<GetAuthStateChangesUseCase>(
-      () {
-        try {
-          return GetAuthStateChangesUseCase(getIt<AuthRepository>());
-        } catch (e) {
-          debugPrint('Error while creating GetAuthStateChangesUseCase: $e');
-          debugPrint('Stack trace: ${StackTrace.current}');
-          rethrow;
-        }
-      },
-    )
     ..registerLazySingleton<SelectImageUseCase>(
       () => SelectImageUseCase(getIt<image_selection.ImageRepository>()),
     );
