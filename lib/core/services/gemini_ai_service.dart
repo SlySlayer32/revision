@@ -315,7 +315,7 @@ Provide clear, actionable editing steps.
         ];
 
         final response = await _geminiImageModel!
-            .generateContent(content)
+            .generateContentStream(content)
             .timeout(_remoteConfig.requestTimeout);
 
         // Validate response using AIResponseValidator
@@ -368,7 +368,7 @@ Keep the description clear and technical.
         ];
 
         final response = await _geminiImageModel!
-            .generateContent(content)
+            .generateContentStream(content)
             .timeout(_remoteConfig.requestTimeout);
 
         // Validate response using AIResponseValidator
@@ -409,7 +409,7 @@ Provide each suggestion as a clear, actionable sentence.
         ];
 
         final response = await _geminiImageModel!
-            .generateContent(content)
+            .generateContentStream(content)
             .timeout(_remoteConfig.requestTimeout);
 
         // Validate response using AIResponseValidator
@@ -460,7 +460,7 @@ Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a b
         ];
 
         final response = await _geminiImageModel!
-            .generateContent(content)
+            .generateContentStream(content)
             .timeout(_remoteConfig.requestTimeout);
 
         // Validate response using AIResponseValidator
@@ -516,7 +516,7 @@ Provide a clear, actionable editing prompt.
         ];
 
         final response = await _geminiImageModel!
-            .generateContent(content)
+            .generateContentStream(content)
             .timeout(_remoteConfig.requestTimeout);
 
         // Validate response using AIResponseValidator
