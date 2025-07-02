@@ -42,7 +42,7 @@ class AiProcessingPage extends StatelessWidget {
       body: BlocProvider(
         create: (context) => getIt<GeminiPipelineCubit>(),
         child: AiProcessingView(
-          image: selectedImage,
+          selectedImage: selectedImage,
           annotatedImage: annotatedImage,
         ),
       ),
