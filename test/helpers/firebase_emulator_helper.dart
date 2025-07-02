@@ -26,7 +26,7 @@ class FirebaseEmulatorHelper {
     var emulatorHost = _authEmulatorHost;
     if (Platform.isAndroid) {
       emulatorHost = '10.0.2.2';
-    } else if (Platform.isIOS) {
+    } else if (Platform.isIOS || Platform.isWindows) {
       emulatorHost = 'localhost';
     } else {
       emulatorHost = '127.0.0.1';
@@ -36,7 +36,7 @@ class FirebaseEmulatorHelper {
       // Check if Firebase is already initialized to prevent duplicate app error
       try {
         Firebase.app(); // Try to get existing default app
-        print('✅ Firebase already initialized, reusing existing app');
+        print('â Firebase already initialized, reusing existing app');
       } catch (e) {
         // App doesn't exist, initialize it
         await Firebase.initializeApp(
@@ -44,7 +44,7 @@ class FirebaseEmulatorHelper {
             projectId: _projectId,
           ),
         );
-        print('✅ Firebase initialized successfully for testing');
+        print('â Firebase initialized successfully for testing');
       }
 
       // Configure Auth emulator - must be called before any auth operations
@@ -54,11 +54,11 @@ class FirebaseEmulatorHelper {
           _authEmulatorPort,
         );
         print(
-          '✅ Firebase Auth emulator connected on '
+          'â Firebase Auth emulator connected on '
           '[33m$emulatorHost:$_authEmulatorPort[0m',
         );
       } catch (e) {
-        print('⚠️ Could not connect to auth emulator on $emulatorHost: $e');
+        print('â ď¸ Could not connect to auth emulator on $emulatorHost: $e');
         rethrow; // Rethrow to fail test if emulator connection fails
       }
 
@@ -68,9 +68,9 @@ class FirebaseEmulatorHelper {
       );
 
       _isInitialized = true;
-      print('✅ Firebase initialized for integration testing');
+      print('â Firebase initialized for integration testing');
     } catch (e) {
-      print('❌ Firebase initialization failed: $e');
+      print('â Firebase initialization failed: $e');
       rethrow;
     }
   }
@@ -83,12 +83,12 @@ class FirebaseEmulatorHelper {
       // Check if emulators are already running
       final healthCheck = await _checkEmulatorHealth();
       if (healthCheck) {
-        // print('🔥 Firebase emulators already running');
+        // print('đĽ Firebase emulators already running');
         _emulatorsStarted = true;
         return;
       }
 
-      // print('🚀 Starting Firebase emulators...');
+      // print('đ Starting Firebase emulators...');
 
       // Start emulators in detached mode
       await Process.start(
@@ -101,10 +101,10 @@ class FirebaseEmulatorHelper {
       await _waitForEmulators();
 
       _emulatorsStarted = true;
-      // print('✅ Firebase emulators started successfully');
+      // print('â Firebase emulators started successfully');
     } catch (e) {
-      // print('❌ Failed to start Firebase emulators: $e');
-      // print('💡 Make sure Firebase CLI is installed and configured');
+      // print('â Failed to start Firebase emulators: $e');
+      // print('đĄ Make sure Firebase CLI is installed and configured');
       rethrow;
     }
   }
@@ -116,9 +116,9 @@ class FirebaseEmulatorHelper {
     try {
       await Process.run('firebase', ['emulators:stop']);
       _emulatorsStarted = false;
-      // print('🛑 Firebase emulators stopped');
+      // print('đ Firebase emulators stopped');
     } catch (e) {
-      // print('⚠️ Failed to stop emulators gracefully: $e');
+      // print('â ď¸ Failed to stop emulators gracefully: $e');
     }
   }
 
@@ -136,12 +136,12 @@ class FirebaseEmulatorHelper {
       ]);
 
       if (response.exitCode == 0) {
-        // print('🧹 Emulator data cleared successfully');
+        // print('đ§š Emulator data cleared successfully');
       } else {
-        // print('⚠️ Failed to clear emulator data: ${response.stderr}');
+        // print('â ď¸ Failed to clear emulator data: ${response.stderr}');
       }
     } catch (e) {
-      // print('⚠️ Error clearing emulator data: $e');
+      // print('â ď¸ Error clearing emulator data: $e');
     }
   }
 
@@ -191,18 +191,18 @@ class FirebaseEmulatorHelper {
           // Update display name
           await userCredential.user?.updateDisplayName(userData['name']);
 
-          log('✅ Created user: ${userData['email']}');
+          log('â Created user: ${userData['email']}');
         } catch (e) {
-          log('⚠️  User ${userData['email']} might already exist: $e');
+          log('â ď¸  User ${userData['email']} might already exist: $e');
         }
       }
 
       // Sign out after creating users
       await auth.signOut();
 
-      log('👥 Test users seeded successfully');
+      log('đĽ Test users seeded successfully');
     } catch (e) {
-      log('⚠️ Failed to seed test users: $e');
+      log('â ď¸ Failed to seed test users: $e');
     }
   }
 
@@ -230,10 +230,10 @@ class FirebaseEmulatorHelper {
         await userCredential.user?.updateDisplayName(displayName);
       }
 
-      log('✅ Created test user: $email');
+      log('â Created test user: $email');
       return userCredential.user;
     } catch (e) {
-      log('⚠️ Failed to create user $email: $e');
+      log('â ď¸ Failed to create user $email: $e');
       return null;
     }
   }
@@ -257,10 +257,10 @@ class FirebaseEmulatorHelper {
         password: password,
       );
 
-      log('✅ Signed in test user: $email');
+      log('â Signed in test user: $email');
       return userCredential.user;
     } catch (e) {
-      log('❌ Failed to sign in $email: $e');
+      log('â Failed to sign in $email: $e');
       return null;
     }
   }
@@ -282,13 +282,13 @@ class FirebaseEmulatorHelper {
     await initializeForTesting();
     await clearEmulatorData();
     await seedTestUsers();
-    // print('🎯 Firebase testing environment ready');
+    // print('đŻ Firebase testing environment ready');
   }
 
   /// Cleanup testing environment
   static Future<void> teardownTestEnvironment() async {
     await clearEmulatorData();
-    // print('🧹 Firebase testing environment cleaned up');
+    // print('đ§š Firebase testing environment cleaned up');
   }
 
   /// Check if Auth emulator is running and healthy
@@ -315,7 +315,7 @@ class FirebaseEmulatorHelper {
         return;
       }
       await Future<void>.delayed(delay);
-      // print('⏳ Waiting for emulators to start... (${i + 1}/$maxAttempts)');
+      // print('âł Waiting for emulators to start... (${i + 1}/$maxAttempts)');
     }
 
     throw const TimeoutException(
@@ -340,9 +340,9 @@ class FirebaseEmulatorHelper {
       await FirebaseAuth.instance.signOut();
       // In a real emulator environment, you might also call:
       // await _clearAllUsersFromEmulator();
-      print('✅ Auth data cleared');
+      print('â Auth data cleared');
     } catch (e) {
-      print('⚠️ Failed to clear auth data: $e');
+      print('â ď¸ Failed to clear auth data: $e');
     }
   }
 }
