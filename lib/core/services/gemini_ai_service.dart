@@ -319,7 +319,8 @@ Provide clear, actionable editing steps.
             .timeout(_remoteConfig.requestTimeout);
 
         // Validate response using AIResponseValidator
-        return AIResponseValidator.validateAndExtractText(response);
+        final text = await response.map((chunk) => chunk.text).join();
+        return text;
       },
       'processImagePrompt',
     ).catchError((e) {
@@ -372,7 +373,8 @@ Keep the description clear and technical.
             .timeout(_remoteConfig.requestTimeout);
 
         // Validate response using AIResponseValidator
-        return AIResponseValidator.validateAndExtractText(response);
+        final text = await response.map((chunk) => chunk.text).join();
+        return text;
       },
       'generateImageDescription',
     ).catchError((e) {
@@ -413,8 +415,7 @@ Provide each suggestion as a clear, actionable sentence.
             .timeout(_remoteConfig.requestTimeout);
 
         // Validate response using AIResponseValidator
-        final responseText =
-            AIResponseValidator.validateAndExtractText(response);
+        final responseText = await response.map((chunk) => chunk.text).join();
 
         // Parse response into suggestions
         final suggestions = responseText
@@ -465,7 +466,7 @@ Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a b
 
         // Validate response using AIResponseValidator
         final responseText =
-            AIResponseValidator.validateAndExtractText(response).toUpperCase();
+            (await response.map((chunk) => chunk.text).join()).toUpperCase();
 
         return responseText.contains('SAFE') &&
             !responseText.contains('UNSAFE');
@@ -520,7 +521,8 @@ Provide a clear, actionable editing prompt.
             .timeout(_remoteConfig.requestTimeout);
 
         // Validate response using AIResponseValidator
-        return AIResponseValidator.validateAndExtractText(response);
+        final text = await response.map((chunk) => chunk.text).join();
+        return text;
       },
       'generateEditingPrompt',
     ).catchError((e) {
