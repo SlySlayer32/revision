@@ -85,13 +85,13 @@ class ProcessImageWithGeminiUseCaseImproved {
     Uint8List imageData,
     List<MarkedArea> markedAreas,
   ) async {
-    final result = markedAreas.isNotEmpty
-        ? await _geminiPipelineService.processImageWithMarkedObjects(
-            imageData: imageData,
-            markedAreas: markedAreas.map((area) => area.toMap()).toList(),
-          )
-        : await _geminiPipelineService.processImage(imageData);
-
+    // TODO: Current service only supports basic processing
+    // This is a placeholder until the service supports marked areas
+    final prompt = markedAreas.isNotEmpty
+        ? 'Remove objects in marked areas: ${markedAreas.map((area) => area.description ?? 'unmarked area').join(', ')}'
+        : 'Process and enhance this image';
+        
+    final result = await _geminiPipelineService.processImage(imageData, prompt);
     return Success(result);
   }
 
