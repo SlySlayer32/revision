@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:revision/core/di/service_locator.dart';
 import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
@@ -15,12 +15,12 @@ import 'package:dartz/dartz.dart';
 // Mock classes
 class MockAuthRepository extends Mock implements AuthRepository {
   @override
-  Stream<User?> get authStateChanges => Stream.value(null);
+  Stream<User?> get authStateChanges => Stream<User?>.value(null);
 }
 
 class MockGetAuthStateChangesUseCase extends Mock implements GetAuthStateChangesUseCase {
   @override
-  Stream<User?> call() => Stream.value(null);
+  Stream<User?> call() => Stream<User?>.value(null);
 }
 
 class MockSignOutUseCase extends Mock implements SignOutUseCase {
@@ -28,7 +28,7 @@ class MockSignOutUseCase extends Mock implements SignOutUseCase {
   Future<Either<Failure, void>> call() async => const Right(null);
 }
 
-class MockFirebaseAuth extends Mock implements FirebaseAuth {}
+class MockFirebaseAuth extends Mock implements firebase_auth.FirebaseAuth {}
 class MockFirestore extends Mock implements FirebaseFirestore {}
 
 class TestSetup {
