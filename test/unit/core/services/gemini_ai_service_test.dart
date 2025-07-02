@@ -46,6 +46,8 @@ void main() {
       when(() => mockRemoteConfig.getAllValues()).thenReturn({});
 
       service = GeminiAIService(remoteConfigService: mockRemoteConfig);
+    });
+
 
     group('initialization', () {
       test('should initialize with remote config service', () {
