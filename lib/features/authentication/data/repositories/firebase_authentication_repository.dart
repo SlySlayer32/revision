@@ -178,4 +178,18 @@ class FirebaseAuthenticationRepository implements AuthRepository {
       return Left(AuthenticationFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, String>> getIdToken() async {
+    try {
+      final idToken = await _dataSource.getIdToken();
+      return Right(idToken);
+    } on AuthException catch (e) {
+      log('Get ID token auth exception', error: e);
+      return Left(AuthenticationFailure(e.message, e.code));
+    } catch (e) {
+      log('Unexpected get ID token error', error: e);
+      return Left(AuthenticationFailure(e.toString()));
+    }
+  }
 }
