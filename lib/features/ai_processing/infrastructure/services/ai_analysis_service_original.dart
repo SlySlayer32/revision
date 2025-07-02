@@ -1,7 +1,4 @@
-import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:revision/core/utils/result.dart';
@@ -11,9 +8,6 @@ import 'package:revision/features/ai_processing/infrastructure/services/analysis
 import 'package:revision/features/ai_processing/infrastructure/services/analysis_input_validator.dart';
 import 'package:revision/features/ai_processing/infrastructure/services/analysis_prompt_generator.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
-import 'package:revision/features/image_editing/domain/entities/annotation_stroke.dart';
-import 'package:revision/features/ai_processing/domain/entities/image_analysis.dart';
-import 'package:revision/core/config/ai_config.dart';
 
 /// Service for analyzing annotated images and generating AI editing prompts
 /// 
