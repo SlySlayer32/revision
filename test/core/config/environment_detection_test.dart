@@ -3,12 +3,23 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:revision/core/config/env_config.dart';
 import 'package:revision/core/config/environment_detector.dart';
 import 'package:revision/firebase_options.dart';
+import '../../helpers/test_setup.dart';
 
 void main() {
   setUpAll(() async {
-    // Load environment variables for tests
-    await dotenv.load(fileName: ".env.development");
+    await TestSetup.setupTestEnvironment();
+    // Load test environment variables
+    dotenv.testLoad(fileInput: '''
+ENVIRONMENT=test
+FIREBASE_PROJECT_ID=test-project
+GEMINI_API_KEY=test-gemini-key
+''');
   });
+
+  tearDownAll(() async {
+    await TestSetup.tearDownTestEnvironment();
+  });
+
   group('Environment Detection Tests', () {
     test('should detect development environment from compile-time constant',
         () {
