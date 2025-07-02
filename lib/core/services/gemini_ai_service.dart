@@ -299,7 +299,7 @@ class GeminiAIService implements AIService {
         // Create content with image and text using Google AI
         final content = [
           Content.multi([
-            DataPart('image/jpeg', imageData),
+            new DataPart('image/jpeg', imageData),
             TextPart('''
 Analyze this image and provide editing instructions based on: $prompt
 
