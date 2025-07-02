@@ -1,29 +1,35 @@
-import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
+import 'package:revision/core/utils/result.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_result.dart';
-import 'package:revision/features/ai_processing/infrastructure/config/ai_config.dart';
+import 'package:revision/features/ai_processing/infrastructure/services/analysis_executor.dart';
+import 'package:revision/features/ai_processing/infrastructure/services/analysis_fallback_handler.dart';
+import 'package:revision/features/ai_processing/infrastructure/services/analysis_input_validator.dart';
+import 'package:revision/features/ai_processing/infrastructure/services/analysis_prompt_generator.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
-import 'package:revision/features/image_editing/domain/entities/annotation_stroke.dart';
 
 /// Service for analyzing annotated images and generating AI editing prompts
-/// This service takes user-marked images and creates prompts for the next AI model
+/// 
+/// Refactored to follow Single Responsibility Principle by delegating
+/// specific concerns to dedicated services: validation, prompt generation,
+/// execution, and fallback handling.
 class AiAnalysisService {
   AiAnalysisService({http.Client? httpClient})
-      : _httpClient = httpClient ?? http.Client();
+      : _analysisExecutor = AnalysisExecutor(httpClient: httpClient);
 
-  final http.Client _httpClient;
+  final AnalysisExecutor _analysisExecutor;
 
   /// Analyzes an annotated image and generates a custom prompt for AI editing
   ///
   /// Takes the [annotatedImage] with user marks and returns a [ProcessingResult]
   /// containing a generated prompt suitable for the next AI editing model.
   ///
-  /// The service sends the image and annotation data to Vertex AI with a
-  /// custom system prompt optimized for object removal and image editing.
+  /// This refactored version separates concerns:
+  /// 1. Input validation (AnalysisInputValidator)
+  /// 2. Prompt generation (AnalysisPromptGenerator)
+  /// 3. Request execution (AnalysisExecutor)
+  /// 4. Fallback handling (AnalysisFallbackHandler)
   Future<ProcessingResult> analyzeAnnotatedImage(
     AnnotatedImage annotatedImage,
   ) async {
@@ -31,50 +37,35 @@ class AiAnalysisService {
 
     try {
       log('🔄 Starting AI analysis of annotated image with ${annotatedImage.annotations.length} strokes');
-      // Validate input
-      await _validateAnnotatedImage(annotatedImage);
+      
+      // Step 1: Validate inputs using dedicated validator
+      final validationResult = await AnalysisInputValidator.validate(annotatedImage);
+      if (validationResult.isFailure) {
+        return _handleValidationFailure(validationResult, annotatedImage, stopwatch.elapsed);
+      }
 
-      // Generate system prompt for Vertex AI
-      final systemPrompt = _generateSystemPrompt(annotatedImage.annotations);
+      // Step 2: Generate prompt using dedicated generator
+      final prompt = AnalysisPromptGenerator.generateSystemPrompt(annotatedImage.annotations);
 
-      // Get image data from the original image
-      final imageData = annotatedImage.originalImage.bytes ??
-          await File(annotatedImage.originalImage.path!).readAsBytes();
-
-      // Create multipart request for Vertex AI
-      final request = await _createAnalysisRequest(
-        imageData,
-        systemPrompt,
-        annotatedImage.annotations,
-      );
-
-      // Send request with retries
-      final response = await _sendRequestWithRetries(request);
-
-      // Parse response and extract editing prompt
-      final generatedPrompt = _parseAnalysisResponse(response);
-
-      stopwatch.stop();
-
-      log('✅ AI analysis completed in ${stopwatch.elapsedMilliseconds}ms');
-      return ProcessingResult(
-        processedImageData: imageData,
-        originalPrompt:
-            'User marked ${annotatedImage.annotations.length} objects for removal',
-        enhancedPrompt: generatedPrompt,
-        processingTime: stopwatch.elapsed,
-        imageAnalysis: _createImageAnalysis(imageData),
-        metadata: {
-          'strokeCount': annotatedImage.annotations.length,
-          'annotationTimestamp': DateTime.now().toIso8601String(),
-          'analysisModel': AiConfig.analysisModel,
-        },
-      );
+      // Step 3: Execute analysis using dedicated executor
+      final executionResult = await _analysisExecutor.execute(annotatedImage, prompt);
+      
+      if (executionResult.isSuccess) {
+        return executionResult.valueOrNull!;
+      } else {
+        // Step 4: Handle failure with fallback service
+        return await AnalysisFallbackHandler.createFallbackResult(
+          annotatedImage,
+          stopwatch.elapsed,
+          executionResult.exceptionOrNull?.toString() ?? 'Unknown error',
+        );
+      }
     } catch (e, stackTrace) {
       stopwatch.stop();
       log('❌ AI analysis failed: $e', stackTrace: stackTrace);
-      // Return fallback result for MVP
-      return await _createFallbackResult(
+      
+      // Use fallback handler for graceful degradation
+      return await AnalysisFallbackHandler.createFallbackResult(
         annotatedImage,
         stopwatch.elapsed,
         e.toString(),
@@ -82,21 +73,27 @@ class AiAnalysisService {
     }
   }
 
-  /// Validates the annotated image input
-  Future<void> _validateAnnotatedImage(AnnotatedImage annotatedImage) async {
-    // Get image data to validate
-    final imageData = annotatedImage.originalImage.bytes ??
-        await File(annotatedImage.originalImage.path!).readAsBytes();
+  /// Handles validation failures with appropriate fallback
+  Future<ProcessingResult> _handleValidationFailure(
+    Result<void> validationResult,
+    AnnotatedImage annotatedImage,
+    Duration processingTime,
+  ) async {
+    final errorMessage = validationResult.exceptionOrNull?.toString() ?? 'Validation failed';
+    log('⚠️ Validation failed: $errorMessage');
+    
+    return await AnalysisFallbackHandler.createFallbackResult(
+      annotatedImage,
+      processingTime,
+      errorMessage,
+    );
+  }
 
-    if (imageData.isEmpty) {
-      throw ArgumentError('Image data cannot be empty');
-    }
-
-    if (imageData.length > AiConfig.maxImageSizeBytes) {
-      throw ArgumentError(
-        'Image size ${imageData.length} bytes exceeds maximum ${AiConfig.maxImageSizeBytes} bytes',
-      );
-    }
+  /// Disposes of resources
+  void dispose() {
+    _analysisExecutor.dispose();
+  }
+}
 
     if (annotatedImage.annotations.isEmpty) {
       throw ArgumentError(
