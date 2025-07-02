@@ -1,9 +1,14 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revision/core/config/env_config.dart';
 import 'package:revision/core/config/environment_detector.dart';
 import 'package:revision/firebase_options.dart';
 
 void main() {
+  setUpAll(() async {
+    // Load environment variables for tests
+    await dotenv.load(fileName: ".env.development");
+  });
   group('Environment Detection Tests', () {
     test('should detect development environment from compile-time constant',
         () {
