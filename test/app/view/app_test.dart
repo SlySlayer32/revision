@@ -3,16 +3,13 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:revision/app/app.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:revision/app/app.dart';
-
-import '../../helpers/test_helpers.dart';
+import '../../helpers/test_setup.dart';
 
 void main() {
   group('App', () {
-    setUpAll(VGVTestHelper.setupTestDependencies);
+    setUpAll(setupTestEnvironment);
 
-    tearDownAll(VGVTestHelper.tearDownTestDependencies);
+    tearDownAll(tearDownTestEnvironment);
 
     testWidgets('renders MaterialApp correctly', (tester) async {
       // VGV Pattern: Test widget rendering without external dependencies
