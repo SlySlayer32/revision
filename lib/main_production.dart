@@ -21,23 +21,23 @@ import 'package:revision/firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Register global error handlers first
   ErrorHandlerService.registerGlobalHandlers();
-  
+
   // Initialize logging
   LoggingService.instance.info('Application starting up');
-  
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
+
   // Setup Firebase services for production
   await _setupFirebaseServices();
-  
+
   // Initialize service locator
   setupServiceLocator();
-  
+
   LoggingService.instance.info('All services initialized successfully');
 
   bootstrap(() => const App());
@@ -52,24 +52,24 @@ Future<void> _setupFirebaseServices() async {
       return true;
     };
   }
-  
+
   // Setup Analytics
   await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(!kDebugMode);
-  
+
   // Setup Remote Config
   final remoteConfig = FirebaseRemoteConfig.instance;
   await remoteConfig.setConfigSettings(RemoteConfigSettings(
     fetchTimeout: const Duration(minutes: 1),
     minimumFetchInterval: const Duration(hours: 1),
   ));
-  
+
   // Set default values for remote config
   await remoteConfig.setDefaults(const {
     'ai_processing_enabled': true,
     'max_image_size_mb': 10,
     'supported_image_formats': 'jpg,png,gif,webp',
   });
-  
+
   try {
     await remoteConfig.fetchAndActivate();
   } catch (e) {
@@ -81,7 +81,7 @@ Future<void> _setupFirebaseServices() async {
       );
     }
   }
-  
+
   // Use Auth Emulator only in debug mode
   if (kDebugMode) {
     await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);

@@ -6,14 +6,14 @@ abstract class ErrorMonitoringConfig {
   int get cascadingFailureMinErrors;
   int get systemHealthErrorThreshold;
   int get maxHealthScoreErrors;
-  
+
   Duration get errorWindowDuration;
   Duration get circuitBreakerCooldown;
   Duration get cascadingFailureWindow;
   Duration get healthCheckWindow;
   Duration get statsWindow24h;
   Duration get statsWindow1h;
-  
+
   int get maxFrequentErrorsToShow;
   bool get enableRealTimeAlerting;
   bool get enableHealthMonitoring;

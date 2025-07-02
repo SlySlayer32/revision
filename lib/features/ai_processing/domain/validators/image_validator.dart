@@ -27,7 +27,7 @@ class ImageValidator {
       final message = AIProcessingConstants.imageTooLargeTemplate
           .replaceAll('{size}', sizeMB.toStringAsFixed(1))
           .replaceAll('{max}', AIProcessingConstants.maxImageSizeMB.toString());
-      
+
       return Failure(ImageValidationException(message));
     }
 
@@ -49,15 +49,16 @@ class ImageValidator {
     if (markedAreas.length > AIProcessingConstants.maxMarkedAreasCount) {
       final message = AIProcessingConstants.tooManyMarkedAreasTemplate
           .replaceAll('{count}', markedAreas.length.toString())
-          .replaceAll('{max}', AIProcessingConstants.maxMarkedAreasCount.toString());
-      
+          .replaceAll(
+              '{max}', AIProcessingConstants.maxMarkedAreasCount.toString());
+
       return Failure(MarkedAreaValidationException(message));
     }
 
     // Validate each marked area
     for (int i = 0; i < markedAreas.length; i++) {
       final area = markedAreas[i];
-      
+
       if (!area.isValid) {
         return Failure(
           MarkedAreaValidationException(

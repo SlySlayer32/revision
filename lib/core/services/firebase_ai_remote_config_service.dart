@@ -35,12 +35,12 @@ class FirebaseAIRemoteConfigService {
 
   /// Default values that match the remote config template
   static final Map<String, dynamic> _defaultValues = {
-    _geminiModelKey: "gemini-2.0-flash-preview-text-generation",
-    _geminiImageModelKey: "gemini-2.0-flash-preview-image-generation",
+    _geminiModelKey: 'gemini-2.0-flash-preview-text-generation',
+    _geminiImageModelKey: 'gemini-2.0-flash-preview-image-generation',
     _analysisSystemPromptKey:
-        "You are an AI specialized in analyzing marked objects in images for removal...",
+        'You are an AI specialized in analyzing marked objects in images for removal...',
     _userPromptTemplateKey:
-        "Analyze this image and provide detailed editing instructions for the marked objects.",
+        'Analyze this image and provide detailed editing instructions for the marked objects.',
     _enableAdvancedFeaturesKey: true,
     _maxOutputTokensKey: 1024,
     _requestTimeoutSecondsKey: 30,
@@ -96,7 +96,6 @@ class FirebaseAIRemoteConfigService {
     }
   }
 
-
   /// Get Gemini model name for text/analysis
   String get geminiModel {
     if (!_isInitialized) return _defaultValues[_geminiModelKey] as String;
@@ -147,7 +146,6 @@ class FirebaseAIRemoteConfigService {
     return _remoteConfig.getString(_analysisSystemPromptKey);
   }
 
-
   /// Get request timeout in seconds
   int get requestTimeoutSeconds {
     if (!_isInitialized)
@@ -165,7 +163,6 @@ class FirebaseAIRemoteConfigService {
     return _remoteConfig.getBool(_enableAdvancedFeaturesKey);
   }
 
-
   /// Get all current config values as a map (useful for debugging)
   Map<String, dynamic> getAllValues() {
     return {
@@ -181,7 +178,6 @@ class FirebaseAIRemoteConfigService {
       'enableAdvancedFeatures': enableAdvancedFeatures,
     };
   }
-
 
   /// Get appropriate system instruction for the operation (null if not supported)
   String? getSystemInstructionForOperation(String operation) {

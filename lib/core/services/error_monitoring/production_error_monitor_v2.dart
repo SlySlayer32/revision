@@ -13,17 +13,18 @@ class ProductionErrorMonitorV2 {
   ProductionErrorMonitorV2._({
     required ErrorMonitoringConfig config,
     required EnhancedLogger logger,
-  }) : _config = config,
-       _logger = logger,
-       _classifier = const ErrorClassifier(),
-       _alertManager = ErrorAlertManager(logger: logger),
-       _healthMonitor = const SystemHealthMonitor();
+  })  : _config = config,
+        _logger = logger,
+        _classifier = const ErrorClassifier(),
+        _alertManager = ErrorAlertManager(logger: logger),
+        _healthMonitor = const SystemHealthMonitor();
 
   static ProductionErrorMonitorV2? _instance;
-  
+
   static ProductionErrorMonitorV2 get instance {
     if (_instance == null) {
-      throw StateError('ProductionErrorMonitorV2 not initialized. Call initialize() first.');
+      throw StateError(
+          'ProductionErrorMonitorV2 not initialized. Call initialize() first.');
     }
     return _instance!;
   }
@@ -66,11 +67,11 @@ class ProductionErrorMonitorV2 {
 
       _addToHistory(errorEvent);
       _updateErrorCounts(errorEvent);
-      
+
       if (_config.enableRealTimeAlerting) {
         _checkForCriticalPatterns(errorEvent);
       }
-      
+
       _logErrorEvent(errorEvent);
     } catch (e, stack) {
       // Prevent recursive error logging
@@ -91,7 +92,8 @@ class ProductionErrorMonitorV2 {
 
     final errorsByCategory = <ErrorCategory, int>{};
     for (final event in errors24h) {
-      errorsByCategory[event.category] = (errorsByCategory[event.category] ?? 0) + 1;
+      errorsByCategory[event.category] =
+          (errorsByCategory[event.category] ?? 0) + 1;
     }
 
     return ErrorStatistics(
@@ -121,7 +123,7 @@ class ProductionErrorMonitorV2 {
   /// Check if system is healthy
   bool isSystemHealthy() {
     if (!_config.enableHealthMonitoring) return true;
-    
+
     final recentErrors = _getRecentErrors(_config.healthCheckWindow);
     return _healthMonitor.isSystemHealthy(
       recentErrors,
@@ -132,7 +134,7 @@ class ProductionErrorMonitorV2 {
   /// Get health score (0-100)
   int getHealthScore() {
     if (!_config.enableHealthMonitoring) return 100;
-    
+
     final recentErrors = _getRecentErrors(_config.statsWindow1h);
     return _healthMonitor.calculateHealthScore(recentErrors);
   }
@@ -143,7 +145,7 @@ class ProductionErrorMonitorV2 {
     _errorCounts.clear();
     _lastErrorTimes.clear();
     _alertManager.resetAllAlerts();
-    
+
     _logger.info('Error monitoring state reset', operation: 'MONITOR_RESET');
   }
 
@@ -181,7 +183,7 @@ class ProductionErrorMonitorV2 {
 
   void _addToHistory(ErrorEvent event) {
     _errorHistory.addLast(event);
-    
+
     while (_errorHistory.length > _config.maxHistorySize) {
       _errorHistory.removeFirst();
     }
@@ -199,13 +201,13 @@ class ProductionErrorMonitorV2 {
 
   void _checkCriticalErrorThreshold(ErrorEvent event) {
     final errorCount = _errorCounts[event.errorKey] ?? 0;
-    
+
     if (errorCount >= _config.criticalErrorThreshold) {
       final recentSameErrors = _errorHistory
           .where((e) => e.errorKey == event.errorKey)
           .where((e) => e.isRecent(_config.errorWindowDuration))
           .length;
-      
+
       if (recentSameErrors >= _config.criticalErrorThreshold) {
         _alertManager.triggerCriticalErrorAlert(
           errorKey: event.errorKey,
@@ -219,7 +221,7 @@ class ProductionErrorMonitorV2 {
   void _checkCascadingFailures() {
     final recentErrors = _getRecentErrors(_config.cascadingFailureWindow);
     final analysis = _healthMonitor.analyzeCascadingFailures(recentErrors);
-    
+
     if (analysis.isCascadingFailure) {
       _alertManager.triggerCascadingFailureAlert(
         uniqueErrorTypes: analysis.uniqueErrorTypes,
@@ -251,18 +253,23 @@ class ProductionErrorMonitorV2 {
 
   List<ErrorEvent> _getRecentErrors(Duration timeWindow) {
     final cutoff = DateTime.now().subtract(timeWindow);
-    return _errorHistory.where((event) => event.timestamp.isAfter(cutoff)).toList();
+    return _errorHistory
+        .where((event) => event.timestamp.isAfter(cutoff))
+        .toList();
   }
 
   List<Map<String, dynamic>> _getMostFrequentErrors() {
     final sorted = _errorCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    
-    return sorted.take(_config.maxFrequentErrorsToShow).map((entry) => {
-      'error_key': entry.key,
-      'count': entry.value,
-      'last_occurrence': _lastErrorTimes[entry.key]?.toIso8601String(),
-    }).toList();
+
+    return sorted
+        .take(_config.maxFrequentErrorsToShow)
+        .map((entry) => {
+              'error_key': entry.key,
+              'count': entry.value,
+              'last_occurrence': _lastErrorTimes[entry.key]?.toIso8601String(),
+            })
+        .toList();
   }
 }
 
@@ -303,7 +310,8 @@ class ErrorStatistics {
 
 /// Extension for easy error recording
 extension ErrorRecordingV2 on Object {
-  void recordError(String context, {StackTrace? stackTrace, Map<String, dynamic>? metadata}) {
+  void recordError(String context,
+      {StackTrace? stackTrace, Map<String, dynamic>? metadata}) {
     ProductionErrorMonitorV2.instance.recordError(
       error: this,
       stackTrace: stackTrace ?? StackTrace.current,

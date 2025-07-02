@@ -7,7 +7,7 @@ import 'package:revision/core/services/ai_fallback_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
 
 /// Factory for creating AI services with Firebase AI Logic only
-/// 
+///
 /// This factory provides a centralized way to initialize Firebase AI Logic service
 /// with proper error handling and fallback mechanisms. Uses only Firebase AI Logic
 /// (not Vertex AI) to ensure backend-free operation.
@@ -17,7 +17,7 @@ class AIServiceFactory {
   static bool _isInitialized = false;
 
   /// Get the configured AI service with fallback
-  /// 
+  ///
   /// Returns a service selector that automatically handles service failures
   /// and provides fallback capabilities for robust AI operations.
   static AIServiceSelector getAIService() {
@@ -27,7 +27,7 @@ class AIServiceFactory {
 
     // Initialize services
     _initializeServices();
-    
+
     _serviceSelector = AIServiceSelector(
       primaryService: _primaryService!,
       secondaryService: null, // No secondary service - Firebase AI Logic only
@@ -39,7 +39,7 @@ class AIServiceFactory {
   }
 
   /// Initialize AI services with comprehensive error handling
-  /// 
+  ///
   /// Attempts to initialize Firebase AI Logic service only.
   /// Falls back to AIFallbackService if initialization fails.
   static void _initializeServices() {
@@ -84,7 +84,7 @@ class AIServiceFactory {
   }
 
   /// Reset services for testing
-  /// 
+  ///
   /// This method is primarily used for testing to reset the factory state
   /// and allow for fresh initialization in test environments.
   static void reset() {
@@ -94,7 +94,7 @@ class AIServiceFactory {
   }
 
   /// Get comprehensive service health status
-  /// 
+  ///
   /// Returns detailed information about the current state of Firebase AI Logic service
   /// including initialization status and available services.
   static Map<String, dynamic> getServiceStatus() {
@@ -109,7 +109,7 @@ class AIServiceFactory {
   }
 
   /// Create a direct instance of the enhanced AI service
-  /// 
+  ///
   /// This is a convenience method for creating an EnhancedAIService instance
   /// that automatically handles service selection and fallback.
   static EnhancedAIService createEnhancedService() {

@@ -10,7 +10,7 @@ import 'package:revision/core/services/logging_service.dart';
 /// error handling, user-friendly error messages, and error reporting
 class ErrorHandlerService {
   const ErrorHandlerService._();
-  
+
   static const ErrorHandlerService _instance = ErrorHandlerService._();
   static ErrorHandlerService get instance => _instance;
 
@@ -23,7 +23,7 @@ class ErrorHandlerService {
     Map<String, dynamic>? metadata,
   }) {
     final errorInfo = _categorizeError(error);
-    
+
     // Log the error
     LoggingService.instance.error(
       errorInfo.technicalMessage,
@@ -49,7 +49,7 @@ class ErrorHandlerService {
     Map<String, dynamic>? metadata,
   }) {
     String userMessage;
-    
+
     if (error is FirebaseAuthException) {
       userMessage = _getFirebaseAuthErrorMessage(error);
     } else {
@@ -72,8 +72,9 @@ class ErrorHandlerService {
     StackTrace? stackTrace,
     Map<String, dynamic>? metadata,
   }) {
-    const userMessage = 'Network error. Please check your internet connection and try again.';
-    
+    const userMessage =
+        'Network error. Please check your internet connection and try again.';
+
     handleError(
       context,
       error,
@@ -90,8 +91,9 @@ class ErrorHandlerService {
     StackTrace? stackTrace,
     Map<String, dynamic>? metadata,
   }) {
-    const userMessage = 'File operation failed. Please check permissions and try again.';
-    
+    const userMessage =
+        'File operation failed. Please check permissions and try again.';
+
     handleError(
       context,
       error,
@@ -108,8 +110,9 @@ class ErrorHandlerService {
     StackTrace? stackTrace,
     Map<String, dynamic>? metadata,
   }) {
-    const userMessage = 'AI processing failed. Please try again or contact support if the issue persists.';
-    
+    const userMessage =
+        'AI processing failed. Please try again or contact support if the issue persists.';
+
     handleError(
       context,
       error,
@@ -240,10 +243,11 @@ class ErrorHandlerService {
       return ErrorInfo(
         category: ErrorCategory.warning,
         userMessage: _getFirebaseAuthErrorMessage(error),
-        technicalMessage: 'Firebase Auth Error: ${error.code} - ${error.message}',
+        technicalMessage:
+            'Firebase Auth Error: ${error.code} - ${error.message}',
       );
     }
-    
+
     if (error is NetworkFailure) {
       return ErrorInfo(
         category: ErrorCategory.warning,
@@ -251,7 +255,7 @@ class ErrorHandlerService {
         technicalMessage: 'Network Failure: ${error.message}',
       );
     }
-    
+
     if (error is Exception && error.toString().contains('Server')) {
       return ErrorInfo(
         category: ErrorCategory.warning,
@@ -259,7 +263,7 @@ class ErrorHandlerService {
         technicalMessage: 'Server Error: ${error.toString()}',
       );
     }
-    
+
     if (error is ValidationFailure) {
       return ErrorInfo(
         category: ErrorCategory.info,
@@ -267,7 +271,7 @@ class ErrorHandlerService {
         technicalMessage: 'Validation Failure: ${error.message}',
       );
     }
-    
+
     if (error is TimeoutException) {
       return ErrorInfo(
         category: ErrorCategory.warning,
@@ -275,11 +279,12 @@ class ErrorHandlerService {
         technicalMessage: 'Timeout: ${error.message}',
       );
     }
-    
+
     // Default for unknown errors
     return ErrorInfo(
       category: ErrorCategory.critical,
-      userMessage: 'An unexpected error occurred. Please restart the app or contact support.',
+      userMessage:
+          'An unexpected error occurred. Please restart the app or contact support.',
       technicalMessage: 'Unknown Error: ${error.toString()}',
     );
   }

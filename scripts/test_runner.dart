@@ -26,7 +26,6 @@ void main(List<String> args) async {
 }
 
 class TestRunner {
-
   /// Run tests with optimized strategy
   Future<void> run(List<String> args) async {
     final stopwatch = Stopwatch()..start();

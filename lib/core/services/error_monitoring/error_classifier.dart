@@ -14,9 +14,11 @@ class ErrorClassifier {
     }
     if (error is ValidationException) return ErrorCategory.validation;
     if (error is PermissionException) return ErrorCategory.permission;
-    if (error is CircuitBreakerOpenException) return ErrorCategory.circuitBreaker;
+    if (error is CircuitBreakerOpenException)
+      return ErrorCategory.circuitBreaker;
     if (error is StorageException) return ErrorCategory.storage;
-    if (error is FirebaseInitializationException || error is FirebaseAIException) {
+    if (error is FirebaseInitializationException ||
+        error is FirebaseAIException) {
       return ErrorCategory.firebase;
     }
     return ErrorCategory.unknown;
@@ -43,7 +45,7 @@ class ErrorClassifier {
   ErrorSeverity getErrorSeverity(Object error) {
     if (error is CircuitBreakerOpenException) return ErrorSeverity.high;
     if (error is FirebaseInitializationException) return ErrorSeverity.critical;
-    
+
     switch (categorizeError(error)) {
       case ErrorCategory.authentication:
       case ErrorCategory.network:
@@ -80,7 +82,7 @@ class ErrorClassifier {
   String getErrorDescription(Object error) {
     final category = categorizeError(error);
     final severity = getErrorSeverity(error);
-    
+
     return 'Error in ${category.value} (${severity.value}): ${error.runtimeType}';
   }
 }

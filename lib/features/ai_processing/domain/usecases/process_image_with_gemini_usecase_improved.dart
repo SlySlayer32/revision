@@ -1,13 +1,13 @@
 import 'dart:typed_data';
 
 import 'package:revision/core/services/gemini_pipeline_service.dart';
-import 'package:revision/core/utils/result.dart';
 import 'package:revision/core/utils/enhanced_logger.dart';
+import 'package:revision/core/utils/result.dart';
 import 'package:revision/features/ai_processing/domain/constants/ai_processing_constants.dart';
-import 'package:revision/features/ai_processing/domain/validators/image_validator.dart';
 import 'package:revision/features/ai_processing/domain/error_handlers/ai_error_handler.dart';
-import 'package:revision/features/ai_processing/domain/value_objects/marked_area.dart';
 import 'package:revision/features/ai_processing/domain/exceptions/ai_processing_exception.dart';
+import 'package:revision/features/ai_processing/domain/validators/image_validator.dart';
+import 'package:revision/features/ai_processing/domain/value_objects/marked_area.dart';
 
 /// Use case for processing images with the Gemini AI Pipeline
 ///
@@ -42,10 +42,8 @@ class ProcessImageWithGeminiUseCaseImproved {
       // Step 1: Validate all inputs
       final validationResult = _validateInputs(imageData, markedAreas);
       if (validationResult.isFailure) {
-        return Failure<GeminiPipelineResult>(
-          validationResult.exceptionOrNull ?? 
-          const GeminiPipelineException('Validation failed')
-        );
+        return Failure<GeminiPipelineResult>(validationResult.exceptionOrNull ??
+            const GeminiPipelineException('Validation failed'));
       }
 
       // Step 2: Execute the AI processing pipeline
@@ -90,7 +88,7 @@ class ProcessImageWithGeminiUseCaseImproved {
     final prompt = markedAreas.isNotEmpty
         ? 'Remove objects in marked areas: ${markedAreas.map((area) => area.description ?? 'unmarked area').join(', ')}'
         : 'Process and enhance this image';
-        
+
     final result = await _geminiPipelineService.processImage(imageData, prompt);
     return Success(result);
   }

@@ -34,13 +34,13 @@ class GoogleCloudAuthService {
 
       // For MVP development, we'll simulate an access token
       // In production, this would integrate with proper Google Cloud authentication
-      
+
       // Generate a development token (not for production use)
       final developmentToken = await _generateDevelopmentToken();
-      
+
       _cachedAccessToken = developmentToken;
       _tokenExpiry = DateTime.now().add(const Duration(hours: 1));
-      
+
       log('✅ GoogleCloudAuthService: Access token obtained');
       return developmentToken;
     } catch (e, stackTrace) {
@@ -58,12 +58,14 @@ class GoogleCloudAuthService {
       'iss': 'revision-app-development',
       'aud': 'vertex-ai-testing',
       'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      'exp': DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000,
+      'exp':
+          DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch ~/
+              1000,
       'project_id': getProjectId(),
       'scope': 'https://www.googleapis.com/auth/cloud-platform',
       'development_mode': true,
     };
-    
+
     // Create a simple base64 encoded token (not secure, for development only)
     final tokenString = base64Url.encode(utf8.encode(jsonEncode(tokenData)));
     return 'dev_token_$tokenString';
@@ -113,13 +115,13 @@ class ServiceAccountAuthService {
 
       // Create JWT assertion for service account authentication
       final jwt = await _createJWTAssertion();
-      
+
       // Exchange JWT for access token
       final accessToken = await _exchangeJWTForAccessToken(jwt);
-      
+
       _cachedAccessToken = accessToken;
       _tokenExpiry = DateTime.now().add(const Duration(hours: 1));
-      
+
       log('✅ ServiceAccountAuthService: Access token obtained');
       return accessToken;
     } catch (e) {
@@ -149,7 +151,7 @@ class ServiceAccountAuthService {
     // In production, this would be properly signed with the private key
     final headerEncoded = base64Url.encode(utf8.encode(jsonEncode(header)));
     final payloadEncoded = base64Url.encode(utf8.encode(jsonEncode(payload)));
-    
+
     // Note: In production, you would sign this with the private key from serviceAccountKey
     return '$headerEncoded.$payloadEncoded.SIGNATURE_PLACEHOLDER';
   }
@@ -169,7 +171,8 @@ class ServiceAccountAuthService {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
         return data['access_token'] as String;
       } else {
-        throw Exception('Failed to get access token: ${response.statusCode} ${response.body}');
+        throw Exception(
+            'Failed to get access token: ${response.statusCode} ${response.body}');
       }
     } catch (e) {
       // For MVP development, return a mock token since we don't have proper JWT signing

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
-import 'package:revision/debug/firebase_setup_checker.dart';
-import 'package:revision/debug/firebase_ai_test_page.dart';
-import 'package:revision/debug/firebase_ai_config_checker.dart';
+// import 'package:revision/debug/firebase_setup_checker.dart'; // Disabled
+// import 'package:revision/debug/firebase_ai_test_page.dart'; // Disabled
+// import 'package:revision/debug/firebase_ai_config_checker.dart'; // Disabled
 
 /// The main page shown to authenticated users
 class HomePage extends StatelessWidget {
@@ -42,7 +42,7 @@ class HomePage extends StatelessWidget {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 40),
-            
+
             // Debug buttons
             Container(
               padding: const EdgeInsets.all(16),
@@ -58,56 +58,35 @@ class HomePage extends StatelessWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const FirebaseSetupChecker(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.settings),
-                    label: const Text('Check Firebase AI Setup'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
+                  // Debug buttons temporarily disabled
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'AI Service updated to use REST API\nDebug tools temporarily disabled during migration',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  
                   ElevatedButton.icon(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const FirebaseAIConfigChecker(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.bug_report),
-                    label: const Text('Fix API Configuration'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const FirebaseAITestPage(),
+                      // Test REST API integration
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'REST API integration ready! Add your GEMINI_API_KEY to .env file'),
+                          duration: Duration(seconds: 3),
                         ),
                       );
                     },
                     icon: const Icon(Icons.psychology),
-                    label: const Text('Test Firebase AI API'),
+                    label: const Text('Test Gemini REST API'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
                     ),
                   ),

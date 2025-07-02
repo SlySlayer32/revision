@@ -19,21 +19,26 @@ class GeminiPipelineCubit extends Cubit<GeminiPipelineState> {
   final ProcessImageWithGeminiUseCase _processImageWithGeminiUseCase;
 
   /// Process an image through the complete Gemini AI Pipeline
-  Future<void> processImage(Uint8List imageData, {ProcessingContext? context}) async {
+  Future<void> processImage(Uint8List imageData,
+      {ProcessingContext? context}) async {
     emit(const GeminiPipelineLoading());
 
     // Convert ImageMarker objects to the Map format expected by the pipeline
-    final markedAreas = context?.markers.map((marker) => marker.toAIMap()).toList() ?? <Map<String, dynamic>>[];
+    final markedAreas =
+        context?.markers.map((marker) => marker.toAIMap()).toList() ??
+            <Map<String, dynamic>>[];
 
-    final result = await _processImageWithGeminiUseCase(imageData, markedAreas: markedAreas);
+    final result = await _processImageWithGeminiUseCase(imageData,
+        markedAreas: markedAreas);
 
     result.fold(
       success: (pipelineResult) => emit(GeminiPipelineSuccess(pipelineResult)),
       failure: (exception) {
         String errorMessage = exception.toString();
-        
+
         // Provide helpful error messages for common Firebase AI setup issues
-        if (errorMessage.contains('400') || errorMessage.toLowerCase().contains('not initiated')) {
+        if (errorMessage.contains('400') ||
+            errorMessage.toLowerCase().contains('not initiated')) {
           errorMessage = '''
 Firebase AI (Gemini) Setup Required:
 
@@ -48,7 +53,7 @@ Firebase AI (Gemini) Setup Required:
 
 Original error: ${exception.toString()}''';
         }
-        
+
         emit(GeminiPipelineError(errorMessage));
       },
     );

@@ -12,7 +12,7 @@ abstract class AIProcessingConstants {
 
   // Validation constraints
   static const double minMarkedAreaSize = 0.01; // 1% of image
-  static const double maxMarkedAreaSize = 0.9;  // 90% of image
+  static const double maxMarkedAreaSize = 0.9; // 90% of image
   static const int maxMarkedAreasCount = 10;
 
   // HTTP status codes for error mapping
@@ -21,9 +21,9 @@ abstract class AIProcessingConstants {
   static const int httpUnauthorized = 401;
 
   // Error message templates
-  static const String imageTooLargeTemplate = 
+  static const String imageTooLargeTemplate =
       'Image too large: {size}MB (max {max}MB)';
   static const String imageEmptyMessage = 'Image data cannot be empty';
-  static const String tooManyMarkedAreasTemplate = 
+  static const String tooManyMarkedAreasTemplate =
       'Too many marked areas: {count} (max {max})';
 }

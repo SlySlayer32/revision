@@ -33,7 +33,7 @@ class ErrorAlertManager {
     if (isAlertActive(AlertType.criticalErrorPattern)) return;
 
     _activateAlert(AlertType.criticalErrorPattern);
-    
+
     _logger.error(
       '🚨 CRITICAL ERROR PATTERN: $errorKey occurred $count times in ${ErrorMonitoringConstants.errorWindowDuration.inMinutes} minutes',
       operation: AlertType.criticalErrorPattern.value,
@@ -59,7 +59,7 @@ class ErrorAlertManager {
     if (isAlertActive(AlertType.cascadingFailure)) return;
 
     _activateAlert(AlertType.cascadingFailure);
-    
+
     _logger.error(
       '🚨 CASCADING FAILURE DETECTED: $uniqueErrorTypes error types, $totalErrors errors in ${timeWindow.inMinutes} minutes',
       operation: AlertType.cascadingFailure.value,
@@ -81,7 +81,7 @@ class ErrorAlertManager {
     if (isAlertActive(AlertType.systemHealthDegraded)) return;
 
     _activateAlert(AlertType.systemHealthDegraded);
-    
+
     _logger.error(
       '🚨 SYSTEM HEALTH DEGRADED: Health score $healthScore, $recentErrorCount recent errors',
       operation: AlertType.systemHealthDegraded.value,
@@ -96,11 +96,12 @@ class ErrorAlertManager {
 
   /// Check if enough time has passed since last alert of this type
   bool canTriggerAlert(AlertType alertType, {Duration? minInterval}) {
-    final interval = minInterval ?? ErrorMonitoringConstants.circuitBreakerCooldown;
+    final interval =
+        minInterval ?? ErrorMonitoringConstants.circuitBreakerCooldown;
     final lastAlert = _lastAlertTimes[alertType];
-    
+
     if (lastAlert == null) return true;
-    
+
     return DateTime.now().difference(lastAlert) >= interval;
   }
 
@@ -109,7 +110,7 @@ class ErrorAlertManager {
     _activeAlerts.remove(alertType);
     _alertTimers[alertType]?.cancel();
     _alertTimers.remove(alertType);
-    
+
     _logger.info(
       'Alert reset: ${alertType.value}',
       operation: 'ALERT_RESET',

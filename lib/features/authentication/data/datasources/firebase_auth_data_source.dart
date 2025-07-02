@@ -105,8 +105,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       'auth_sign_in',
       () async {
         try {
-          LoggingService.instance.info('User sign in attempt', data: {'email': email});
-          
+          LoggingService.instance
+              .info('User sign in attempt', data: {'email': email});
+
           final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
             email: email,
             password: password,
@@ -117,8 +118,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           }
 
           final user = await _createUserWithClaims(userCredential.user!);
-          LoggingService.instance.info('User sign in successful', data: {'userId': user.id});
-          
+          LoggingService.instance
+              .info('User sign in successful', data: {'userId': user.id});
+
           return user;
         } on firebase_auth.FirebaseAuthException catch (e) {
           LoggingService.instance.warning(

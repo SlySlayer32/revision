@@ -14,7 +14,7 @@ class ProductionErrorMonitor {
   final Queue<ErrorEvent> _errorHistory = Queue();
   final Map<String, int> _errorCounts = {};
   final Map<String, DateTime> _lastErrorTimes = {};
-  
+
   // Configuration
   static const int _maxHistorySize = 1000;
   static const int _criticalErrorThreshold = 5;
@@ -47,7 +47,7 @@ class ProductionErrorMonitor {
 
   void _addToHistory(ErrorEvent event) {
     _errorHistory.addLast(event);
-    
+
     // Keep history size manageable
     while (_errorHistory.length > _maxHistorySize) {
       _errorHistory.removeFirst();
@@ -69,7 +69,7 @@ class ProductionErrorMonitor {
       final lastErrorTime = _lastErrorTimes[errorKey];
       if (lastErrorTime != null) {
         final timeSinceFirst = event.timestamp.difference(lastErrorTime);
-        
+
         if (timeSinceFirst <= _errorWindowDuration) {
           _triggerCriticalAlert(errorKey, errorCount, event);
         }
@@ -82,7 +82,8 @@ class ProductionErrorMonitor {
 
   void _detectCascadingFailures() {
     final recentErrors = _getRecentErrors(const Duration(minutes: 2));
-    final uniqueErrorTypes = recentErrors.map((e) => _getErrorKey(e.error)).toSet();
+    final uniqueErrorTypes =
+        recentErrors.map((e) => _getErrorKey(e.error)).toSet();
 
     if (uniqueErrorTypes.length >= 3 && recentErrors.length >= 8) {
       logger.error(
@@ -141,12 +142,14 @@ class ProductionErrorMonitor {
   String _categorizeError(Object error) {
     if (error is NetworkException) return 'network';
     if (error is AuthenticationException) return 'authentication';
-    if (error is AIServiceException || error is AIProcessingException) return 'ai_service';
+    if (error is AIServiceException || error is AIProcessingException)
+      return 'ai_service';
     if (error is ValidationException) return 'validation';
     if (error is PermissionException) return 'permission';
     if (error is CircuitBreakerOpenException) return 'circuit_breaker';
     if (error is StorageException) return 'storage';
-    if (error is FirebaseInitializationException || error is FirebaseAIException) return 'firebase';
+    if (error is FirebaseInitializationException ||
+        error is FirebaseAIException) return 'firebase';
     return 'unknown';
   }
 
@@ -171,7 +174,9 @@ class ProductionErrorMonitor {
   /// Get recent errors within a time window
   List<ErrorEvent> _getRecentErrors(Duration timeWindow) {
     final cutoff = DateTime.now().subtract(timeWindow);
-    return _errorHistory.where((event) => event.timestamp.isAfter(cutoff)).toList();
+    return _errorHistory
+        .where((event) => event.timestamp.isAfter(cutoff))
+        .toList();
   }
 
   /// Get error statistics
@@ -200,31 +205,39 @@ class ProductionErrorMonitor {
   List<Map<String, dynamic>> _getMostFrequentErrors() {
     final sorted = _errorCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    
-    return sorted.take(5).map((entry) => {
-      'error_key': entry.key,
-      'count': entry.value,
-      'last_occurrence': _lastErrorTimes[entry.key]?.toIso8601String(),
-    }).toList();
+
+    return sorted
+        .take(5)
+        .map((entry) => {
+              'error_key': entry.key,
+              'count': entry.value,
+              'last_occurrence': _lastErrorTimes[entry.key]?.toIso8601String(),
+            })
+        .toList();
   }
 
   /// Check if system is in a healthy state
   bool isSystemHealthy() {
     final recentErrors = _getRecentErrors(const Duration(minutes: 5));
-    final criticalErrors = recentErrors.where((e) => _getErrorSeverity(e.error) == 'critical').length;
-    
+    final criticalErrors = recentErrors
+        .where((e) => _getErrorSeverity(e.error) == 'critical')
+        .length;
+
     return !_isAlertActive && criticalErrors == 0 && recentErrors.length < 10;
   }
 
   /// Get health score (0-100)
   int getHealthScore() {
     final recentErrors = _getRecentErrors(const Duration(hours: 1));
-    
+
     if (_isAlertActive) return 0;
     if (recentErrors.isEmpty) return 100;
-    
+
     final maxErrors = 20;
-    final score = ((maxErrors - recentErrors.length.clamp(0, maxErrors)) / maxErrors * 100).round();
+    final score = ((maxErrors - recentErrors.length.clamp(0, maxErrors)) /
+            maxErrors *
+            100)
+        .round();
     return score.clamp(0, 100);
   }
 
@@ -236,7 +249,7 @@ class ProductionErrorMonitor {
     _alertTimer?.cancel();
     _alertTimer = null;
     _isAlertActive = false;
-    
+
     logger.info('Error monitoring state reset', operation: 'MONITOR_RESET');
   }
 
@@ -265,7 +278,8 @@ class ErrorEvent {
 
 /// Extension to easily record errors
 extension ErrorRecording on Object {
-  void recordError(String context, {StackTrace? stackTrace, Map<String, dynamic>? metadata}) {
+  void recordError(String context,
+      {StackTrace? stackTrace, Map<String, dynamic>? metadata}) {
     ProductionErrorMonitor.instance.recordError(
       error: this,
       stackTrace: stackTrace ?? StackTrace.current,

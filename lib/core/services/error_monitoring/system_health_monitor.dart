@@ -15,37 +15,39 @@ class SystemHealthMonitor {
     final maxErrors = ErrorMonitoringConstants.maxHealthScoreErrors;
     final errorCount = recentErrors.length.clamp(0, maxErrors);
     final baseScore = ((maxErrors - errorCount) / maxErrors * 100).round();
-    
+
     // Apply severity penalty
     final severityPenalty = _calculateSeverityPenalty(recentErrors);
     final finalScore = (baseScore - severityPenalty).clamp(
       ErrorMonitoringConstants.minHealthScore,
       ErrorMonitoringConstants.maxHealthScore,
     );
-    
+
     return finalScore;
   }
 
   /// Check if system is in a healthy state
   bool isSystemHealthy(List<ErrorEvent> recentErrors, bool hasActiveAlerts) {
     if (hasActiveAlerts) return false;
-    
-    final criticalErrors = recentErrors
-        .where((e) => e.severity == ErrorSeverity.critical)
-        .length;
-    
-    return criticalErrors == 0 && 
-           recentErrors.length < ErrorMonitoringConstants.systemHealthErrorThreshold;
+
+    final criticalErrors =
+        recentErrors.where((e) => e.severity == ErrorSeverity.critical).length;
+
+    return criticalErrors == 0 &&
+        recentErrors.length <
+            ErrorMonitoringConstants.systemHealthErrorThreshold;
   }
 
   /// Detect cascading failure patterns
-  CascadingFailureAnalysis analyzeCascadingFailures(List<ErrorEvent> recentErrors) {
+  CascadingFailureAnalysis analyzeCascadingFailures(
+      List<ErrorEvent> recentErrors) {
     final uniqueErrorTypes = recentErrors.map((e) => e.errorKey).toSet();
-    
-    final isCascadingFailure = uniqueErrorTypes.length >= 
+
+    final isCascadingFailure = uniqueErrorTypes.length >=
             ErrorMonitoringConstants.cascadingFailureMinErrorTypes &&
-        recentErrors.length >= ErrorMonitoringConstants.cascadingFailureMinErrors;
-    
+        recentErrors.length >=
+            ErrorMonitoringConstants.cascadingFailureMinErrors;
+
     return CascadingFailureAnalysis(
       isCascadingFailure: isCascadingFailure,
       uniqueErrorTypes: uniqueErrorTypes.length,
@@ -64,18 +66,20 @@ class SystemHealthMonitor {
     final errorsByCategory = <ErrorCategory, int>{};
     final errorsBySeverity = <ErrorSeverity, int>{};
     final errorsByType = <String, int>{};
-    
+
     for (final error in errors) {
-      errorsByCategory[error.category] = (errorsByCategory[error.category] ?? 0) + 1;
-      errorsBySeverity[error.severity] = (errorsBySeverity[error.severity] ?? 0) + 1;
+      errorsByCategory[error.category] =
+          (errorsByCategory[error.category] ?? 0) + 1;
+      errorsBySeverity[error.severity] =
+          (errorsBySeverity[error.severity] ?? 0) + 1;
       errorsByType[error.errorKey] = (errorsByType[error.errorKey] ?? 0) + 1;
     }
 
-    final dominantCategory = errorsByCategory.entries
-        .reduce((a, b) => a.value > b.value ? a : b);
-    
-    final dominantSeverity = errorsBySeverity.entries
-        .reduce((a, b) => a.value > b.value ? a : b);
+    final dominantCategory =
+        errorsByCategory.entries.reduce((a, b) => a.value > b.value ? a : b);
+
+    final dominantSeverity =
+        errorsBySeverity.entries.reduce((a, b) => a.value > b.value ? a : b);
 
     return ErrorPatternAnalysis(
       totalErrors: errors.length,
@@ -132,14 +136,15 @@ class SystemHealthMonitor {
     return penalty;
   }
 
-  Map<ErrorCategory, double> _calculateErrorDistribution(List<ErrorEvent> errors) {
+  Map<ErrorCategory, double> _calculateErrorDistribution(
+      List<ErrorEvent> errors) {
     if (errors.isEmpty) return {};
-    
+
     final distribution = <ErrorCategory, int>{};
     for (final error in errors) {
       distribution[error.category] = (distribution[error.category] ?? 0) + 1;
     }
-    
+
     return distribution.map(
       (category, count) => MapEntry(category, count / errors.length),
     );
@@ -147,7 +152,7 @@ class SystemHealthMonitor {
 
   Duration _calculateTimeSpan(List<ErrorEvent> errors) {
     if (errors.isEmpty) return Duration.zero;
-    
+
     final timestamps = errors.map((e) => e.timestamp).toList()..sort();
     return timestamps.last.difference(timestamps.first);
   }

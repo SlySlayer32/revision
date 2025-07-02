@@ -28,7 +28,7 @@ enum ErrorSeverity {
   const ErrorSeverity(this.value);
   final String value;
 
-  @override 
+  @override
   String toString() => value;
 }
 

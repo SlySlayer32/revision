@@ -39,15 +39,17 @@ class _DashboardViewState extends State<DashboardView> {
             icon: CircleAvatar(
               backgroundColor: Theme.of(context).primaryColor,
               child: Text(
-                user?.email != null ? user!.email.substring(0, 1).toUpperCase() : 'U',
+                user?.email != null
+                    ? user!.email.substring(0, 1).toUpperCase()
+                    : 'U',
                 style: const TextStyle(color: Colors.white),
               ),
             ),
             onSelected: (value) {
               if (value == 'logout') {
                 context.read<AuthenticationBloc>().add(
-                  const AuthenticationLogoutRequested(),
-                );
+                      const AuthenticationLogoutRequested(),
+                    );
               } else if (value == 'profile') {
                 _showComingSoonDialog(context);
               }
@@ -223,7 +225,9 @@ class _DashboardViewState extends State<DashboardView> {
   ) {
     return Card(
       child: InkWell(
-        onTap: () => route != null ? _navigateToFeature(context, route) : _showComingSoonDialog(context),
+        onTap: () => route != null
+            ? _navigateToFeature(context, route)
+            : _showComingSoonDialog(context),
         borderRadius: const BorderRadius.all(Radius.circular(12)),
         child: Padding(
           padding: const EdgeInsets.all(16),

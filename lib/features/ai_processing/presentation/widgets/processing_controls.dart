@@ -212,7 +212,8 @@ class _ProcessingControlsState extends State<ProcessingControls> {
     // Convert annotations to markers if available
     final markers =
         widget.annotatedImage != null && widget.annotatedImage!.hasAnnotations
-            ? AnnotationConverter.annotationsToMarkers(widget.annotatedImage!.annotations)
+            ? AnnotationConverter.annotationsToMarkers(
+                widget.annotatedImage!.annotations)
             : <ImageMarker>[];
 
     final context = ProcessingContext(

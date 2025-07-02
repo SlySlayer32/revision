@@ -7,7 +7,7 @@ import 'package:revision/core/services/logging_service.dart';
 /// Production-grade performance monitoring service
 class PerformanceService {
   PerformanceService._();
-  
+
   static final PerformanceService _instance = PerformanceService._();
   static PerformanceService get instance => _instance;
 
@@ -18,7 +18,7 @@ class PerformanceService {
   void startTimer(String operationName) {
     final stopwatch = Stopwatch()..start();
     _activeTimers[operationName] = stopwatch;
-    
+
     LoggingService.instance.debug('Started timing: $operationName');
   }
 
@@ -35,7 +35,7 @@ class PerformanceService {
 
     // Store in history for analysis
     _performanceHistory.putIfAbsent(operationName, () => []).add(duration);
-    
+
     // Keep only last 50 measurements per operation
     final history = _performanceHistory[operationName]!;
     if (history.length > 50) {
@@ -43,7 +43,7 @@ class PerformanceService {
     }
 
     LoggingService.instance.performance(operationName, duration);
-    
+
     return duration;
   }
 
@@ -90,7 +90,7 @@ class PerformanceService {
     final count = durations.length;
     final sum = durations.reduce((a, b) => a + b);
     final avg = sum / count;
-    
+
     final median = count % 2 == 0
         ? (durations[count ~/ 2 - 1] + durations[count ~/ 2]) / 2
         : durations[count ~/ 2].toDouble();
@@ -146,7 +146,7 @@ class PerformanceService {
       SystemChannels.lifecycle.setMessageHandler((message) async {
         if (message != null) {
           LoggingService.instance.info('App lifecycle: $message');
-          
+
           switch (message) {
             case 'AppLifecycleState.resumed':
               startTimer('app_resume_time');
@@ -215,10 +215,10 @@ class PerformanceStats {
 /// Simple runtime class for memory monitoring
 class Runtime {
   static Runtime get current => const Runtime._();
-  
+
   const Runtime._();
-  
+
   // Placeholder values - in real implementation you'd use platform-specific APIs
   int get totalMemory => 512 * 1024 * 1024; // 512MB placeholder
-  int get freeMemory => 256 * 1024 * 1024;  // 256MB placeholder
+  int get freeMemory => 256 * 1024 * 1024; // 256MB placeholder
 }

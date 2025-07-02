@@ -28,7 +28,7 @@ class _ErrorBoundaryWidgetState extends State<ErrorBoundaryWidget> {
   @override
   void initState() {
     super.initState();
-    
+
     // Set custom error handler for this widget's subtree
     final originalOnError = FlutterError.onError;
     FlutterError.onError = (details) {
@@ -36,7 +36,7 @@ class _ErrorBoundaryWidgetState extends State<ErrorBoundaryWidget> {
         setState(() {
           _errorDetails = details;
         });
-        
+
         // Report to monitoring service
         if (widget.reportToMonitoring) {
           ErrorMonitoringService().reportError(
@@ -50,11 +50,11 @@ class _ErrorBoundaryWidgetState extends State<ErrorBoundaryWidget> {
             },
           );
         }
-        
+
         // Call custom error handler
         widget.onError?.call(details);
       }
-      
+
       // Also call the original handler
       originalOnError?.call(details);
     };
@@ -66,7 +66,7 @@ class _ErrorBoundaryWidgetState extends State<ErrorBoundaryWidget> {
       return widget.fallbackBuilder?.call(_errorDetails!) ??
           _DefaultErrorFallback(errorDetails: _errorDetails!);
     }
-    
+
     return widget.child;
   }
 }
@@ -74,7 +74,7 @@ class _ErrorBoundaryWidgetState extends State<ErrorBoundaryWidget> {
 /// Default error fallback widget
 class _DefaultErrorFallback extends StatelessWidget {
   const _DefaultErrorFallback({required this.errorDetails});
-  
+
   final FlutterErrorDetails errorDetails;
 
   @override
@@ -145,7 +145,7 @@ class _DefaultErrorFallback extends StatelessWidget {
       ),
     );
   }
-  
+
   void _copyErrorToClipboard(BuildContext context) {
     final errorText = '''
 Error: ${errorDetails.exception}
@@ -153,10 +153,10 @@ Library: ${errorDetails.library}
 Context: ${errorDetails.context}
 Stack Trace: ${errorDetails.stack}
 ''';
-    
+
     // In a real app, you'd use Clipboard.setData
     log('Error copied to clipboard: $errorText');
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Error details copied to clipboard'),
@@ -174,7 +174,7 @@ class AIErrorWidget extends StatelessWidget {
     this.onRetry,
     this.showDetails = false,
   });
-  
+
   final dynamic error;
   final VoidCallback? onRetry;
   final bool showDetails;
@@ -183,7 +183,7 @@ class AIErrorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final isNetworkError = _isNetworkError(error);
     final isAIServiceError = _isAIServiceError(error);
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.all(8),
@@ -259,10 +259,11 @@ class AIErrorWidget extends StatelessWidget {
                     error,
                     context: {'user_action': 'manual_report'},
                   );
-                  
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Error reported. Thank you for helping us improve!'),
+                      content: Text(
+                          'Error reported. Thank you for helping us improve!'),
                       backgroundColor: Colors.green,
                     ),
                   );
@@ -279,30 +280,30 @@ class AIErrorWidget extends StatelessWidget {
       ),
     );
   }
-  
+
   bool _isNetworkError(dynamic error) {
     final errorStr = error.toString().toLowerCase();
     return errorStr.contains('network') ||
-           errorStr.contains('connection') ||
-           errorStr.contains('timeout') ||
-           errorStr.contains('socket');
+        errorStr.contains('connection') ||
+        errorStr.contains('timeout') ||
+        errorStr.contains('socket');
   }
-  
+
   bool _isAIServiceError(dynamic error) {
     final errorStr = error.toString().toLowerCase();
     return errorStr.contains('ai') ||
-           errorStr.contains('gemini') ||
-           errorStr.contains('firebase') ||
-           errorStr.contains('role: model') ||
-           errorStr.contains('empty response');
+        errorStr.contains('gemini') ||
+        errorStr.contains('firebase') ||
+        errorStr.contains('role: model') ||
+        errorStr.contains('empty response');
   }
-  
+
   String _getErrorTitle(bool isNetworkError, bool isAIServiceError) {
     if (isNetworkError) return 'Connection Problem';
     if (isAIServiceError) return 'AI Service Temporarily Unavailable';
     return 'Something Went Wrong';
   }
-  
+
   String _getErrorMessage(bool isNetworkError, bool isAIServiceError) {
     if (isNetworkError) {
       return 'Please check your internet connection and try again.';
@@ -324,7 +325,7 @@ class SafeAsyncWidget<T> extends StatefulWidget {
     this.loadingBuilder,
     this.onError,
   });
-  
+
   final Future<T> future;
   final Widget Function(BuildContext context, T data) builder;
   final Widget Function(BuildContext context, dynamic error)? errorBuilder;
@@ -337,13 +338,13 @@ class SafeAsyncWidget<T> extends StatefulWidget {
 
 class _SafeAsyncWidgetState<T> extends State<SafeAsyncWidget<T>> {
   late Future<T> _future;
-  
+
   @override
   void initState() {
     super.initState();
     _future = widget.future;
   }
-  
+
   void _retry() {
     setState(() {
       _future = widget.future;
@@ -359,21 +360,21 @@ class _SafeAsyncWidgetState<T> extends State<SafeAsyncWidget<T>> {
           return widget.loadingBuilder?.call(context) ??
               const Center(child: CircularProgressIndicator());
         }
-        
+
         if (snapshot.hasError) {
           widget.onError?.call(snapshot.error);
-          
+
           return widget.errorBuilder?.call(context, snapshot.error) ??
               AIErrorWidget(
                 error: snapshot.error,
                 onRetry: _retry,
               );
         }
-        
+
         if (snapshot.hasData) {
           return widget.builder(context, snapshot.data as T);
         }
-        
+
         return const Center(
           child: Text('No data available'),
         );

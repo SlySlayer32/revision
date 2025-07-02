@@ -13,16 +13,16 @@ class MarkedArea {
 
   /// X coordinate (normalized 0.0 to 1.0)
   final double x;
-  
+
   /// Y coordinate (normalized 0.0 to 1.0)
   final double y;
-  
+
   /// Width (normalized 0.0 to 1.0)
   final double width;
-  
+
   /// Height (normalized 0.0 to 1.0)
   final double height;
-  
+
   /// Optional description of the marked area
   final String? description;
 
@@ -50,12 +50,16 @@ class MarkedArea {
 
   /// Validates that the marked area has valid dimensions
   bool get isValid {
-    return x >= 0.0 && x <= 1.0 &&
-           y >= 0.0 && y <= 1.0 &&
-           width > 0.0 && width <= 1.0 &&
-           height > 0.0 && height <= 1.0 &&
-           (x + width) <= 1.0 &&
-           (y + height) <= 1.0;
+    return x >= 0.0 &&
+        x <= 1.0 &&
+        y >= 0.0 &&
+        y <= 1.0 &&
+        width > 0.0 &&
+        width <= 1.0 &&
+        height > 0.0 &&
+        height <= 1.0 &&
+        (x + width) <= 1.0 &&
+        (y + height) <= 1.0;
   }
 
   /// Gets the area as a percentage of the total image
@@ -64,7 +68,7 @@ class MarkedArea {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is MarkedArea &&
         other.x == x &&
         other.y == y &&

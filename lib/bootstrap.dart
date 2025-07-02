@@ -114,22 +114,27 @@ Future<void> _initializeFirebase() async {
     try {
       final remoteConfigService = getIt<FirebaseAIRemoteConfigService>();
       await remoteConfigService.initialize();
-      debugPrint('_initializeFirebase: Firebase Remote Config initialization completed');
+      debugPrint(
+          '_initializeFirebase: Firebase Remote Config initialization completed');
     } catch (e) {
       debugPrint('⚠️ Firebase Remote Config initialization failed: $e');
     }
 
     // Initialize Firebase AI Logic after Firebase is initialized
-    debugPrint('_initializeFirebase: Starting Firebase AI Logic initialization...');
+    debugPrint(
+        '_initializeFirebase: Starting Firebase AI Logic initialization...');
     await _initializeFirebaseAI();
-    debugPrint('_initializeFirebase: Firebase AI Logic initialization completed');
+    debugPrint(
+        '_initializeFirebase: Firebase AI Logic initialization completed');
 
     // Initialize GeminiAI Service after Firebase AI is ready
-    debugPrint('_initializeFirebase: Starting GeminiAI Service initialization...');
+    debugPrint(
+        '_initializeFirebase: Starting GeminiAI Service initialization...');
     try {
       final geminiService = getIt<GeminiAIService>();
       await geminiService.waitForInitialization();
-      debugPrint('_initializeFirebase: GeminiAI Service initialization completed');
+      debugPrint(
+          '_initializeFirebase: GeminiAI Service initialization completed');
     } catch (e) {
       debugPrint('⚠️ GeminiAI Service initialization failed: $e');
     }
@@ -214,11 +219,13 @@ Future<void> _initializeFirebaseAI() async {
 
     // Firebase AI Logic uses API keys managed by Firebase Console
     // No explicit API key initialization needed - handled by Firebase Console
-    debugPrint('_initializeFirebaseAI: Using Firebase Console managed API keys');
+    debugPrint(
+        '_initializeFirebaseAI: Using Firebase Console managed API keys');
 
     // Firebase AI Logic is automatically available when Firebase is initialized
     // Models are created on-demand by GeminiAIService
-    debugPrint('_initializeFirebaseAI: Firebase AI Logic models will be initialized by GeminiAIService');
+    debugPrint(
+        '_initializeFirebaseAI: Firebase AI Logic models will be initialized by GeminiAIService');
 
     log('✅ Firebase AI Logic (Google AI) initialization completed successfully');
   } catch (e, stackTrace) {
@@ -230,7 +237,8 @@ Future<void> _initializeFirebaseAI() async {
     if (!EnvironmentDetector.isDevelopment) {
       rethrow;
     } else {
-      debugPrint('⚠️ Continuing in development mode despite Firebase AI Logic error');
+      debugPrint(
+          '⚠️ Continuing in development mode despite Firebase AI Logic error');
     }
   }
 }

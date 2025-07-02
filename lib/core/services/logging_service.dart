@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 /// and provides structured logging capabilities
 class LoggingService {
   const LoggingService._();
-  
+
   static const LoggingService _instance = LoggingService._();
   static LoggingService get instance => _instance;
 
@@ -48,7 +48,7 @@ class LoggingService {
     Map<String, dynamic>? data,
   }) {
     _log(_warning, message, error: error, stackTrace: stackTrace, data: data);
-    
+
     // Send warning to Crashlytics as non-fatal
     if (!kDebugMode && error != null) {
       FirebaseCrashlytics.instance.recordError(
@@ -68,7 +68,7 @@ class LoggingService {
     Map<String, dynamic>? data,
   }) {
     _log(_error, message, error: error, stackTrace: stackTrace, data: data);
-    
+
     // Send error to Crashlytics
     if (!kDebugMode) {
       FirebaseCrashlytics.instance.recordError(
@@ -88,7 +88,7 @@ class LoggingService {
     Map<String, dynamic>? data,
   }) {
     _log(_fatal, message, error: error, stackTrace: stackTrace, data: data);
-    
+
     // Send fatal error to Crashlytics
     if (!kDebugMode) {
       FirebaseCrashlytics.instance.recordError(
@@ -112,7 +112,7 @@ class LoggingService {
     final message = 'API $method $endpoint'
         '${statusCode != null ? ' - $statusCode' : ''}'
         '${duration != null ? ' (${duration.inMilliseconds}ms)' : ''}';
-    
+
     final logData = {
       'method': method,
       'endpoint': endpoint,
@@ -182,11 +182,10 @@ class LoggingService {
   }) {
     final timestamp = DateTime.now().toIso8601String();
     final logMessage = '[$timestamp] [$level] $message';
-    
+
     // Add data if provided
-    final fullMessage = data != null 
-        ? '$logMessage - Data: ${data.toString()}'
-        : logMessage;
+    final fullMessage =
+        data != null ? '$logMessage - Data: ${data.toString()}' : logMessage;
 
     // Use dart:developer log for better debugging
     dev.log(
@@ -228,7 +227,8 @@ class LoggingService {
   }
 
   /// Builds information array for Crashlytics
-  List<dynamic> _buildCrashlyticsInfo(String message, Map<String, dynamic>? data) {
+  List<dynamic> _buildCrashlyticsInfo(
+      String message, Map<String, dynamic>? data) {
     final info = <dynamic>[message];
     if (data != null) {
       info.addAll(data.entries.map((e) => '${e.key}: ${e.value}'));

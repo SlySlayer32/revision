@@ -67,8 +67,8 @@ class FirebaseEmulatorHelper {
     String? displayName,
   }) async {
     try {
-      final userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
+      final userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -91,8 +91,8 @@ class FirebaseEmulatorHelper {
     required String password,
   }) async {
     try {
-      final userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
+      final userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -111,7 +111,7 @@ class FirebaseEmulatorHelper {
       // Note: This is a simplified approach for testing
       // In a real implementation, you might need to call Firebase Admin SDK
       // or use emulator REST APIs to bulk delete users
-      
+
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
         await currentUser.delete();

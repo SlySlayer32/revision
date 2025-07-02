@@ -56,7 +56,10 @@ class _ProcessingResultDisplayState extends State<ProcessingResultDisplay> {
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5),
+                color: Theme.of(context)
+                    .colorScheme
+                    .outline
+                    .withValues(alpha: 0.5),
               ),
               borderRadius: BorderRadius.circular(8),
             ),

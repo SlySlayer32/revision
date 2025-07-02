@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/core/di/service_locator.dart';
-import 'package:revision/features/image_editing/presentation/view/image_annotation_page.dart';
+// import 'package:revision/features/image_editing/presentation/view/image_annotation_page.dart'; // Disabled
 import 'package:revision/features/image_selection/domain/entities/image_source.dart';
 import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
 import 'package:revision/features/image_selection/presentation/cubit/image_selection_cubit.dart';
@@ -222,9 +222,12 @@ class _ImageSelectionView extends StatelessWidget {
 
   void _navigateToAnnotation(
       BuildContext context, SelectedImage selectedImage) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (context) => ImageAnnotationPage(selectedImage: selectedImage),
+    // Image annotation temporarily disabled during migration
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+            'Image annotation feature is being updated for REST API integration'),
+        duration: Duration(seconds: 3),
       ),
     );
   }

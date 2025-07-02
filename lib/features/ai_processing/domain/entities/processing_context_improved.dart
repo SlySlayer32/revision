@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:revision/features/ai_processing/domain/entities/image_marker.dart';
 
 /// Represents the context for AI image processing operations.
-/// 
+///
 /// This entity encapsulates all parameters needed to configure how an AI
 /// model should process an image, including quality requirements, performance
 /// preferences, and specific processing instructions.
@@ -11,7 +11,7 @@ import 'package:revision/features/ai_processing/domain/entities/image_marker.dar
 /// ```dart
 /// // Quick enhancement
 /// final context = ProcessingContext.quickEnhance();
-/// 
+///
 /// // Professional artistic transformation
 /// final context = ProcessingContext.professionalEdit(
 ///   type: ProcessingType.artistic,
@@ -90,12 +90,14 @@ class ProcessingContext extends Equatable {
     PerformancePriority priority,
   ) {
     // Face editing should not use speed priority due to quality requirements
-    if (type == ProcessingType.faceEdit && priority == PerformancePriority.speed) {
+    if (type == ProcessingType.faceEdit &&
+        priority == PerformancePriority.speed) {
       return false;
     }
 
     // Professional quality should not be paired with speed priority
-    if (quality == QualityLevel.professional && priority == PerformancePriority.speed) {
+    if (quality == QualityLevel.professional &&
+        priority == PerformancePriority.speed) {
       return false;
     }
 
@@ -122,12 +124,14 @@ class ProcessingContext extends Equatable {
     }
 
     // Check if custom instructions are too short when required
-    if (processingType == ProcessingType.custom && 
-        (customInstructions == null || customInstructions!.trim().length < 10)) {
+    if (processingType == ProcessingType.custom &&
+        (customInstructions == null ||
+            customInstructions!.trim().length < 10)) {
       return false;
     }
 
-    return _isValidCombination(processingType, qualityLevel, performancePriority);
+    return _isValidCombination(
+        processingType, qualityLevel, performancePriority);
   }
 
   /// Returns estimated processing time in seconds based on configuration

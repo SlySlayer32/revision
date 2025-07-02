@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:revision/features/image_editing/domain/entities/annotation_stroke.dart';
 
@@ -37,8 +36,7 @@ class AnnotationConverter {
     return promptParts.join('\n');
   }
 
-  static List<String> annotationsToMarkers(
-      List<AnnotationStroke> annotations) {
+  static List<String> annotationsToMarkers(List<AnnotationStroke> annotations) {
     return annotations.map((stroke) {
       final color = stroke.color;
       final colorName =

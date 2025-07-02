@@ -159,12 +159,14 @@ class ImageSaveService {
     }
   }
 
-  static Future<bool> _saveImageWeb(Uint8List imageBytes, String fileName) async {
+  static Future<bool> _saveImageWeb(
+      Uint8List imageBytes, String fileName) async {
     // Web saving is handled by the browser, this is a placeholder
     return true;
   }
 
-  static Future<bool> _saveImageMobile(Uint8List imageBytes, String fileName) async {
+  static Future<bool> _saveImageMobile(
+      Uint8List imageBytes, String fileName) async {
     final status = await Permission.storage.request();
     if (status.isGranted) {
       final result = await ImageGallerySaver.saveImage(
@@ -178,7 +180,8 @@ class ImageSaveService {
     }
   }
 
-  static Future<bool> _saveImageDesktop(Uint8List imageBytes, String fileName) async {
+  static Future<bool> _saveImageDesktop(
+      Uint8List imageBytes, String fileName) async {
     final directory = await getApplicationDocumentsDirectory();
     final path = '${directory.path}/$fileName';
     final file = File(path);

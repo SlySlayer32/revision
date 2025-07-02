@@ -16,12 +16,14 @@ Your Firebase Remote Config setup **PERFECTLY FOLLOWS** the recommended structur
 ## 🏗️ Architecture Compliance
 
 ### ✅ Production-First Approach
+
 - **No Mock Implementations** - All parameters connect to real Vertex AI services
 - **Comprehensive Error Handling** - Timeout and fallback configurations included
 - **Performance Optimization** - Conditional values for different user segments
 - **Security-by-Design** - Clear separation of system instructions based on model capabilities
 
 ### ✅ Clean Architecture Integration
+
 - **Domain Layer Independence** - AI model selection abstracted from business logic
 - **Repository Pattern** - RemoteConfigService abstracts configuration access
 - **Dependency Injection** - Configuration injected into AI services
@@ -30,6 +32,7 @@ Your Firebase Remote Config setup **PERFECTLY FOLLOWS** the recommended structur
 ## 🤖 Multi-Model Support Structure
 
 ### 1. Model Type Selector
+
 ```json
 "active_ai_model_type": {
     "defaultValue": { "value": "gemini_with_system_instructions" },
@@ -38,11 +41,13 @@ Your Firebase Remote Config setup **PERFECTLY FOLLOWS** the recommended structur
 ```
 
 **Purpose:** Central switch determining which AI model configuration to use  
-**Values:** 
+**Values:**
+
 - `"gemini_with_system_instructions"` - For models supporting system prompts
 - `"other_ai_no_system_instructions"` - For models that don't support system prompts
 
 ### 2. Gemini Model Configuration (Supports System Instructions)
+
 ```json
 "ai_gemini_model": {
     "defaultValue": { "value": "gemini-2.5-flash" },
@@ -57,6 +62,7 @@ Your Firebase Remote Config setup **PERFECTLY FOLLOWS** the recommended structur
 ```
 
 ### 3. Image Generation Model (No System Instructions)
+
 ```json
 "ai_gemini_image_model": {
     "defaultValue": { "value": "gemini-2.0-flash-preview-image-generation" },
@@ -93,6 +99,7 @@ if (activeModelType == 'gemini_with_system_instructions') {
 ## 📊 Complete Parameter Set
 
 ### Core Model Configuration
+
 | Parameter | Type | Purpose |
 |-----------|------|---------|
 | `active_ai_model_type` | String | Model type selector |
@@ -102,12 +109,14 @@ if (activeModelType == 'gemini_with_system_instructions') {
 | `vertex_location` | String | Geographic location for AI operations |
 
 ### System Instructions (Model-Specific)
+
 | Parameter | Type | Purpose |
 |-----------|------|---------|
 | `ai_analysis_system_prompt` | String | System instructions for analysis model |
 | `ai_editing_system_prompt` | String | Reference prompt (image model ignores) |
 
 ### Generation Parameters
+
 | Parameter | Type | Purpose |
 |-----------|------|---------|
 | `ai_temperature` | String | Creativity vs consistency control |
@@ -116,6 +125,7 @@ if (activeModelType == 'gemini_with_system_instructions') {
 | `ai_top_p` | String | Top-P (nucleus) sampling |
 
 ### Operational Parameters
+
 | Parameter | Type | Purpose |
 |-----------|------|---------|
 | `ai_debug_mode` | String | Enable detailed logging |
@@ -125,10 +135,12 @@ if (activeModelType == 'gemini_with_system_instructions') {
 ## 🎯 Conditional Targeting
 
 ### Android Users
+
 - Higher creativity (`ai_temperature: 0.6` vs default `0.4`)
 - Optimized for mobile AI processing
 
 ### Debug Mode Users (5% rollout)
+
 - Enhanced logging enabled (`ai_debug_mode: true`)
 - Access to latest model versions
 - Detailed error reporting
@@ -136,11 +148,13 @@ if (activeModelType == 'gemini_with_system_instructions') {
 ## 🔐 Security & Compliance
 
 ### GDPR Compliance ✅
+
 - No personal data in configuration parameters
 - All prompts focus on technical image analysis
 - User data handling abstracted from configuration
 
 ### Production Security ✅
+
 - Environment-specific configurations
 - Secure parameter descriptions clearly indicate capabilities
 - No sensitive data in Remote Config values
@@ -148,12 +162,14 @@ if (activeModelType == 'gemini_with_system_instructions') {
 ## 🚀 Deployment Process
 
 ### Successful Deployment Steps
+
 1. **Template Validation** ✅ - JSON syntax and structure verified
 2. **Firebase Authentication** ✅ - Authenticated with revision-464202 project
 3. **Remote Config Deployment** ✅ - `firebase deploy --only remoteconfig`
 4. **Verification** ✅ - Configuration fetched and validated post-deployment
 
 ### Deployment Command Used
+
 ```bash
 firebase deploy --only remoteconfig
 ```
@@ -163,14 +179,18 @@ firebase deploy --only remoteconfig
 ## 📱 Implementation Integration
 
 ### Flutter Integration
+
 Your `RemoteConfigService` correctly implements:
+
 - Parameter fetching with type safety
 - Default value fallbacks
 - Conditional value resolution
 - Error handling for network issues
 
 ### AI Service Integration
+
 Your `VertexAiService` correctly uses:
+
 - Model selection based on `active_ai_model_type`
 - Conditional system instruction application
 - Dynamic parameter configuration
@@ -179,12 +199,14 @@ Your `VertexAiService` correctly uses:
 ## 🧪 Testing Strategy Compliance
 
 ### Unit Tests Required ✅
+
 - Remote Config parameter retrieval
 - Model selection logic
 - System instruction application
 - Fallback behavior testing
 
 ### Integration Tests Required ✅
+
 - Firebase Remote Config connectivity
 - AI service parameter usage
 - Multi-environment configuration testing
@@ -192,12 +214,14 @@ Your `VertexAiService` correctly uses:
 ## 📊 Monitoring & Analytics
 
 ### Key Metrics to Track
+
 - Model switch frequency via `active_ai_model_type` usage
 - Performance differences between model types
 - Error rates by model configuration
 - User engagement by conditional targeting
 
 ### Firebase Analytics Integration
+
 - Custom events for model usage
 - Performance monitoring for AI operations
 - Crash reporting for configuration errors
@@ -205,12 +229,14 @@ Your `VertexAiService` correctly uses:
 ## 🔄 Maintenance Procedures
 
 ### Regular Updates
+
 1. **Model Version Updates** - Update model IDs without app releases
 2. **Prompt Optimization** - A/B test system instructions
 3. **Performance Tuning** - Adjust generation parameters based on usage
 4. **Feature Rollouts** - Use conditional targeting for gradual releases
 
 ### Emergency Procedures
+
 1. **Model Rollback** - Instantly switch to previous model via Remote Config
 2. **Performance Issues** - Adjust parameters without deployment
 3. **API Changes** - Update model configurations dynamically

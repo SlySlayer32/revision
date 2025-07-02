@@ -10,19 +10,19 @@ class EnhancedLogger {
   EnhancedLogger._internal();
 
   static const String _logPrefix = '🔧 REVISION';
-  
+
   // Log levels
   static const int _levelDebug = 0;
   static const int _levelInfo = 1;
   static const int _levelWarning = 2;
   static const int _levelError = 3;
   static const int _levelCritical = 4;
-  
+
   int _currentLogLevel = _levelInfo;
   bool _enableConsoleOutput = true;
   bool _enableFileOutput = false;
   bool _enableMonitoringIntegration = true;
-  
+
   final List<LogEntry> _logBuffer = [];
   static const int _maxBufferSize = 1000;
 
@@ -45,12 +45,14 @@ class EnhancedLogger {
     if (enableMonitoring != null) {
       _enableMonitoringIntegration = enableMonitoring;
     }
-    
-    info('Logger configured: level=${minLevel?.name}, console=$enableConsole, file=$enableFile');
+
+    info(
+        'Logger configured: level=${minLevel?.name}, console=$enableConsole, file=$enableFile');
   }
 
   /// Debug level logging
-  void debug(String message, {
+  void debug(
+    String message, {
     String? operation,
     Map<String, dynamic>? context,
     Object? error,
@@ -60,7 +62,8 @@ class EnhancedLogger {
   }
 
   /// Info level logging
-  void info(String message, {
+  void info(
+    String message, {
     String? operation,
     Map<String, dynamic>? context,
     Object? error,
@@ -70,7 +73,8 @@ class EnhancedLogger {
   }
 
   /// Warning level logging
-  void warning(String message, {
+  void warning(
+    String message, {
     String? operation,
     Map<String, dynamic>? context,
     Object? error,
@@ -80,14 +84,15 @@ class EnhancedLogger {
   }
 
   /// Error level logging
-  void error(String message, {
+  void error(
+    String message, {
     String? operation,
     Map<String, dynamic>? context,
     Object? error,
     StackTrace? stackTrace,
   }) {
     _log(LogLevel.error, message, operation, context, error, stackTrace);
-    
+
     // Auto-report errors to monitoring
     if (_enableMonitoringIntegration && operation != null) {
       ErrorMonitoringService().reportError(
@@ -100,14 +105,15 @@ class EnhancedLogger {
   }
 
   /// Critical level logging
-  void critical(String message, {
+  void critical(
+    String message, {
     String? operation,
     Map<String, dynamic>? context,
     Object? error,
     StackTrace? stackTrace,
   }) {
     _log(LogLevel.critical, message, operation, context, error, stackTrace);
-    
+
     // Always report critical errors to monitoring
     if (_enableMonitoringIntegration) {
       ErrorMonitoringService().reportError(
@@ -120,7 +126,9 @@ class EnhancedLogger {
   }
 
   /// AI-specific logging helpers
-  void aiSuccess(String operation, Duration responseTime, {
+  void aiSuccess(
+    String operation,
+    Duration responseTime, {
     Map<String, dynamic>? context,
   }) {
     info(
@@ -132,13 +140,16 @@ class EnhancedLogger {
         ...?context,
       },
     );
-    
+
     if (_enableMonitoringIntegration) {
-      ErrorMonitoringService().reportSuccess(operation, responseTime, context: context);
+      ErrorMonitoringService()
+          .reportSuccess(operation, responseTime, context: context);
     }
   }
 
-  void aiError(String operation, Object error, {
+  void aiError(
+    String operation,
+    Object error, {
     Duration? responseTime,
     StackTrace? stackTrace,
     Map<String, dynamic>? context,
@@ -168,7 +179,8 @@ class EnhancedLogger {
     );
   }
 
-  void circuitBreakerOpen(String operation, {
+  void circuitBreakerOpen(
+    String operation, {
     int? failureCount,
     Duration? timeout,
   }) {
@@ -194,7 +206,9 @@ class EnhancedLogger {
   }
 
   /// Performance logging
-  void performanceMetric(String metric, num value, {
+  void performanceMetric(
+    String metric,
+    num value, {
     String? unit,
     Map<String, dynamic>? context,
   }) {
@@ -213,12 +227,14 @@ class EnhancedLogger {
   /// Get recent logs
   List<LogEntry> getRecentLogs({int limit = 50, LogLevel? minLevel}) {
     var filtered = _logBuffer.toList();
-    
+
     if (minLevel != null) {
       final minLevelInt = _logLevelToInt(minLevel);
-      filtered = filtered.where((log) => _logLevelToInt(log.level) >= minLevelInt).toList();
+      filtered = filtered
+          .where((log) => _logLevelToInt(log.level) >= minLevelInt)
+          .toList();
     }
-    
+
     filtered.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return filtered.take(limit).toList();
   }
@@ -226,29 +242,32 @@ class EnhancedLogger {
   /// Export logs as JSON
   String exportLogs({LogLevel? minLevel, Duration? timeRange}) {
     var logs = _logBuffer.toList();
-    
+
     if (minLevel != null) {
       final minLevelInt = _logLevelToInt(minLevel);
-      logs = logs.where((log) => _logLevelToInt(log.level) >= minLevelInt).toList();
+      logs = logs
+          .where((log) => _logLevelToInt(log.level) >= minLevelInt)
+          .toList();
     }
-    
+
     if (timeRange != null) {
       final cutoff = DateTime.now().subtract(timeRange);
       logs = logs.where((log) => log.timestamp.isAfter(cutoff)).toList();
     }
-    
+
     final export = {
       'timestamp': DateTime.now().toIso8601String(),
       'log_count': logs.length,
       'logs': logs.map((log) => log.toMap()).toList(),
     };
-    
+
     return const JsonEncoder.withIndent('  ').convert(export);
   }
 
   /// Clear old logs
   void clearOldLogs({Duration? olderThan}) {
-    final cutoff = DateTime.now().subtract(olderThan ?? const Duration(hours: 24));
+    final cutoff =
+        DateTime.now().subtract(olderThan ?? const Duration(hours: 24));
     _logBuffer.removeWhere((log) => log.timestamp.isBefore(cutoff));
     info('🧹 Cleared logs older than ${olderThan?.inHours ?? 24} hours');
   }
@@ -295,18 +314,20 @@ class EnhancedLogger {
 
   void _outputToConsole(LogEntry entry) {
     final emoji = _getLevelEmoji(entry.level);
-    final timestamp = entry.timestamp.toString().substring(11, 23); // HH:mm:ss.mmm
-    
+    final timestamp =
+        entry.timestamp.toString().substring(11, 23); // HH:mm:ss.mmm
+
     var output = '$_logPrefix $emoji [$timestamp] ${entry.message}';
-    
+
     if (entry.operation != null) {
-      output = '$_logPrefix $emoji [$timestamp] [${entry.operation}] ${entry.message}';
+      output =
+          '$_logPrefix $emoji [$timestamp] [${entry.operation}] ${entry.message}';
     }
-    
+
     if (entry.context.isNotEmpty) {
       output += ' | Context: ${entry.context}';
     }
-    
+
     // Use appropriate dart:developer log level
     switch (entry.level) {
       case LogLevel.debug:
@@ -318,7 +339,12 @@ class EnhancedLogger {
         break;
       case LogLevel.error:
       case LogLevel.critical:
-        dev.log(output, level: 1000, error: entry.error, stackTrace: entry.stackTrace != null ? StackTrace.fromString(entry.stackTrace!) : null);
+        dev.log(output,
+            level: 1000,
+            error: entry.error,
+            stackTrace: entry.stackTrace != null
+                ? StackTrace.fromString(entry.stackTrace!)
+                : null);
         break;
     }
   }
@@ -367,7 +393,7 @@ enum LogLevel {
   warning,
   error,
   critical;
-  
+
   String get name => toString().split('.').last;
 }
 
