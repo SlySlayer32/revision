@@ -1,12 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
 import 'package:revision/features/ai_processing/presentation/widgets/processing_controls.dart';
 import 'package:revision/features/ai_processing/presentation/widgets/processing_status_display.dart';
-import 'package:revision/features/image_editor/presentation/cubit/image_editor_cubit.dart';
 import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
 import 'package:revision/features/image_selection/presentation/cubit/image_selection_cubit.dart';
 import 'package:revision/features/image_selection/presentation/cubit/image_selection_state.dart';
@@ -20,8 +17,8 @@ class AiProcessingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final annotatedImage =
-        context.watch<ImageEditorCubit>().state.annotatedImage;
+    // TODO: Wire this up once ImageEditorCubit is available
+    const annotatedImage = null;
 
     return Scaffold(
       appBar: AppBar(
@@ -31,56 +28,55 @@ class AiProcessingView extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: BlocBuilder<ImageSelectionCubit, ImageSelectionState>(
           builder: (context, state) {
-            if (state.status == ImageSelectionStatus.loading) {
+            if (state is ImageSelectionLoading) {
               return const Center(child: CircularProgressIndicator());
-            } else if (state.selectedImage == null) {
+            } else if (state is ImageSelectionSuccess) {
+              final selectedImage = state.selectedImage;
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Image.memory(
+                            selectedImage.bytes!,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const ProcessingStatusDisplay(),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  Expanded(
+                    flex: 1,
+                    child: ProcessingControls(
+                      selectedImage: selectedImage,
+                      annotatedImage: annotatedImage,
+                      onStartProcessing: (prompt, processingContext) {
+                        context.read<GeminiPipelineCubit>().startImageProcessing(
+                              selectedImage: selectedImage,
+                              prompt: prompt,
+                              annotatedImage: annotatedImage,
+                              processingContext: processingContext,
+                            );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            } else if (state is ImageSelectionError) {
+              return Center(
+                child: Text('Error selecting image: ${state.message}'),
+              );
+            } else {
               return const Center(
                 child: Text('Select an image to begin.'),
               );
             }
-
-            final selectedImage = state.selectedImage!;
-
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Left side: Image and status
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Image.memory(
-                          selectedImage.bytes!,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const ProcessingStatusDisplay(),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(width: 24),
-
-                // Right side: Controls
-                Expanded(
-                  flex: 1,
-                  child: ProcessingControls(
-                    selectedImage: selectedImage,
-                    annotatedImage: annotatedImage,
-                    onStartProcessing: (prompt, processingContext) {
-                      context.read<GeminiPipelineCubit>().startImageProcessing(
-                            selectedImage: selectedImage,
-                            prompt: prompt,
-                            annotatedImage: annotatedImage,
-                            processingContext: processingContext,
-                          );
-                    },
-                  ),
-                ),
-              ],
-            );
           },
         ),
       ),
