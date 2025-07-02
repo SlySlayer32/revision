@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:revision/features/ai_processing/domain/entities/processing_result.dart';
-import 'package:revision/features/ai_processing/infrastructure\services\analysis_prompt_generator.dart';
+import 'package:revision/features/ai_processing/infrastructure/services/analysis_prompt_generator.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
 
 /// Service responsible for handling fallback scenarios in AI analysis
