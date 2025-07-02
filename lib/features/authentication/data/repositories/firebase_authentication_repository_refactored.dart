@@ -51,8 +51,8 @@ mixin AuthExceptionHandler {
 }
 
 /// Implementation of AuthRepository that uses Firebase Auth
-class FirebaseAuthenticationRepository 
-    with AuthExceptionHandler 
+class FirebaseAuthenticationRepository
+    with AuthExceptionHandler
     implements AuthRepository {
   /// Creates a new [FirebaseAuthenticationRepository]
   FirebaseAuthenticationRepository({

@@ -1,30 +1,38 @@
 # Code Smells Analysis - ProcessingContext Entity
 
 ## Overview
+
 Analysis of the `ProcessingContext` entity in `lib/features/ai_processing/domain/entities/processing_context.dart` reveals several code quality issues that impact maintainability, validation, and usability.
 
 ## 🔴 Critical Code Smells
 
 ### 1. Git Merge Conflict Residue
+
 **Location**: Line 89
 **Issue**: Git merge conflict markers left in source code
+
 ```dart
 >>>>>>> Stashed changes
 ```
+
 **Impact**: Compilation errors, unprofessional codebase
 **Severity**: Critical - Breaks builds
 
 ### 2. Missing Business Logic Validation
+
 **Location**: Throughout the entity
 **Issue**: No validation for processing context combinations that might be invalid or contradictory
 **Examples**:
+
 - `ProcessingType.faceEdit` with `PerformancePriority.speed` might be incompatible
 - `QualityLevel.professional` with very short `customInstructions`
 - Empty `markers` list when `processingType` requires spatial information
 
 ### 3. Inconsistent Nullability Design
+
 **Location**: Constructor parameters
 **Issue**: Some optional parameters have default values, others don't
+
 ```dart
 this.markers = const [],           // Has default
 this.customInstructions,           // No default
@@ -32,20 +40,25 @@ this.targetFormat,                 // No default
 this.promptSystemInstructions,     // No default
 this.editSystemInstructions,       // No default
 ```
+
 **Impact**: Inconsistent API usage patterns
 
 ## 🟡 Medium Priority Code Smells
 
 ### 4. Primitive Obsession
+
 **Location**: String-based instructions and format
 **Issue**: Using raw `String?` types instead of value objects
+
 ```dart
 final String? customInstructions;
 final String? targetFormat;
 final String? promptSystemInstructions;
 final String? editSystemInstructions;
 ```
-**Better Approach**: 
+
+**Better Approach**:
+
 ```dart
 final CustomInstructions? customInstructions;
 final TargetFormat? targetFormat;
@@ -54,8 +67,10 @@ final SystemInstructions? editSystemInstructions;
 ```
 
 ### 5. Enum Values Without Documentation
+
 **Location**: All enum definitions
 **Issue**: Enum values lack documentation explaining their purpose and impact
+
 ```dart
 enum ProcessingType {
   enhance,        // What does this actually do?
@@ -66,19 +81,23 @@ enum ProcessingType {
 ```
 
 ### 6. Missing Enum Extensibility Patterns
+
 **Location**: Enum definitions
 **Issue**: Hard to extend enums without breaking existing code
 **No `unknown` or `other` fallback values for future compatibility**
 
 ### 7. Large Parameter List in Constructor
+
 **Location**: Constructor
 **Issue**: 8 parameters in constructor (exceeds recommended 5-7)
 **Impact**: Difficult to use, error-prone instantiation
 
 ### 8. Missing Factory Constructors
+
 **Location**: Class definition
 **Issue**: No named constructors for common use cases
 **Examples Needed**:
+
 ```dart
 ProcessingContext.quickEnhance()
 ProcessingContext.artisticTransform(ProcessingType type)
@@ -88,8 +107,10 @@ ProcessingContext.restoration()
 ## 🟢 Minor Code Smells
 
 ### 9. Inconsistent Naming Convention
+
 **Location**: Field names
 **Issue**: Mixed naming patterns for system instructions
+
 ```dart
 final String? promptSystemInstructions;  // Long descriptive name
 final String? editSystemInstructions;    // Long descriptive name
@@ -98,17 +119,20 @@ final String? targetFormat;              // Short name
 ```
 
 ### 10. Missing toString() Override
+
 **Location**: Class definition
 **Issue**: No custom `toString()` for debugging
 **Impact**: Poor debugging experience
 
 ### 11. Missing Business Rules Documentation
+
 **Location**: Class and enum documentation
 **Issue**: No documentation about valid combinations or business constraints
 
 ## 📊 Specific Analysis
 
 ### Constructor Complexity
+
 ```dart
 const ProcessingContext({
   required this.processingType,        // 1
@@ -121,9 +145,11 @@ const ProcessingContext({
   this.editSystemInstructions,         // 8
 });
 ```
+
 **Issue**: 8 parameters exceed cognitive load threshold
 
 ### copyWith Method Issues
+
 ```dart
 ProcessingContext copyWith({
   ProcessingType? processingType,
@@ -141,12 +167,15 @@ ProcessingContext copyWith({
   );
 }
 ```
+
 **Issues**:
+
 - Very long parameter list (8 parameters)
 - Repetitive null-coalescing pattern
 - No validation of parameter combinations
 
 ### Equatable Implementation
+
 ```dart
 @override
 List<Object?> get props => [
@@ -160,11 +189,13 @@ List<Object?> get props => [
   editSystemInstructions,
 ];
 ```
+
 **Issue**: Correct implementation, but long list indicates class might have too many responsibilities
 
 ## 🛠 Recommended Refactoring
 
 ### 1. Fix Critical Issues
+
 ```dart
 // Remove git conflict markers
 enum PerformancePriority {
@@ -176,6 +207,7 @@ enum PerformancePriority {
 ```
 
 ### 2. Add Validation
+
 ```dart
 class ProcessingContext extends Equatable {
   const ProcessingContext({
@@ -200,6 +232,7 @@ class ProcessingContext extends Equatable {
 ```
 
 ### 3. Create Value Objects
+
 ```dart
 class SystemInstructions extends Equatable {
   const SystemInstructions(this.value);
@@ -214,6 +247,7 @@ class SystemInstructions extends Equatable {
 ```
 
 ### 4. Add Factory Constructors
+
 ```dart
 class ProcessingContext extends Equatable {
   // Regular constructor...
@@ -244,6 +278,7 @@ class ProcessingContext extends Equatable {
 ```
 
 ### 5. Add Comprehensive Documentation
+
 ```dart
 /// Represents the context for AI image processing operations.
 /// 
@@ -299,13 +334,15 @@ enum ProcessingType {
 
 ## 📈 Quality Metrics Impact
 
-### Before Refactoring:
+### Before Refactoring
+
 - **Cognitive Complexity**: High (8 constructor parameters)
 - **Maintainability**: Low (no validation, primitive obsession)
 - **Usability**: Medium (basic factory methods missing)
 - **Reliability**: Low (no constraint validation)
 
-### After Refactoring:
+### After Refactoring
+
 - **Cognitive Complexity**: Medium (factory methods reduce complexity)
 - **Maintainability**: High (value objects, validation)
 - **Usability**: High (factory constructors, documentation)
