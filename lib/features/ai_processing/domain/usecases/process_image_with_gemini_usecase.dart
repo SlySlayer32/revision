@@ -41,7 +41,7 @@ class ProcessImageWithGeminiUseCase {
       final validationResult = _validateInputs(imageData, markedAreas);
       if (validationResult.isFailure) {
         // Convert validation failure to processing failure
-        return Failure<GeminiPipelineResult>(validationResult.error);
+        return Failure<GeminiPipelineResult>(validationResult.exceptionOrNull!);
       }
 
       // Step 2: Execute processing
