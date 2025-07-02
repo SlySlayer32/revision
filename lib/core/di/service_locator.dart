@@ -105,21 +105,26 @@ void _registerDataSources() {
 }
 
 void _registerRepositories() {
+  // Skip Firebase repositories if already registered (test mode)
+  if (!getIt.isRegistered<AuthRepository>()) {
+    getIt
+      // Repositories
+      ..registerLazySingleton<AuthRepository>(
+        () {
+          try {
+            return FirebaseAuthenticationRepository(
+              firebaseAuthDataSource: getIt<FirebaseAuthDataSource>(),
+            );
+          } catch (e) {
+            debugPrint('Error while creating AuthRepository: $e');
+            debugPrint('Stack trace: ${StackTrace.current}');
+            rethrow;
+          }
+        },
+      );
+  }
+  
   getIt
-    // Repositories
-    ..registerLazySingleton<AuthRepository>(
-      () {
-        try {
-          return FirebaseAuthenticationRepository(
-            firebaseAuthDataSource: getIt<FirebaseAuthDataSource>(),
-          );
-        } catch (e) {
-          debugPrint('Error while creating AuthRepository: $e');
-          debugPrint('Stack trace: ${StackTrace.current}');
-          rethrow;
-        }
-      },
-    )
     ..registerLazySingleton<image_selection.ImageRepository>(
       () => ImageSelectionRepositoryImpl(getIt<ImagePickerDataSource>()),
     );
