@@ -85,5 +85,3 @@ enum PerformancePriority {
   balanced,
   quality,
 }
-
->>>>>>> Stashed changes
