@@ -42,7 +42,10 @@ class ProcessImageWithGeminiUseCaseImproved {
       // Step 1: Validate all inputs
       final validationResult = _validateInputs(imageData, markedAreas);
       if (validationResult.isFailure) {
-        return validationResult.cast<GeminiPipelineResult>();
+        return Failure<GeminiPipelineResult>(
+          validationResult.exceptionOrNull ?? 
+          const GeminiPipelineException('Validation failed')
+        );
       }
 
       // Step 2: Execute the AI processing pipeline
