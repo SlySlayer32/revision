@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,7 +18,8 @@ class MockAuthRepository extends Mock implements AuthRepository {
   Stream<User?> get authStateChanges => Stream<User?>.value(null);
 }
 
-class MockGetAuthStateChangesUseCase extends Mock implements GetAuthStateChangesUseCase {
+class MockGetAuthStateChangesUseCase extends Mock
+    implements GetAuthStateChangesUseCase {
   @override
   Stream<User?> call() => Stream<User?>.value(null);
 }
@@ -29,22 +30,23 @@ class MockSignOutUseCase extends Mock implements SignOutUseCase {
 }
 
 class MockFirebaseAuth extends Mock implements firebase_auth.FirebaseAuth {}
+
 class MockFirestore extends Mock implements FirebaseFirestore {}
 
 class TestSetup {
   static bool _isSetupComplete = false;
-  
+
   static Future<void> setupTestEnvironment() async {
     if (_isSetupComplete) return;
-    
+
     TestWidgetsFlutterBinding.ensureInitialized();
-    
+
     // Setup Firebase for testing
     await _setupFirebaseForTesting();
-    
+
     // Reset and setup service locator with test doubles
     await _setupTestServiceLocator();
-    
+
     _isSetupComplete = true;
   }
 
@@ -67,10 +69,11 @@ class TestSetup {
   static Future<void> _setupTestServiceLocator() async {
     // Reset service locator
     await getIt.reset();
-    
+
     // Register test doubles
     getIt.registerLazySingleton<AuthRepository>(() => MockAuthRepository());
-    getIt.registerLazySingleton<GetAuthStateChangesUseCase>(() => MockGetAuthStateChangesUseCase());
+    getIt.registerLazySingleton<GetAuthStateChangesUseCase>(
+        () => MockGetAuthStateChangesUseCase());
     getIt.registerLazySingleton<SignOutUseCase>(() => MockSignOutUseCase());
   }
 
