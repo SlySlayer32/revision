@@ -15,15 +15,16 @@ class ProcessingStatusDisplay extends StatelessWidget {
           children: [
             Text('Status: ${state.status.name}', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
-            if (state.status == GeminiPipelineStatus.processing)
+            if (state.status == GeminiPipelineStatus.processing) ...[
               const LinearProgressIndicator(),
+              if (state.progressMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(state.progressMessage!),
+                ),
+            ],
             if (state.status == GeminiPipelineStatus.error)
               Text(state.errorMessage ?? 'An unknown error occurred.', style: const TextStyle(color: Colors.red)),
-            if (state.progressMessage != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(state.progressMessage!),
-              ),
           ],
         );
       },
