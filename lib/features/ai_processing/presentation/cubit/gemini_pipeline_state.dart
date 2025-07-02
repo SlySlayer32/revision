@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_result.dart';
 
 enum GeminiPipelineStatus {
