@@ -18,13 +18,12 @@ void main() {
     late GeminiAIService service;
     late MockFirebaseAIRemoteConfigService mockRemoteConfig;
 
-    setUpAll(() {
+    setUpAll(() async {
       TestWidgetsFlutterBinding.ensureInitialized();
-      setupFirebaseCoreMocks();
+      await Firebase.initializeApp();
     });
 
-    setUp(() async {
-      await Firebase.initializeApp();
+    setUp(() {
       mockRemoteConfig = MockFirebaseAIRemoteConfigService();
 
       // Setup mock remote config responses
