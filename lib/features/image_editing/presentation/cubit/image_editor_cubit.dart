@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:vgv_coffee_machine/features/image_editing/domain/entities/annotation_stroke.dart';
+import 'package:revision/features/image_editing/domain/entities/annotation_stroke.dart';
 
 part 'image_editor_state.dart';
 
