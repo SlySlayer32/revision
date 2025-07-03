@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:revision/core/error/failures.dart';
 import 'package:revision/features/authentication/domain/exceptions/auth_exception.dart';
 
