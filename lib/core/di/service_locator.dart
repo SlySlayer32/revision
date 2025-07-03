@@ -6,13 +6,13 @@ import 'package:revision/core/services/circuit_breaker.dart';
 import 'package:revision/core/services/error_handler_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
-// import 'package:revision/core/services/gemini_pipeline_service.dart'; // Disabled
+import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/core/services/image_save_service.dart';
 import 'package:revision/core/services/logging_service.dart';
 // AI processing feature temporarily disabled
-// import 'package:revision/features/ai_processing/data/services/ai_result_save_service.dart';
-// import 'package:revision/features/ai_processing/domain/usecases/process_image_with_gemini_usecase.dart';
-// import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
+import 'package:revision/features/ai_processing/data/services/ai_result_save_service.dart';
+import 'package:revision/features/ai_processing/domain/usecases/process_image_with_gemini_usecase.dart';
+import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
 import 'package:revision/features/authentication/data/datasources/firebase_auth_data_source.dart';
 import 'package:revision/features/authentication/data/repositories/firebase_authentication_repository.dart';
 import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
