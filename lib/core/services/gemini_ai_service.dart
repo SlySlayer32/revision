@@ -54,9 +54,13 @@ class GeminiAIService implements AIService {
       // Check API key
       final apiKey = EnvConfig.geminiApiKey;
       if (apiKey == null || apiKey.isEmpty) {
+        log('❌ Gemini API key validation failed');
+        log('🔧 Available debug info: ${EnvConfig.getDebugInfo()}');
         throw StateError(
-            'Gemini API key not configured. Please add GEMINI_API_KEY to your .env file.');
+            'Gemini API key not configured. Please add GEMINI_API_KEY to your .env file or pass it via --dart-define=GEMINI_API_KEY=your_key');
       }
+      
+      log('✅ Gemini API key found (length: ${apiKey.length})');
 
       // Initialize Remote Config for parameter management
       // Only initialize if it hasn't been initialized yet
