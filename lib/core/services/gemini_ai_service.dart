@@ -59,7 +59,7 @@ class GeminiAIService implements AIService {
         throw StateError(
             'Gemini API key not configured. Please add GEMINI_API_KEY to your .env file or pass it via --dart-define=GEMINI_API_KEY=your_key');
       }
-      
+
       log('✅ Gemini API key found (length: ${apiKey.length})');
 
       // Initialize Remote Config for parameter management

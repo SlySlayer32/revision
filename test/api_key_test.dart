@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:revision/core/config/env_config.dart';
 
 void main() {
@@ -15,8 +15,9 @@ void main() {
       expect(directApiKey, isNotNull);
       expect(directApiKey, isNotEmpty);
       expect(directApiKey, startsWith('AIza'));
-      
-      print('✅ Direct dotenv access: API key found (${directApiKey?.length} chars)');
+
+      print(
+          '✅ Direct dotenv access: API key found (${directApiKey?.length} chars)');
     });
 
     test('should access GEMINI_API_KEY through EnvConfig', () {
@@ -25,16 +26,18 @@ void main() {
       expect(configApiKey, isNotNull);
       expect(configApiKey, isNotEmpty);
       expect(configApiKey, startsWith('AIza'));
-      
-      print('✅ EnvConfig access: API key found (${configApiKey?.length} chars)');
+
+      print(
+          '✅ EnvConfig access: API key found (${configApiKey?.length} chars)');
     });
 
     test('should report Gemini API as configured', () {
       // Test configuration check
       final isConfigured = EnvConfig.isGeminiRestApiConfigured;
       expect(isConfigured, isTrue);
-      
-      print('✅ Configuration check: ${isConfigured ? "CONFIGURED" : "NOT CONFIGURED"}');
+
+      print(
+          '✅ Configuration check: ${isConfigured ? "CONFIGURED" : "NOT CONFIGURED"}');
     });
 
     test('should provide debug information', () {
@@ -44,7 +47,7 @@ void main() {
       expect(debugInfo['geminiRestApiConfigured'], isTrue);
       expect(debugInfo['geminiApiKeyPresent'], isTrue);
       expect(debugInfo['geminiApiKeyLength'], greaterThan(0));
-      
+
       print('✅ Debug info: $debugInfo');
     });
   });
