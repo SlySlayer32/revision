@@ -170,4 +170,13 @@ class FirebaseAuthenticationRepository
       operationName: 'Reauthenticate',
     );
   }
+
+  @override
+  Future<Either<Failure, String>> getIdToken() async {
+    return handleAuthOperation(
+      () => _dataSource.getIdToken(),
+      operationName: 'Get ID token',
+      context: {},
+    );
+  }
 }
