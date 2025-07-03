@@ -150,6 +150,10 @@ Future<void> _initializeFirebase() async {
       debugPrint('✅ GeminiAIService is registered, getting instance...');
       final geminiService = getIt<GeminiAIService>();
       debugPrint('✅ GeminiAIService instance obtained, waiting for initialization...');
+      
+      // Add a small delay to ensure all Firebase services are ready
+      await Future.delayed(const Duration(milliseconds: 500));
+      
       await geminiService.waitForInitialization();
       debugPrint(
           '_initializeFirebase: GeminiAI Service initialization completed');
@@ -159,6 +163,8 @@ Future<void> _initializeFirebase() async {
       // Log the error but don't rethrow in development to allow app to continue
       if (!EnvironmentDetector.isDevelopment) {
         rethrow;
+      } else {
+        debugPrint('⚠️ Continuing in development mode despite GeminiAI Service error');
       }
     }
 
