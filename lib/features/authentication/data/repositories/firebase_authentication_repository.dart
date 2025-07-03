@@ -34,12 +34,13 @@ class FirebaseAuthenticationRepository implements AuthRepository {
         password: password,
       );
       return Right(user);
-    } on AuthException catch (e) {
-      log('Sign in auth exception', error: e);
-      return Left(AuthenticationFailure(e.message, e.code));
     } catch (e) {
-      log('Unexpected sign in error', error: e);
-      return Left(AuthenticationFailure(e.toString()));
+      final failure = _exceptionHandler.handleAuthException(
+        'signInWithEmailAndPassword',
+        e,
+        context: {'email': email, 'hasPassword': password.isNotEmpty},
+      );
+      return Left(failure);
     }
   }
 
