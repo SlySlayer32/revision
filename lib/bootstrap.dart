@@ -40,10 +40,19 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
     debugPrint('bootstrap: Loading environment variables...');
     try {
       await dotenv.load(fileName: '.env');
-      debugPrint('bootstrap: Environment variables loaded');
+      debugPrint('bootstrap: Environment variables loaded successfully');
+      
+      // Verify critical environment variables are loaded
+      final geminiApiKey = dotenv.env['GEMINI_API_KEY'];
+      debugPrint('bootstrap: GEMINI_API_KEY ${geminiApiKey != null && geminiApiKey.isNotEmpty ? "found" : "missing"}');
+      
+      if (geminiApiKey == null || geminiApiKey.isEmpty) {
+        debugPrint('⚠️ GEMINI_API_KEY not found in environment variables');
+        debugPrint('⚠️ Available env vars: ${dotenv.env.keys.toList()}');
+      }
     } catch (e) {
       debugPrint(
-          'bootstrap: Environment variables already loaded or not found: $e');
+          'bootstrap: Environment variables load failed or already loaded: $e');
     }
 
     FlutterError.onError = (details) {
