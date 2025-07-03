@@ -60,7 +60,7 @@ class FirebaseAIRemoteConfigService {
       // Check if Firebase is initialized before accessing Remote Config
       try {
         final remoteConfig = FirebaseRemoteConfig.instance;
-        
+
         // Set config settings
         await remoteConfig.setConfigSettings(RemoteConfigSettings(
           fetchTimeout: const Duration(minutes: 1),
@@ -74,7 +74,7 @@ class FirebaseAIRemoteConfigService {
         log('🔄 Fetching Remote Config from Firebase...');
         final fetchSuccess = await remoteConfig.fetchAndActivate();
         log('📥 Remote Config fetch result: $fetchSuccess');
-        
+
         // Only assign if everything succeeded
         _remoteConfig = remoteConfig;
         _useDefaultsOnly = false;
@@ -223,7 +223,7 @@ class FirebaseAIRemoteConfigService {
     log('🔍 Current AI Remote Config values:');
     log('  Initialized: $_isInitialized');
     log('  Using defaults only: $_useDefaultsOnly');
-    final fetchStatus = (_isInitialized && _remoteConfig != null) 
+    final fetchStatus = (_isInitialized && _remoteConfig != null)
         ? _remoteConfig!.lastFetchStatus.toString()
         : 'Not initialized';
     log('  Last fetch status: $fetchStatus');
