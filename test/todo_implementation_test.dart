@@ -137,7 +137,7 @@ void main() {
         final useCase = ProcessImageWithGeminiUseCaseImproved(mockGeminiService);
 
         // Act
-        final result = await useCase.execute(imageBytes, markedAreas);
+        final result = await useCase.call(imageBytes, markedAreas);
 
         // Assert
         expect(result.isSuccess, true);
@@ -167,12 +167,10 @@ void main() {
           'Process and enhance this image for better quality and appearance',
         )).thenAnswer((_) async => expectedResult);
 
-        final useCase = ProcessImageWithGeminiUsecaseImproved(
-          geminiPipelineService: mockGeminiService,
-        );
+        final useCase = ProcessImageWithGeminiUseCaseImproved(mockGeminiService);
 
         // Act
-        final result = await useCase.execute(imageBytes, markedAreas);
+        final result = await useCase.call(imageBytes, markedAreas);
 
         // Assert
         expect(result.isSuccess, true);
