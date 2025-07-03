@@ -250,6 +250,12 @@ enum ProcessingType {
   /// Edit facial features or expressions
   faceEdit,
 
+  /// AI-powered object segmentation with masks
+  segmentation,
+
+  /// Object detection with bounding boxes
+  objectDetection,
+
   /// Custom processing with user-defined instructions
   custom,
 }
