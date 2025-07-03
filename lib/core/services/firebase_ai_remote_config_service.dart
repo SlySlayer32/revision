@@ -97,10 +97,11 @@ class FirebaseAIRemoteConfigService {
   /// Fetch latest config values from Firebase
   Future<void> refresh() async {
     if (!_isInitialized) await initialize();
+    if (_useDefaultsOnly || _remoteConfig == null) return;
 
     try {
       log('🔄 Refreshing Remote Config values...');
-      await _remoteConfig.fetchAndActivate();
+      await _remoteConfig!.fetchAndActivate();
       log('✅ Remote Config refreshed successfully');
       _logCurrentValues();
     } catch (e) {
@@ -110,21 +111,26 @@ class FirebaseAIRemoteConfigService {
 
   /// Get Gemini model name for text/analysis
   String get geminiModel {
-    if (!_isInitialized) return _defaultValues[_geminiModelKey] as String;
-    return _remoteConfig.getString(_geminiModelKey);
+    if (!_isInitialized || _useDefaultsOnly || _remoteConfig == null) {
+      return _defaultValues[_geminiModelKey] as String;
+    }
+    return _remoteConfig!.getString(_geminiModelKey);
   }
 
   /// Get Gemini model name for image generation
   String get geminiImageModel {
-    if (!_isInitialized) return _defaultValues[_geminiImageModelKey] as String;
-    return _remoteConfig.getString(_geminiImageModelKey);
+    if (!_isInitialized || _useDefaultsOnly || _remoteConfig == null) {
+      return _defaultValues[_geminiImageModelKey] as String;
+    }
+    return _remoteConfig!.getString(_geminiImageModelKey);
   }
 
   /// Get user prompt template for consistent prompting
   String get userPromptTemplate {
-    if (!_isInitialized)
+    if (!_isInitialized || _useDefaultsOnly || _remoteConfig == null) {
       return _defaultValues[_userPromptTemplateKey] as String;
-    return _remoteConfig.getString(_userPromptTemplateKey);
+    }
+    return _remoteConfig!.getString(_userPromptTemplateKey);
   }
 
   /// Get temperature parameter for generation
