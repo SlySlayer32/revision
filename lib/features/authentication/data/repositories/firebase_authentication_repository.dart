@@ -89,12 +89,12 @@ class FirebaseAuthenticationRepository implements AuthRepository {
     try {
       await _dataSource.signOut();
       return const Right(null);
-    } on AuthException catch (e) {
-      log('Sign out auth exception', error: e);
-      return Left(AuthenticationFailure(e.message, e.code));
     } catch (e) {
-      log('Unexpected sign out error', error: e);
-      return Left(AuthenticationFailure(e.toString()));
+      final failure = _exceptionHandler.handleAuthException(
+        'signOut',
+        e,
+      );
+      return Left(failure);
     }
   }
 
