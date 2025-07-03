@@ -119,12 +119,13 @@ class FirebaseAuthenticationRepository implements AuthRepository {
     try {
       await _dataSource.sendPasswordResetEmail(email);
       return const Right(null);
-    } on AuthException catch (e) {
-      log('Password reset auth exception', error: e);
-      return Left(AuthenticationFailure(e.message, e.code));
     } catch (e) {
-      log('Unexpected password reset error', error: e);
-      return Left(AuthenticationFailure(e.toString()));
+      final failure = _exceptionHandler.handleAuthException(
+        'sendPasswordResetEmail',
+        e,
+        context: {'email': email},
+      );
+      return Left(failure);
     }
   }
 
