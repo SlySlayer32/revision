@@ -65,18 +65,36 @@ void setupServiceLocator() {
 }
 
 void _registerCoreServices() {
+  debugPrint('_registerCoreServices: Registering core services...');
+  
   getIt
     // Core Services
     ..registerLazySingleton<CircuitBreaker>(CircuitBreaker.new)
     ..registerLazySingleton(() => LoggingService.instance)
-    ..registerLazySingleton(() => ErrorHandlerService.instance)
-    ..registerLazySingleton<FirebaseAIRemoteConfigService>(
-      FirebaseAIRemoteConfigService.new,
-    )
-    ..registerLazySingleton<GeminiAIService>(
-      () => GeminiAIService(
-          remoteConfigService: getIt<FirebaseAIRemoteConfigService>()),
-    );
+    ..registerLazySingleton(() => ErrorHandlerService.instance);
+    
+  debugPrint('_registerCoreServices: Registering FirebaseAIRemoteConfigService...');
+  getIt.registerLazySingleton<FirebaseAIRemoteConfigService>(
+    FirebaseAIRemoteConfigService.new,
+  );
+  
+  debugPrint('_registerCoreServices: Registering GeminiAIService...');
+  getIt.registerLazySingleton<GeminiAIService>(
+    () {
+      try {
+        debugPrint('_registerCoreServices: Creating GeminiAIService instance...');
+        final remoteConfigService = getIt<FirebaseAIRemoteConfigService>();
+        debugPrint('_registerCoreServices: Got FirebaseAIRemoteConfigService, creating GeminiAIService...');
+        return GeminiAIService(remoteConfigService: remoteConfigService);
+      } catch (e, stackTrace) {
+        debugPrint('❌ Error creating GeminiAIService: $e');
+        debugPrint('❌ Stack trace: $stackTrace');
+        rethrow;
+      }
+    },
+  );
+  
+  debugPrint('_registerCoreServices: Core services registration completed');
 }
 
 void _registerDataSources() {
