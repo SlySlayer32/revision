@@ -154,12 +154,16 @@ class FirebaseAuthenticationRepository implements AuthRepository {
         photoUrl: photoUrl,
       );
       return Right(user);
-    } on AuthException catch (e) {
-      log('Update profile auth exception', error: e);
-      return Left(AuthenticationFailure(e.message, e.code));
     } catch (e) {
-      log('Unexpected update profile error', error: e);
-      return Left(AuthenticationFailure(e.toString()));
+      final failure = _exceptionHandler.handleAuthException(
+        'updateUserProfile',
+        e,
+        context: {
+          'hasDisplayName': displayName?.isNotEmpty ?? false,
+          'hasPhotoUrl': photoUrl?.isNotEmpty ?? false,
+        },
+      );
+      return Left(failure);
     }
   }
 
