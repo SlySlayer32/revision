@@ -41,11 +41,12 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
     try {
       await dotenv.load(fileName: '.env');
       debugPrint('bootstrap: Environment variables loaded successfully');
-      
+
       // Verify critical environment variables are loaded
       final geminiApiKey = dotenv.env['GEMINI_API_KEY'];
-      debugPrint('bootstrap: GEMINI_API_KEY ${geminiApiKey != null && geminiApiKey.isNotEmpty ? "found" : "missing"}');
-      
+      debugPrint(
+          'bootstrap: GEMINI_API_KEY ${geminiApiKey != null && geminiApiKey.isNotEmpty ? "found" : "missing"}');
+
       if (geminiApiKey == null || geminiApiKey.isEmpty) {
         debugPrint('⚠️ GEMINI_API_KEY not found in environment variables');
         debugPrint('⚠️ Available env vars: ${dotenv.env.keys.toList()}');
@@ -146,14 +147,15 @@ Future<void> _initializeFirebase() async {
         debugPrint('❌ GeminiAIService is not registered in service locator');
         throw StateError('GeminiAIService not registered');
       }
-      
+
       debugPrint('✅ GeminiAIService is registered, getting instance...');
       final geminiService = getIt<GeminiAIService>();
-      debugPrint('✅ GeminiAIService instance obtained, waiting for initialization...');
-      
+      debugPrint(
+          '✅ GeminiAIService instance obtained, waiting for initialization...');
+
       // Add a small delay to ensure all Firebase services are ready
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       await geminiService.waitForInitialization();
       debugPrint(
           '_initializeFirebase: GeminiAI Service initialization completed');
@@ -164,7 +166,8 @@ Future<void> _initializeFirebase() async {
       if (!EnvironmentDetector.isDevelopment) {
         rethrow;
       } else {
-        debugPrint('⚠️ Continuing in development mode despite GeminiAI Service error');
+        debugPrint(
+            '⚠️ Continuing in development mode despite GeminiAI Service error');
       }
     }
 
