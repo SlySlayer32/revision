@@ -275,13 +275,13 @@ class AppConstants {
   static Duration getTimeoutDuration(String operationType) {
     switch (operationType.toLowerCase()) {
       case 'auth':
-        return Duration(milliseconds: authTimeoutMs);
+        return const Duration(milliseconds: authTimeoutMs);
       case 'ai':
-        return Duration(milliseconds: aiRequestTimeout);
+        return const Duration(milliseconds: aiRequestTimeout);
       case 'network':
-        return Duration(milliseconds: connectionTimeout);
+        return const Duration(milliseconds: connectionTimeout);
       default:
-        return Duration(milliseconds: connectionTimeout);
+        return const Duration(milliseconds: connectionTimeout);
     }
   }
   
