@@ -174,14 +174,14 @@ class ExceptionHandlerService {
 
     // Handle specific exception types
     if (exception is FirebaseException) {
-      return Failure(
+      return NetworkFailure(
         'Firebase error: ${exception.message}',
         exception.code,
       );
     }
 
     if (exception.toString().contains('timeout')) {
-      return const Failure(
+      return const NetworkFailure(
         'Operation timed out. Please try again.',
         'timeout',
       );
@@ -189,14 +189,14 @@ class ExceptionHandlerService {
 
     if (exception.toString().contains('network') ||
         exception.toString().contains('connection')) {
-      return const Failure(
+      return const NetworkFailure(
         'Network error. Please check your internet connection.',
         'network-error',
       );
     }
 
     // Fallback for unexpected exceptions
-    return Failure(
+    return NetworkFailure(
       'An unexpected error occurred: ${exception.toString()}',
       'unexpected-error',
     );
