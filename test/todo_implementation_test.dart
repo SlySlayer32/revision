@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
@@ -8,7 +9,9 @@ import 'package:revision/features/authentication/data/datasources/firebase_auth_
 import 'package:revision/features/authentication/data/repositories/firebase_authentication_repository.dart';
 
 // Mock classes
-class MockFirebaseAuthDataSource extends Mock implements FirebaseAuthDataSource {}
+class MockFirebaseAuthDataSource extends Mock
+    implements FirebaseAuthDataSource {}
+
 class MockGeminiPipelineService extends Mock implements GeminiPipelineService {}
 
 void main() {
@@ -38,7 +41,8 @@ void main() {
         // Assert
         expect(result.isRight(), true);
         result.fold(
-          (failure) => fail('Expected success but got failure: ${failure.message}'),
+          (failure) =>
+              fail('Expected success but got failure: ${failure.message}'),
           (token) => expect(token, expectedToken),
         );
         verify(() => mockAuthDataSource.getIdToken()).called(1);
@@ -68,14 +72,21 @@ void main() {
         expect(result.originalImage, imageBytes);
         expect(result.analysisPrompt, prompt);
         expect(result.markedAreas, isEmpty);
-        verify(() => mockGeminiService.processImage(imageBytes, prompt)).called(1);
+        verify(() => mockGeminiService.processImage(imageBytes, prompt))
+            .called(1);
       });
 
       test('should process image with marked objects', () async {
         // Arrange
         final imageBytes = Uint8List.fromList([1, 2, 3, 4, 5]);
         final markedAreas = [
-          {'x': 10.0, 'y': 20.0, 'width': 30.0, 'height': 40.0, 'description': 'test object'}
+          {
+            'x': 10.0,
+            'y': 20.0,
+            'width': 30.0,
+            'height': 40.0,
+            'description': 'test object'
+          }
         ];
         final expectedResult = GeminiPipelineResult(
           originalImage: imageBytes,
@@ -86,9 +97,9 @@ void main() {
         );
 
         when(() => mockGeminiService.processImageWithMarkedObjects(
-          imageData: imageBytes,
-          markedAreas: markedAreas,
-        )).thenAnswer((_) async => expectedResult);
+              imageData: imageBytes,
+              markedAreas: markedAreas,
+            )).thenAnswer((_) async => expectedResult);
 
         // Act
         final result = await mockGeminiService.processImageWithMarkedObjects(
@@ -100,9 +111,9 @@ void main() {
         expect(result.originalImage, imageBytes);
         expect(result.markedAreas, ['test object']);
         verify(() => mockGeminiService.processImageWithMarkedObjects(
-          imageData: imageBytes,
-          markedAreas: markedAreas,
-        )).called(1);
+              imageData: imageBytes,
+              markedAreas: markedAreas,
+            )).called(1);
       });
     });
 
@@ -111,7 +122,7 @@ void main() {
         // Arrange
         final imageBytes = Uint8List.fromList([1, 2, 3, 4, 5]);
         final markedAreas = [
-          MarkedArea(
+          const MarkedArea(
             x: 10.0,
             y: 20.0,
             width: 30.0,
@@ -129,11 +140,12 @@ void main() {
         );
 
         when(() => mockGeminiService.processImageWithMarkedObjects(
-          imageData: any(named: 'imageData'),
-          markedAreas: any(named: 'markedAreas'),
-        )).thenAnswer((_) async => expectedResult);
+              imageData: any(named: 'imageData'),
+              markedAreas: any(named: 'markedAreas'),
+            )).thenAnswer((_) async => expectedResult);
 
-        final useCase = ProcessImageWithGeminiUseCaseImproved(mockGeminiService);
+        final useCase =
+            ProcessImageWithGeminiUseCaseImproved(mockGeminiService);
 
         // Act
         final result = await useCase.call(imageBytes, markedAreas);
@@ -156,17 +168,19 @@ void main() {
         final expectedResult = GeminiPipelineResult(
           originalImage: imageBytes,
           generatedImage: imageBytes,
-          analysisPrompt: 'Process and enhance this image for better quality and appearance',
+          analysisPrompt:
+              'Process and enhance this image for better quality and appearance',
           markedAreas: [],
           processingTimeMs: 150,
         );
 
         when(() => mockGeminiService.processImage(
-          any(),
-          'Process and enhance this image for better quality and appearance',
-        )).thenAnswer((_) async => expectedResult);
+              any(),
+              'Process and enhance this image for better quality and appearance',
+            )).thenAnswer((_) async => expectedResult);
 
-        final useCase = ProcessImageWithGeminiUseCaseImproved(mockGeminiService);
+        final useCase =
+            ProcessImageWithGeminiUseCaseImproved(mockGeminiService);
 
         // Act
         final result = await useCase.call(imageBytes, markedAreas);
