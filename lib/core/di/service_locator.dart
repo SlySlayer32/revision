@@ -182,10 +182,7 @@ void _registerUseCases() {
       () => SelectImageUseCase(getIt<image_selection.ImageRepository>()),
     )
     ..registerLazySingleton<ProcessImageWithGeminiUseCase>(
-      () => ProcessImageWithGeminiUseCase(
-        geminiService: getIt<GeminiAIService>(),
-        resultSaveService: getIt<AiResultSaveService>(),
-      ),
+      () => ProcessImageWithGeminiUseCase(getIt<GeminiPipelineService>()),
     );
 }
 
@@ -197,7 +194,8 @@ void _registerServices() {
     )
     ..registerLazySingleton<GeminiPipelineService>(
       () => GeminiPipelineService(
-        processImageUseCase: getIt<ProcessImageWithGeminiUseCase>(),
+        geminiService: getIt<GeminiAIService>(),
+        resultSaveService: getIt<AiResultSaveService>(),
       ),
     );
 }
@@ -236,8 +234,6 @@ void _registerBlocs() {
       () => ImageEditorCubit(),
     )
     ..registerFactory<GeminiPipelineCubit>(
-      () => GeminiPipelineCubit(
-        pipelineService: getIt<GeminiPipelineService>(),
-      ),
+      () => GeminiPipelineCubit(getIt<ProcessImageWithGeminiUseCase>()),
     );
 }
