@@ -189,13 +189,13 @@ void _registerUseCases() {
 void _registerServices() {
   getIt
     ..registerLazySingleton<ImageSaveService>(ImageSaveService.new)
-    ..registerLazySingleton<AiResultSaveService>(
-      () => AiResultSaveService(getIt<ImageSaveService>()),
+    ..registerLazySingleton<AIResultSaveService>(
+      AIResultSaveService.new,
     )
     ..registerLazySingleton<GeminiPipelineService>(
       () => GeminiPipelineService(
         geminiService: getIt<GeminiAIService>(),
-        resultSaveService: getIt<AiResultSaveService>(),
+        resultSaveService: getIt<AIResultSaveService>(),
       ),
     );
 }
