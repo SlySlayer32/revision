@@ -130,7 +130,7 @@ class GenerateSegmentationMasksUseCase {
 
       return Success(filteredResult);
     } catch (e) {
-      throw AIProcessingException('Segmentation failed: ${e.toString()}');
+      throw GeminiPipelineException('Segmentation failed: ${e.toString()}');
     }
   }
 
