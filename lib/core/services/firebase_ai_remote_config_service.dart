@@ -30,8 +30,9 @@ class FirebaseAIRemoteConfigService {
   static const String _enableAdvancedFeaturesKey =
       'ai_enable_advanced_features';
 
-  late final FirebaseRemoteConfig _remoteConfig;
+  late final FirebaseRemoteConfig? _remoteConfig;
   bool _isInitialized = false;
+  bool _useDefaultsOnly = false;
 
   /// Default values that match the remote config template
   static final Map<String, dynamic> _defaultValues = {
