@@ -50,7 +50,7 @@ class GeminiPipelineService {
       );
     } catch (e) {
       stopwatch.stop();
-      
+
       // Return original image on error
       return GeminiPipelineResult(
         originalImage: imageBytes,
@@ -111,7 +111,7 @@ Objects to remove: ${markedAreaDescriptions.join(', ')}
       );
     } catch (e) {
       stopwatch.stop();
-      
+
       // Return original image on error
       return GeminiPipelineResult(
         originalImage: imageData,
