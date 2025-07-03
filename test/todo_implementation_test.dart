@@ -6,7 +6,6 @@ import 'package:revision/features/ai_processing/domain/usecases/process_image_wi
 import 'package:revision/features/ai_processing/domain/value_objects/marked_area.dart';
 import 'package:revision/features/authentication/data/datasources/firebase_auth_data_source.dart';
 import 'package:revision/features/authentication/data/repositories/firebase_authentication_repository.dart';
-import 'package:revision/core/services/logging_service.dart';
 
 // Mock classes
 class MockFirebaseAuthDataSource extends Mock implements FirebaseAuthDataSource {}
