@@ -227,7 +227,7 @@ class DetectObjectsWithBoundingBoxesUseCase {
 
       return Success(result);
     } catch (e) {
-      throw AIProcessingException('Object detection failed: ${e.toString()}');
+      throw GeminiPipelineException('Object detection failed: ${e.toString()}');
     }
   }
 
