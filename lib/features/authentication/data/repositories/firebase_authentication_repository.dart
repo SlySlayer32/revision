@@ -70,12 +70,17 @@ class FirebaseAuthenticationRepository implements AuthRepository {
         password: password,
       );
       return Right(user);
-    } on AuthException catch (e) {
-      log('Sign up auth exception', error: e);
-      return Left(AuthenticationFailure(e.message, e.code));
     } catch (e) {
-      log('Unexpected sign up error', error: e);
-      return Left(AuthenticationFailure(e.toString()));
+      final failure = _exceptionHandler.handleAuthException(
+        'signUpWithEmailAndPassword',
+        e,
+        context: {
+          'email': email,
+          'hasPassword': password.isNotEmpty,
+          'hasDisplayName': displayName?.isNotEmpty ?? false,
+        },
+      );
+      return Left(failure);
     }
   }
 
