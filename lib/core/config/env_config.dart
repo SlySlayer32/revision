@@ -26,7 +26,14 @@ class EnvConfig {
   }
 
   /// Check if Gemini API key is configured for direct REST calls
-  static bool get isGeminiRestApiConfigured => geminiApiKey?.isNotEmpty == true;
+  static bool get isGeminiRestApiConfigured {
+    try {
+      final apiKey = geminiApiKey;
+      return apiKey?.isNotEmpty == true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   /// Get the current environment
   static AppEnvironment get currentEnvironment =>
