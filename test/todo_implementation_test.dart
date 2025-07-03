@@ -148,7 +148,7 @@ void main() {
             ProcessImageWithGeminiUseCaseImproved(mockGeminiService);
 
         // Act
-        final result = await useCase.call(imageBytes, markedAreas);
+        final result = await useCase.call(imageBytes, markedAreas: markedAreas);
 
         // Assert
         expect(result.isSuccess, true);
