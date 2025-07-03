@@ -220,8 +220,11 @@ class FirebaseAIRemoteConfigService {
   void _logCurrentValues() {
     log('🔍 Current AI Remote Config values:');
     log('  Initialized: $_isInitialized');
-    log('  Using defaults: ${!_isInitialized || _remoteConfig.lastFetchStatus != RemoteConfigFetchStatus.success}');
-    log('  Last fetch status: ${_isInitialized ? _remoteConfig.lastFetchStatus : 'Not initialized'}');
+    log('  Using defaults only: $_useDefaultsOnly');
+    final fetchStatus = (_isInitialized && _remoteConfig != null) 
+        ? _remoteConfig!.lastFetchStatus.toString()
+        : 'Not initialized';
+    log('  Last fetch status: $fetchStatus');
     log('  Model: ${geminiModel}');
     log('  Image Model: ${geminiImageModel}');
     log('  Temperature: ${temperature}');
