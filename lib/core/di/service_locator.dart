@@ -26,7 +26,7 @@ import 'package:revision/features/authentication/domain/usecases/sign_up_usecase
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
 import 'package:revision/features/authentication/presentation/blocs/login_bloc.dart';
 import 'package:revision/features/authentication/presentation/blocs/signup_bloc.dart';
-// import 'package:revision/features/image_editing/presentation/cubit/image_annotation_cubit.dart'; // Disabled
+import 'package:revision/features/image_editing/presentation/cubit/image_editor_cubit.dart';
 import 'package:revision/features/image_selection/data/datasources/image_picker_data_source.dart';
 import 'package:revision/features/image_selection/data/repositories/image_selection_repository_impl.dart';
 import 'package:revision/features/image_selection/domain/repositories/image_selection_repository.dart'
