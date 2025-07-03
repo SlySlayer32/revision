@@ -134,9 +134,7 @@ void main() {
           markedAreas: any(named: 'markedAreas'),
         )).thenAnswer((_) async => expectedResult);
 
-        final useCase = ProcessImageWithGeminiUsecaseImproved(
-          geminiPipelineService: mockGeminiService,
-        );
+        final useCase = ProcessImageWithGeminiUseCaseImproved(mockGeminiService);
 
         // Act
         final result = await useCase.execute(imageBytes, markedAreas);
