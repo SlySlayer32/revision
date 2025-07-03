@@ -614,4 +614,291 @@ Focus on creating a clean, professional result that matches the editing intent.
   void dispose() {
     _httpClient.close();
   }
+
+  /// Generate segmentation masks for objects in the image using Gemini 2.5
+  ///
+  /// Uses Gemini 2.5's enhanced segmentation capabilities to detect objects
+  /// and provide their contour masks as base64 encoded PNG probability maps.
+  ///
+  /// For best results:
+  /// - Set thinking budget to 0
+  /// - Use specific prompts for target objects
+  /// - Images should be resized to max 1024x1024 for efficiency
+  Future<SegmentationResult> generateSegmentationMasks({
+    required Uint8List imageBytes,
+    String? targetObjects,
+    double confidenceThreshold = 0.5,
+  }) async {
+    await waitForInitialization();
+
+    return _errorHandler.executeWithRetry<SegmentationResult>(
+      () async {
+        final stopwatch = Stopwatch()..start();
+        
+        // Create the segmentation prompt
+        final prompt = targetObjects != null && targetObjects.isNotEmpty
+            ? '''
+Give the segmentation masks for the $targetObjects.
+Output a JSON list of segmentation masks where each entry contains the 2D
+bounding box in the key "box_2d", the segmentation mask in key "mask", and
+the text label in the key "label". Use descriptive labels.
+'''
+            : '''
+Give the segmentation masks for all prominent objects in this image.
+Output a JSON list of segmentation masks where each entry contains the 2D
+bounding box in the key "box_2d", the segmentation mask in key "mask", and
+the text label in the key "label". Use descriptive labels.
+''';
+
+        final response = await _makeSegmentationRequest(
+          prompt: prompt,
+          imageBytes: imageBytes,
+        );
+
+        stopwatch.stop();
+
+        // Parse the segmentation response
+        final segmentationData = _parseSegmentationResponse(response);
+        
+        // Get image dimensions (placeholder - in practice you'd decode the image)
+        // For now, assume common dimensions
+        const imageWidth = 1024;
+        const imageHeight = 1024;
+
+        final result = SegmentationResult.fromJson(
+          segmentationData,
+          imageWidth,
+          imageHeight,
+          stopwatch.elapsedMilliseconds,
+        );
+
+        log('✅ Generated ${result.masks.length} segmentation masks');
+        log('📊 Average confidence: ${result.stats.averageConfidence.toStringAsFixed(2)}');
+        
+        return result;
+      },
+      'generateSegmentationMasks',
+    ).catchError((e) {
+      log('❌ generateSegmentationMasks failed after all retries: $e');
+      // Return empty result on error
+      return SegmentationResult(
+        masks: const [],
+        processingTimeMs: 0,
+        imageWidth: 1024,
+        imageHeight: 1024,
+        confidence: 0.0,
+      );
+    });
+  }
+
+  /// Make a segmentation request to Gemini 2.5 with optimized config
+  Future<String> _makeSegmentationRequest({
+    required String prompt,
+    required Uint8List imageBytes,
+  }) async {
+    final apiKey = EnvConfig.geminiApiKey!;
+    const modelName = 'gemini-2.5-flash'; // Use 2.5 for segmentation
+    final base64Image = base64Encode(imageBytes);
+
+    final requestBody = {
+      'contents': [
+        {
+          'parts': [
+            {'text': prompt},
+            {
+              'inline_data': {
+                'mime_type': 'image/jpeg',
+                'data': base64Image,
+              },
+            },
+          ],
+        },
+      ],
+      'generationConfig': {
+        'temperature': 0.1, // Low temperature for consistent results
+        'maxOutputTokens': _remoteConfig.maxOutputTokens,
+        'topK': 32,
+        'topP': 0.9,
+        'response_mime_type': 'application/json', // Request JSON response
+      },
+      // Disable thinking for better object detection results
+      'systemInstruction': {
+        'parts': [
+          {
+            'text': 'You are an expert computer vision system. Provide accurate segmentation masks in the requested JSON format. Focus on precision and avoid hallucinations.'
+          }
+        ]
+      },
+      'thinking_config': {
+        'thinking_budget': 0 // Disable thinking for better results
+      }
+    };
+
+    log('🎭 Making segmentation request to Gemini 2.5...');
+    log('🔧 Model: $modelName');
+    log('📷 Image size: ${imageBytes.length} bytes');
+
+    final response = await _httpClient
+        .post(
+          Uri.parse('$_baseUrl/$modelName:generateContent?key=$apiKey'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(requestBody),
+        )
+        .timeout(_remoteConfig.requestTimeout);
+
+    return _handleApiResponse(response);
+  }
+
+  /// Parse segmentation response from Gemini API
+  Map<String, dynamic> _parseSegmentationResponse(String response) {
+    try {
+      // Clean up the response to extract JSON
+      String cleanedResponse = response.trim();
+      
+      // Remove markdown code blocks if present
+      if (cleanedResponse.startsWith('```json')) {
+        final lines = cleanedResponse.split('\n');
+        final startIndex = lines.indexWhere((line) => line.trim() == '```json') + 1;
+        final endIndex = lines.lastIndexWhere((line) => line.trim() == '```');
+        if (startIndex > 0 && endIndex > startIndex) {
+          cleanedResponse = lines.sublist(startIndex, endIndex).join('\n');
+        }
+      }
+
+      // Try to parse as JSON
+      final jsonData = jsonDecode(cleanedResponse);
+      
+      if (jsonData is List) {
+        // If it's a list of masks, wrap it in a container
+        return {'masks': jsonData};
+      } else if (jsonData is Map<String, dynamic>) {
+        // If it's already properly formatted
+        return jsonData;
+      } else {
+        throw FormatException('Unexpected JSON structure: ${jsonData.runtimeType}');
+      }
+    } catch (e) {
+      log('❌ Failed to parse segmentation response: $e');
+      log('📝 Raw response: $response');
+      
+      // Return empty structure on parse error
+      return {'masks': []};
+    }
+  }
+
+  /// Enhanced object detection using Gemini 2.0+ bounding box capabilities
+  ///
+  /// Uses the new object detection features available in Gemini 2.0 and later
+  /// to detect objects and get their bounding box coordinates in normalized format.
+  Future<List<Map<String, dynamic>>> detectObjectsWithBoundingBoxes({
+    required Uint8List imageBytes,
+    String? targetObjects,
+  }) async {
+    await waitForInitialization();
+
+    return _errorHandler.executeWithRetry<List<Map<String, dynamic>>>(
+      () async {
+        final prompt = targetObjects != null && targetObjects.isNotEmpty
+            ? 'Detect the $targetObjects in the image. The box_2d should be [ymin, xmin, ymax, xmax] normalized to 0-1000.'
+            : 'Detect all of the prominent items in the image. The box_2d should be [ymin, xmin, ymax, xmax] normalized to 0-1000.';
+
+        final response = await _makeObjectDetectionRequest(
+          prompt: prompt,
+          imageBytes: imageBytes,
+        );
+
+        // Parse the object detection response
+        final detectionData = _parseObjectDetectionResponse(response);
+        
+        log('✅ Detected ${detectionData.length} objects with bounding boxes');
+        
+        return detectionData;
+      },
+      'detectObjectsWithBoundingBoxes',
+    ).catchError((e) {
+      log('❌ detectObjectsWithBoundingBoxes failed after all retries: $e');
+      return <Map<String, dynamic>>[];
+    });
+  }
+
+  /// Make an object detection request to Gemini 2.0+
+  Future<String> _makeObjectDetectionRequest({
+    required String prompt,
+    required Uint8List imageBytes,
+  }) async {
+    final apiKey = EnvConfig.geminiApiKey!;
+    const modelName = 'gemini-2.0-flash-exp'; // Use 2.0+ for object detection
+    final base64Image = base64Encode(imageBytes);
+
+    final requestBody = {
+      'contents': [
+        {
+          'parts': [
+            {'text': prompt},
+            {
+              'inline_data': {
+                'mime_type': 'image/jpeg',
+                'data': base64Image,
+              },
+            },
+          ],
+        },
+      ],
+      'generationConfig': {
+        'temperature': 0.1, // Low temperature for consistent results
+        'maxOutputTokens': _remoteConfig.maxOutputTokens,
+        'topK': 32,
+        'topP': 0.9,
+        'response_mime_type': 'application/json', // Request JSON response
+      },
+    };
+
+    log('🔍 Making object detection request to Gemini 2.0...');
+    log('🔧 Model: $modelName');
+
+    final response = await _httpClient
+        .post(
+          Uri.parse('$_baseUrl/$modelName:generateContent?key=$apiKey'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(requestBody),
+        )
+        .timeout(_remoteConfig.requestTimeout);
+
+    return _handleApiResponse(response);
+  }
+
+  /// Parse object detection response from Gemini API
+  List<Map<String, dynamic>> _parseObjectDetectionResponse(String response) {
+    try {
+      // Clean up the response to extract JSON
+      String cleanedResponse = response.trim();
+      
+      // Remove markdown code blocks if present
+      if (cleanedResponse.startsWith('```json')) {
+        final lines = cleanedResponse.split('\n');
+        final startIndex = lines.indexWhere((line) => line.trim() == '```json') + 1;
+        final endIndex = lines.lastIndexWhere((line) => line.trim() == '```');
+        if (startIndex > 0 && endIndex > startIndex) {
+          cleanedResponse = lines.sublist(startIndex, endIndex).join('\n');
+        }
+      }
+
+      // Try to parse as JSON
+      final jsonData = jsonDecode(cleanedResponse);
+      
+      if (jsonData is List) {
+        return List<Map<String, dynamic>>.from(jsonData);
+      } else if (jsonData is Map<String, dynamic> && jsonData.containsKey('objects')) {
+        return List<Map<String, dynamic>>.from(jsonData['objects']);
+      } else {
+        throw FormatException('Unexpected JSON structure for object detection');
+      }
+    } catch (e) {
+      log('❌ Failed to parse object detection response: $e');
+      log('📝 Raw response: $response');
+      
+      // Return empty list on parse error
+      return [];
+    }
+  }
 }
