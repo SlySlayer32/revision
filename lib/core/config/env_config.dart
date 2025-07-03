@@ -57,6 +57,8 @@ class EnvConfig {
       'firebaseAIConfigured': isFirebaseAIConfigured,
       'geminiRestApiConfigured': isGeminiRestApiConfigured,
       'environment': environmentString,
+      'geminiApiKeyPresent': geminiApiKey != null,
+      'geminiApiKeyLength': geminiApiKey?.length ?? 0,
       ...EnvironmentDetector.getDebugInfo(),
     };
   }
