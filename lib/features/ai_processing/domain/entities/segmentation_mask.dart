@@ -93,11 +93,9 @@ class SegmentationMask extends Equatable {
     
     if (maskWidth <= 0 || maskHeight <= 0) return false;
     
-    final relativeX = ((x - absoluteBox.x0) / maskWidth * maskWidth).round();
-    final relativeY = ((y - absoluteBox.y0) / maskHeight * maskHeight).round();
-    
-    // For simplicity, we'll need to decode the PNG mask to check pixel values
-    // This is a placeholder - in practice you'd use an image decoding library
+    // For now, return true if within bounding box (placeholder)
+    // In production, you'd decode the PNG mask and check the actual pixel value
+    // at the relative coordinates to determine if it's above the threshold (127)
     return true; // Placeholder implementation
   }
 
