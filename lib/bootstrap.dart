@@ -33,6 +33,7 @@ class AppBlocObserver extends BlocObserver {
 
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   try {
+    WidgetsFlutterBinding.ensureInitialized();
     debugPrint('bootstrap: Starting app initialization...');
 
     // Load environment variables from .env file (skip if already loaded for hot reload)
