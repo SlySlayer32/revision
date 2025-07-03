@@ -49,12 +49,12 @@ class FirebaseAuthenticationRepository implements AuthRepository {
     try {
       final user = await _dataSource.signInWithGoogle();
       return Right(user);
-    } on AuthException catch (e) {
-      log('Google sign in auth exception', error: e);
-      return Left(AuthenticationFailure(e.message, e.code));
     } catch (e) {
-      log('Unexpected Google sign in error', error: e);
-      return Left(AuthenticationFailure(e.toString()));
+      final failure = _exceptionHandler.handleAuthException(
+        'signInWithGoogle',
+        e,
+      );
+      return Left(failure);
     }
   }
 
