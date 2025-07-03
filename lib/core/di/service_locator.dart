@@ -180,11 +180,26 @@ void _registerUseCases() {
     )
     ..registerLazySingleton<SelectImageUseCase>(
       () => SelectImageUseCase(getIt<image_selection.ImageRepository>()),
+    )
+    ..registerLazySingleton<ProcessImageWithGeminiUseCase>(
+      () => ProcessImageWithGeminiUseCase(
+        geminiService: getIt<GeminiAIService>(),
+        resultSaveService: getIt<AiResultSaveService>(),
+      ),
     );
 }
 
 void _registerServices() {
-  getIt..registerLazySingleton<ImageSaveService>(ImageSaveService.new);
+  getIt
+    ..registerLazySingleton<ImageSaveService>(ImageSaveService.new)
+    ..registerLazySingleton<AiResultSaveService>(
+      () => AiResultSaveService(getIt<ImageSaveService>()),
+    )
+    ..registerLazySingleton<GeminiPipelineService>(
+      () => GeminiPipelineService(
+        processImageUseCase: getIt<ProcessImageWithGeminiUseCase>(),
+      ),
+    );
 }
 
 void _registerBlocs() {
@@ -216,5 +231,13 @@ void _registerBlocs() {
     )
     ..registerFactory<ImageSelectionCubit>(
       () => ImageSelectionCubit(getIt<SelectImageUseCase>()),
+    )
+    ..registerFactory<ImageEditorCubit>(
+      () => ImageEditorCubit(),
+    )
+    ..registerFactory<GeminiPipelineCubit>(
+      () => GeminiPipelineCubit(
+        pipelineService: getIt<GeminiPipelineService>(),
+      ),
     );
 }
