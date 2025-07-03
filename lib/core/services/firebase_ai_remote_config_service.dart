@@ -62,17 +62,17 @@ class FirebaseAIRemoteConfigService {
         _remoteConfig = FirebaseRemoteConfig.instance;
         
         // Set config settings
-        await _remoteConfig!.setConfigSettings(RemoteConfigSettings(
+        await _remoteConfig.setConfigSettings(RemoteConfigSettings(
           fetchTimeout: const Duration(minutes: 1),
           minimumFetchInterval: const Duration(hours: 1), // Cache for 1 hour
         ));
 
         // Set default values
-        await _remoteConfig!.setDefaults(_defaultValues);
+        await _remoteConfig.setDefaults(_defaultValues);
 
         // Fetch and activate latest values
         log('🔄 Fetching Remote Config from Firebase...');
-        final fetchSuccess = await _remoteConfig!.fetchAndActivate();
+        final fetchSuccess = await _remoteConfig.fetchAndActivate();
         log('📥 Remote Config fetch result: $fetchSuccess');
         
         _useDefaultsOnly = false;
