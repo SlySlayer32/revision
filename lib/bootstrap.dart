@@ -95,6 +95,11 @@ Future<void> _initializeFirebase() async {
       debugPrint('bootstrap: Firebase already initialized.');
     }
 
+    // Initialize service locator with all dependencies FIRST
+    debugPrint('_initializeFirebase: Setting up service locator...');
+    setupServiceLocator();
+    debugPrint('_initializeFirebase: Service locator setup completed');
+
     // Configure emulators for development environment
     if (EnvironmentDetector.isDevelopment) {
       debugPrint(
@@ -105,12 +110,7 @@ Future<void> _initializeFirebase() async {
           '_initializeFirebase: Skipping emulator configuration for ${EnvironmentDetector.environmentString}');
     }
 
-    // Initialize service locator with all dependencies
-    debugPrint('bootstrap: Setting up service locator...');
-    setupServiceLocator();
-    debugPrint('bootstrap: Service locator setup completed');
-
-    // Initialize Firebase Remote Config first
+    // Initialize Firebase Remote Config after service locator is ready
     debugPrint('_initializeFirebase: Initializing Firebase Remote Config...');
     try {
       final remoteConfigService = getIt<FirebaseAIRemoteConfigService>();
