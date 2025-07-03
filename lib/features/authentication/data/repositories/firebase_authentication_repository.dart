@@ -104,8 +104,11 @@ class FirebaseAuthenticationRepository implements AuthRepository {
       final user = _dataSource.currentUser;
       return Right(user);
     } catch (e) {
-      log('Unexpected error getting current user', error: e);
-      return Left(AuthenticationFailure('Failed to get current user: $e'));
+      final failure = _exceptionHandler.handleAuthException(
+        'getCurrentUser',
+        e,
+      );
+      return Left(failure);
     }
   }
 
