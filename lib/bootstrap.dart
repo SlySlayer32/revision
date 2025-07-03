@@ -132,12 +132,25 @@ Future<void> _initializeFirebase() async {
     debugPrint(
         '_initializeFirebase: Starting GeminiAI Service initialization...');
     try {
+      // Verify the service is registered before trying to get it
+      if (!getIt.isRegistered<GeminiAIService>()) {
+        debugPrint('❌ GeminiAIService is not registered in service locator');
+        throw StateError('GeminiAIService not registered');
+      }
+      
+      debugPrint('✅ GeminiAIService is registered, getting instance...');
       final geminiService = getIt<GeminiAIService>();
+      debugPrint('✅ GeminiAIService instance obtained, waiting for initialization...');
       await geminiService.waitForInitialization();
       debugPrint(
           '_initializeFirebase: GeminiAI Service initialization completed');
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('⚠️ GeminiAI Service initialization failed: $e');
+      debugPrint('⚠️ Stack trace: $stackTrace');
+      // Log the error but don't rethrow in development to allow app to continue
+      if (!EnvironmentDetector.isDevelopment) {
+        rethrow;
+      }
     }
 
     // Firebase AI is ready for use by services
