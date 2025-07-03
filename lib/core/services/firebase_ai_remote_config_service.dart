@@ -56,7 +56,17 @@ class FirebaseAIRemoteConfigService {
     try {
       log('🔧 Initializing Firebase Remote Config for AI parameters...');
 
-      _remoteConfig = FirebaseRemoteConfig.instance;
+      // Check if Firebase is initialized before accessing Remote Config
+      try {
+        _remoteConfig = FirebaseRemoteConfig.instance;
+      } catch (e) {
+        log('❌ Firebase not initialized when accessing Remote Config: $e');
+        log('🔄 Waiting for Firebase initialization...');
+        
+        // Wait a bit and try again
+        await Future.delayed(const Duration(milliseconds: 1000));
+        _remoteConfig = FirebaseRemoteConfig.instance;
+      }
 
       // Set config settings
       await _remoteConfig.setConfigSettings(RemoteConfigSettings(
@@ -77,6 +87,7 @@ class FirebaseAIRemoteConfigService {
       _logCurrentValues();
     } catch (e) {
       log('❌ Failed to initialize Firebase Remote Config: $e');
+      log('🔄 Continuing with default values only');
       // Continue with default values
       _isInitialized = true;
     }
