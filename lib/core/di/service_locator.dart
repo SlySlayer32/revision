@@ -194,8 +194,7 @@ void _registerServices() {
     )
     ..registerLazySingleton<GeminiPipelineService>(
       () => GeminiPipelineService(
-        geminiService: getIt<GeminiAIService>(),
-        resultSaveService: getIt<AIResultSaveService>(),
+        geminiAIService: getIt<GeminiAIService>(),
       ),
     );
 }
