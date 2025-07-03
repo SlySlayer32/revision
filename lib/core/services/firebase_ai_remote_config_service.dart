@@ -60,28 +60,28 @@ class FirebaseAIRemoteConfigService {
       // Check if Firebase is initialized before accessing Remote Config
       try {
         _remoteConfig = FirebaseRemoteConfig.instance;
+        
+        // Set config settings
+        await _remoteConfig!.setConfigSettings(RemoteConfigSettings(
+          fetchTimeout: const Duration(minutes: 1),
+          minimumFetchInterval: const Duration(hours: 1), // Cache for 1 hour
+        ));
+
+        // Set default values
+        await _remoteConfig!.setDefaults(_defaultValues);
+
+        // Fetch and activate latest values
+        log('🔄 Fetching Remote Config from Firebase...');
+        final fetchSuccess = await _remoteConfig!.fetchAndActivate();
+        log('📥 Remote Config fetch result: $fetchSuccess');
+        
+        _useDefaultsOnly = false;
       } catch (e) {
         log('❌ Firebase not initialized when accessing Remote Config: $e');
-        log('🔄 Waiting for Firebase initialization...');
-        
-        // Wait a bit and try again
-        await Future.delayed(const Duration(milliseconds: 1000));
-        _remoteConfig = FirebaseRemoteConfig.instance;
+        log('🔄 Using default values only (Firebase Remote Config unavailable)');
+        _remoteConfig = null;
+        _useDefaultsOnly = true;
       }
-
-      // Set config settings
-      await _remoteConfig.setConfigSettings(RemoteConfigSettings(
-        fetchTimeout: const Duration(minutes: 1),
-        minimumFetchInterval: const Duration(hours: 1), // Cache for 1 hour
-      ));
-
-      // Set default values
-      await _remoteConfig.setDefaults(_defaultValues);
-
-      // Fetch and activate latest values
-      log('🔄 Fetching Remote Config from Firebase...');
-      final fetchSuccess = await _remoteConfig.fetchAndActivate();
-      log('📥 Remote Config fetch result: $fetchSuccess');
 
       _isInitialized = true;
       log('✅ Firebase Remote Config initialized successfully');
