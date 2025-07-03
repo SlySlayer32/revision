@@ -134,12 +134,12 @@ class FirebaseAuthenticationRepository implements AuthRepository {
     try {
       await _dataSource.sendEmailVerification();
       return const Right(null);
-    } on AuthException catch (e) {
-      log('Email verification auth exception', error: e);
-      return Left(AuthenticationFailure(e.message, e.code));
     } catch (e) {
-      log('Unexpected email verification error', error: e);
-      return Left(AuthenticationFailure(e.toString()));
+      final failure = _exceptionHandler.handleAuthException(
+        'sendEmailVerification',
+        e,
+      );
+      return Left(failure);
     }
   }
 
