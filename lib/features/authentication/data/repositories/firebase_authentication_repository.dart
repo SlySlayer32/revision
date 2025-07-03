@@ -188,12 +188,13 @@ class FirebaseAuthenticationRepository implements AuthRepository {
     try {
       await _dataSource.reauthenticateWithPassword(password: password);
       return const Right(null);
-    } on AuthException catch (e) {
-      log('Reauthenticate auth exception', error: e);
-      return Left(AuthenticationFailure(e.message, e.code));
     } catch (e) {
-      log('Unexpected reauthenticate error', error: e);
-      return Left(AuthenticationFailure(e.toString()));
+      final failure = _exceptionHandler.handleAuthException(
+        'reauthenticateWithPassword',
+        e,
+        context: {'hasPassword': password.isNotEmpty},
+      );
+      return Left(failure);
     }
   }
 
