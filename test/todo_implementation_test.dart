@@ -15,7 +15,7 @@ class MockFirebaseAuthDataSource extends Mock
 class MockGeminiPipelineService extends Mock implements GeminiPipelineService {}
 
 void main() {
-  group('TODO Implementation Tests', () {
+  group('Feature Implementation Tests', () {
     late MockFirebaseAuthDataSource mockAuthDataSource;
     late MockGeminiPipelineService mockGeminiService;
 
