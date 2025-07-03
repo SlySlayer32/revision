@@ -5,7 +5,8 @@ import 'package:revision/core/error/failures.dart';
 import 'package:revision/core/services/exception_handler_service.dart';
 import 'package:revision/features/authentication/data/datasources/firebase_auth_data_source.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
-import 'package:revision/features/authentication\domain\repositories\auth_repository.dart';
+import 'package:revision/features/authentication/domain/exceptions/auth_exception.dart';
+import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 
 /// Implementation of AuthRepository that uses Firebase Auth
 class FirebaseAuthenticationRepository implements AuthRepository {
