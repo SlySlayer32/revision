@@ -103,16 +103,14 @@ class SegmentationMask extends Equatable {
 
   static Uint8List _base64ToUint8List(String base64String) {
     try {
-      return Uint8List.fromList(
-        const Base64Decoder().convert(base64String)
-      );
+      return Uint8List.fromList(base64Decode(base64String));
     } catch (e) {
       throw FormatException('Invalid base64 mask data: $e');
     }
   }
 
   static String _uint8ListToBase64(Uint8List data) {
-    return const Base64Encoder().convert(data);
+    return base64Encode(data);
   }
 }
 
