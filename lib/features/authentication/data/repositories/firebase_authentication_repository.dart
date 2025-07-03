@@ -13,9 +13,12 @@ class FirebaseAuthenticationRepository implements AuthRepository {
   /// Creates a new [FirebaseAuthenticationRepository]
   FirebaseAuthenticationRepository({
     FirebaseAuthDataSource? firebaseAuthDataSource,
-  }) : _dataSource = firebaseAuthDataSource ?? FirebaseAuthDataSourceImpl();
+    ExceptionHandlerService? exceptionHandler,
+  }) : _dataSource = firebaseAuthDataSource ?? FirebaseAuthDataSourceImpl(),
+       _exceptionHandler = exceptionHandler ?? ExceptionHandlerService();
 
   final FirebaseAuthDataSource _dataSource;
+  final ExceptionHandlerService _exceptionHandler;
 
   @override
   Stream<User?> get authStateChanges => _dataSource.authStateChanges;
