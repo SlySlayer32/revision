@@ -69,7 +69,7 @@ class ValidationService {
     }
 
     if (password.length < AppConstants.minPasswordLength) {
-      return Failure(
+      return const Failure(
         ValidationException(
           'Password must be at least ${AppConstants.minPasswordLength} characters long',
         ),
