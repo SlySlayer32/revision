@@ -197,26 +197,56 @@ class ProcessingContext extends Equatable {
   }
 }
 
+/// The type of AI processing to be performed on the image
 enum ProcessingType {
+  /// Basic image enhancement (brightness, contrast, sharpening)
   enhance,
+  
+  /// Artistic style transfer and creative transformations
   artistic,
+  
+  /// Photo restoration and damage repair
   restoration,
+  
+  /// Color correction and white balance adjustments
   colorCorrection,
+  
+  /// Remove unwanted objects from the image
   objectRemoval,
+  
+  /// Replace or modify the background
   backgroundChange,
+  
+  /// Edit facial features or expressions
   faceEdit,
+  
+  /// Custom processing with user-defined instructions
   custom,
 }
 
+/// The desired quality level for the output image
 enum QualityLevel {
+  /// Fast, lower quality for previews
   draft,
+  
+  /// Balanced quality for most use cases
   standard,
+  
+  /// High quality for important images
   high,
+  
+  /// Maximum quality for professional use
   professional,
 }
 
+/// Performance vs quality trade-off preference
 enum PerformancePriority {
+  /// Prioritize fast processing over quality
   speed,
+  
+  /// Balance between speed and quality
   balanced,
+  
+  /// Prioritize quality over processing speed
   quality,
 }
