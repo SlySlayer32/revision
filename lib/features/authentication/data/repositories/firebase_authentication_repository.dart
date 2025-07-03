@@ -11,8 +11,8 @@ class FirebaseAuthenticationRepository implements AuthRepository {
   FirebaseAuthenticationRepository({
     FirebaseAuthDataSource? firebaseAuthDataSource,
     ExceptionHandlerService? exceptionHandler,
-  }) : _dataSource = firebaseAuthDataSource ?? FirebaseAuthDataSourceImpl(),
-       _exceptionHandler = exceptionHandler ?? ExceptionHandlerService();
+  })  : _dataSource = firebaseAuthDataSource ?? FirebaseAuthDataSourceImpl(),
+        _exceptionHandler = exceptionHandler ?? ExceptionHandlerService();
 
   final FirebaseAuthDataSource _dataSource;
   final ExceptionHandlerService _exceptionHandler;

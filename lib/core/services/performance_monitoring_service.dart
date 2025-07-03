@@ -4,11 +4,11 @@ import 'dart:developer';
 import 'package:revision/core/constants/app_constants.dart';
 
 /// Production-grade performance monitoring service
-/// 
+///
 /// Tracks app performance, memory usage, and provides insights
 /// for optimization and issue detection.
 class PerformanceMonitoringService {
-  static final PerformanceMonitoringService _instance = 
+  static final PerformanceMonitoringService _instance =
       PerformanceMonitoringService._();
   factory PerformanceMonitoringService() => _instance;
   PerformanceMonitoringService._();
@@ -16,52 +16,52 @@ class PerformanceMonitoringService {
   final Map<String, List<Duration>> _operationTimes = {};
   final Map<String, int> _operationCounts = {};
   final List<PerformanceMetric> _metrics = [];
-  
+
   Timer? _memoryMonitorTimer;
   bool _isMonitoring = false;
 
   /// Starts performance monitoring
   void startMonitoring() {
     if (_isMonitoring) return;
-    
+
     _isMonitoring = true;
-    
+
     // Monitor memory usage every 30 seconds
     _memoryMonitorTimer = Timer.periodic(
       const Duration(seconds: 30),
       (_) => _checkMemoryUsage(),
     );
-    
+
     log('Performance monitoring started', name: 'PerformanceMonitor');
   }
 
   /// Stops performance monitoring
   void stopMonitoring() {
     if (!_isMonitoring) return;
-    
+
     _isMonitoring = false;
     _memoryMonitorTimer?.cancel();
     _memoryMonitorTimer = null;
-    
+
     log('Performance monitoring stopped', name: 'PerformanceMonitor');
   }
 
   /// Times an async operation and records performance metrics
-  /// 
+  ///
   /// [operationName] - Name of the operation for tracking
   /// [operation] - The async operation to time
-  /// 
+  ///
   /// Returns the result of the operation
   Future<T> timeOperation<T>(
     String operationName,
     Future<T> Function() operation,
   ) async {
     final stopwatch = Stopwatch()..start();
-    
+
     try {
       final result = await operation();
       stopwatch.stop();
-      
+
       _recordOperationTime(operationName, stopwatch.elapsed);
       _recordMetric(PerformanceMetric(
         name: operationName,
@@ -69,11 +69,11 @@ class PerformanceMonitoringService {
         value: stopwatch.elapsedMilliseconds.toDouble(),
         timestamp: DateTime.now(),
       ));
-      
+
       return result;
     } catch (e) {
       stopwatch.stop();
-      
+
       _recordOperationTime(operationName, stopwatch.elapsed);
       _recordMetric(PerformanceMetric(
         name: '${operationName}_error',
@@ -82,7 +82,7 @@ class PerformanceMonitoringService {
         timestamp: DateTime.now(),
         metadata: {'error': e.toString()},
       ));
-      
+
       rethrow;
     }
   }
@@ -91,15 +91,15 @@ class PerformanceMonitoringService {
   void _recordOperationTime(String operationName, Duration duration) {
     _operationTimes.putIfAbsent(operationName, () => []);
     _operationTimes[operationName]!.add(duration);
-    
-    _operationCounts[operationName] = 
+
+    _operationCounts[operationName] =
         (_operationCounts[operationName] ?? 0) + 1;
-    
+
     // Keep only the last 100 measurements per operation
     if (_operationTimes[operationName]!.length > 100) {
       _operationTimes[operationName]!.removeAt(0);
     }
-    
+
     // Log slow operations
     if (duration.inMilliseconds > _getSlowThreshold(operationName)) {
       log(
@@ -135,7 +135,7 @@ class PerformanceMonitoringService {
   /// Records a performance metric
   void _recordMetric(PerformanceMetric metric) {
     _metrics.add(metric);
-    
+
     // Keep only the last 1000 metrics
     if (_metrics.length > 1000) {
       _metrics.removeAt(0);
@@ -146,7 +146,7 @@ class PerformanceMonitoringService {
   void _checkMemoryUsage() {
     // Note: In a real implementation, you would use platform-specific
     // methods to get actual memory usage. This is a simplified version.
-    
+
     _recordMetric(PerformanceMetric(
       name: 'memory_check',
       type: MetricType.memoryUsage,
@@ -159,21 +159,22 @@ class PerformanceMonitoringService {
   PerformanceStats? getOperationStats(String operationName) {
     final times = _operationTimes[operationName];
     if (times == null || times.isEmpty) return null;
-    
+
     final durations = times.map((d) => d.inMilliseconds).toList()..sort();
     final count = _operationCounts[operationName] ?? 0;
-    
+
     final sum = durations.reduce((a, b) => a + b);
     final average = sum / durations.length;
-    
+
     final median = durations.length % 2 == 0
-        ? (durations[durations.length ~/ 2 - 1] + 
-           durations[durations.length ~/ 2]) / 2.0
+        ? (durations[durations.length ~/ 2 - 1] +
+                durations[durations.length ~/ 2]) /
+            2.0
         : durations[durations.length ~/ 2].toDouble();
-    
+
     final p95Index = ((durations.length - 1) * 0.95).round();
     final p95 = durations[p95Index].toDouble();
-    
+
     return PerformanceStats(
       operationName: operationName,
       count: count,
@@ -188,14 +189,14 @@ class PerformanceMonitoringService {
   /// Gets all performance statistics
   Map<String, PerformanceStats> getAllStats() {
     final stats = <String, PerformanceStats>{};
-    
+
     for (final operationName in _operationTimes.keys) {
       final operationStats = getOperationStats(operationName);
       if (operationStats != null) {
         stats[operationName] = operationStats;
       }
     }
-    
+
     return stats;
   }
 
@@ -206,23 +207,23 @@ class PerformanceMonitoringService {
     int? limit,
   }) {
     var metrics = _metrics.toList();
-    
+
     if (since != null) {
       final cutoff = DateTime.now().subtract(since);
       metrics = metrics.where((m) => m.timestamp.isAfter(cutoff)).toList();
     }
-    
+
     if (type != null) {
       metrics = metrics.where((m) => m.type == type).toList();
     }
-    
+
     // Sort by timestamp (newest first)
     metrics.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-    
+
     if (limit != null && metrics.length > limit) {
       metrics = metrics.take(limit).toList();
     }
-    
+
     return metrics;
   }
 
@@ -233,26 +234,26 @@ class PerformanceMonitoringService {
       since: const Duration(hours: 1),
       limit: 50,
     );
-    
+
     // Find slow operations
     final slowOperations = stats.entries
         .where((e) => e.value.averageMs > _getSlowThreshold(e.key))
         .map((e) => e.value)
         .toList();
-    
+
     // Find operations with high error rates
     final errorMetrics = getRecentMetrics(
       type: MetricType.error,
       since: const Duration(hours: 1),
     );
-    
+
     final errorsByOperation = <String, int>{};
     for (final metric in errorMetrics) {
       final operationName = metric.name.replaceAll('_error', '');
-      errorsByOperation[operationName] = 
+      errorsByOperation[operationName] =
           (errorsByOperation[operationName] ?? 0) + 1;
     }
-    
+
     return PerformanceReport(
       generatedAt: DateTime.now(),
       overallStats: stats,
@@ -269,7 +270,7 @@ class PerformanceMonitoringService {
     List<PerformanceStats> slowOperations,
   ) {
     final recommendations = <String>[];
-    
+
     // Check for slow operations
     for (final operation in slowOperations) {
       recommendations.add(
@@ -278,7 +279,7 @@ class PerformanceMonitoringService {
         'P95: ${operation.p95Ms.toStringAsFixed(0)}ms',
       );
     }
-    
+
     // Check for high variance operations
     for (final stat in stats.values) {
       final variance = stat.maxMs - stat.minMs;
@@ -289,17 +290,17 @@ class PerformanceMonitoringService {
         );
       }
     }
-    
+
     // Memory recommendations
     recommendations.add(
       'Keep memory usage below ${AppConstants.memoryWarningThresholdMB}MB '
       'for optimal performance',
     );
-    
+
     if (recommendations.isEmpty) {
       recommendations.add('Performance looks good! No issues detected.');
     }
-    
+
     return recommendations;
   }
 
@@ -308,7 +309,7 @@ class PerformanceMonitoringService {
     _operationTimes.clear();
     _operationCounts.clear();
     _metrics.clear();
-    
+
     log('Performance data cleared', name: 'PerformanceMonitor');
   }
 
