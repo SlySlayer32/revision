@@ -9,6 +9,8 @@ import 'package:revision/core/constants/firebase_ai_constants.dart';
 import 'package:revision/core/services/ai_error_handler.dart';
 import 'package:revision/core/services/ai_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
+import 'package:revision/features/ai_processing/domain/entities/segmentation_mask.dart';
+import 'package:revision/features/ai_processing/domain/entities/segmentation_result.dart';
 
 /// Gemini REST API service implementation
 /// Uses direct Gemini REST API for all operations since Firebase AI Logic doesn't support image input
