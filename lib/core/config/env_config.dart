@@ -15,7 +15,15 @@ class EnvConfig {
 
   /// Get Gemini API key for direct REST API calls (required for image operations)
   /// Since Firebase AI Logic doesn't support image input, we need direct API access
-  static String? get geminiApiKey => dotenv.env['GEMINI_API_KEY'];
+  static String? get geminiApiKey {
+    try {
+      return dotenv.env['GEMINI_API_KEY'];
+    } catch (e) {
+      // If dotenv is not initialized, try dart-define fallback
+      const fallback = String.fromEnvironment('GEMINI_API_KEY');
+      return fallback.isNotEmpty ? fallback : null;
+    }
+  }
 
   /// Check if Gemini API key is configured for direct REST calls
   static bool get isGeminiRestApiConfigured => geminiApiKey?.isNotEmpty == true;
