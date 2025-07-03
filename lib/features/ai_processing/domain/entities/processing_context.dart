@@ -66,6 +66,35 @@ class ProcessingContext extends Equatable {
     );
   }
 
+  /// Factory constructor for AI-powered segmentation
+  factory ProcessingContext.segmentation({
+    String? targetObjects,
+    double confidenceThreshold = 0.7,
+  }) {
+    return ProcessingContext(
+      processingType: ProcessingType.segmentation,
+      qualityLevel: QualityLevel.high,
+      performancePriority: PerformancePriority.quality,
+      customInstructions: targetObjects != null
+          ? 'Segment $targetObjects with confidence threshold $confidenceThreshold'
+          : 'Segment all prominent objects with confidence threshold $confidenceThreshold',
+    );
+  }
+
+  /// Factory constructor for object detection
+  factory ProcessingContext.objectDetection({
+    String? targetObjects,
+  }) {
+    return ProcessingContext(
+      processingType: ProcessingType.objectDetection,
+      qualityLevel: QualityLevel.standard,
+      performancePriority: PerformancePriority.speed,
+      customInstructions: targetObjects != null
+          ? 'Detect $targetObjects'
+          : 'Detect all prominent objects',
+    );
+  }
+
   /// The type of processing to be performed
   final ProcessingType processingType;
 
