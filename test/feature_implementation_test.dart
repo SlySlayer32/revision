@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:revision/helpers/test_data.dart';
+import 'helpers/test_data.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/features/ai_processing/domain/usecases/process_image_with_gemini_usecase_improved.dart';
