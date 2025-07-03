@@ -62,6 +62,15 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
     debugPrint('bootstrap: Setting up service locator...');
     setupServiceLocator();
     debugPrint('bootstrap: Service locator setup completed');
+    // Initialize Firebase with environment-specific configuration
+    debugPrint('bootstrap: Starting Firebase initialization...');
+    await _initializeFirebase();
+    debugPrint('bootstrap: Firebase initialization completed');
+
+    // Initialize service locator with all dependencies
+    debugPrint('bootstrap: Setting up service locator...');
+    setupServiceLocator();
+    debugPrint('bootstrap: Service locator setup completed');
 
     // Log comprehensive environment debug info
     final debugInfo = EnvConfig.getDebugInfo();
@@ -109,6 +118,11 @@ Future<void> _initializeFirebase() async {
       debugPrint(
           '_initializeFirebase: Skipping emulator configuration for ${EnvironmentDetector.environmentString}');
     }
+
+    // Initialize service locator with all dependencies
+    debugPrint('bootstrap: Setting up service locator...');
+    setupServiceLocator();
+    debugPrint('bootstrap: Service locator setup completed');
 
     // Initialize Firebase Remote Config first
     debugPrint('_initializeFirebase: Initializing Firebase Remote Config...');
