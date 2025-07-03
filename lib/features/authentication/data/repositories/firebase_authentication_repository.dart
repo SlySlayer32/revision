@@ -172,12 +172,12 @@ class FirebaseAuthenticationRepository implements AuthRepository {
     try {
       await _dataSource.deleteAccount();
       return const Right(null);
-    } on AuthException catch (e) {
-      log('Delete account auth exception', error: e);
-      return Left(AuthenticationFailure(e.message, e.code));
     } catch (e) {
-      log('Unexpected delete account error', error: e);
-      return Left(AuthenticationFailure(e.toString()));
+      final failure = _exceptionHandler.handleAuthException(
+        'deleteAccount',
+        e,
+      );
+      return Left(failure);
     }
   }
 
