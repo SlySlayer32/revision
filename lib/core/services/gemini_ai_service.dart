@@ -4,11 +4,11 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
+import 'package:revision/core/config/env_config.dart';
 import 'package:revision/core/constants/firebase_ai_constants.dart';
+import 'package:revision/core/services/ai_error_handler.dart';
 import 'package:revision/core/services/ai_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
-import 'package:revision/core/services/ai_error_handler.dart';
-import 'package:revision/core/config/env_config.dart';
 
 /// Gemini REST API service implementation
 /// Uses direct Gemini REST API for all operations since Firebase AI Logic doesn't support image input
@@ -59,7 +59,14 @@ class GeminiAIService implements AIService {
       }
 
       // Initialize Remote Config for parameter management
-      await _remoteConfig.initialize();
+      // Only initialize if it hasn't been initialized yet
+      try {
+        await _remoteConfig.initialize();
+        log('✅ Remote Config initialized successfully');
+      } catch (e) {
+        log('⚠️ Remote Config initialization failed, continuing with defaults: $e');
+        // Continue with defaults - the service should handle this gracefully
+      }
 
       // Test API connectivity
       await _testApiConnectivity();
@@ -99,11 +106,11 @@ class GeminiAIService implements AIService {
   /// Wait for the service to be fully initialized
   Future<void> waitForInitialization() async {
     if (_isInitialized) return;
-    
+
     if (_initializationCompleter != null) {
       return _initializationCompleter!.future;
     }
-    
+
     // Start initialization if it hasn't been started yet
     return _initializeService();
   }
