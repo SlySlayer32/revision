@@ -99,9 +99,12 @@ class GeminiAIService implements AIService {
   /// Wait for the service to be fully initialized
   Future<void> waitForInitialization() async {
     if (_isInitialized) return;
+    
     if (_initializationCompleter != null) {
       return _initializationCompleter!.future;
     }
+    
+    // Start initialization if it hasn't been started yet
     return _initializeService();
   }
 
