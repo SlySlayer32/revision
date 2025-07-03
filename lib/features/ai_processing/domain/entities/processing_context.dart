@@ -66,11 +66,22 @@ class ProcessingContext extends Equatable {
     );
   }
 
+  /// The type of processing to be performed
   final ProcessingType processingType;
+  
+  /// The desired quality level for the output
   final QualityLevel qualityLevel;
+  
+  /// Performance vs quality trade-off preference
   final PerformancePriority performancePriority;
+  
+  /// Spatial markers for object selection and region-specific operations
   final List<ImageMarker> markers;
+  
+  /// Custom instructions for specialized processing
   final String? customInstructions;
+  
+  /// Target output format (e.g., 'JPEG', 'PNG', 'WEBP')
   final String? targetFormat;
 
   /// Custom system instructions for the prompt generation AI model (Gemini)
@@ -78,6 +89,78 @@ class ProcessingContext extends Equatable {
 
   /// Custom system instructions for the image editing AI model (Imagen)
   final String? editSystemInstructions;
+
+  /// Validates if the current context configuration is valid
+  bool get isValid {
+    // Custom processing requires detailed instructions
+    if (processingType == ProcessingType.custom) {
+      return customInstructions != null && 
+             customInstructions!.trim().length >= 10;
+    }
+    
+    // Object-specific operations require markers
+    if (requiresMarkers && markers.isEmpty) {
+      return false;
+    }
+    
+    // Professional quality with speed priority may be incompatible
+    if (qualityLevel == QualityLevel.professional && 
+        performancePriority == PerformancePriority.speed) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /// Determines if this processing type requires spatial markers
+  bool get requiresMarkers {
+    return processingType == ProcessingType.objectRemoval ||
+           processingType == ProcessingType.backgroundChange ||
+           processingType == ProcessingType.faceEdit;
+  }
+
+  /// Estimates processing time in seconds based on configuration
+  int get estimatedProcessingTimeSeconds {
+    int baseTime = switch (processingType) {
+      ProcessingType.enhance => 5,
+      ProcessingType.artistic => 15,
+      ProcessingType.restoration => 20,
+      ProcessingType.colorCorrection => 8,
+      ProcessingType.objectRemoval => 25,
+      ProcessingType.backgroundChange => 30,
+      ProcessingType.faceEdit => 18,
+      ProcessingType.custom => 20,
+    };
+
+    // Adjust for quality level
+    final qualityMultiplier = switch (qualityLevel) {
+      QualityLevel.draft => 0.5,
+      QualityLevel.standard => 1.0,
+      QualityLevel.high => 1.5,
+      QualityLevel.professional => 2.0,
+    };
+
+    // Adjust for performance priority
+    final performanceMultiplier = switch (performancePriority) {
+      PerformancePriority.speed => 0.7,
+      PerformancePriority.balanced => 1.0,
+      PerformancePriority.quality => 1.3,
+    };
+
+    return (baseTime * qualityMultiplier * performanceMultiplier).round();
+  }
+
+  @override
+  String toString() {
+    return 'ProcessingContext('
+           'type: $processingType, '
+           'quality: $qualityLevel, '
+           'performance: $performancePriority, '
+           'markers: ${markers.length}, '
+           'valid: $isValid, '
+           'estimatedTime: ${estimatedProcessingTimeSeconds}s'
+           ')';
+  }
   @override
   List<Object?> get props => [
         processingType,
