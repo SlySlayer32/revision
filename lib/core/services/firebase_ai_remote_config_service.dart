@@ -135,40 +135,50 @@ class FirebaseAIRemoteConfigService {
 
   /// Get temperature parameter for generation
   double get temperature {
-    if (!_isInitialized) return _defaultValues[_temperatureKey] as double;
-    return _remoteConfig.getDouble(_temperatureKey);
+    if (!_isInitialized || _useDefaultsOnly || _remoteConfig == null) {
+      return _defaultValues[_temperatureKey] as double;
+    }
+    return _remoteConfig!.getDouble(_temperatureKey);
   }
 
   /// Get max output tokens
   int get maxOutputTokens {
-    if (!_isInitialized) return _defaultValues[_maxOutputTokensKey] as int;
-    return _remoteConfig.getInt(_maxOutputTokensKey);
+    if (!_isInitialized || _useDefaultsOnly || _remoteConfig == null) {
+      return _defaultValues[_maxOutputTokensKey] as int;
+    }
+    return _remoteConfig!.getInt(_maxOutputTokensKey);
   }
 
   /// Get top-K parameter
   int get topK {
-    if (!_isInitialized) return _defaultValues[_topKKey] as int;
-    return _remoteConfig.getInt(_topKKey);
+    if (!_isInitialized || _useDefaultsOnly || _remoteConfig == null) {
+      return _defaultValues[_topKKey] as int;
+    }
+    return _remoteConfig!.getInt(_topKKey);
   }
 
   /// Get top-P parameter
   double get topP {
-    if (!_isInitialized) return _defaultValues[_topPKey] as double;
-    return _remoteConfig.getDouble(_topPKey);
+    if (!_isInitialized || _useDefaultsOnly || _remoteConfig == null) {
+      return _defaultValues[_topPKey] as double;
+    }
+    return _remoteConfig!.getDouble(_topPKey);
   }
 
   /// Get system prompt for analysis model
   String get analysisSystemPrompt {
-    if (!_isInitialized)
+    if (!_isInitialized || _useDefaultsOnly || _remoteConfig == null) {
       return _defaultValues[_analysisSystemPromptKey] as String;
-    return _remoteConfig.getString(_analysisSystemPromptKey);
+    }
+    return _remoteConfig!.getString(_analysisSystemPromptKey);
   }
 
   /// Get request timeout in seconds
   int get requestTimeoutSeconds {
-    if (!_isInitialized)
+    if (!_isInitialized || _useDefaultsOnly || _remoteConfig == null) {
       return _defaultValues[_requestTimeoutSecondsKey] as int;
-    return _remoteConfig.getInt(_requestTimeoutSecondsKey);
+    }
+    return _remoteConfig!.getInt(_requestTimeoutSecondsKey);
   }
 
   /// Get request timeout as Duration
@@ -176,9 +186,10 @@ class FirebaseAIRemoteConfigService {
 
   /// Check if advanced features are enabled
   bool get enableAdvancedFeatures {
-    if (!_isInitialized)
+    if (!_isInitialized || _useDefaultsOnly || _remoteConfig == null) {
       return _defaultValues[_enableAdvancedFeaturesKey] as bool;
-    return _remoteConfig.getBool(_enableAdvancedFeaturesKey);
+    }
+    return _remoteConfig!.getBool(_enableAdvancedFeaturesKey);
   }
 
   /// Get all current config values as a map (useful for debugging)
