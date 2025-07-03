@@ -19,6 +19,11 @@ void main() {
     late MockFirebaseAuthDataSource mockAuthDataSource;
     late MockGeminiPipelineService mockGeminiService;
 
+    setUpAll(() {
+      // Register fallback values for mocktail
+      registerFallbackValue(Uint8List.fromList([]));
+    });
+
     setUp(() {
       mockAuthDataSource = MockFirebaseAuthDataSource();
       mockGeminiService = MockGeminiPipelineService();
