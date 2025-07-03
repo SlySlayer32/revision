@@ -83,33 +83,32 @@ class ProcessImageWithGeminiUseCaseImproved {
     Uint8List imageData,
     List<MarkedArea> markedAreas,
   ) async {
-    try {
-      if (markedAreas.isNotEmpty) {
-        // Convert MarkedArea objects to Map format for the service
-        final markedAreaMaps = markedAreas.map((area) => {
-          'x': area.x,
-          'y': area.y,
-          'width': area.width,
-          'height': area.height,
-          'description': area.description ?? 'unmarked area',
-        }).toList();
+    if (markedAreas.isNotEmpty) {
+      // Convert MarkedArea objects to Map format for the service
+      final markedAreaMaps = markedAreas
+          .map((area) => {
+                'x': area.x,
+                'y': area.y,
+                'width': area.width,
+                'height': area.height,
+                'description': area.description ?? 'unmarked area',
+              })
+          .toList();
 
-        // Use marked object removal for specific areas
-        final result = await _geminiPipelineService.processImageWithMarkedObjects(
-          imageData: imageData,
-          markedAreas: markedAreaMaps,
-        );
-        return Success(result);
-      } else {
-        // Use general image processing for enhancement
-        final result = await _geminiPipelineService.processImage(
-          imageData, 
-          'Process and enhance this image for better quality and appearance',
-        );
-        return Success(result);
-      }
-    } catch (e) {
-      return _handleError(e, StackTrace.current, imageData, markedAreas);
+      // Use marked object removal for specific areas
+      final result =
+          await _geminiPipelineService.processImageWithMarkedObjects(
+        imageData: imageData,
+        markedAreas: markedAreaMaps,
+      );
+      return Success(result);
+    } else {
+      // Use general image processing for enhancement
+      final result = await _geminiPipelineService.processImage(
+        imageData,
+        'Process and enhance this image for better quality and appearance',
+      );
+      return Success(result);
     }
   }
 
