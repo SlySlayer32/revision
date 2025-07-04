@@ -43,9 +43,19 @@ class AuthenticationBloc
     AuthenticationStatusChanged event,
     Emitter<AuthenticationState> emit,
   ) async {
-    if (event.user != null) {
-      emit(AuthenticationState.authenticated(event.user!));
-    } else {
+    try {
+      final user = event.user;
+      if (user != null) {
+        debugPrint('AuthenticationBloc: User authenticated: ${user.email}');
+        emit(AuthenticationState.authenticated(user));
+      } else {
+        debugPrint('AuthenticationBloc: User unauthenticated');
+        emit(const AuthenticationState.unauthenticated());
+      }
+    } catch (e, stackTrace) {
+      debugPrint('❌ Error in _onAuthenticationStatusChanged: $e');
+      debugPrint('❌ Stack trace: $stackTrace');
+      // Fallback to unauthenticated state on error
       emit(const AuthenticationState.unauthenticated());
     }
   }
