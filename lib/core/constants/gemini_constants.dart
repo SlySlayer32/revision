@@ -80,8 +80,6 @@ class GeminiConstants {
   static const String responseMimeTypeKey = 'response_mime_type';
   static const String applicationJsonMimeType = 'application/json';
   static const String systemInstructionKey = 'systemInstruction';
-  static const String thinkingConfigKey = 'thinking_config';
-  static const String thinkingBudgetKey = 'thinking_budget';
 
   // Fallback suggestions
   static const List<String> fallbackEditSuggestions = [
