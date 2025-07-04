@@ -90,10 +90,10 @@ class SegmentationMask extends Equatable {
       );
     } catch (e) {
       // Create a fallback mask for production resilience
-      return SegmentationMask(
-        boundingBox: const BoundingBox2D(y0: 0, x0: 0, y1: 100, x1: 100),
+      return const SegmentationMask(
+        boundingBox: BoundingBox2D(y0: 0, x0: 0, y1: 100, x1: 100),
         label: 'parse_error_object',
-        maskData: Uint8List(0),
+        maskData: [],
         confidence: 0.0,
       );
     }
