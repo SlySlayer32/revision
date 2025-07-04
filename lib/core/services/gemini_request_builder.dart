@@ -42,7 +42,8 @@ class GeminiRequestBuilder {
             {GeminiConstants.textKey: prompt},
             {
               GeminiConstants.inlineDataKey: {
-                GeminiConstants.mimeTypeKey: GeminiConstants.defaultImageMimeType,
+                GeminiConstants.mimeTypeKey:
+                    GeminiConstants.defaultImageMimeType,
                 GeminiConstants.dataKey: base64Image,
               },
             },
@@ -96,7 +97,8 @@ class GeminiRequestBuilder {
             {GeminiConstants.textKey: prompt},
             {
               GeminiConstants.inlineDataKey: {
-                GeminiConstants.mimeTypeKey: GeminiConstants.defaultImageMimeType,
+                GeminiConstants.mimeTypeKey:
+                    GeminiConstants.defaultImageMimeType,
                 GeminiConstants.dataKey: base64Image,
               },
             },
@@ -107,13 +109,12 @@ class GeminiRequestBuilder {
       GeminiConstants.systemInstructionKey: {
         GeminiConstants.partsKey: [
           {
-            GeminiConstants.textKey: 'You are an expert in computer vision and object segmentation. '
-                'Provide accurate segmentation masks for the requested objects.',
+            GeminiConstants.textKey:
+                'You are an expert in computer vision and object segmentation. '
+                    'Provide accurate segmentation masks for the requested objects. '
+                    'Output JSON format only with precise coordinates and confidence scores.',
           },
         ],
-      },
-      GeminiConstants.thinkingConfigKey: {
-        GeminiConstants.thinkingBudgetKey: 0, // Disable thinking for better results
       },
     };
   }
@@ -132,7 +133,8 @@ class GeminiRequestBuilder {
             {GeminiConstants.textKey: prompt},
             {
               GeminiConstants.inlineDataKey: {
-                GeminiConstants.mimeTypeKey: GeminiConstants.defaultImageMimeType,
+                GeminiConstants.mimeTypeKey:
+                    GeminiConstants.defaultImageMimeType,
                 GeminiConstants.dataKey: base64Image,
               },
             },
@@ -156,7 +158,8 @@ class GeminiRequestBuilder {
   /// Builds generation configuration for image generation
   Map<String, dynamic> _buildImageGenerationConfig() {
     return {
-      GeminiConstants.temperatureKey: _remoteConfig.temperature * GeminiConstants.imageTemperatureMultiplier,
+      GeminiConstants.temperatureKey: _remoteConfig.temperature *
+          GeminiConstants.imageTemperatureMultiplier,
       GeminiConstants.maxOutputTokensKey: _remoteConfig.maxOutputTokens * 2,
       GeminiConstants.topKKey: GeminiConstants.defaultTopK,
       GeminiConstants.topPKey: GeminiConstants.defaultTopP,
@@ -166,11 +169,13 @@ class GeminiRequestBuilder {
   /// Builds generation configuration for segmentation
   Map<String, dynamic> _buildSegmentationConfig() {
     return {
-      GeminiConstants.temperatureKey: GeminiConstants.lowTemperature, // Low for consistent results
+      GeminiConstants.temperatureKey:
+          GeminiConstants.lowTemperature, // Low for consistent results
       GeminiConstants.maxOutputTokensKey: _remoteConfig.maxOutputTokens,
       GeminiConstants.topKKey: GeminiConstants.defaultTopK,
       GeminiConstants.topPKey: GeminiConstants.defaultTopP,
-      GeminiConstants.responseMimeTypeKey: GeminiConstants.applicationJsonMimeType,
+      GeminiConstants.responseMimeTypeKey:
+          GeminiConstants.applicationJsonMimeType,
     };
   }
 
@@ -181,7 +186,8 @@ class GeminiRequestBuilder {
       GeminiConstants.maxOutputTokensKey: _remoteConfig.maxOutputTokens,
       GeminiConstants.topKKey: GeminiConstants.defaultTopK,
       GeminiConstants.topPKey: GeminiConstants.defaultTopP,
-      GeminiConstants.responseMimeTypeKey: GeminiConstants.applicationJsonMimeType,
+      GeminiConstants.responseMimeTypeKey:
+          GeminiConstants.applicationJsonMimeType,
     };
   }
 
