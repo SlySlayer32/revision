@@ -9,9 +9,9 @@ import 'package:revision/core/constants/gemini_constants.dart';
 import 'package:revision/core/services/ai_error_handler.dart';
 import 'package:revision/core/services/ai_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
+import 'package:revision/core/services/gemini_request_builder.dart';
 import 'package:revision/core/services/gemini_request_validator.dart';
 import 'package:revision/core/services/gemini_response_handler.dart';
-import 'package:revision/core/services/gemini_request_builder.dart';
 import 'package:revision/features/ai_processing/domain/entities/segmentation_result.dart';
 
 /// Gemini REST API service implementation
@@ -137,11 +137,11 @@ class GeminiAIService implements AIService {
       prompt: prompt,
       model: model,
     );
-    
+
     if (!validationResult.isValid) {
       throw ArgumentError(validationResult.errorMessage);
     }
-    
+
     final apiKey = EnvConfig.geminiApiKey!;
     final modelName = model ?? _remoteConfig.geminiModel;
 
@@ -173,11 +173,11 @@ class GeminiAIService implements AIService {
       imageBytes: imageBytes,
       model: model,
     );
-    
+
     if (!validationResult.isValid) {
       throw ArgumentError(validationResult.errorMessage);
     }
-    
+
     final apiKey = EnvConfig.geminiApiKey!;
     final modelName = model ?? _remoteConfig.geminiModel;
 
@@ -259,8 +259,7 @@ class GeminiAIService implements AIService {
     return _errorHandler.executeWithRetry<String>(
       () async {
         // Validate image size using constants
-        if (imageData.length >
-            GeminiConstants.maxImageSizeBytes) {
+        if (imageData.length > GeminiConstants.maxImageSizeBytes) {
           throw Exception(
             'Image too large: ${imageData.length ~/ (1024 * 1024)}MB',
           );
