@@ -87,12 +87,6 @@ void _registerCoreServices() {
         debugPrint(
             '_registerCoreServices: Creating GeminiAIService instance...');
         final remoteConfigService = getIt<FirebaseAIRemoteConfigService>();
-        
-        // Add null safety check
-        if (remoteConfigService == null) {
-          throw StateError('FirebaseAIRemoteConfigService is null');
-        }
-        
         debugPrint(
             '_registerCoreServices: Got FirebaseAIRemoteConfigService, creating GeminiAIService...');
         return GeminiAIService(remoteConfigService: remoteConfigService);
