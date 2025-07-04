@@ -9,7 +9,6 @@ import 'package:revision/core/constants/firebase_ai_constants.dart';
 import 'package:revision/core/services/ai_error_handler.dart';
 import 'package:revision/core/services/ai_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
-import 'package:revision/features/ai_processing/domain/entities/segmentation_mask.dart';
 import 'package:revision/features/ai_processing/domain/entities/segmentation_result.dart';
 
 /// Gemini REST API service implementation
@@ -258,6 +257,127 @@ class GeminiAIService implements AIService {
       log('📝 Response: ${response.body}');
       throw Exception(
           'Gemini API error: ${response.statusCode} - ${response.body}');
+    }
+  }
+
+  /// Validate API request before sending
+  void _validateApiRequest({
+    required String prompt,
+    Uint8List? imageBytes,
+    String? model,
+  }) {
+    if (prompt.trim().isEmpty) {
+      throw ArgumentError('Prompt cannot be empty');
+    }
+
+    if (prompt.length > 20000) {
+      throw ArgumentError('Prompt too long (max 20000 characters)');
+    }
+
+    if (imageBytes != null) {
+      if (imageBytes.isEmpty) {
+        throw ArgumentError('Image bytes cannot be empty');
+      }
+
+      // Check image size limit (20MB for Gemini)
+      if (imageBytes.length > 20 * 1024 * 1024) {
+        throw ArgumentError('Image too large (max 20MB)');
+      }
+    }
+
+    final apiKey = EnvConfig.geminiApiKey;
+    if (apiKey == null || apiKey.isEmpty) {
+      throw StateError('GEMINI_API_KEY not configured');
+    }
+
+    if (apiKey.length < 30) {
+      throw ArgumentError('Invalid API key format');
+    }
+  }
+
+  /// Enhanced error handling for API responses
+  String _handleApiResponseWithValidation(http.Response response) {
+    try {
+      if (response.statusCode == 400) {
+        final errorBody = response.body;
+        log('❌ Gemini API 400 error details: $errorBody');
+
+        // Parse specific 400 errors
+        try {
+          final errorData = jsonDecode(errorBody);
+          if (errorData['error'] != null) {
+            final errorMessage = errorData['error']['message'] ?? 'Bad request';
+            final errorCode = errorData['error']['code'] ?? 400;
+            throw Exception('Gemini API error ($errorCode): $errorMessage');
+          }
+        } catch (parseError) {
+          log('⚠️ Could not parse error response: $parseError');
+        }
+
+        throw Exception('Gemini API bad request (400): $errorBody');
+      }
+
+      if (response.statusCode == 401) {
+        throw Exception('Gemini API unauthorized (401): Invalid API key');
+      }
+
+      if (response.statusCode == 403) {
+        throw Exception('Gemini API forbidden (403): API key may be restricted or quota exceeded');
+      }
+
+      if (response.statusCode == 429) {
+        throw Exception('Gemini API rate limited (429): Too many requests');
+      }
+
+      if (response.statusCode != 200) {
+        log('❌ Gemini API error: ${response.statusCode}');
+        log('📝 Response: ${response.body}');
+        throw Exception('Gemini API error: ${response.statusCode} - ${response.body}');
+      }
+
+      return _extractTextFromResponse(response.body);
+    } catch (e, stackTrace) {
+      log('❌ Error handling API response: $e');
+      log('❌ Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  /// Extract text from API response with validation
+  String _extractTextFromResponse(String responseBody) {
+    try {
+      final data = jsonDecode(responseBody);
+
+      if (data['candidates'] == null || data['candidates'].isEmpty) {
+        throw Exception('No candidates in Gemini API response');
+      }
+
+      final candidate = data['candidates'][0];
+
+      // Check for content filtering
+      if (candidate['finishReason'] == 'SAFETY') {
+        throw Exception('Content was filtered by Gemini safety filters');
+      }
+
+      if (candidate['content'] == null || candidate['content']['parts'] == null) {
+        throw Exception('No content parts in Gemini API response');
+      }
+
+      final parts = candidate['content']['parts'] as List;
+      final textParts = parts
+          .where((part) => part['text'] != null)
+          .map((part) => part['text'] as String)
+          .where((text) => text.trim().isNotEmpty);
+
+      if (textParts.isEmpty) {
+        throw Exception('No valid text content in Gemini API response');
+      }
+
+      return textParts.first.trim();
+    } catch (e) {
+      log('❌ Error extracting text from response: $e');
+      log('📝 Raw response: $responseBody');
+      rethrow;
     }
   }
 
@@ -634,7 +754,7 @@ Focus on creating a clean, professional result that matches the editing intent.
     return _errorHandler.executeWithRetry<SegmentationResult>(
       () async {
         final stopwatch = Stopwatch()..start();
-        
+
         // Create the segmentation prompt
         final prompt = targetObjects != null && targetObjects.isNotEmpty
             ? '''
@@ -659,7 +779,7 @@ the text label in the key "label". Use descriptive labels.
 
         // Parse the segmentation response
         final segmentationData = _parseSegmentationResponse(response);
-        
+
         // Get image dimensions (placeholder - in practice you'd decode the image)
         // For now, assume common dimensions
         const imageWidth = 1024;
@@ -674,15 +794,15 @@ the text label in the key "label". Use descriptive labels.
 
         log('✅ Generated ${result.masks.length} segmentation masks');
         log('📊 Average confidence: ${result.stats.averageConfidence.toStringAsFixed(2)}');
-        
+
         return result;
       },
       'generateSegmentationMasks',
     ).catchError((e) {
       log('❌ generateSegmentationMasks failed after all retries: $e');
       // Return empty result on error
-      return SegmentationResult(
-        masks: const [],
+      return const SegmentationResult(
+        masks: [],
         processingTimeMs: 0,
         imageWidth: 1024,
         imageHeight: 1024,
@@ -725,7 +845,8 @@ the text label in the key "label". Use descriptive labels.
       'systemInstruction': {
         'parts': [
           {
-            'text': 'You are an expert computer vision system. Provide accurate segmentation masks in the requested JSON format. Focus on precision and avoid hallucinations.'
+            'text':
+                'You are an expert computer vision system. Provide accurate segmentation masks in the requested JSON format. Focus on precision and avoid hallucinations.'
           }
         ]
       },
@@ -754,11 +875,12 @@ the text label in the key "label". Use descriptive labels.
     try {
       // Clean up the response to extract JSON
       String cleanedResponse = response.trim();
-      
+
       // Remove markdown code blocks if present
       if (cleanedResponse.startsWith('```json')) {
         final lines = cleanedResponse.split('\n');
-        final startIndex = lines.indexWhere((line) => line.trim() == '```json') + 1;
+        final startIndex =
+            lines.indexWhere((line) => line.trim() == '```json') + 1;
         final endIndex = lines.lastIndexWhere((line) => line.trim() == '```');
         if (startIndex > 0 && endIndex > startIndex) {
           cleanedResponse = lines.sublist(startIndex, endIndex).join('\n');
@@ -767,7 +889,7 @@ the text label in the key "label". Use descriptive labels.
 
       // Try to parse as JSON
       final jsonData = jsonDecode(cleanedResponse);
-      
+
       if (jsonData is List) {
         // If it's a list of masks, wrap it in a container
         return {'masks': jsonData};
@@ -775,12 +897,13 @@ the text label in the key "label". Use descriptive labels.
         // If it's already properly formatted
         return jsonData;
       } else {
-        throw FormatException('Unexpected JSON structure: ${jsonData.runtimeType}');
+        throw FormatException(
+            'Unexpected JSON structure: ${jsonData.runtimeType}');
       }
     } catch (e) {
       log('❌ Failed to parse segmentation response: $e');
       log('📝 Raw response: $response');
-      
+
       // Return empty structure on parse error
       return {'masks': []};
     }
@@ -809,9 +932,9 @@ the text label in the key "label". Use descriptive labels.
 
         // Parse the object detection response
         final detectionData = _parseObjectDetectionResponse(response);
-        
+
         log('✅ Detected ${detectionData.length} objects with bounding boxes');
-        
+
         return detectionData;
       },
       'detectObjectsWithBoundingBoxes',
@@ -872,11 +995,12 @@ the text label in the key "label". Use descriptive labels.
     try {
       // Clean up the response to extract JSON
       String cleanedResponse = response.trim();
-      
+
       // Remove markdown code blocks if present
       if (cleanedResponse.startsWith('```json')) {
         final lines = cleanedResponse.split('\n');
-        final startIndex = lines.indexWhere((line) => line.trim() == '```json') + 1;
+        final startIndex =
+            lines.indexWhere((line) => line.trim() == '```json') + 1;
         final endIndex = lines.lastIndexWhere((line) => line.trim() == '```');
         if (startIndex > 0 && endIndex > startIndex) {
           cleanedResponse = lines.sublist(startIndex, endIndex).join('\n');
@@ -885,18 +1009,20 @@ the text label in the key "label". Use descriptive labels.
 
       // Try to parse as JSON
       final jsonData = jsonDecode(cleanedResponse);
-      
+
       if (jsonData is List) {
         return List<Map<String, dynamic>>.from(jsonData);
-      } else if (jsonData is Map<String, dynamic> && jsonData.containsKey('objects')) {
+      } else if (jsonData is Map<String, dynamic> &&
+          jsonData.containsKey('objects')) {
         return List<Map<String, dynamic>>.from(jsonData['objects']);
       } else {
-        throw FormatException('Unexpected JSON structure for object detection');
+        throw const FormatException(
+            'Unexpected JSON structure for object detection');
       }
     } catch (e) {
       log('❌ Failed to parse object detection response: $e');
       log('📝 Raw response: $response');
-      
+
       // Return empty list on parse error
       return [];
     }
