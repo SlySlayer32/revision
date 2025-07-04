@@ -2,20 +2,14 @@ import 'dart:typed_data';
 import 'dart:developer';
 
 import 'package:revision/core/services/gemini_request_builder.dart';
-import 'package:revision/core/services/gemini_remote_config.dart';
+import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
 
 void main() async {
   print('🧪 Testing segmentation request building...');
   
-  // Create a mock remote config
-  final remoteConfig = GeminiRemoteConfig(
-    maxOutputTokens: 2048,
-    temperature: 0.1,
-    topK: 40,
-    topP: 0.95,
-    requestTimeout: const Duration(seconds: 30),
-    enableSafetySettings: true,
-  );
+  // Create a mock remote config using the actual constructor
+  final remoteConfig = FirebaseAIRemoteConfigService();
+  await remoteConfig.initialize(); // Initialize with defaults
   
   // Create request builder
   final requestBuilder = GeminiRequestBuilder(remoteConfig);
