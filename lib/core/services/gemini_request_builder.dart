@@ -172,8 +172,12 @@ $prompt''';
           .clamp(1024, 8192), // More tokens for detailed segmentation
       GeminiConstants.topKKey: 1, // Most focused sampling for precision
       GeminiConstants.topPKey: 0.8, // Reduced for more deterministic results
-      // Remove responseMimeType to allow text-based JSON responses
-      // GeminiConstants.responseMimeTypeKey: GeminiConstants.applicationJsonMimeType,
+      // Add thinking config to disable thinking for better segmentation results
+      'thinkingConfig': {
+        'thinkingBudget': 0, // Disable thinking for better results as per docs
+      },
+      // Use JSON response format
+      GeminiConstants.responseMimeTypeKey: GeminiConstants.applicationJsonMimeType,
       // Add stop sequences to ensure clean JSON output
       'stopSequences': ['```', 'END_OF_SEGMENTATION'],
     };
