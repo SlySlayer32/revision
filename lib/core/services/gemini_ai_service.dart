@@ -27,13 +27,10 @@ class GeminiAIService implements AIService {
     FirebaseAIRemoteConfigService? remoteConfigService,
     http.Client? httpClient,
     GeminiRequestValidator? requestValidator,
-    GeminiResponseHandler? responseHandler,
-    GeminiRequestBuilder? requestBuilder,
   })  : _remoteConfig = remoteConfigService ?? FirebaseAIRemoteConfigService(),
         _httpClient = httpClient ?? http.Client(),
-        _requestValidator = requestValidator ?? GeminiRequestValidator(),
-        _responseHandler = responseHandler ?? GeminiResponseHandler() {
-    _requestBuilder = requestBuilder ?? GeminiRequestBuilder(_remoteConfig);
+        _requestValidator = requestValidator ?? GeminiRequestValidator() {
+    _requestBuilder = GeminiRequestBuilder(_remoteConfig);
     log('🏗️ Creating GeminiAIService instance...');
     // Don't call _initializeService() in constructor to avoid blocking
     // Service locator registration. Call it later via waitForInitialization()
@@ -42,7 +39,6 @@ class GeminiAIService implements AIService {
   final FirebaseAIRemoteConfigService _remoteConfig;
   final http.Client _httpClient;
   final GeminiRequestValidator _requestValidator;
-  final GeminiResponseHandler _responseHandler;
   late final GeminiRequestBuilder _requestBuilder;
   final AIErrorHandler _errorHandler = AIErrorHandler();
 
