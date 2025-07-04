@@ -90,11 +90,16 @@ class GeminiRequestBuilder {
   }) {
     final base64Image = base64Encode(imageBytes);
 
+    // Combine system instruction with user prompt for compatibility
+    final enhancedPrompt = '''You are an expert in computer vision and object segmentation. Provide accurate segmentation information for the requested objects. Output JSON format only with precise coordinates and confidence scores.
+
+$prompt''';
+
     return {
       GeminiConstants.contentsKey: [
         {
           GeminiConstants.partsKey: [
-            {GeminiConstants.textKey: prompt},
+            {GeminiConstants.textKey: enhancedPrompt},
             {
               GeminiConstants.inlineDataKey: {
                 GeminiConstants.mimeTypeKey:
@@ -106,16 +111,7 @@ class GeminiRequestBuilder {
         },
       ],
       GeminiConstants.generationConfigKey: _buildSegmentationConfig(),
-      GeminiConstants.systemInstructionKey: {
-        GeminiConstants.partsKey: [
-          {
-            GeminiConstants.textKey:
-                'You are an expert in computer vision and object segmentation. '
-                    'Provide accurate segmentation masks for the requested objects. '
-                    'Output JSON format only with precise coordinates and confidence scores.',
-          },
-        ],
-      },
+      // Remove system instruction for now to test basic functionality
     };
   }
 
