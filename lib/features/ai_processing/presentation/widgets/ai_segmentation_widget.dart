@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
 import 'package:revision/features/ai_processing/domain/usecases/generate_segmentation_masks_usecase.dart';
 import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
 import 'package:revision/core/di/service_locator.dart';
