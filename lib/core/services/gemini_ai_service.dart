@@ -788,9 +788,9 @@ Focus on creating a clean, professional result that matches the editing intent.
   /// Handle Gemini API response errors with fallback strategies
   String _handleResponseError(Exception error, String operation) {
     final errorMessage = error.toString();
-    
+
     log('❌ Gemini API error in $operation: $errorMessage');
-    
+
     // Check for specific error types and provide appropriate fallbacks
     if (errorMessage.contains('No content parts')) {
       log('🔄 Handling "No content parts" error - likely API structure change');

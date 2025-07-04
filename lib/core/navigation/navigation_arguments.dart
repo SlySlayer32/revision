@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 /// Type-safe argument handling for navigation
-/// 
+///
 /// This class provides utilities for safely handling route arguments
 /// with proper null checking and type validation.
 class NavigationArguments {
@@ -94,7 +94,7 @@ class NavigationArguments {
     T? defaultValue,
   }) {
     if (arguments == null) return defaultValue;
-    
+
     final value = arguments[key];
     if (value is T) {
       return value;
@@ -113,11 +113,11 @@ class NavigationArguments {
   /// Converts arguments to a safe map
   static Map<String, dynamic> toSafeMap(Object? arguments) {
     if (arguments == null) return <String, dynamic>{};
-    
+
     if (arguments is Map<String, dynamic>) {
       return Map<String, dynamic>.from(arguments);
     }
-    
+
     if (arguments is Map) {
       try {
         return Map<String, dynamic>.from(arguments);
@@ -134,7 +134,7 @@ class NavigationArguments {
       if (arguments is String) {
         return {'data': arguments};
       }
-      
+
       if (arguments is num || arguments is bool) {
         return {'value': arguments};
       }
@@ -152,12 +152,12 @@ class NavigationArguments {
   /// Creates a debug summary of arguments
   static String debugSummary(Object? arguments) {
     if (arguments == null) return 'null';
-    
+
     final safeMap = toSafeMap(arguments);
     final keys = safeMap.keys.toList();
-    
+
     if (keys.isEmpty) return 'empty map';
-    
+
     return 'Map with keys: ${keys.join(', ')}';
   }
 }

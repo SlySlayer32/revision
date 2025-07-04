@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:revision/core/navigation/route_names.dart';
 
 /// Safe navigation utilities that prevent null value errors
-/// 
+///
 /// This class implements all the best practices for null-safe navigation
 /// as outlined in Flutter's null safety guidelines.
 class SafeNavigation {
@@ -24,7 +24,8 @@ class SafeNavigation {
       final arguments = settings.arguments;
       if (arguments == null) {
         if (kDebugMode) {
-          debugPrint('⚠️ SafeNavigation: No arguments found for route ${settings.name}');
+          debugPrint(
+              '⚠️ SafeNavigation: No arguments found for route ${settings.name}');
         }
         return null;
       }
@@ -32,7 +33,8 @@ class SafeNavigation {
       // Safe type checking and casting
       if (arguments is T) {
         if (kDebugMode) {
-          debugPrint('✅ SafeNavigation: Successfully extracted arguments of type $T');
+          debugPrint(
+              '✅ SafeNavigation: Successfully extracted arguments of type $T');
         }
         return arguments as T;
       }
@@ -72,7 +74,8 @@ class SafeNavigation {
         return Map<String, dynamic>.from(rawArgs);
       } catch (e) {
         if (kDebugMode) {
-          debugPrint('⚠️ SafeNavigation: Failed to convert Map to Map<String, dynamic>: $e');
+          debugPrint(
+              '⚠️ SafeNavigation: Failed to convert Map to Map<String, dynamic>: $e');
         }
       }
     }
@@ -104,11 +107,11 @@ class SafeNavigation {
     try {
       final route = ModalRoute.of(context);
       final name = route?.settings.name;
-      
+
       if (kDebugMode && name != null) {
         debugPrint('🔗 SafeNavigation: Current route: $name');
       }
-      
+
       return name;
     } catch (e) {
       if (kDebugMode) {
@@ -135,8 +138,8 @@ class SafeNavigation {
           debugPrint('⚠️ SafeNavigation: Invalid route name: $routeName');
         }
         // Navigate to error page or home instead
-        return pushNamed<T>(context, RouteNames.error, 
-          arguments: {'error': 'Invalid route: $routeName'});
+        return pushNamed<T>(context, RouteNames.error,
+            arguments: {'error': 'Invalid route: $routeName'});
       }
 
       if (kDebugMode) {
@@ -164,7 +167,8 @@ class SafeNavigation {
         );
       } catch (fallbackError) {
         if (kDebugMode) {
-          debugPrint('❌ SafeNavigation: Fallback navigation also failed: $fallbackError');
+          debugPrint(
+              '❌ SafeNavigation: Fallback navigation also failed: $fallbackError');
         }
         return null;
       }
@@ -178,7 +182,7 @@ class SafeNavigation {
   ) async {
     try {
       final routeName = route.settings.name ?? 'unnamed';
-      
+
       if (kDebugMode) {
         debugPrint('🔗 SafeNavigation: Pushing route: $routeName');
       }
@@ -201,7 +205,7 @@ class SafeNavigation {
   }) async {
     try {
       final routeName = newRoute.settings.name ?? 'unnamed';
-      
+
       if (kDebugMode) {
         debugPrint('🔗 SafeNavigation: Replacing with route: $routeName');
       }
@@ -224,7 +228,7 @@ class SafeNavigation {
     try {
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop<T>(result);
-        
+
         if (kDebugMode) {
           debugPrint('🔗 SafeNavigation: Popped route');
         }
@@ -248,7 +252,7 @@ class SafeNavigation {
         final currentName = route.settings.name;
         return currentName == routeName;
       });
-      
+
       if (kDebugMode) {
         debugPrint('🔗 SafeNavigation: Popped until route: $routeName');
       }
@@ -267,7 +271,7 @@ class SafeNavigation {
     }
 
     final isValid = arguments.runtimeType == expectedType;
-    
+
     if (kDebugMode && !isValid) {
       debugPrint(
         '⚠️ SafeNavigation: Argument validation failed. '

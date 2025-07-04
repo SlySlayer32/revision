@@ -1,5 +1,5 @@
 /// Route names constants for the application
-/// 
+///
 /// This file centralizes all route names to ensure consistency
 /// and prevent null route names in navigation events.
 class RouteNames {
