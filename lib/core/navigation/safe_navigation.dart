@@ -177,7 +177,7 @@ class SafeNavigation {
     Route<T> route,
   ) async {
     try {
-      final routeName = route.settings?.name ?? 'unnamed';
+      final routeName = route.settings.name ?? 'unnamed';
       
       if (kDebugMode) {
         debugPrint('🔗 SafeNavigation: Pushing route: $routeName');
