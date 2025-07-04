@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
+import 'package:revision/features/ai_processing/presentation/widgets/ai_segmentation_widget.dart';
 import 'package:revision/features/ai_processing/presentation/widgets/processing_controls.dart';
 import 'package:revision/features/ai_processing/presentation/widgets/processing_status_display.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
