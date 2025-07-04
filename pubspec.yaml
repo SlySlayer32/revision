@@ -58,3 +58,6 @@ flutter:
   generate: true
   assets:
     - .env
+    - .env.development
+    - .env.staging
+    - .env.production
