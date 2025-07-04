@@ -166,16 +166,19 @@ class GeminiRequestBuilder {
     };
   }
 
-  /// Builds generation configuration for segmentation
+  /// Builds generation configuration for segmentation with production-grade settings
   Map<String, dynamic> _buildSegmentationConfig() {
     return {
       GeminiConstants.temperatureKey:
-          GeminiConstants.lowTemperature, // Low for consistent results
-      GeminiConstants.maxOutputTokensKey: _remoteConfig.maxOutputTokens,
-      GeminiConstants.topKKey: GeminiConstants.defaultTopK,
-      GeminiConstants.topPKey: GeminiConstants.defaultTopP,
+          0.1, // Very low temperature for consistent segmentation results
+      GeminiConstants.maxOutputTokensKey: 
+          (_remoteConfig.maxOutputTokens * 2).clamp(1024, 8192), // More tokens for detailed segmentation
+      GeminiConstants.topKKey: 1, // Most focused sampling for precision
+      GeminiConstants.topPKey: 0.8, // Reduced for more deterministic results
       GeminiConstants.responseMimeTypeKey:
           GeminiConstants.applicationJsonMimeType,
+      // Add stop sequences to ensure clean JSON output
+      'stopSequences': ['```', 'END_OF_SEGMENTATION'],
     };
   }
 
