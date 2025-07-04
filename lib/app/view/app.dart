@@ -52,6 +52,8 @@ class App extends StatelessWidget {
             ),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
+            onGenerateRoute: AppRouteGenerator.generateRoute,
+            initialRoute: RouteNames.root,
             home: const AuthenticationWrapper(),
           ),
         ),
