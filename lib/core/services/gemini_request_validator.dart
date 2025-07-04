@@ -27,7 +27,7 @@ class ValidationResult {
 /// Validator for Gemini API requests
 class GeminiRequestValidator {
   /// Validates a text prompt
-  static ValidationResult validatePrompt(String prompt) {
+  ValidationResult validatePrompt(String prompt) {
     final trimmedPrompt = prompt.trim();
     
     if (trimmedPrompt.isEmpty) {
