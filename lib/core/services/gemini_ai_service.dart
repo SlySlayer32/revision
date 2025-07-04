@@ -47,8 +47,7 @@ class GeminiAIService implements AIService {
   final GeminiRequestBuilder _requestBuilder;
   final AIErrorHandler _errorHandler = AIErrorHandler();
 
-  static const String _baseUrl =
-      'https://generativelanguage.googleapis.com/v1beta/models';
+  static const String _baseUrl = GeminiConstants.baseUrl;
 
   bool _isInitialized = false;
   Completer<void>? _initializationCompleter;
