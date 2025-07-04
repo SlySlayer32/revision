@@ -288,23 +288,41 @@ Provide a clear, actionable editing prompt.
   /// Builds a production-grade segmentation prompt with detailed specifications
   static String buildSegmentationPrompt({String? targetObjects}) {
     if (targetObjects != null && targetObjects.isNotEmpty) {
-      return '''
-Give the segmentation masks for the $targetObjects.
-Output a JSON list of segmentation masks where each entry contains the 2D
-bounding box in the key "box_2d", the segmentation mask in key "mask", and
-the text label in the key "label". Use descriptive labels.
+      return '''Analyze this image and detect the $targetObjects.
 
-The box_2d should be [ymin, xmin, ymax, xmax] normalized to 0-1000.
-''';
+Return a JSON array with segmentation masks. Each mask should have:
+- "label": object description
+- "box_2d": bounding box [ymin, xmin, ymax, xmax] normalized to 0-1000
+- "mask": segmentation mask data
+- "confidence": detection confidence (0-1)
+
+Example format:
+[
+  {
+    "label": "object name",
+    "box_2d": [100, 200, 300, 400],
+    "mask": "mask_data",
+    "confidence": 0.85
+  }
+]''';
     } else {
-      return '''
-Give the segmentation masks for all prominent objects in the image.
-Output a JSON list of segmentation masks where each entry contains the 2D
-bounding box in the key "box_2d", the segmentation mask in key "mask", and
-the text label in the key "label". Use descriptive labels.
+      return '''Analyze this image and detect all prominent objects.
 
-The box_2d should be [ymin, xmin, ymax, xmax] normalized to 0-1000.
-''';
+Return a JSON array with segmentation masks. Each mask should have:
+- "label": object description  
+- "box_2d": bounding box [ymin, xmin, ymax, xmax] normalized to 0-1000
+- "mask": segmentation mask data
+- "confidence": detection confidence (0-1)
+
+Example format:
+[
+  {
+    "label": "object name",
+    "box_2d": [100, 200, 300, 400],
+    "mask": "mask_data",
+    "confidence": 0.85
+  }
+]''';
     }
   }
 
