@@ -124,18 +124,20 @@ class SegmentationMask extends Equatable {
           x1: (box2d[3] as num).toDouble(),
         ),
         label: label.trim(),
-        maskData: cleanBase64.isNotEmpty
-            ? _base64ToUint8List(cleanBase64)
-            : Uint8List(0),
         confidence: confidence,
+        polygon: polygon,
+        areaPercentage: areaPercentage,
+        maskData: maskData,
       );
     } catch (e) {
       // Create a fallback mask for production resilience
-      return SegmentationMask(
-        boundingBox: const BoundingBox2D(y0: 0, x0: 0, y1: 100, x1: 100),
+      return const SegmentationMask(
+        boundingBox: BoundingBox2D(y0: 0, x0: 0, y1: 100, x1: 100),
         label: 'parse_error_object',
-        maskData: Uint8List(0),
         confidence: 0.0,
+        polygon: [],
+        areaPercentage: 0.0,
+        maskData: null,
       );
     }
   }
