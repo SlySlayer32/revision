@@ -160,7 +160,14 @@ class GeminiAIService implements AIService {
         )
         .timeout(_remoteConfig.requestTimeout);
 
-    return GeminiResponseHandler.handleTextResponse(response);
+    try {
+      return GeminiResponseHandler.handleTextResponse(response);
+    } catch (e) {
+      if (e is Exception) {
+        return _handleResponseError(e, 'text processing');
+      }
+      rethrow;
+    }
   }
 
   /// Make a multimodal request to Gemini API
