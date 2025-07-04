@@ -167,12 +167,21 @@ Future<void> _initializeFirebase() async {
     } catch (e, stackTrace) {
       debugPrint('⚠️ GeminiAI Service initialization failed: $e');
       debugPrint('⚠️ Stack trace: $stackTrace');
+      
+      // Log detailed error information
+      debugPrint('⚠️ Error type: ${e.runtimeType}');
+      if (e.toString().contains('API key')) {
+        debugPrint('⚠️ This appears to be an API key configuration issue');
+        debugPrint('⚠️ Please check your .env file contains GEMINI_API_KEY');
+      }
+      
       // Log the error but don't rethrow in development to allow app to continue
       if (!EnvironmentDetector.isDevelopment) {
         rethrow;
       } else {
         debugPrint(
             '⚠️ Continuing in development mode despite GeminiAI Service error');
+        debugPrint('⚠️ Some AI features may not work correctly');
       }
     }
 
