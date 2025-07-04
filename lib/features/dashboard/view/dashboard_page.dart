@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:revision/core/navigation/route_factory.dart' as app_routes;
+import 'package:revision/core/navigation/route_names.dart';
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
 import 'package:revision/features/image_selection/presentation/view/image_selection_page.dart';
 
@@ -7,8 +9,9 @@ class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   static Route<void> route() {
-    return MaterialPageRoute<void>(
+    return app_routes.RouteFactory.createRoute<void>(
       builder: (_) => const DashboardPage(),
+      routeName: RouteNames.dashboard,
     );
   }
 
