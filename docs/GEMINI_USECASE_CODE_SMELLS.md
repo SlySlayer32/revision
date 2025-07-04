@@ -1,11 +1,13 @@
 # 🔍 GeminiAIService Code Smells Analysis
 
 ## Overview
+
 Analysis of `lib/core/services/gemini_ai_service.dart` for code quality issues, violations of clean code principles, and potential refactoring opportunities.
 
 ## 🚨 Critical Code Smells Identified
 
 ### 1. **God Class** (Severity: HIGH)
+
 - **Issue**: The `GeminiAIService` class has grown to 992 lines with too many responsibilities
 - **Problems**:
   - Handles HTTP requests, response parsing, error handling, validation, and business logic
@@ -13,50 +15,62 @@ Analysis of `lib/core/services/gemini_ai_service.dart` for code quality issues, 
   - Difficult to test and maintain
 
 ### 2. **Long Methods** (Severity: HIGH)
+
 - **Issue**: Several methods exceed 30-50 lines
 - **Examples**:
   - `_handleApiResponse()` - Complex nested error handling
   - `processImagePrompt()` - Multiple responsibilities
+
   - `generateSegmentationMasks()` - Complex logic flow
 
 ### 3. **Duplicate Code** (Severity: MEDIUM)
+
 - **Issue**: Repeated patterns across methods
 - **Examples**:
   - Similar error handling patterns in all public methods
+
   - Repeated request body construction
   - Similar validation logic
 
 ### 4. **Magic Numbers and Strings** (Severity: MEDIUM)
+
 - **Issue**: Hard-coded values scattered throughout
 - **Examples**:
   - `20000` (max prompt length)
+
   - `20 * 1024 * 1024` (max image size)
   - `30` (min API key length)
   - HTTP status codes without named constants
 
 ### 5. **Complex Conditional Logic** (Severity: MEDIUM)
+
 - **Issue**: Nested if-else statements and complex boolean expressions
 - **Examples**:
   - `_handleApiResponse()` with multiple status code checks
   - Response parsing logic with nested null checks
 
 ### 6. **Feature Envy** (Severity: MEDIUM)
+
 - **Issue**: Methods accessing external objects more than their own
 - **Examples**:
   - Heavy reliance on `EnvConfig` and `_remoteConfig`
   - Multiple calls to external configuration objects
 
 ### 7. **Primitive Obsession** (Severity: MEDIUM)
+
 - **Issue**: Using primitive types instead of domain objects
 - **Examples**:
+
   - Using `Map<String, dynamic>` for structured data
   - Raw `Uint8List` handling without wrapper classes
 
 ### 8. **Inappropriate Intimacy** (Severity: LOW)
+
 - **Issue**: Too close coupling with configuration classes
 - **Examples**:
   - Direct access to `EnvConfig.geminiApiKey`
   - Tight coupling with `FirebaseAIRemoteConfigService`
+
 ```
 
 **Impact:**
