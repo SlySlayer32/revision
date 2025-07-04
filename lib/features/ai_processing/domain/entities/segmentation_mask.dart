@@ -63,7 +63,7 @@ class SegmentationMask extends Equatable {
       // Validate label
       final label = json['label'] as String? ?? 'unknown_object';
       if (label.trim().isEmpty) {
-        throw FormatException('Label cannot be empty');
+        throw const FormatException('Label cannot be empty');
       }
 
       // Parse confidence with fallback
