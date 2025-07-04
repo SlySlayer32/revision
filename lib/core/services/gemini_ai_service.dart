@@ -673,6 +673,11 @@ Focus on creating a clean, professional result that matches the editing intent.
     final apiKey = EnvConfig.geminiApiKey!;
     const modelName = GeminiConstants.gemini2_5FlashModel;
 
+    // Validate API key format
+    if (apiKey.length < 30) {
+      throw Exception('Invalid Gemini API key format - too short');
+    }
+
     final requestBody = _requestBuilder.buildSegmentationRequest(
       prompt: prompt,
       imageBytes: imageBytes,
@@ -683,10 +688,14 @@ Focus on creating a clean, professional result that matches the editing intent.
     log('📷 Image size: ${imageBytes.length} bytes');
     log('📝 Prompt length: ${prompt.length} characters');
     log('🔍 Request structure: ${requestBody.keys.toList()}');
+    log('🔑 API key prefix: ${apiKey.substring(0, 10)}...');
+
+    final url = '$_baseUrl/$modelName:generateContent?key=$apiKey';
+    log('🌐 Request URL: ${url.replaceAll(apiKey, 'API_KEY_HIDDEN')}');
 
     final response = await _httpClient
         .post(
-          Uri.parse('$_baseUrl/$modelName:generateContent?key=$apiKey'),
+          Uri.parse(url),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(requestBody),
         )
@@ -694,7 +703,7 @@ Focus on creating a clean, professional result that matches the editing intent.
 
     log('📥 Response status: ${response.statusCode}');
     log('📄 Response length: ${response.body.length} characters');
-    log('📋 Response preview: ${response.body.length > 200 ? response.body.substring(0, 200) + "..." : response.body}');
+    log('📋 Response preview: ${response.body.length > 500 ? response.body.substring(0, 500) + "..." : response.body}');
 
     try {
       return GeminiResponseHandler.handleTextResponse(response);
