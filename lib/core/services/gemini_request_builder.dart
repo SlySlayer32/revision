@@ -272,25 +272,28 @@ Provide a clear, actionable editing prompt.
   /// Builds a production-grade segmentation prompt with detailed specifications
   static String buildSegmentationPrompt({String? targetObjects}) {
     final basePrompt = '''
-SEGMENTATION TASK: Generate precise object segmentation masks.
+OBJECT DETECTION AND SEGMENTATION TASK: Analyze image and provide object information.
 
 OUTPUT FORMAT: Return ONLY a valid JSON array with this exact structure:
 [
   {
     "box_2d": [y0, x0, y1, x1],
-    "mask": "data:image/png;base64,[base64_encoded_mask]",
+    "polygon": [[x1,y1], [x2,y2], [x3,y3], [x4,y4]],
     "label": "descriptive_object_name",
-    "confidence": 0.95
+    "confidence": 0.95,
+    "area_percentage": 15.2
   }
 ]
 
 REQUIREMENTS:
-- box_2d coordinates must be normalized to 0-1000 scale
-- mask must be base64-encoded PNG with 0-255 probability values
+- box_2d coordinates must be normalized to 0-1000 scale (ymin, xmin, ymax, xmax)
+- polygon provides approximate object boundary as array of [x,y] points (normalized 0-1000)
 - label must be descriptive and specific (e.g., "wooden dining chair", not just "chair")
 - confidence score between 0.0 and 1.0
+- area_percentage: estimated percentage of image area occupied by object
 - Only include objects with confidence > 0.5
-- Maximum 10 objects per response''';
+- Maximum 10 objects per response
+- Polygon should have 4-8 points defining the object boundary''';
 
     if (targetObjects != null && targetObjects.isNotEmpty) {
       return '''$basePrompt
