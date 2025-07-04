@@ -81,12 +81,13 @@ class GeminiResponseHandler {
     }
   }
 
-  /// Extracts text content from API response data
+  /// Extracts text content from API response data with enhanced error handling
   static String _extractTextContent(Map<String, dynamic> data) {
     // Debug logging
     log('🔍 Extracting text content from response...');
     log('📋 Response keys: ${data.keys.toList()}');
-    
+
+    // Check for candidates
     if (data[GeminiConstants.candidatesKey] == null ||
         (data[GeminiConstants.candidatesKey] as List).isEmpty) {
       log('❌ No candidates found in response');
@@ -113,18 +114,43 @@ class GeminiResponseHandler {
       throw Exception('No content in Gemini API response candidate');
     }
 
-    final content = candidate[GeminiConstants.contentKey] as Map<String, dynamic>;
+    final content =
+        candidate[GeminiConstants.contentKey] as Map<String, dynamic>;
     log('📄 Content keys: ${content.keys.toList()}');
 
+    // Check for parts in content
     if (content[GeminiConstants.partsKey] == null) {
       log('❌ No parts key found in content');
       log('📝 Content structure: ${content.toString()}');
-      throw Exception('No content parts in Gemini API response');
+      
+      // Try to handle cases where content might be structured differently
+      if (content[GeminiConstants.textKey] != null) {
+        log('🔄 Found text directly in content, extracting...');
+        final directText = content[GeminiConstants.textKey] as String;
+        return directText.trim();
+      }
+      
+      // If still no parts, this is likely an API structure change
+      throw Exception(
+        'No content parts in Gemini API response. '
+        'Content structure: ${content.keys.toList()}. '
+        'This may indicate an API version change or malformed response.'
+      );
     }
 
     final parts = content[GeminiConstants.partsKey] as List;
     log('🧩 Found ${parts.length} parts in response');
-    
+
+    // If parts array is empty, provide more context
+    if (parts.isEmpty) {
+      log('❌ Parts array is empty');
+      log('📝 Full response: ${data.toString()}');
+      throw Exception(
+        'Content parts array is empty in Gemini API response. '
+        'This may indicate content filtering or API issues.'
+      );
+    }
+
     for (int i = 0; i < parts.length; i++) {
       final part = parts[i] as Map<String, dynamic>;
       log('🧩 Part $i keys: ${part.keys.toList()}');
@@ -139,7 +165,27 @@ class GeminiResponseHandler {
 
     if (textParts.isEmpty) {
       log('❌ No text parts found after filtering');
-      throw Exception('No valid text content in Gemini API response');
+      log('📝 Available part types: ${parts.map((p) => (p as Map<String, dynamic>).keys.toList()).toList()}');
+      
+      // Try to extract alternative content types
+      for (final part in parts) {
+        final partMap = part as Map<String, dynamic>;
+        if (partMap.containsKey('functionCall') || 
+            partMap.containsKey('functionResponse') ||
+            partMap.containsKey('executableCode')) {
+          log('⚠️ Response contains non-text content types that are not yet supported');
+          throw Exception(
+            'Response contains non-text content (function calls, code execution, etc.) '
+            'that cannot be processed as text. Available keys: ${partMap.keys.toList()}'
+          );
+        }
+      }
+      
+      throw Exception(
+        'No valid text content in Gemini API response. '
+        'Found ${parts.length} parts but none contained text. '
+        'Part types: ${parts.map((p) => (p as Map<String, dynamic>).keys.toList()).toList()}'
+      );
     }
 
     final result = textParts.first.trim();
