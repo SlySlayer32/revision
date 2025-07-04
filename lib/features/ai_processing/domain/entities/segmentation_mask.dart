@@ -144,7 +144,7 @@ class SegmentationMask extends Equatable {
 
   /// Convert to JSON format
   Map<String, dynamic> toJson() {
-    return {
+    final result = {
       'box_2d': [
         boundingBox.y0,
         boundingBox.x0,
@@ -152,9 +152,17 @@ class SegmentationMask extends Equatable {
         boundingBox.x1
       ],
       'label': label,
-      'mask': 'data:image/png;base64,${_uint8ListToBase64(maskData)}',
       'confidence': confidence,
+      'polygon': polygon,
+      'area_percentage': areaPercentage,
     };
+
+    // Include mask data only if available (for backward compatibility)
+    if (maskData != null && maskData!.isNotEmpty) {
+      result['mask'] = 'data:image/png;base64,${_uint8ListToBase64(maskData!)}';
+    }
+
+    return result;
   }
 
   /// Convert normalized coordinates to absolute coordinates
