@@ -27,6 +27,7 @@ This document outlines the integration of Gemini 2.5's advanced segmentation cap
 ### New Entities
 
 #### `SegmentationMask`
+
 ```dart
 class SegmentationMask {
   final BoundingBox2D boundingBox;     // Normalized coordinates [y0, x0, y1, x1]
@@ -37,6 +38,7 @@ class SegmentationMask {
 ```
 
 #### `SegmentationResult`
+
 ```dart
 class SegmentationResult {
   final List<SegmentationMask> masks; // All detected masks
@@ -47,6 +49,7 @@ class SegmentationResult {
 ```
 
 #### Enhanced `ImageMarker`
+
 ```dart
 enum MarkerType {
   userDefined,      // User-placed markers
@@ -65,6 +68,7 @@ class ImageMarker {
 ### Updated Services
 
 #### `GeminiAIService` Enhancements
+
 ```dart
 // New segmentation method using Gemini 2.5
 Future<SegmentationResult> generateSegmentationMasks({
@@ -83,6 +87,7 @@ Future<List<Map<String, dynamic>>> detectObjectsWithBoundingBoxes({
 ### New Use Cases
 
 #### `GenerateSegmentationMasksUseCase`
+
 ```dart
 Future<Result<SegmentationResult>> call(
   Uint8List imageData, {
@@ -92,6 +97,7 @@ Future<Result<SegmentationResult>> call(
 ```
 
 #### `DetectObjectsWithBoundingBoxesUseCase`
+
 ```dart
 Future<Result<List<Map<String, dynamic>>>> call(
   Uint8List imageData, {

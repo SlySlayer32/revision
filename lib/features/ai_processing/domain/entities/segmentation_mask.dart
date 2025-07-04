@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'package:equatable/equatable.dart';
 
 /// Represents a segmentation mask from Gemini 2.5 segmentation API
@@ -38,12 +39,12 @@ class SegmentationMask extends Equatable {
   factory SegmentationMask.fromJson(Map<String, dynamic> json) {
     final box2d = json['box_2d'] as List<dynamic>;
     final maskBase64 = json['mask'] as String;
-    
+
     // Remove the data:image/png;base64, prefix if present
     final cleanBase64 = maskBase64.startsWith('data:image/png;base64,')
         ? maskBase64.substring('data:image/png;base64,'.length)
         : maskBase64;
-    
+
     return SegmentationMask(
       boundingBox: BoundingBox2D(
         y0: (box2d[0] as num).toDouble(),
@@ -60,7 +61,12 @@ class SegmentationMask extends Equatable {
   /// Convert to JSON format
   Map<String, dynamic> toJson() {
     return {
-      'box_2d': [boundingBox.y0, boundingBox.x0, boundingBox.y1, boundingBox.x1],
+      'box_2d': [
+        boundingBox.y0,
+        boundingBox.x0,
+        boundingBox.y1,
+        boundingBox.x1
+      ],
       'label': label,
       'mask': 'data:image/png;base64,${_uint8ListToBase64(maskData)}',
       'confidence': confidence,
@@ -80,19 +86,21 @@ class SegmentationMask extends Equatable {
   /// Check if a point is inside the segmented object using the mask
   bool containsPoint(int x, int y, int imageWidth, int imageHeight) {
     final absoluteBox = toAbsoluteCoordinates(imageWidth, imageHeight);
-    
+
     // Check if point is within bounding box first
-    if (x < absoluteBox.x0 || x >= absoluteBox.x1 || 
-        y < absoluteBox.y0 || y >= absoluteBox.y1) {
+    if (x < absoluteBox.x0 ||
+        x >= absoluteBox.x1 ||
+        y < absoluteBox.y0 ||
+        y >= absoluteBox.y1) {
       return false;
     }
-    
+
     // Calculate relative position within the mask
     final maskWidth = (absoluteBox.x1 - absoluteBox.x0).round();
     final maskHeight = (absoluteBox.y1 - absoluteBox.y0).round();
-    
+
     if (maskWidth <= 0 || maskHeight <= 0) return false;
-    
+
     // For now, return true if within bounding box (placeholder)
     // In production, you'd decode the PNG mask and check the actual pixel value
     // at the relative coordinates to determine if it's above the threshold (127)
