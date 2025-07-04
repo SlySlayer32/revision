@@ -272,9 +272,9 @@ class GeminiAIService implements AIService {
 
     return _errorHandler.executeWithRetry<String>(
       () async {
-        // Validate image size
+        // Validate image size using constants
         if (imageData.length >
-            FirebaseAIConstants.maxImageSizeMB * 1024 * 1024) {
+            GeminiConstants.maxImageSizeBytes) {
           throw Exception(
             'Image too large: ${imageData.length ~/ (1024 * 1024)}MB',
           );
