@@ -218,8 +218,6 @@ class GeminiAIService implements AIService {
     final requestBody = _requestBuilder.buildImageGenerationRequest(
       prompt: prompt,
       inputImage: inputImage,
-      model: modelName,
-      config: _remoteConfig,
     );
 
     log('🎨 Making image generation request...');
