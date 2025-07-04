@@ -139,7 +139,7 @@ class NullSafetyUtils {
   }
 
   /// Checks if a string is null or empty
-  static bool isNullOrEmpty(String? value) {
+  static bool isStringNullOrEmpty(String? value) {
     return value == null || value.isEmpty;
   }
 
@@ -149,7 +149,7 @@ class NullSafetyUtils {
   }
 
   /// Checks if a collection is null or empty
-  static bool isNullOrEmpty<T>(Iterable<T>? collection) {
+  static bool isCollectionNullOrEmpty<T>(Iterable<T>? collection) {
     return collection == null || collection.isEmpty;
   }
 
@@ -164,7 +164,7 @@ class NullSafetyUtils {
   }
 
   /// Safely converts a value to string with null handling
-  static String toString(dynamic value, {String fallback = ''}) {
+  static String safeToString(dynamic value, {String fallback = ''}) {
     if (value == null) return fallback;
     return value.toString();
   }
