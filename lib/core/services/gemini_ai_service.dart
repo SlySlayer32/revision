@@ -635,7 +635,7 @@ Focus on creating a clean, professional result that matches the editing intent.
       log('❌ generateSegmentationMasks failed after all retries: $e');
       // Return empty result with error context for production debugging
       return const SegmentationResult(
-        masks: <SegmentationMask>[],
+        masks: [],
         processingTimeMs: 0,
         imageWidth: GeminiConstants.defaultImageWidth,
         imageHeight: GeminiConstants.defaultImageHeight,
