@@ -122,20 +122,35 @@ class GeminiResponseHandler {
     if (content[GeminiConstants.partsKey] == null) {
       log('❌ No parts key found in content');
       log('📝 Content structure: ${content.toString()}');
-      
+
       // Try to handle cases where content might be structured differently
       if (content[GeminiConstants.textKey] != null) {
         log('🔄 Found text directly in content, extracting...');
         final directText = content[GeminiConstants.textKey] as String;
         return directText.trim();
       }
-      
+
+      // Special handling for responses that only contain "role" field
+      if (content.keys.length == 1 && content.containsKey('role')) {
+        log('⚠️ Response contains only role field - likely an error response');
+        log('📋 Full response data for debugging: ${data.toString()}');
+        
+        // Check if there's an error field in the main response
+        if (data.containsKey('error')) {
+          final error = data['error'];
+          throw Exception('Gemini API error: ${error.toString()}');
+        }
+        
+        // This might be an authentication or quota issue
+        throw Exception('Invalid Gemini API response - only role field present. '
+            'This typically indicates an authentication issue, quota exceeded, '
+            'or malformed request. Check your API key and request format.');
+      }
+
       // If still no parts, this is likely an API structure change
-      throw Exception(
-        'No content parts in Gemini API response. '
-        'Content structure: ${content.keys.toList()}. '
-        'This may indicate an API version change or malformed response.'
-      );
+      throw Exception('No content parts in Gemini API response. '
+          'Content structure: ${content.keys.toList()}. '
+          'This may indicate an API version change or malformed response.');
     }
 
     final parts = content[GeminiConstants.partsKey] as List;
@@ -145,10 +160,8 @@ class GeminiResponseHandler {
     if (parts.isEmpty) {
       log('❌ Parts array is empty');
       log('📝 Full response: ${data.toString()}');
-      throw Exception(
-        'Content parts array is empty in Gemini API response. '
-        'This may indicate content filtering or API issues.'
-      );
+      throw Exception('Content parts array is empty in Gemini API response. '
+          'This may indicate content filtering or API issues.');
     }
 
     for (int i = 0; i < parts.length; i++) {
@@ -166,26 +179,23 @@ class GeminiResponseHandler {
     if (textParts.isEmpty) {
       log('❌ No text parts found after filtering');
       log('📝 Available part types: ${parts.map((p) => (p as Map<String, dynamic>).keys.toList()).toList()}');
-      
+
       // Try to extract alternative content types
       for (final part in parts) {
         final partMap = part as Map<String, dynamic>;
-        if (partMap.containsKey('functionCall') || 
+        if (partMap.containsKey('functionCall') ||
             partMap.containsKey('functionResponse') ||
             partMap.containsKey('executableCode')) {
           log('⚠️ Response contains non-text content types that are not yet supported');
           throw Exception(
-            'Response contains non-text content (function calls, code execution, etc.) '
-            'that cannot be processed as text. Available keys: ${partMap.keys.toList()}'
-          );
+              'Response contains non-text content (function calls, code execution, etc.) '
+              'that cannot be processed as text. Available keys: ${partMap.keys.toList()}');
         }
       }
-      
-      throw Exception(
-        'No valid text content in Gemini API response. '
-        'Found ${parts.length} parts but none contained text. '
-        'Part types: ${parts.map((p) => (p as Map<String, dynamic>).keys.toList()).toList()}'
-      );
+
+      throw Exception('No valid text content in Gemini API response. '
+          'Found ${parts.length} parts but none contained text. '
+          'Part types: ${parts.map((p) => (p as Map<String, dynamic>).keys.toList()).toList()}');
     }
 
     final result = textParts.first.trim();
@@ -196,7 +206,7 @@ class GeminiResponseHandler {
   /// Extracts image data from API response with enhanced error handling
   static Uint8List? _extractImageData(Map<String, dynamic> data) {
     log('🔍 Extracting image data from response...');
-    
+
     if (data[GeminiConstants.candidatesKey] == null ||
         (data[GeminiConstants.candidatesKey] as List).isEmpty) {
       log('⚠️ No candidates in image generation response');
@@ -210,7 +220,8 @@ class GeminiResponseHandler {
     log('🏁 Image finish reason: ${candidate[GeminiConstants.finishReasonKey]}');
 
     // Check for content filtering or safety issues
-    if (candidate[GeminiConstants.finishReasonKey] == GeminiConstants.safetyFinishReason) {
+    if (candidate[GeminiConstants.finishReasonKey] ==
+        GeminiConstants.safetyFinishReason) {
       log('⚠️ Image generation was filtered by safety filters');
       return null;
     }
@@ -243,13 +254,12 @@ class GeminiResponseHandler {
             partMap[GeminiConstants.inlineDataKey] as Map<String, dynamic>;
 
         log('📎 Inline data keys: ${inlineData.keys.toList()}');
-        
+
         if (inlineData[GeminiConstants.mimeTypeKey] != null &&
             inlineData[GeminiConstants.mimeTypeKey]
                 .toString()
                 .startsWith('image/') &&
             inlineData[GeminiConstants.dataKey] != null) {
-          
           try {
             final base64Data = inlineData[GeminiConstants.dataKey] as String;
             final imageBytes = base64Decode(base64Data);
