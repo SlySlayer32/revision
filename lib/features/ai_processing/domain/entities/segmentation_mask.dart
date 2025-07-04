@@ -60,16 +60,43 @@ class SegmentationMask extends Equatable {
             'Invalid box_2d format: expected [y0, x0, y1, x1]');
       }
 
-      // Handle mask data gracefully
-      String cleanBase64 = '';
+      // Parse polygon coordinates if available
+      List<List<double>> polygon = [];
+      if (json.containsKey('polygon') && json['polygon'] is List) {
+        final polygonData = json['polygon'] as List;
+        for (final point in polygonData) {
+          if (point is List && point.length >= 2) {
+            polygon.add([
+              (point[0] as num).toDouble(),
+              (point[1] as num).toDouble(),
+            ]);
+          }
+        }
+      }
+
+      // Parse area percentage
+      double areaPercentage = 0.0;
+      if (json.containsKey('area_percentage')) {
+        final areaValue = json['area_percentage'];
+        if (areaValue is num) {
+          areaPercentage = areaValue.toDouble().clamp(0.0, 100.0);
+        }
+      }
+
+      // Handle legacy mask data gracefully (optional)
+      Uint8List? maskData;
       if (json.containsKey('mask') && json['mask'] != null) {
         final maskString = json['mask'] as String;
+        String cleanBase64 = '';
         if (maskString.startsWith('data:image/png;base64,')) {
           cleanBase64 = maskString.substring('data:image/png;base64,'.length);
         } else {
           cleanBase64 = maskString;
         }
         cleanBase64 = cleanBase64.replaceAll(RegExp(r'\s+'), '');
+        if (cleanBase64.isNotEmpty) {
+          maskData = _base64ToUint8List(cleanBase64);
+        }
       }
 
       // Validate label
