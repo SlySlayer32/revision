@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/core/di/service_locator.dart';
+import 'package:revision/core/navigation/route_factory.dart' as app_routes;
+import 'package:revision/core/navigation/route_names.dart';
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
 import 'package:revision/features/ai_processing/presentation/view/ai_processing_view.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
@@ -24,11 +26,18 @@ class AiProcessingPage extends StatelessWidget {
     SelectedImage selectedImage, {
     AnnotatedImage? annotatedImage,
   }) {
-    return MaterialPageRoute<void>(
+    return app_routes.RouteFactory.createRoute<void>(
       builder: (_) => AiProcessingPage(
         selectedImage: selectedImage,
         annotatedImage: annotatedImage,
       ),
+      routeName: RouteNames.aiProcessing,
+      arguments: {
+        'selectedImage': selectedImage,
+        'annotatedImage': annotatedImage,
+      },
+    );
+  }
     );
   }
 
