@@ -230,234 +230,199 @@ _logger.error(
 
 ---
 
-## 🔧 Recommended Improvements
+## 📋 Detailed Analysis
 
-### 1. **Extract Constants**
+### God Class Breakdown
+
+```
+GeminiAIService responsibilities:
+├── HTTP Client Management
+├── Request Validation
+├── Request Body Construction
+├── Response Parsing
+├── Error Handling
+├── Retry Logic
+├── Configuration Management
+├── Image Processing
+├── Text Processing
+└── Segmentation Logic
+```
+
+### Method Complexity Analysis
+
+| Method | Lines | Cyclomatic Complexity | Issues |
+|--------|-------|----------------------|---------|
+| `_handleApiResponse` | ~70 | High | Multiple conditionals, nested try-catch |
+| `processImagePrompt` | ~40 | Medium | Multiple responsibilities |
+| `generateSegmentationMasks` | ~50 | High | Complex logic flow |
+| `_makeMultimodalRequest` | ~45 | Medium | Duplicate validation pattern |
+
+### Magic Numbers Inventory
 
 ```dart
-// lib/core/constants/ai_processing_constants.dart
-abstract class AIProcessingConstants {
-  static const int maxImageSizeMB = 10;
-  static const int maxImageSizeBytes = maxImageSizeMB * 1024 * 1024;
-  static const String operationName = 'GEMINI_PIPELINE_PROCESSING';
+// Should be constants
+20000          // MAX_PROMPT_LENGTH
+20 * 1024 * 1024  // MAX_IMAGE_SIZE_BYTES
+30             // MIN_API_KEY_LENGTH
+400, 401, 403, 429  // HTTP status codes
+0.1, 0.9, 32   // AI model parameters
+1024           // Default image dimensions
+```
+
+## 🔧 Refactoring Recommendations
+
+### 1. **Split God Class** (Priority: HIGH)
+
+Create specialized classes:
+
+```dart
+// Core service coordination
+class GeminiAIService
+
+// HTTP communication
+class GeminiApiClient
+
+// Request/Response handling
+class GeminiRequestBuilder
+class GeminiResponseParser
+
+// Validation logic
+class GeminiRequestValidator
+
+// Error handling
+class GeminiErrorHandler
+
+// Image processing
+class GeminiImageProcessor
+```
+
+### 2. **Extract Constants** (Priority: HIGH)
+
+```dart
+class GeminiConstants {
+  static const int maxPromptLength = 20000;
+  static const int maxImageSizeBytes = 20 * 1024 * 1024;
+  static const int minApiKeyLength = 30;
+  static const Duration defaultTimeout = Duration(seconds: 30);
+  
+  // HTTP status codes
+  static const int badRequest = 400;
+  static const int unauthorized = 401;
+  static const int forbidden = 403;
+  static const int tooManyRequests = 429;
 }
 ```
 
-### 2. **Create Exception Hierarchy**
+### 3. **Create Domain Objects** (Priority: MEDIUM)
 
 ```dart
-// lib/core/exceptions/ai_exceptions.dart
-abstract class AIProcessingException implements Exception {
-  const AIProcessingException(this.message);
-  final String message;
+class ApiRequest {
+  final String prompt;
+  final Uint8List? imageBytes;
+  final String model;
+  final Map<String, dynamic> config;
 }
 
-class ImageValidationException extends AIProcessingException {
-  const ImageValidationException(super.message);
+class ApiResponse {
+  final int statusCode;
+  final String body;
+  final bool isSuccess;
 }
 
-class APIQuotaExceededException extends AIProcessingException {
-  const APIQuotaExceededException(super.message);
-}
-
-class ModelNotFoundException extends AIProcessingException {
-  const ModelNotFoundException(super.message);
+class ValidationResult {
+  final bool isValid;
+  final String? errorMessage;
 }
 ```
 
-### 3. **Create Value Objects**
+### 4. **Extract Method Objects** (Priority: MEDIUM)
 
 ```dart
-// lib/features/ai_processing/domain/value_objects/marked_area.dart
-class MarkedArea {
-  const MarkedArea({
-    required this.x,
-    required this.y,
-    required this.width,
-    required this.height,
-    this.description,
-  });
+class ResponseHandler {
+  String handleResponse(ApiResponse response);
+  void validateResponse(ApiResponse response);
+  String extractTextContent(Map<String, dynamic> data);
+}
 
-  final double x;
-  final double y;
-  final double width;
-  final double height;
-  final String? description;
-
-  Map<String, dynamic> toMap() => {
-    'x': x,
-    'y': y,
-    'width': width,
-    'height': height,
-    if (description != null) 'description': description,
-  };
+class RequestValidator {
+  ValidationResult validatePrompt(String prompt);
+  ValidationResult validateImage(Uint8List? imageBytes);
+  ValidationResult validateApiKey(String? apiKey);
 }
 ```
 
-### 4. **Extract Validation Logic**
+### 5. **Implement Strategy Pattern** (Priority: LOW)
 
 ```dart
-// lib/features/ai_processing/domain/validators/image_validator.dart
-class ImageValidator {
-  static Result<void> validateImageData(Uint8List imageData) {
-    if (imageData.isEmpty) {
-      return const Failure(ImageValidationException('Image data cannot be empty'));
-    }
-
-    final sizeMB = imageData.length / AIProcessingConstants.maxImageSizeBytes;
-    if (sizeMB > 1.0) {
-      return Failure(ImageValidationException(
-        'Image too large: ${sizeMB.toStringAsFixed(1)}MB (max ${AIProcessingConstants.maxImageSizeMB}MB)',
-      ));
-    }
-
-    return const Success(null);
-  }
-
-  static Result<void> validateMarkedAreas(List<MarkedArea> markedAreas) {
-    // Validation logic for marked areas
-    return const Success(null);
-  }
+abstract class PromptStrategy {
+  String buildPrompt(Map<String, dynamic> context);
 }
+
+class ImageAnalysisPromptStrategy implements PromptStrategy { }
+class ObjectRemovalPromptStrategy implements PromptStrategy { }
+class SegmentationPromptStrategy implements PromptStrategy { }
 ```
 
-### 5. **Extract Error Handler**
+## 🚀 Implementation Plan
 
-```dart
-// lib/features/ai_processing/domain/error_handlers/ai_error_handler.dart
-class AIErrorHandler {
-  static AIProcessingException mapException(Object error) {
-    final errorString = error.toString().toLowerCase();
-    
-    if (errorString.contains('403') || errorString.contains('forbidden')) {
-      return const APIPermissionException('Firebase AI access denied');
-    }
-    
-    if (errorString.contains('404') || errorString.contains('not found')) {
-      return const ModelNotFoundException('Gemini model not found');
-    }
-    
-    if (errorString.contains('quota') || errorString.contains('limit')) {
-      return const APIQuotaExceededException('Gemini API quota exceeded');
-    }
-    
-    return AIProcessingException('Unexpected error: ${error.toString()}');
-  }
-}
-```
+### Phase 1: Extract Constants and Simple Refactoring
 
-### 6. **Refactored Use Case**
+1. Create `GeminiConstants` class
+2. Extract magic numbers and strings
+3. Simplify conditional logic
 
-```dart
-class ProcessImageWithGeminiUseCase {
-  ProcessImageWithGeminiUseCase(this._geminiPipelineService);
+### Phase 2: Method Extraction
 
-  final GeminiPipelineService _geminiPipelineService;
-  final EnhancedLogger _logger = EnhancedLogger();
+1. Extract complex methods into smaller functions
+2. Create helper classes for validation and parsing
+3. Reduce method complexity
 
-  Future<Result<GeminiPipelineResult>> call(
-    Uint8List imageData, {
-    List<MarkedArea> markedAreas = const [],
-  }) async {
-    try {
-      // Validate inputs
-      final validationResult = _validateInputs(imageData, markedAreas);
-      if (validationResult.isFailure) {
-        return validationResult.cast<GeminiPipelineResult>();
-      }
+### Phase 3: Class Decomposition
 
-      // Execute processing
-      return await _executeProcessing(imageData, markedAreas);
-    } catch (e, stackTrace) {
-      return _handleError(e, stackTrace, imageData, markedAreas);
-    }
-  }
+1. Create `GeminiApiClient` for HTTP operations
+2. Create `GeminiRequestBuilder` for request construction
+3. Create `GeminiResponseParser` for response handling
 
-  Result<void> _validateInputs(Uint8List imageData, List<MarkedArea> markedAreas) {
-    final imageValidation = ImageValidator.validateImageData(imageData);
-    if (imageValidation.isFailure) return imageValidation;
+### Phase 4: Domain Objects
 
-    final areasValidation = ImageValidator.validateMarkedAreas(markedAreas);
-    if (areasValidation.isFailure) return areasValidation;
-
-    return const Success(null);
-  }
-
-  Future<Result<GeminiPipelineResult>> _executeProcessing(
-    Uint8List imageData,
-    List<MarkedArea> markedAreas,
-  ) async {
-    final result = markedAreas.isNotEmpty
-        ? await _geminiPipelineService.processImageWithMarkedObjects(
-            imageData: imageData,
-            markedAreas: markedAreas.map((area) => area.toMap()).toList(),
-          )
-        : await _geminiPipelineService.processImage(imageData);
-
-    return Success(result);
-  }
-
-  Result<GeminiPipelineResult> _handleError(
-    Object error,
-    StackTrace stackTrace,
-    Uint8List imageData,
-    List<MarkedArea> markedAreas,
-  ) {
-    _logger.error(
-      'Gemini AI Pipeline processing failed',
-      operation: AIProcessingConstants.operationName,
-      error: error,
-      stackTrace: stackTrace,
-      context: {
-        'imageSize': imageData.length,
-        'markedAreasCount': markedAreas.length,
-      },
-
-    );
-
-    final mappedException = AIErrorHandler.mapException(error);
-    return Failre(mappedException);
-
-  }
-}
-```
-
-## 📊 Priority Assessment
-
-| Code Smell | Priority | Effort | Impact |
-|-------------|----------|---------|---------|
-| Error Handling Anti-patterns | HIGH | MEDIUM | HIGH |
-| God Method / SRP Violation | MEDIUM | HIGH | MEDIUM |
-
-| Magic Numbers | MEDIUM | LOW | MEDIUM |
-| Lack of Input Validation | MEDIUM | MEDIUM | HIGH |
-| Inconsistent Exception Handling | MEDIUM | MEDIUM | MEDIUM |
-| Missing Type Safety | LOW | MEDIUM | MEDIUM |
-| Hardcoded Error Messages | LOW | LOW | LOW |
-| Logging Anti-patterns | LOW | LOW | LOW |
+1. Create request/response value objects
+2. Implement validation objects
+3. Replace primitive obsession
 
 ## 🧪 Testing Improvements
 
-### Current State
+### Current Testing Challenges
 
-- No dedicated unit tests found for this use case
-- Testing would be difficult due to mixed responsibilities
+- Large class is difficult to unit test
+- Many dependencies make mocking complex
+- Long methods have multiple test scenarios
 
-### Recommended
+### Proposed Testing Strategy
 
-1. **Unit tests for validators**
-2. **Unit tests for error handlers**
-3. **Integration tests for full pipeline**
-4. **Mock tests for service interactions**
+- Smaller classes enable focused unit tests
+- Clear interfaces improve mockability
+- Domain objects simplify test data setup
 
-## 💡 Summary
+## 📊 Metrics Improvement Targets
 
-The `ProcessImageWithGeminiUseCase` shows several code quality issues typical of rapidly prototyped code. The main concerns are around error handling patterns and separation of concerns. Refactoring to extract validation, error handling, and using proper type safety will significantly improve maintainability and testability.
+| Metric | Current | Target | Improvement |
+|--------|---------|---------|-------------|
+| Class Lines | 992 | <300 | 70% reduction |
+| Method Complexity | High | Low-Medium | Significant |
+| Coupling | High | Low | Loose coupling |
+| Cohesion | Low | High | Single responsibility |
 
-**Next Steps:**
+## 🔗 Related Files for Refactoring
 
-1. Extract constants and create exception hierarchy
-2. Implement proper input validation with value objects
-3. Separate validation, processing, and error handling concerns
-4. Add comprehensive unit and integration tests
-5. Consider implementing retry logic and circuit breaker patterns
+- `lib/core/services/ai_error_handler.dart`
+- `lib/core/config/env_config.dart`
+- `lib/core/services/firebase_ai_remote_config_service.dart`
+- `lib/features/ai_processing/domain/entities/segmentation_result.dart`
+
+## 📝 Next Steps
+
+1. Start with Phase 1 (Constants extraction)
+2. Write unit tests for extracted components
+3. Gradually decompose the God class
+4. Maintain backward compatibility during refactoring
+5. Update integration tests accordingly
