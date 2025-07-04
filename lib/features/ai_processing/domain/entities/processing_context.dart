@@ -146,6 +146,8 @@ class ProcessingContext extends Equatable {
     return processingType == ProcessingType.objectRemoval ||
         processingType == ProcessingType.backgroundChange ||
         processingType == ProcessingType.faceEdit;
+    // Note: segmentation and objectDetection don't require markers
+    // as they generate their own markers through AI detection
   }
 
   /// Estimates processing time in seconds based on configuration
