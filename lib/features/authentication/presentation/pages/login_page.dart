@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/core/di/service_locator.dart';
-import 'package:revision/core/navigation/route_factory.dart';
+import 'package:revision/core/navigation/route_factory.dart' as app_routes;
 import 'package:revision/core/navigation/route_names.dart';
 import 'package:revision/features/authentication/presentation/blocs/login_bloc.dart';
 import 'package:revision/features/authentication/presentation/widgets/login_form.dart';
@@ -13,7 +13,7 @@ class LoginPage extends StatelessWidget {
 
   /// Creates a [Route] for this page
   static Route<void> route() {
-    return RouteFactory.createRoute<void>(
+    return app_routes.RouteFactory.createRoute<void>(
       builder: (_) => const LoginPage(),
       routeName: RouteNames.login,
     );
