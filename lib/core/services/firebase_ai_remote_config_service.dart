@@ -36,7 +36,7 @@ class FirebaseAIRemoteConfigService {
 
   /// Default values that match the remote config template
   static final Map<String, dynamic> _defaultValues = {
-    _geminiModelKey: 'gemini-2.0-flash-preview-text-generation',
+    _geminiModelKey: 'gemini-2.5-flash',
     _geminiImageModelKey: 'gemini-2.0-flash-preview-image-generation',
     _analysisSystemPromptKey:
         'You are an AI specialized in analyzing marked objects in images for removal...',
