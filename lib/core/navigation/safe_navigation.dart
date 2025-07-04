@@ -34,7 +34,7 @@ class SafeNavigation {
         if (kDebugMode) {
           debugPrint('✅ SafeNavigation: Successfully extracted arguments of type $T');
         }
-        return arguments;
+        return arguments as T;
       }
 
       if (kDebugMode) {
