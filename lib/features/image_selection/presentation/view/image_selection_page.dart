@@ -227,7 +227,7 @@ class _ImageSelectionView extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AIProcessingPage(
+        builder: (context) => AiProcessingPage(
           selectedImage: selectedImage,
         ),
       ),
