@@ -696,7 +696,14 @@ Focus on creating a clean, professional result that matches the editing intent.
     log('📄 Response length: ${response.body.length} characters');
     log('📋 Response preview: ${response.body.length > 200 ? response.body.substring(0, 200) + "..." : response.body}');
 
-    return GeminiResponseHandler.handleTextResponse(response);
+    try {
+      return GeminiResponseHandler.handleTextResponse(response);
+    } catch (e) {
+      if (e is Exception) {
+        return _handleResponseError(e, 'segmentation');
+      }
+      rethrow;
+    }
   }
 
   /// Parse segmentation response from Gemini API
