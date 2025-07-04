@@ -175,8 +175,8 @@ class GeminiRequestBuilder {
           .clamp(1024, 8192), // More tokens for detailed segmentation
       GeminiConstants.topKKey: 1, // Most focused sampling for precision
       GeminiConstants.topPKey: 0.8, // Reduced for more deterministic results
-      GeminiConstants.responseMimeTypeKey:
-          GeminiConstants.applicationJsonMimeType,
+      // Remove responseMimeType to allow text-based JSON responses
+      // GeminiConstants.responseMimeTypeKey: GeminiConstants.applicationJsonMimeType,
       // Add stop sequences to ensure clean JSON output
       'stopSequences': ['```', 'END_OF_SEGMENTATION'],
     };
