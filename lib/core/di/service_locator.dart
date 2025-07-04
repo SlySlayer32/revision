@@ -9,8 +9,9 @@ import 'package:revision/core/services/gemini_ai_service.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/core/services/image_save_service.dart';
 import 'package:revision/core/services/logging_service.dart';
-// AI processing feature temporarily disabled
+// AI processing feature
 import 'package:revision/features/ai_processing/data/services/ai_result_save_service.dart';
+import 'package:revision/features/ai_processing/domain/usecases/generate_segmentation_masks_usecase.dart';
 import 'package:revision/features/ai_processing/domain/usecases/process_image_with_gemini_usecase.dart';
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
 import 'package:revision/features/authentication/data/datasources/firebase_auth_data_source.dart';
@@ -66,25 +67,28 @@ void setupServiceLocator() {
 
 void _registerCoreServices() {
   debugPrint('_registerCoreServices: Registering core services...');
-  
+
   getIt
     // Core Services
     ..registerLazySingleton<CircuitBreaker>(CircuitBreaker.new)
     ..registerLazySingleton(() => LoggingService.instance)
     ..registerLazySingleton(() => ErrorHandlerService.instance);
-    
-  debugPrint('_registerCoreServices: Registering FirebaseAIRemoteConfigService...');
+
+  debugPrint(
+      '_registerCoreServices: Registering FirebaseAIRemoteConfigService...');
   getIt.registerLazySingleton<FirebaseAIRemoteConfigService>(
     FirebaseAIRemoteConfigService.new,
   );
-  
+
   debugPrint('_registerCoreServices: Registering GeminiAIService...');
   getIt.registerLazySingleton<GeminiAIService>(
     () {
       try {
-        debugPrint('_registerCoreServices: Creating GeminiAIService instance...');
+        debugPrint(
+            '_registerCoreServices: Creating GeminiAIService instance...');
         final remoteConfigService = getIt<FirebaseAIRemoteConfigService>();
-        debugPrint('_registerCoreServices: Got FirebaseAIRemoteConfigService, creating GeminiAIService...');
+        debugPrint(
+            '_registerCoreServices: Got FirebaseAIRemoteConfigService, creating GeminiAIService...');
         return GeminiAIService(remoteConfigService: remoteConfigService);
       } catch (e, stackTrace) {
         debugPrint('❌ Error creating GeminiAIService: $e');
@@ -93,7 +97,7 @@ void _registerCoreServices() {
       }
     },
   );
-  
+
   debugPrint('_registerCoreServices: Core services registration completed');
 }
 
