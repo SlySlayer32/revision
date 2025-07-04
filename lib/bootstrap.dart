@@ -32,59 +32,68 @@ class AppBlocObserver extends BlocObserver {
 }
 
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
-  try {
-    WidgetsFlutterBinding.ensureInitialized();
-    debugPrint('bootstrap: Starting app initialization...');
-
-    // Load environment variables from .env file (skip if already loaded for hot reload)
-    debugPrint('bootstrap: Loading environment variables...');
-    try {
-      await dotenv.load(fileName: '.env');
-      debugPrint('bootstrap: Environment variables loaded successfully');
-
-      // Verify critical environment variables are loaded
+  runZonedGuarded(
+    () async {
       try {
-        final geminiApiKey = dotenv.env['GEMINI_API_KEY'];
-        debugPrint(
-            'bootstrap: GEMINI_API_KEY ${geminiApiKey != null && geminiApiKey.isNotEmpty ? "found" : "missing"}');
+        WidgetsFlutterBinding.ensureInitialized();
+        debugPrint('bootstrap: Starting app initialization...');
 
-        if (geminiApiKey == null || geminiApiKey.isEmpty) {
-          debugPrint('⚠️ GEMINI_API_KEY not found in environment variables');
-          debugPrint('⚠️ Available env vars: ${dotenv.env.keys.toList()}');
-        }
-      } catch (e) {
-        debugPrint('⚠️ Error accessing environment variables: $e');
+        // Load environment variables
+        await _loadEnvironmentVariables();
+
+        // Configure global error handling and observers
+        FlutterError.onError = (details) {
+          log(details.exceptionAsString(), stackTrace: details.stack);
+        };
+        Bloc.observer = const AppBlocObserver();
+        debugPrint('bootstrap: BlocObserver configured');
+
+        // Initialize all services and dependencies
+        await _initializeFirebase();
+
+        // Log environment info
+        final debugInfo = EnvConfig.getDebugInfo();
+        log('🚀 Starting app in ${EnvironmentDetector.environmentString} mode');
+        log('🔍 Environment Debug Info: $debugInfo');
+
+        // Run the app
+        debugPrint('bootstrap: Building and running app widget...');
+        runApp(await builder());
+        debugPrint('bootstrap: App widget built and started');
+      } catch (e, stackTrace) {
+        debugPrint('❌ CRITICAL: Bootstrap failed: $e');
+        debugPrint('❌ Stack trace: $stackTrace');
+        // Optionally, show an error screen
+        runApp(ErrorWidget.withDetails(
+            message: 'App failed to initialize: $e'));
       }
-    } catch (e) {
-      debugPrint(
-          'bootstrap: Environment variables load failed or already loaded: $e');
-      debugPrint('⚠️ Will attempt to use dart-define fallbacks');
+    },
+    (error, stackTrace) {
+      log('❌ Uncaught error in bootstrap: $error',
+          stackTrace: stackTrace, name: 'bootstrap_zone');
+    },
+  );
+}
+
+Future<void> _loadEnvironmentVariables() async {
+  debugPrint('bootstrap: Loading environment variables...');
+  try {
+    await dotenv.load(fileName: '.env');
+    debugPrint('bootstrap: Environment variables loaded successfully');
+
+    // Verify critical environment variables are loaded
+    final geminiApiKey = dotenv.env['GEMINI_API_KEY'];
+    debugPrint(
+        'bootstrap: GEMINI_API_KEY ${geminiApiKey != null && geminiApiKey.isNotEmpty ? "found" : "missing"}');
+
+    if (geminiApiKey == null || geminiApiKey.isEmpty) {
+      debugPrint('⚠️ GEMINI_API_KEY not found in environment variables');
+      debugPrint('⚠️ Available env vars: ${dotenv.env.keys.toList()}');
     }
-
-    FlutterError.onError = (details) {
-      log(details.exceptionAsString(), stackTrace: details.stack);
-    };
-
-    Bloc.observer = const AppBlocObserver();
-    debugPrint('bootstrap: BlocObserver configured');
-
-    // Initialize Firebase with environment-specific configuration
-    debugPrint('bootstrap: Starting Firebase initialization...');
-    await _initializeFirebase();
-    debugPrint('bootstrap: Firebase initialization completed');
-
-    // Log comprehensive environment debug info
-    final debugInfo = EnvConfig.getDebugInfo();
-    log('🚀 Starting app in ${EnvironmentDetector.environmentString} mode');
-    log('🔍 Environment Debug Info: $debugInfo');
-
-    debugPrint('bootstrap: Building app widget...');
-    runApp(await builder());
-    debugPrint('bootstrap: App widget built and started');
-  } catch (e, stackTrace) {
-    debugPrint('❌ CRITICAL: Bootstrap failed: $e');
-    debugPrint('❌ Stack trace: $stackTrace');
-    rethrow;
+  } catch (e) {
+    debugPrint(
+        'bootstrap: Environment variables load failed or already loaded: $e');
+    debugPrint('⚠️ Will attempt to use dart-define fallbacks');
   }
 }
 
@@ -167,14 +176,14 @@ Future<void> _initializeFirebase() async {
     } catch (e, stackTrace) {
       debugPrint('⚠️ GeminiAI Service initialization failed: $e');
       debugPrint('⚠️ Stack trace: $stackTrace');
-      
+
       // Log detailed error information
       debugPrint('⚠️ Error type: ${e.runtimeType}');
       if (e.toString().contains('API key')) {
         debugPrint('⚠️ This appears to be an API key configuration issue');
         debugPrint('⚠️ Please check your .env file contains GEMINI_API_KEY');
       }
-      
+
       // Log the error but don't rethrow in development to allow app to continue
       if (!EnvironmentDetector.isDevelopment) {
         rethrow;
