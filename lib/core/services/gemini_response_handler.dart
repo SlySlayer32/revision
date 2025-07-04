@@ -47,7 +47,26 @@ class GeminiResponseHandler {
             final errorMessage = error['message'] ?? 'Unknown API error';
             final errorCode = error['code'] ?? response.statusCode;
             log('❌ Gemini API returned error in 200 response: $errorMessage');
+            
+            // Check for specific error types
+            if (errorMessage.contains('API key')) {
+              throw Exception('Gemini API key error ($errorCode): $errorMessage. '
+                  'Check that your GEMINI_API_KEY is valid and has proper permissions.');
+            } else if (errorMessage.contains('quota') || errorMessage.contains('limit')) {
+              throw Exception('Gemini API quota exceeded ($errorCode): $errorMessage. '
+                  'Check your usage limits and billing settings.');
+            } else if (errorMessage.contains('permission') || errorMessage.contains('access')) {
+              throw Exception('Gemini API permission error ($errorCode): $errorMessage. '
+                  'Check that your API key has access to the required models.');
+            }
+            
             throw Exception('Gemini API error ($errorCode): $errorMessage');
+          }
+          
+          // Additional check for empty or malformed responses
+          if (!responseData.containsKey(GeminiConstants.candidatesKey)) {
+            log('⚠️ Response missing candidates field - may indicate API issue');
+            log('📝 Response structure: ${responseData.keys.toList()}');
           }
         } catch (parseError) {
           // If we can't parse the response, let it continue to normal processing
