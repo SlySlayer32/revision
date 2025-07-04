@@ -72,7 +72,7 @@ class GeminiRequestValidator {
   }
 
   /// Validates a complete API request
-  static ValidationResult validateApiRequest({
+  ValidationResult validateApiRequest({
     required String prompt,
     Uint8List? imageBytes,
     String? model,
