@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:revision/features/ai_processing/domain/entities/spatial_point.dart';
 
 /// Represents a spatial region containing an object or area of interest
