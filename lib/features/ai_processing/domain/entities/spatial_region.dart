@@ -280,6 +280,3 @@ class SpatialBoundingBox {
     );
   }
 }
-
-// Import math for min/max functions
-import 'dart:math' as math;
