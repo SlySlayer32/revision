@@ -623,8 +623,6 @@ the text label in the key "label". Use descriptive labels.
     final requestBody = _requestBuilder.buildSegmentationRequest(
       prompt: prompt,
       imageBytes: imageBytes,
-      model: modelName,
-      config: _remoteConfig,
     );
 
     log('🎭 Making segmentation request to Gemini 2.5...');
