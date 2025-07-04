@@ -56,7 +56,7 @@
 
 ## Code Changes Summary
 
-### Files Modified:
+### Files Modified
 
 1. **`lib/features/authentication/presentation/blocs/authentication_bloc.dart`**
    - Added null safety checks in `_onAuthenticationStatusChanged`
