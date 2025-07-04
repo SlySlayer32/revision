@@ -173,34 +173,26 @@ class GeminiAIService implements AIService {
     required Uint8List imageBytes,
     String? model,
   }) async {
-    // Validate request parameters
-    _validateApiRequest(prompt: prompt, imageBytes: imageBytes, model: model);
+    // Validate request parameters using extracted validator
+    final validationResult = _requestValidator.validateMultimodalRequest(
+      prompt: prompt,
+      imageBytes: imageBytes,
+      model: model,
+    );
+    
+    if (!validationResult.isValid) {
+      throw ArgumentError(validationResult.errorMessage);
+    }
     
     final apiKey = EnvConfig.geminiApiKey!;
     final modelName = model ?? _remoteConfig.geminiModel;
-    final base64Image = base64Encode(imageBytes);
 
-    final requestBody = {
-      'contents': [
-        {
-          'parts': [
-            {'text': prompt},
-            {
-              'inline_data': {
-                'mime_type': 'image/jpeg',
-                'data': base64Image,
-              },
-            },
-          ],
-        },
-      ],
-      'generationConfig': {
-        'temperature': _remoteConfig.temperature,
-        'maxOutputTokens': _remoteConfig.maxOutputTokens,
-        'topK': _remoteConfig.topK,
-        'topP': _remoteConfig.topP,
-      },
-    };
+    final requestBody = _requestBuilder.buildMultimodalRequest(
+      prompt: prompt,
+      imageBytes: imageBytes,
+      model: modelName,
+      config: _remoteConfig,
+    );
 
     log('📡 Making multimodal Gemini API request...');
     log('🔧 Model: $modelName');
@@ -214,7 +206,7 @@ class GeminiAIService implements AIService {
         )
         .timeout(_remoteConfig.requestTimeout);
 
-    return _handleApiResponse(response);
+    return _responseHandler.handleTextResponse(response);
   }
 
   /// Make an image generation request to Gemini API
