@@ -383,7 +383,44 @@ class GeminiAIService implements AIService {
 
   /// Handle API response and extract text
   String _handleApiResponse(http.Response response) {
-    if (response.statusCode == 200) {
+    try {
+      if (response.statusCode == 400) {
+        final errorBody = response.body;
+        log('❌ Gemini API 400 error details: $errorBody');
+        
+        // Parse specific 400 errors
+        try {
+          final errorData = jsonDecode(errorBody);
+          if (errorData['error'] != null) {
+            final errorMessage = errorData['error']['message'] ?? 'Bad request';
+            final errorCode = errorData['error']['code'] ?? 400;
+            throw Exception('Gemini API error ($errorCode): $errorMessage');
+          }
+        } catch (parseError) {
+          log('⚠️ Could not parse error response: $parseError');
+        }
+        
+        throw Exception('Gemini API bad request (400): Check your request format and API key');
+      }
+      
+      if (response.statusCode == 401) {
+        throw Exception('Gemini API unauthorized (401): Invalid API key');
+      }
+      
+      if (response.statusCode == 403) {
+        throw Exception('Gemini API forbidden (403): API key may be restricted or quota exceeded');
+      }
+      
+      if (response.statusCode == 429) {
+        throw Exception('Gemini API rate limited (429): Too many requests');
+      }
+      
+      if (response.statusCode != 200) {
+        log('❌ Gemini API error: ${response.statusCode}');
+        log('📝 Response: ${response.body}');
+        throw Exception('Gemini API error: ${response.statusCode} - ${response.body}');
+      }
+
       final data = jsonDecode(response.body);
 
       if (data['candidates'] == null || data['candidates'].isEmpty) {
@@ -391,8 +428,13 @@ class GeminiAIService implements AIService {
       }
 
       final candidate = data['candidates'][0];
-      if (candidate['content'] == null ||
-          candidate['content']['parts'] == null) {
+      
+      // Check for content filtering
+      if (candidate['finishReason'] == 'SAFETY') {
+        throw Exception('Content was filtered by Gemini safety filters');
+      }
+      
+      if (candidate['content'] == null || candidate['content']['parts'] == null) {
         throw Exception('No content parts in Gemini API response');
       }
 
@@ -407,11 +449,10 @@ class GeminiAIService implements AIService {
       }
 
       return textParts.first.trim();
-    } else {
-      log('❌ Gemini API error: ${response.statusCode}');
-      log('📝 Response: ${response.body}');
-      throw Exception(
-          'Gemini API error: ${response.statusCode} - ${response.body}');
+    } catch (e, stackTrace) {
+      log('❌ Error handling API response: $e');
+      log('❌ Stack trace: $stackTrace');
+      rethrow;
     }
   }
 
