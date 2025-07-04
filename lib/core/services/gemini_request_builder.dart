@@ -90,7 +90,8 @@ class GeminiRequestBuilder {
   }) {
     final base64Image = base64Encode(imageBytes);
 
-    return {
+    // Build the optimized request for segmentation
+    final request = <String, dynamic>{
       GeminiConstants.contentsKey: [
         {
           GeminiConstants.partsKey: [
@@ -107,6 +108,20 @@ class GeminiRequestBuilder {
       ],
       GeminiConstants.generationConfigKey: _buildSegmentationConfig(),
     };
+
+    // Add system instruction for better segmentation results
+    // Keep this simple to avoid API issues
+    request[GeminiConstants.systemInstructionKey] = {
+      GeminiConstants.partsKey: [
+        {
+          GeminiConstants.textKey: 
+              'You are an expert image segmentation assistant. '
+              'Always respond with valid JSON containing segmentation data.'
+        }
+      ]
+    };
+
+    return request;
   }
 
   /// Builds an object detection request
