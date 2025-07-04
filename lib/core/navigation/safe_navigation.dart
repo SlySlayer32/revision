@@ -200,7 +200,7 @@ class SafeNavigation {
     TO? result,
   }) async {
     try {
-      final routeName = newRoute.settings?.name ?? 'unnamed';
+      final routeName = newRoute.settings.name ?? 'unnamed';
       
       if (kDebugMode) {
         debugPrint('🔗 SafeNavigation: Replacing with route: $routeName');
