@@ -203,7 +203,7 @@ class GeminiAIService implements AIService {
         )
         .timeout(_remoteConfig.requestTimeout);
 
-    return _responseHandler.handleTextResponse(response);
+    return GeminiResponseHandler.handleTextResponse(response);
   }
 
   /// Make an image generation request to Gemini API
