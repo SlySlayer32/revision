@@ -21,13 +21,6 @@ class SafeNavigation {
       }
 
       final settings = route.settings;
-      if (settings == null) {
-        if (kDebugMode) {
-          debugPrint('⚠️ SafeNavigation: No RouteSettings found');
-        }
-        return null;
-      }
-
       final arguments = settings.arguments;
       if (arguments == null) {
         if (kDebugMode) {
