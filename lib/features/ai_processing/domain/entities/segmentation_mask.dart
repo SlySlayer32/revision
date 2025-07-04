@@ -175,8 +175,9 @@ class SegmentationMask extends Equatable {
     );
   }
 
-  /// Check if a point is inside the segmented object using the mask
+  /// Check if a point is inside the segmented object using polygon or bounding box
   bool containsPoint(int x, int y, int imageWidth, int imageHeight) {
+    // Convert normalized coordinates to absolute
     final absoluteBox = toAbsoluteCoordinates(imageWidth, imageHeight);
 
     // Check if point is within bounding box first
@@ -187,16 +188,42 @@ class SegmentationMask extends Equatable {
       return false;
     }
 
-    // Calculate relative position within the mask
-    final maskWidth = (absoluteBox.x1 - absoluteBox.x0).round();
-    final maskHeight = (absoluteBox.y1 - absoluteBox.y0).round();
+    // If polygon is available, use ray casting algorithm for precise detection
+    if (polygon.isNotEmpty) {
+      return _isPointInPolygon(x, y, imageWidth, imageHeight);
+    }
 
-    if (maskWidth <= 0 || maskHeight <= 0) return false;
+    // If no polygon, use bounding box as fallback
+    return true;
+  }
 
-    // For now, return true if within bounding box (placeholder)
-    // In production, you'd decode the PNG mask and check the actual pixel value
-    // at the relative coordinates to determine if it's above the threshold (127)
-    return true; // Placeholder implementation
+  /// Ray casting algorithm to check if point is inside polygon
+  bool _isPointInPolygon(int x, int y, int imageWidth, int imageHeight) {
+    if (polygon.length < 3) return false;
+
+    // Convert normalized polygon coordinates to absolute
+    final absolutePolygon = polygon.map((point) => [
+      (point[0] / 1000) * imageWidth,
+      (point[1] / 1000) * imageHeight,
+    ]).toList();
+
+    bool inside = false;
+    int j = absolutePolygon.length - 1;
+
+    for (int i = 0; i < absolutePolygon.length; i++) {
+      final xi = absolutePolygon[i][0];
+      final yi = absolutePolygon[i][1];
+      final xj = absolutePolygon[j][0];
+      final yj = absolutePolygon[j][1];
+
+      if (((yi > y) != (yj > y)) &&
+          (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
+        inside = !inside;
+      }
+      j = i;
+    }
+
+    return inside;
   }
 
   static Uint8List _base64ToUint8List(String base64String) {
