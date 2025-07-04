@@ -272,43 +272,24 @@ Provide a clear, actionable editing prompt.
 
   /// Builds a production-grade segmentation prompt with detailed specifications
   static String buildSegmentationPrompt({String? targetObjects}) {
-    final basePrompt = '''
-OBJECT DETECTION AND SEGMENTATION TASK: Analyze image and provide object information.
-
-OUTPUT FORMAT: Return ONLY a valid JSON array with this exact structure:
-[
-  {
-    "box_2d": [y0, x0, y1, x1],
-    "polygon": [[x1,y1], [x2,y2], [x3,y3], [x4,y4]],
-    "label": "descriptive_object_name",
-    "confidence": 0.95,
-    "area_percentage": 15.2
-  }
-]
-
-REQUIREMENTS:
-- box_2d coordinates must be normalized to 0-1000 scale (ymin, xmin, ymax, xmax)
-- polygon provides approximate object boundary as array of [x,y] points (normalized 0-1000)
-- label must be descriptive and specific (e.g., "wooden dining chair", not just "chair")
-- confidence score between 0.0 and 1.0
-- area_percentage: estimated percentage of image area occupied by object
-- Only include objects with confidence > 0.5
-- Maximum 10 objects per response
-- Polygon should have 4-8 points defining the object boundary''';
-
     if (targetObjects != null && targetObjects.isNotEmpty) {
-      return '''$basePrompt
+      return '''
+Give the segmentation masks for the $targetObjects.
+Output a JSON list of segmentation masks where each entry contains the 2D
+bounding box in the key "box_2d", the segmentation mask in key "mask", and
+the text label in the key "label". Use descriptive labels.
 
-TARGET OBJECTS: Focus specifically on detecting and segmenting: $targetObjects
-Only include these object types in the response.''';
+The box_2d should be [ymin, xmin, ymax, xmax] normalized to 0-1000.
+''';
     } else {
-      return '''$basePrompt
+      return '''
+Give the segmentation masks for all prominent objects in the image.
+Output a JSON list of segmentation masks where each entry contains the 2D
+bounding box in the key "box_2d", the segmentation mask in key "mask", and
+the text label in the key "label". Use descriptive labels.
 
-TARGET OBJECTS: Detect and segment all prominent, clearly visible objects in the image.
-Prioritize objects that are:
-- Well-defined with clear boundaries
-- Significant in size relative to the image
-- Not part of the background or scene setting''';
+The box_2d should be [ymin, xmin, ymax, xmax] normalized to 0-1000.
+''';
     }
   }
 
