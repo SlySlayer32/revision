@@ -1,29 +1,31 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
-
+import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:revision/core/config/env_config.dart';
 
-/// Simple test to verify Gemini API connectivity and basic functionality
-void main() async {
-  log('🧪 Testing Gemini API connectivity...');
+void main() {
+  testWidgets('Gemini API connectivity test', (WidgetTester tester) async {
+    // Load environment variables
+    await dotenv.load(fileName: ".env.development");
 
-  final apiKey = EnvConfig.geminiApiKey;
+    log('🧪 Testing Gemini API connectivity...');
 
-  if (apiKey == null || apiKey.isEmpty) {
-    log('❌ API key not found. Make sure to set GEMINI_API_KEY environment variable.');
-    log('💡 Run with: dart run test_api_connectivity.dart --dart-define=GEMINI_API_KEY=your_key');
-    exit(1);
-  }
+    final apiKey = EnvConfig.geminiApiKey;
 
-  log('✅ API key found (length: ${apiKey.length})');
+    expect(apiKey, isNotNull, reason: 'API key should not be null');
+    expect(apiKey, isNotEmpty, reason: 'API key should not be empty');
 
-  // Test basic text request first
-  await testBasicTextRequest(apiKey);
+    log('✅ API key found (length: ${apiKey!.length})');
 
-  // If basic text works, test multimodal
-  await testSimpleImageRequest(apiKey);
+    // Test basic text request first
+    await testBasicTextRequest(apiKey);
+
+    // If basic text works, test multimodal
+    await testSimpleImageRequest(apiKey);
+  });
 }
 
 Future<void> testBasicTextRequest(String apiKey) async {
@@ -56,29 +58,15 @@ Future<void> testBasicTextRequest(String apiKey) async {
     log('📥 Text request status: ${response.statusCode}');
     log('📄 Text response length: ${response.body.length}');
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      log('✅ Basic text request successful');
-      log('📋 Response structure: ${data.keys.toList()}');
+    expect(response.statusCode, 200, reason: 'Text request should be successful');
 
-      if (data.containsKey('candidates')) {
-        final candidates = data['candidates'] as List;
-        if (candidates.isNotEmpty) {
-          final candidate = candidates.first;
-          log('👤 Candidate keys: ${candidate.keys.toList()}');
+    final data = jsonDecode(response.body);
+    log('✅ Basic text request successful');
+    log('📋 Response structure: ${data.keys.toList()}');
 
-          if (candidate.containsKey('content')) {
-            final content = candidate['content'];
-            log('📄 Content keys: ${content.keys.toList()}');
-          }
-        }
-      }
-    } else {
-      log('❌ Text request failed: ${response.statusCode}');
-      log('📄 Error response: ${response.body}');
-    }
+    expect(data.containsKey('candidates'), isTrue, reason: 'Response should contain candidates');
   } catch (e) {
-    log('❌ Text request error: $e');
+    fail('Text request failed with error: $e');
   }
 }
 
@@ -122,15 +110,12 @@ Future<void> testSimpleImageRequest(String apiKey) async {
     log('📥 Image request status: ${response.statusCode}');
     log('📄 Image response length: ${response.body.length}');
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      log('✅ Image request successful');
-      log('📋 Response structure: ${data.keys.toList()}');
-    } else {
-      log('❌ Image request failed: ${response.statusCode}');
-      log('📄 Error response: ${response.body}');
-    }
+    expect(response.statusCode, 200, reason: 'Image request should be successful');
+
+    final data = jsonDecode(response.body);
+    log('✅ Image request successful');
+    log('📋 Response structure: ${data.keys.toList()}');
   } catch (e) {
-    log('❌ Image request error: $e');
+    fail('Image request failed with error: $e');
   }
 }
