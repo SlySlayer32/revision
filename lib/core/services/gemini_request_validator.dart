@@ -29,15 +29,15 @@ class GeminiRequestValidator {
   /// Validates a text prompt
   ValidationResult validatePrompt(String prompt) {
     final trimmedPrompt = prompt.trim();
-    
+
     if (trimmedPrompt.isEmpty) {
       return const ValidationResult.failure(GeminiConstants.promptEmptyError);
     }
-    
+
     if (trimmedPrompt.length > GeminiConstants.maxPromptLength) {
       return const ValidationResult.failure(GeminiConstants.promptTooLongError);
     }
-    
+
     return const ValidationResult.success();
   }
 
@@ -46,28 +46,30 @@ class GeminiRequestValidator {
     if (imageBytes == null) {
       return const ValidationResult.success(); // Optional image is valid
     }
-    
+
     if (imageBytes.isEmpty) {
       return const ValidationResult.failure(GeminiConstants.imageEmptyError);
     }
-    
+
     if (imageBytes.length > GeminiConstants.maxImageSizeBytes) {
       return const ValidationResult.failure(GeminiConstants.imageTooLargeError);
     }
-    
+
     return const ValidationResult.success();
   }
 
   /// Validates API key
   ValidationResult validateApiKey(String? apiKey) {
     if (apiKey == null || apiKey.isEmpty) {
-      return const ValidationResult.failure(GeminiConstants.apiKeyNotConfiguredError);
+      return const ValidationResult.failure(
+          GeminiConstants.apiKeyNotConfiguredError);
     }
-    
+
     if (apiKey.length < GeminiConstants.minApiKeyLength) {
-      return const ValidationResult.failure(GeminiConstants.invalidApiKeyFormatError);
+      return const ValidationResult.failure(
+          GeminiConstants.invalidApiKeyFormatError);
     }
-    
+
     return const ValidationResult.success();
   }
 
@@ -82,20 +84,20 @@ class GeminiRequestValidator {
     if (!promptResult.isValid) {
       return promptResult;
     }
-    
+
     // Validate image bytes if provided
     final imageResult = validateImageBytes(imageBytes);
     if (!imageResult.isValid) {
       return imageResult;
     }
-    
+
     // Validate API key
     final apiKey = EnvConfig.geminiApiKey;
     final apiKeyResult = validateApiKey(apiKey);
     if (!apiKeyResult.isValid) {
       return apiKeyResult;
     }
-    
+
     return const ValidationResult.success();
   }
 
@@ -104,24 +106,27 @@ class GeminiRequestValidator {
     if (markers.isEmpty) {
       return const ValidationResult.failure('At least one marker is required');
     }
-    
+
     for (final marker in markers) {
       if (!marker.containsKey('x') || !marker.containsKey('y')) {
-        return const ValidationResult.failure('Markers must contain x and y coordinates');
+        return const ValidationResult.failure(
+            'Markers must contain x and y coordinates');
       }
-      
+
       final x = marker['x'];
       final y = marker['y'];
-      
+
       if (x is! num || y is! num) {
-        return const ValidationResult.failure('Marker coordinates must be numbers');
+        return const ValidationResult.failure(
+            'Marker coordinates must be numbers');
       }
-      
+
       if (x < 0 || y < 0) {
-        return const ValidationResult.failure('Marker coordinates must be positive');
+        return const ValidationResult.failure(
+            'Marker coordinates must be positive');
       }
     }
-    
+
     return const ValidationResult.success();
   }
 
@@ -130,16 +135,18 @@ class GeminiRequestValidator {
     if (model != null && model.trim().isEmpty) {
       return const ValidationResult.failure('Model name cannot be empty');
     }
-    
+
     return const ValidationResult.success();
   }
 
   /// Validates confidence threshold for segmentation
-  static ValidationResult validateConfidenceThreshold(double confidenceThreshold) {
+  static ValidationResult validateConfidenceThreshold(
+      double confidenceThreshold) {
     if (confidenceThreshold < 0.0 || confidenceThreshold > 1.0) {
-      return const ValidationResult.failure('Confidence threshold must be between 0.0 and 1.0');
+      return const ValidationResult.failure(
+          'Confidence threshold must be between 0.0 and 1.0');
     }
-    
+
     return const ValidationResult.success();
   }
 
@@ -166,5 +173,63 @@ class GeminiRequestValidator {
       imageBytes: imageBytes,
       model: model,
     );
+  }
+
+  /// Validates a segmentation request with production-grade checks
+  ValidationResult validateSegmentationRequest({
+    required String prompt,
+    required Uint8List imageBytes,
+    String? targetObjects,
+    double confidenceThreshold = 0.5,
+  }) {
+    // First run standard validation
+    final basicValidation = validateMultimodalRequest(
+      prompt: prompt,
+      imageBytes: imageBytes,
+    );
+
+    if (!basicValidation.isValid) {
+      return basicValidation;
+    }
+
+    // Validate confidence threshold
+    if (confidenceThreshold < 0.0 || confidenceThreshold > 1.0) {
+      return const ValidationResult.failure(
+        'Confidence threshold must be between 0.0 and 1.0'
+      );
+    }
+
+    // Validate target objects format
+    if (targetObjects != null && targetObjects.isNotEmpty) {
+      final trimmedTargets = targetObjects.trim();
+      if (trimmedTargets.length > 200) {
+        return const ValidationResult.failure(
+          'Target objects description is too long (max 200 characters)'
+        );
+      }
+      
+      // Check for potentially problematic characters
+      if (trimmedTargets.contains(RegExp(r'[<>{}[\]"\'\\]'))) {
+        return const ValidationResult.failure(
+          'Target objects contains invalid characters'
+        );
+      }
+    }
+
+    // Validate image size for segmentation (more restrictive)
+    if (imageBytes.length > 15 * 1024 * 1024) { // 15MB max for segmentation
+      return const ValidationResult.failure(
+        'Image too large for segmentation (max 15MB recommended)'
+      );
+    }
+
+    // Check for minimum image size
+    if (imageBytes.length < 1024) { // 1KB minimum
+      return const ValidationResult.failure(
+        'Image too small for reliable segmentation'
+      );
+    }
+
+    return const ValidationResult.success();
   }
 }
