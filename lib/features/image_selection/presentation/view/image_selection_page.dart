@@ -226,10 +226,13 @@ class _ImageSelectionView extends StatelessWidget {
 
   void _navigateToAnnotation(
       BuildContext context, SelectedImage selectedImage) {
-    // Navigate to AI processing page with Gemini segmentation
-    Navigator.push(
+    // Navigate to AI processing page with Gemini segmentation using safe navigation
+    SafeNavigation.pushNamed(
       context,
-      AiProcessingPage.route(selectedImage),
+      RouteNames.aiProcessing,
+      arguments: NavigationArguments.aiProcessing(
+        selectedImage: selectedImage,
+      ),
     );
   }
 }
