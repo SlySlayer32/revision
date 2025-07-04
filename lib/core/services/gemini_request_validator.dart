@@ -142,4 +142,29 @@ class GeminiRequestValidator {
     
     return const ValidationResult.success();
   }
+
+  /// Validates a text-only request
+  static ValidationResult validateTextRequest({
+    required String prompt,
+    String? model,
+  }) {
+    return validateApiRequest(
+      prompt: prompt,
+      imageBytes: null,
+      model: model,
+    );
+  }
+
+  /// Validates a multimodal request
+  static ValidationResult validateMultimodalRequest({
+    required String prompt,
+    required Uint8List imageBytes,
+    String? model,
+  }) {
+    return validateApiRequest(
+      prompt: prompt,
+      imageBytes: imageBytes,
+      model: model,
+    );
+  }
 }
