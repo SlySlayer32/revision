@@ -59,7 +59,7 @@ class GeminiRequestValidator {
   }
 
   /// Validates API key
-  static ValidationResult validateApiKey(String? apiKey) {
+  ValidationResult validateApiKey(String? apiKey) {
     if (apiKey == null || apiKey.isEmpty) {
       return const ValidationResult.failure(GeminiConstants.apiKeyNotConfiguredError);
     }
