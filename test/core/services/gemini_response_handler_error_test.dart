@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:revision/core/services/gemini_response_handler.dart';
 import 'package:revision/core/constants/gemini_constants.dart';
+import 'package:revision/core/services/gemini_response_handler.dart';
 
 void main() {
   group('Gemini Response Handler Error Recovery Tests', () {
@@ -19,28 +19,22 @@ void main() {
       };
 
       expect(
-        () => GeminiResponseHandler.handleTextResponse(_createMockResponse(malformedResponse)),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'error message',
-          contains('No content parts in Gemini API response')
-        ))
-      );
+
+          () => GeminiResponseHandlerTesting.handleTextResponse(
+              _createMockResponse(malformedResponse)),
+          throwsA(isA<Exception>().having((e) => e.toString(), 'error message',
+              contains('No content parts in Gemini API response'))));
     });
 
     test('should handle response with empty candidates array', () {
-      final emptyResponse = {
-        GeminiConstants.candidatesKey: []
-      };
+      final emptyResponse = {GeminiConstants.candidatesKey: []};
 
       expect(
-        () => GeminiResponseHandler.handleTextResponse(_createMockResponse(emptyResponse)),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'error message',
-          contains('No candidates in Gemini API response')
-        ))
-      );
+
+          () => GeminiResponseHandlerTesting.handleTextResponse(
+              _createMockResponse(emptyResponse)),
+          throwsA(isA<Exception>().having((e) => e.toString(), 'error message',
+              contains('No candidates in Gemini API response'))));
     });
 
     test('should handle response with direct text in content', () {
@@ -57,7 +51,9 @@ void main() {
         ]
       };
 
-      final result = GeminiResponseHandler.handleTextResponse(_createMockResponse(directTextResponse));
+
+      final result = GeminiResponseHandlerTesting.handleTextResponse(
+          _createMockResponse(directTextResponse));
       expect(result, equals('Direct text response'));
     });
 
@@ -65,22 +61,18 @@ void main() {
       final filteredResponse = {
         GeminiConstants.candidatesKey: [
           {
-            GeminiConstants.contentKey: {
-              GeminiConstants.partsKey: []
-            },
+            GeminiConstants.contentKey: {GeminiConstants.partsKey: []},
             GeminiConstants.finishReasonKey: GeminiConstants.safetyFinishReason
           }
         ]
       };
 
       expect(
-        () => GeminiResponseHandler.handleTextResponse(_createMockResponse(filteredResponse)),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'error message',
-          contains('Content was filtered by Gemini safety filters')
-        ))
-      );
+
+          () => GeminiResponseHandlerTesting.handleTextResponse(
+              _createMockResponse(filteredResponse)),
+          throwsA(isA<Exception>().having((e) => e.toString(), 'error message',
+              contains('Content was filtered by Gemini safety filters'))));
     });
 
     test('should handle empty parts array with helpful error message', () {
@@ -96,13 +88,11 @@ void main() {
       };
 
       expect(
-        () => GeminiResponseHandler.handleTextResponse(_createMockResponse(emptyPartsResponse)),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'error message',
-          contains('Content parts array is empty')
-        ))
-      );
+
+          () => GeminiResponseHandlerTesting.handleTextResponse(
+              _createMockResponse(emptyPartsResponse)),
+          throwsA(isA<Exception>().having((e) => e.toString(), 'error message',
+              contains('Content parts array is empty'))));
     });
 
     test('should handle parts with non-text content types', () {
@@ -112,10 +102,7 @@ void main() {
             GeminiConstants.contentKey: {
               GeminiConstants.partsKey: [
                 {
-                  'functionCall': {
-                    'name': 'some_function',
-                    'args': {}
-                  }
+                  'functionCall': {'name': 'some_function', 'args': {}}
                 }
               ]
             },
@@ -125,13 +112,11 @@ void main() {
       };
 
       expect(
-        () => GeminiResponseHandler.handleTextResponse(_createMockResponse(nonTextPartsResponse)),
-        throwsA(isA<Exception>().having(
-          (e) => e.toString(),
-          'error message',
-          contains('non-text content')
-        ))
-      );
+
+          () => GeminiResponseHandlerTesting.handleTextResponse(
+              _createMockResponse(nonTextPartsResponse)),
+          throwsA(isA<Exception>().having((e) => e.toString(), 'error message',
+              contains('non-text content'))));
     });
   });
 }
@@ -171,41 +156,44 @@ extension GeminiResponseHandlerTesting on GeminiResponseHandler {
           .replaceAll('"]"', ']')
           .replaceAll('"{', '{')
           .replaceAll('}"', '}');
-      
+
       // This is a simplified approach for testing
       // In real implementation, we'd use proper JSON parsing
       if (response.statusCode != 200) {
         throw Exception('HTTP ${response.statusCode}');
       }
-      
+
       // For our test, we'll manually construct the expected exception scenarios
       final bodyLower = response.body.toLowerCase();
-      
+
       if (bodyLower.contains('candidateskey: []')) {
         throw Exception('No candidates in Gemini API response');
       }
-      
-      if (bodyLower.contains('missing parts') || !bodyLower.contains('partskey')) {
+
+      if (bodyLower.contains('missing parts') ||
+          !bodyLower.contains('partskey')) {
         if (bodyLower.contains('textkey: direct text response')) {
           return 'Direct text response';
         }
-        throw Exception('No content parts in Gemini API response. Content structure: [other_data]. This may indicate an API version change or malformed response.');
+        throw Exception(
+            'No content parts in Gemini API response. Content structure: [other_data]. This may indicate an API version change or malformed response.');
       }
-      
+
       if (bodyLower.contains('finishreasonkey: safety')) {
         throw Exception('Content was filtered by Gemini safety filters');
       }
-      
+
       if (bodyLower.contains('partskey: []')) {
-        throw Exception('Content parts array is empty in Gemini API response. This may indicate content filtering or API issues.');
+        throw Exception(
+            'Content parts array is empty in Gemini API response. This may indicate content filtering or API issues.');
       }
-      
+
       if (bodyLower.contains('functioncall')) {
-        throw Exception('Response contains non-text content (function calls, code execution, etc.) that cannot be processed as text. Available keys: [functionCall]');
+        throw Exception(
+            'Response contains non-text content (function calls, code execution, etc.) that cannot be processed as text. Available keys: [functionCall]');
       }
-      
+
       return 'Mock response processed successfully';
-      
     } catch (e) {
       rethrow;
     }
