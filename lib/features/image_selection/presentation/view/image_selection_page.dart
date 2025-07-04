@@ -222,12 +222,13 @@ class _ImageSelectionView extends StatelessWidget {
 
   void _navigateToAnnotation(
       BuildContext context, SelectedImage selectedImage) {
-    // Image annotation temporarily disabled during migration
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-            'Image annotation feature is being updated for REST API integration'),
-        duration: Duration(seconds: 3),
+    // Navigate to AI processing page with Gemini segmentation
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AIProcessingPage(
+          selectedImage: selectedImage,
+        ),
       ),
     );
   }
