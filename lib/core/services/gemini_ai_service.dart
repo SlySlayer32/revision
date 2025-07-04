@@ -703,11 +703,11 @@ the text label in the key "label". Use descriptive labels.
         )
         .timeout(_remoteConfig.requestTimeout);
 
-    return _responseHandler.handleTextResponse(response);
+    return GeminiResponseHandler.handleTextResponse(response);
   }
 
   /// Parse object detection response from Gemini API
   List<Map<String, dynamic>> _parseObjectDetectionResponse(String response) {
-    return _responseHandler.parseObjectDetectionResponse(response);
+    return GeminiResponseHandler.parseObjectDetectionResponse(response);
   }
 }
