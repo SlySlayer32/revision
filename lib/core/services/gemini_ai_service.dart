@@ -217,33 +217,12 @@ class GeminiAIService implements AIService {
     final apiKey = EnvConfig.geminiApiKey!;
     final modelName = _remoteConfig.geminiImageModel;
 
-    final parts = <Map<String, dynamic>>[];
-    parts.add({'text': prompt});
-
-    if (inputImage != null) {
-      final base64Image = base64Encode(inputImage);
-      parts.add({
-        'inline_data': {
-          'mime_type': 'image/jpeg',
-          'data': base64Image,
-        },
-      });
-    }
-
-    final requestBody = {
-      'contents': [
-        {
-          'parts': parts,
-        },
-      ],
-      'generationConfig': {
-        'temperature':
-            _remoteConfig.temperature * 0.75, // Lower for image generation
-        'maxOutputTokens': _remoteConfig.maxOutputTokens * 2,
-        'topK': 32,
-        'topP': 0.9,
-      },
-    };
+    final requestBody = _requestBuilder.buildImageGenerationRequest(
+      prompt: prompt,
+      inputImage: inputImage,
+      model: modelName,
+      config: _remoteConfig,
+    );
 
     log('🎨 Making image generation request...');
     log('📡 Model: $modelName');
@@ -256,9 +235,9 @@ class GeminiAIService implements AIService {
         )
         .timeout(_remoteConfig.requestTimeout);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == GeminiConstants.httpOk) {
       final data = jsonDecode(response.body);
-      return _extractImageFromResponse(data);
+      return _responseHandler.extractImageFromResponse(data);
     } else {
       log('❌ Image generation API error: ${response.statusCode}');
       log('📝 Response: ${response.body}');
