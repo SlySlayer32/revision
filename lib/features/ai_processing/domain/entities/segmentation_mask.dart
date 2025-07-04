@@ -8,15 +8,19 @@ import 'package:equatable/equatable.dart';
 /// Corresponds to the JSON output format from Gemini 2.5:
 /// {
 ///   "box_2d": [y0, x0, y1, x1],
+///   "polygon": [[x1,y1], [x2,y2], [x3,y3], [x4,y4]],
 ///   "label": "object name",
-///   "mask": "data:image/png;base64,..."
+///   "confidence": 0.95,
+///   "area_percentage": 15.2
 /// }
 class SegmentationMask extends Equatable {
   const SegmentationMask({
     required this.boundingBox,
     required this.label,
-    required this.maskData,
     required this.confidence,
+    this.polygon = const [],
+    this.areaPercentage = 0.0,
+    this.maskData,
   });
 
   /// Bounding box coordinates in normalized format [y0, x0, y1, x1]
@@ -26,14 +30,21 @@ class SegmentationMask extends Equatable {
   /// Descriptive label for the segmented object
   final String label;
 
-  /// Base64 encoded PNG mask data (probability map with values 0-255)
-  final Uint8List maskData;
-
   /// Confidence score for the segmentation (0.0 to 1.0)
   final double confidence;
 
+  /// Polygon coordinates defining the object boundary
+  /// Each point is [x, y] in normalized coordinates (0-1000)
+  final List<List<double>> polygon;
+
+  /// Estimated percentage of image area occupied by the object
+  final double areaPercentage;
+
+  /// Optional base64 encoded PNG mask data (for backward compatibility)
+  final Uint8List? maskData;
+
   @override
-  List<Object?> get props => [boundingBox, label, maskData, confidence];
+  List<Object?> get props => [boundingBox, label, confidence, polygon, areaPercentage, maskData];
 
   /// Factory constructor from Gemini API JSON response with production-grade error handling
   factory SegmentationMask.fromJson(Map<String, dynamic> json) {
@@ -45,7 +56,8 @@ class SegmentationMask extends Equatable {
 
       final box2d = json['box_2d'] as List<dynamic>?;
       if (box2d == null || box2d.length != 4) {
-        throw const FormatException('Invalid box_2d format: expected [y0, x0, y1, x1]');
+        throw const FormatException(
+            'Invalid box_2d format: expected [y0, x0, y1, x1]');
       }
 
       // Handle mask data gracefully
@@ -85,7 +97,9 @@ class SegmentationMask extends Equatable {
           x1: (box2d[3] as num).toDouble(),
         ),
         label: label.trim(),
-        maskData: cleanBase64.isNotEmpty ? _base64ToUint8List(cleanBase64) : Uint8List(0),
+        maskData: cleanBase64.isNotEmpty
+            ? _base64ToUint8List(cleanBase64)
+            : Uint8List(0),
         confidence: confidence,
       );
     } catch (e) {
