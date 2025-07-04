@@ -119,7 +119,7 @@ class NavigationUtils {
       if (kDebugMode) {
         debugPrint('✅ Successfully navigated to named route: $routeName');
       }
-      return result;
+      return result as T?;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('❌ Named navigation error to $routeName: $e');
