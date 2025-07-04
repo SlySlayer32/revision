@@ -609,8 +609,8 @@ the text label in the key "label". Use descriptive labels.
       return const SegmentationResult(
         masks: [],
         processingTimeMs: 0,
-        imageWidth: 1024,
-        imageHeight: 1024,
+        imageWidth: GeminiConstants.defaultImageWidth,
+        imageHeight: GeminiConstants.defaultImageHeight,
         confidence: 0.0,
       );
     });
