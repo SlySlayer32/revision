@@ -586,9 +586,9 @@ the text label in the key "label". Use descriptive labels.
         final segmentationData = _parseSegmentationResponse(response);
 
         // Get image dimensions (placeholder - in practice you'd decode the image)
-        // For now, assume common dimensions
-        const imageWidth = 1024;
-        const imageHeight = 1024;
+        // For now, assume common dimensions from constants
+        const imageWidth = GeminiConstants.defaultImageWidth;
+        const imageHeight = GeminiConstants.defaultImageHeight;
 
         final result = SegmentationResult.fromJson(
           segmentationData,
