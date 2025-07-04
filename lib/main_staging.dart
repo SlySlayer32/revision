@@ -18,5 +18,5 @@ Future<void> main() async {
     debugPrint('❌ Firebase initialization failed: $e');
   }
 
-  bootstrap(() => const App());
+  await bootstrap(() => const App());
 }
