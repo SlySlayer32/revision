@@ -190,7 +190,6 @@ class GeminiAIService implements AIService {
       prompt: prompt,
       imageBytes: imageBytes,
       model: modelName,
-      config: _remoteConfig,
     );
 
     log('📡 Making multimodal Gemini API request...');
