@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:revision/core/di/service_locator.dart';
 import 'package:revision/features/ai_processing/domain/usecases/generate_segmentation_masks_usecase.dart';
 import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
-import 'package:revision/core/di/service_locator.dart';
 
 /// Widget that provides AI-powered object segmentation using Gemini 2.5
 ///
@@ -21,7 +21,8 @@ class AISegmentationWidget extends StatefulWidget {
 }
 
 class _AISegmentationWidgetState extends State<AISegmentationWidget> {
-  final TextEditingController _targetObjectsController = TextEditingController();
+  final TextEditingController _targetObjectsController =
+      TextEditingController();
   double _confidenceThreshold = 0.7;
   bool _isSegmenting = false;
 
@@ -52,20 +53,21 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 16),
-            
+
             // Target objects input
             TextField(
               controller: _targetObjectsController,
               decoration: const InputDecoration(
                 labelText: 'Target Objects (Optional)',
-                hintText: 'e.g., "wooden and glass items", "furniture", "people"',
+                hintText:
+                    'e.g., "wooden and glass items", "furniture", "people"',
                 border: OutlineInputBorder(),
                 helperText: 'Leave empty to detect all prominent objects',
               ),
               maxLines: 2,
             ),
             const SizedBox(height: 16),
-            
+
             // Confidence threshold slider
             Row(
               children: [
@@ -89,21 +91,21 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Segmentation button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: _isSegmenting ? null : _startSegmentation,
-                icon: _isSegmenting 
+                icon: _isSegmenting
                     ? const SizedBox(
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.auto_awesome),
-                label: Text(_isSegmenting 
-                    ? 'Detecting Objects...' 
+                label: Text(_isSegmenting
+                    ? 'Detecting Objects...'
                     : 'Start AI Segmentation'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -111,7 +113,7 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
               ),
             ),
             const SizedBox(height: 8),
-            
+
             // Help text
             const Text(
               'AI will analyze your image and create precise masks for object removal or editing.',
@@ -139,12 +141,12 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
     try {
       // Get the segmentation use case from service locator
       final segmentationUseCase = getIt<GenerateSegmentationMasksUseCase>();
-      
+
       // Start segmentation
       final result = await segmentationUseCase(
         widget.selectedImage.bytes!,
-        targetObjects: _targetObjectsController.text.trim().isNotEmpty 
-            ? _targetObjectsController.text.trim() 
+        targetObjects: _targetObjectsController.text.trim().isNotEmpty
+            ? _targetObjectsController.text.trim()
             : null,
         confidenceThreshold: _confidenceThreshold,
       );
@@ -153,8 +155,7 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
         result.when(
           success: (segmentationResult) {
             _showSuccessMessage(
-              'Successfully detected ${segmentationResult.masks.length} objects!'
-            );
+                'Successfully detected ${segmentationResult.masks.length} objects!');
             // TODO: Navigate to mask editing interface or display results
           },
           failure: (error) {
