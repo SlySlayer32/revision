@@ -137,27 +137,24 @@ class GeminiAIService implements AIService {
     required String prompt,
     String? model,
   }) async {
-    // Validate request parameters
-    _validateApiRequest(prompt: prompt, model: model);
+    // Validate request parameters using extracted validator
+    final validationResult = _requestValidator.validateTextRequest(
+      prompt: prompt,
+      model: model,
+    );
+    
+    if (!validationResult.isValid) {
+      throw ArgumentError(validationResult.errorMessage);
+    }
     
     final apiKey = EnvConfig.geminiApiKey!;
     final modelName = model ?? _remoteConfig.geminiModel;
 
-    final requestBody = {
-      'contents': [
-        {
-          'parts': [
-            {'text': prompt},
-          ],
-        },
-      ],
-      'generationConfig': {
-        'temperature': _remoteConfig.temperature,
-        'maxOutputTokens': _remoteConfig.maxOutputTokens,
-        'topK': _remoteConfig.topK,
-        'topP': _remoteConfig.topP,
-      },
-    };
+    final requestBody = _requestBuilder.buildTextRequest(
+      prompt: prompt,
+      model: modelName,
+      config: _remoteConfig,
+    );
 
     final response = await _httpClient
         .post(
@@ -167,7 +164,7 @@ class GeminiAIService implements AIService {
         )
         .timeout(_remoteConfig.requestTimeout);
 
-    return _handleApiResponse(response);
+    return _responseHandler.handleTextResponse(response);
   }
 
   /// Make a multimodal request to Gemini API
