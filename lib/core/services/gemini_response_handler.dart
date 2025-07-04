@@ -217,4 +217,42 @@ class GeminiResponseHandler {
             'Marker at (${marker['x']}, ${marker['y']}): ${marker['description'] ?? 'Object to edit'}')
         .join('\n');
   }
+
+  /// Parse object detection response from Gemini API
+  static List<Map<String, dynamic>> parseObjectDetectionResponse(String response) {
+    try {
+      // Clean up the response to extract JSON
+      String cleanedResponse = response.trim();
+
+      // Remove markdown code blocks if present
+      if (cleanedResponse.startsWith('```json')) {
+        final lines = cleanedResponse.split('\n');
+        final startIndex =
+            lines.indexWhere((line) => line.trim() == '```json') + 1;
+        final endIndex = lines.lastIndexWhere((line) => line.trim() == '```');
+        if (startIndex > 0 && endIndex > startIndex) {
+          cleanedResponse = lines.sublist(startIndex, endIndex).join('\n');
+        }
+      }
+
+      // Try to parse as JSON
+      final jsonData = jsonDecode(cleanedResponse);
+
+      if (jsonData is List) {
+        return List<Map<String, dynamic>>.from(jsonData);
+      } else if (jsonData is Map<String, dynamic> &&
+          jsonData.containsKey('objects')) {
+        return List<Map<String, dynamic>>.from(jsonData['objects']);
+      } else {
+        throw const FormatException(
+            'Unexpected JSON structure for object detection');
+      }
+    } catch (e) {
+      log('❌ Failed to parse object detection response: $e');
+      log('📝 Raw response: $response');
+
+      // Return empty list on parse error
+      return [];
+    }
+  }
 }
