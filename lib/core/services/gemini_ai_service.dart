@@ -727,30 +727,13 @@ the text label in the key "label". Use descriptive labels.
   }) async {
     final apiKey = EnvConfig.geminiApiKey!;
     const modelName = 'gemini-2.0-flash-exp'; // Use 2.0+ for object detection
-    final base64Image = base64Encode(imageBytes);
 
-    final requestBody = {
-      'contents': [
-        {
-          'parts': [
-            {'text': prompt},
-            {
-              'inline_data': {
-                'mime_type': 'image/jpeg',
-                'data': base64Image,
-              },
-            },
-          ],
-        },
-      ],
-      'generationConfig': {
-        'temperature': 0.1, // Low temperature for consistent results
-        'maxOutputTokens': _remoteConfig.maxOutputTokens,
-        'topK': 32,
-        'topP': 0.9,
-        'response_mime_type': 'application/json', // Request JSON response
-      },
-    };
+    final requestBody = _requestBuilder.buildObjectDetectionRequest(
+      prompt: prompt,
+      imageBytes: imageBytes,
+      model: modelName,
+      config: _remoteConfig,
+    );
 
     log('🔍 Making object detection request to Gemini 2.0...');
     log('🔧 Model: $modelName');
@@ -763,7 +746,7 @@ the text label in the key "label". Use descriptive labels.
         )
         .timeout(_remoteConfig.requestTimeout);
 
-    return _handleApiResponse(response);
+    return _responseHandler.handleTextResponse(response);
   }
 
   /// Parse object detection response from Gemini API
