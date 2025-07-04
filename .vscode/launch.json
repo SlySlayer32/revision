@@ -19,7 +19,7 @@
         "--dart-define",
         "USE_AUTH_EMULATOR=true",
         "--dart-define",
-        "GEMINI_API_KEY=AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM"
+        "USE_AUTH_EMULATOR=true"
       ],
       "toolArgs": [
         "--vm-service-port=8181"
@@ -41,7 +41,7 @@
         "--dart-define",
         "ENVIRONMENT=staging",
         "--dart-define",
-        "GEMINI_API_KEY=AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM"
+        "ENVIRONMENT=staging"
       ],
       "toolArgs": [
         "--vm-service-port=8182"
@@ -63,7 +63,7 @@
         "--dart-define",
         "ENVIRONMENT=production",
         "--dart-define",
-        "GEMINI_API_KEY=AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM"
+        "ENVIRONMENT=production"
       ],
       "toolArgs": [
         "--vm-service-port=8183"
@@ -83,7 +83,7 @@
         "--dart-define",
         "ENVIRONMENT=development",
         "--dart-define",
-        "GEMINI_API_KEY=AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM",
+        "ENVIRONMENT=development",
         "-d",
         "chrome"
       ],
@@ -109,7 +109,7 @@
         "--dart-define",
         "USE_AUTH_EMULATOR=true",
         "--dart-define",
-        "GEMINI_API_KEY=AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM",
+        "USE_AUTH_EMULATOR=true",
         "--dart-define",
         "ENABLE_DEBUG_TOOLS=true"
       ],
