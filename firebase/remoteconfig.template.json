@@ -14,7 +14,7 @@
     "parameters": {
         "ai_gemini_model": {
             "defaultValue": {
-                "value": "gemini-2.0-flash-preview-text-generation"
+                "value": "gemini-2.5-flash"
             },
             "description": "Primary Gemini model for text analysis and processing (supports system instructions)"
         },
