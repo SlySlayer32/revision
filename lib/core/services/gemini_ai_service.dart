@@ -232,7 +232,7 @@ class GeminiAIService implements AIService {
 
     if (response.statusCode == GeminiConstants.httpOk) {
       final data = jsonDecode(response.body);
-      return _responseHandler.extractImageFromResponse(data);
+      return GeminiResponseHandler.extractImageFromResponse(data);
     } else {
       log('❌ Image generation API error: ${response.statusCode}');
       log('📝 Response: ${response.body}');
