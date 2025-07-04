@@ -601,21 +601,46 @@ Focus on creating a clean, professional result that matches the editing intent.
           stopwatch.elapsedMilliseconds,
         );
 
-        log('✅ Generated ${result.masks.length} segmentation masks');
-        log('📊 Average confidence: ${result.stats.averageConfidence.toStringAsFixed(2)}');
+        // Filter masks by confidence threshold
+        final filteredMasks = result.masks
+            .where((mask) => mask.confidence >= confidenceThreshold)
+            .toList();
 
-        return result;
+        final finalResult = filteredMasks.length != result.masks.length
+            ? SegmentationResult(
+                masks: filteredMasks,
+                processingTimeMs: result.processingTimeMs,
+                imageWidth: result.imageWidth,
+                imageHeight: result.imageHeight,
+                modelVersion: result.modelVersion,
+                confidence: filteredMasks.isNotEmpty 
+                    ? filteredMasks.map((m) => m.confidence).reduce((a, b) => a + b) / filteredMasks.length
+                    : 0.0,
+              )
+            : result;
+
+        log('✅ Generated ${finalResult.masks.length} segmentation masks (filtered from ${result.masks.length})');
+        log('📊 Average confidence: ${finalResult.stats.averageConfidence.toStringAsFixed(2)}');
+        log('⏱️ Processing time: ${finalResult.processingTimeMs}ms');
+        log('🎯 Confidence threshold applied: $confidenceThreshold');
+
+        if (finalResult.masks.isEmpty) {
+          log('⚠️ No masks met confidence threshold ${confidenceThreshold}. Consider lowering threshold.');
+        }
+
+        return finalResult;
       },
       'generateSegmentationMasks',
     ).catchError((e) {
       log('❌ generateSegmentationMasks failed after all retries: $e');
-      // Return empty result on error
-      return const SegmentationResult(
+      // Return empty result with error context for production debugging
+      return SegmentationResult(
         masks: [],
         processingTimeMs: 0,
         imageWidth: GeminiConstants.defaultImageWidth,
         imageHeight: GeminiConstants.defaultImageHeight,
         confidence: 0.0,
+        modelVersion: 'gemini-2.5-flash-error',
       );
     });
   }
