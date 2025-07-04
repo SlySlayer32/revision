@@ -680,6 +680,33 @@ the text label in the key "label". Use descriptive labels.
     });
   }
 
+  /// Make an object detection request to Gemini 2.0+
+  Future<String> _makeObjectDetectionRequest({
+    required String prompt,
+    required Uint8List imageBytes,
+  }) async {
+    final apiKey = EnvConfig.geminiApiKey!;
+    const modelName = 'gemini-2.0-flash-exp'; // Use 2.0+ for object detection
+
+    final requestBody = _requestBuilder.buildObjectDetectionRequest(
+      prompt: prompt,
+      imageBytes: imageBytes,
+    );
+
+    log('🔍 Making object detection request to Gemini 2.0...');
+    log('🔧 Model: $modelName');
+
+    final response = await _httpClient
+        .post(
+          Uri.parse('$_baseUrl/$modelName:generateContent?key=$apiKey'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(requestBody),
+        )
+        .timeout(_remoteConfig.requestTimeout);
+
+    return _responseHandler.handleTextResponse(response);
+  }
+
   /// Parse object detection response from Gemini API
   List<Map<String, dynamic>> _parseObjectDetectionResponse(String response) {
     return _responseHandler.parseObjectDetectionResponse(response);
