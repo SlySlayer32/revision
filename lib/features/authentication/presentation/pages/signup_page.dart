@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/core/di/service_locator.dart';
+import 'package:revision/core/navigation/route_factory.dart' as app_routes;
+import 'package:revision/core/navigation/route_names.dart';
 import 'package:revision/features/authentication/presentation/blocs/signup_bloc.dart';
 import 'package:revision/features/authentication/presentation/widgets/signup_form.dart';
 
@@ -11,8 +13,9 @@ class SignUpPage extends StatelessWidget {
 
   /// Creates a [Route] for this page
   static Route<void> route() {
-    return MaterialPageRoute<void>(
+    return app_routes.RouteFactory.createRoute<void>(
       builder: (_) => const SignUpPage(),
+      routeName: RouteNames.signup,
     );
   }
 
