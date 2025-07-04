@@ -269,21 +269,42 @@ Provide a clear, actionable editing prompt.
 ''';
   }
 
+  /// Builds a production-grade segmentation prompt with detailed specifications
   static String buildSegmentationPrompt({String? targetObjects}) {
+    final basePrompt = '''
+SEGMENTATION TASK: Generate precise object segmentation masks.
+
+OUTPUT FORMAT: Return ONLY a valid JSON array with this exact structure:
+[
+  {
+    "box_2d": [y0, x0, y1, x1],
+    "mask": "data:image/png;base64,[base64_encoded_mask]",
+    "label": "descriptive_object_name",
+    "confidence": 0.95
+  }
+]
+
+REQUIREMENTS:
+- box_2d coordinates must be normalized to 0-1000 scale
+- mask must be base64-encoded PNG with 0-255 probability values
+- label must be descriptive and specific (e.g., "wooden dining chair", not just "chair")
+- confidence score between 0.0 and 1.0
+- Only include objects with confidence > 0.5
+- Maximum 10 objects per response''';
+
     if (targetObjects != null && targetObjects.isNotEmpty) {
-      return '''
-Give the segmentation masks for the $targetObjects.
-Output a JSON list of segmentation masks where each entry contains the 2D
-bounding box in the key "box_2d", the segmentation mask in key "mask", and
-the text label in the key "label". Use descriptive labels.
-''';
+      return '''$basePrompt
+
+TARGET OBJECTS: Focus specifically on detecting and segmenting: $targetObjects
+Only include these object types in the response.''';
     } else {
-      return '''
-Give the segmentation masks for all prominent objects in this image.
-Output a JSON list of segmentation masks where each entry contains the 2D
-bounding box in the key "box_2d", the segmentation mask in key "mask", and
-the text label in the key "label". Use descriptive labels.
-''';
+      return '''$basePrompt
+
+TARGET OBJECTS: Detect and segment all prominent, clearly visible objects in the image.
+Prioritize objects that are:
+- Well-defined with clear boundaries
+- Significant in size relative to the image
+- Not part of the background or scene setting''';
     }
   }
 
