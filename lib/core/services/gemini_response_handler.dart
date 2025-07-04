@@ -83,13 +83,22 @@ class GeminiResponseHandler {
 
   /// Extracts text content from API response data
   static String _extractTextContent(Map<String, dynamic> data) {
+    // Debug logging
+    log('🔍 Extracting text content from response...');
+    log('📋 Response keys: ${data.keys.toList()}');
+    
     if (data[GeminiConstants.candidatesKey] == null ||
         (data[GeminiConstants.candidatesKey] as List).isEmpty) {
+      log('❌ No candidates found in response');
+      log('📝 Full response structure: ${data.toString()}');
       throw Exception('No candidates in Gemini API response');
     }
 
     final candidates = data[GeminiConstants.candidatesKey] as List;
     final candidate = candidates[0] as Map<String, dynamic>;
+
+    log('👤 Candidate keys: ${candidate.keys.toList()}');
+    log('🏁 Finish reason: ${candidate[GeminiConstants.finishReasonKey]}');
 
     // Check for content filtering
     if (candidate[GeminiConstants.finishReasonKey] ==
@@ -97,15 +106,29 @@ class GeminiResponseHandler {
       throw Exception('Content was filtered by Gemini safety filters');
     }
 
-    if (candidate[GeminiConstants.contentKey] == null ||
-        candidate[GeminiConstants.contentKey][GeminiConstants.partsKey] ==
-            null) {
+    // Enhanced debugging for content structure
+    if (candidate[GeminiConstants.contentKey] == null) {
+      log('❌ No content key found in candidate');
+      log('📝 Candidate structure: ${candidate.toString()}');
+      throw Exception('No content in Gemini API response candidate');
+    }
+
+    final content = candidate[GeminiConstants.contentKey] as Map<String, dynamic>;
+    log('📄 Content keys: ${content.keys.toList()}');
+
+    if (content[GeminiConstants.partsKey] == null) {
+      log('❌ No parts key found in content');
+      log('📝 Content structure: ${content.toString()}');
       throw Exception('No content parts in Gemini API response');
     }
 
-    final content =
-        candidate[GeminiConstants.contentKey] as Map<String, dynamic>;
     final parts = content[GeminiConstants.partsKey] as List;
+    log('🧩 Found ${parts.length} parts in response');
+    
+    for (int i = 0; i < parts.length; i++) {
+      final part = parts[i] as Map<String, dynamic>;
+      log('🧩 Part $i keys: ${part.keys.toList()}');
+    }
 
     final textParts = parts
         .where((part) =>
@@ -115,10 +138,13 @@ class GeminiResponseHandler {
         .where((text) => text.trim().isNotEmpty);
 
     if (textParts.isEmpty) {
+      log('❌ No text parts found after filtering');
       throw Exception('No valid text content in Gemini API response');
     }
 
-    return textParts.first.trim();
+    final result = textParts.first.trim();
+    log('✅ Extracted text content (${result.length} chars)');
+    return result;
   }
 
   /// Extracts image data from API response
@@ -231,7 +257,8 @@ class GeminiResponseHandler {
 
       // Additional cleanup for common response patterns
       cleanedResponse = cleanedResponse
-          .replaceAll(RegExp(r'^```[a-z]*\n?'), '') // Remove opening code blocks
+          .replaceAll(
+              RegExp(r'^```[a-z]*\n?'), '') // Remove opening code blocks
           .replaceAll(RegExp(r'\n?```$'), '') // Remove closing code blocks
           .trim();
 
@@ -282,7 +309,7 @@ class GeminiResponseHandler {
       return {
         'masks': [],
         'error': 'Parse error: ${e.toString()}',
-        'originalResponse': response.length > 1000 
+        'originalResponse': response.length > 1000
             ? response.substring(0, 1000) + '...[truncated]'
             : response,
         'errorType': 'json_parse_error'
