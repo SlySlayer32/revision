@@ -30,10 +30,8 @@ class GeminiAIService implements AIService {
   })  : _remoteConfig = remoteConfigService ?? FirebaseAIRemoteConfigService(),
         _httpClient = httpClient ?? http.Client(),
         _requestValidator = requestValidator ?? GeminiRequestValidator() {
-    _requestBuilder = GeminiRequestBuilder(_remoteConfig);
     log('🏗️ Creating GeminiAIService instance...');
-    // Don't call _initializeService() in constructor to avoid blocking
-    // Service locator registration. Call it later via waitForInitialization()
+    // _requestBuilder is now initialized in _initializeService
   }
 
   final FirebaseAIRemoteConfigService _remoteConfig;
@@ -79,6 +77,10 @@ class GeminiAIService implements AIService {
         log('⚠️ Remote Config initialization failed, continuing with defaults: $e');
         // Continue with defaults - the service should handle this gracefully
       }
+
+      // Initialize the request builder now that remote config is ready
+      _requestBuilder = GeminiRequestBuilder(_remoteConfig);
+      log('✅ GeminiRequestBuilder initialized');
 
       // Test API connectivity
       await _testApiConnectivity();
