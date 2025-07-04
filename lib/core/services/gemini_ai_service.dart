@@ -636,12 +636,12 @@ the text label in the key "label". Use descriptive labels.
         )
         .timeout(_remoteConfig.requestTimeout);
 
-    return _responseHandler.handleTextResponse(response);
+    return GeminiResponseHandler.handleTextResponse(response);
   }
 
   /// Parse segmentation response from Gemini API
   Map<String, dynamic> _parseSegmentationResponse(String response) {
-    return _responseHandler.parseSegmentationResponse(response);
+    return GeminiResponseHandler.parseSegmentationResponse(response);
   }
 
   /// Enhanced object detection using Gemini 2.0+ bounding box capabilities
