@@ -147,7 +147,7 @@ class NavigationUtils {
         if (kDebugMode) {
           debugPrint('✅ Successfully retrieved route arguments of type: ${arguments.runtimeType}');
         }
-        return arguments;
+        return arguments as T;
       }
 
       if (kDebugMode) {
