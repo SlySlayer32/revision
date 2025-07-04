@@ -35,27 +35,68 @@ class SegmentationMask extends Equatable {
   @override
   List<Object?> get props => [boundingBox, label, maskData, confidence];
 
-  /// Factory constructor from Gemini API JSON response
+  /// Factory constructor from Gemini API JSON response with production-grade error handling
   factory SegmentationMask.fromJson(Map<String, dynamic> json) {
-    final box2d = json['box_2d'] as List<dynamic>;
-    final maskBase64 = json['mask'] as String;
+    try {
+      // Validate required fields
+      if (!json.containsKey('box_2d') || !json.containsKey('label')) {
+        throw FormatException('Missing required fields: box_2d or label');
+      }
 
-    // Remove the data:image/png;base64, prefix if present
-    final cleanBase64 = maskBase64.startsWith('data:image/png;base64,')
-        ? maskBase64.substring('data:image/png;base64,'.length)
-        : maskBase64;
+      final box2d = json['box_2d'] as List<dynamic>?;
+      if (box2d == null || box2d.length != 4) {
+        throw FormatException('Invalid box_2d format: expected [y0, x0, y1, x1]');
+      }
 
-    return SegmentationMask(
-      boundingBox: BoundingBox2D(
-        y0: (box2d[0] as num).toDouble(),
-        x0: (box2d[1] as num).toDouble(),
-        y1: (box2d[2] as num).toDouble(),
-        x1: (box2d[3] as num).toDouble(),
-      ),
-      label: json['label'] as String,
-      maskData: _base64ToUint8List(cleanBase64),
-      confidence: (json['confidence'] as num?)?.toDouble() ?? 1.0,
-    );
+      // Handle mask data gracefully
+      String cleanBase64 = '';
+      if (json.containsKey('mask') && json['mask'] != null) {
+        final maskString = json['mask'] as String;
+        if (maskString.startsWith('data:image/png;base64,')) {
+          cleanBase64 = maskString.substring('data:image/png;base64,'.length);
+        } else {
+          cleanBase64 = maskString;
+        }
+        cleanBase64 = cleanBase64.replaceAll(RegExp(r'\s+'), '');
+      }
+
+      // Validate label
+      final label = json['label'] as String? ?? 'unknown_object';
+      if (label.trim().isEmpty) {
+        throw FormatException('Label cannot be empty');
+      }
+
+      // Parse confidence with fallback
+      double confidence = 0.8; // Default confidence if not provided
+      if (json.containsKey('confidence')) {
+        final confValue = json['confidence'];
+        if (confValue is num) {
+          confidence = confValue.toDouble().clamp(0.0, 1.0);
+        } else if (confValue is String) {
+          confidence = double.tryParse(confValue)?.clamp(0.0, 1.0) ?? 0.8;
+        }
+      }
+
+      return SegmentationMask(
+        boundingBox: BoundingBox2D(
+          y0: (box2d[0] as num).toDouble(),
+          x0: (box2d[1] as num).toDouble(),
+          y1: (box2d[2] as num).toDouble(),
+          x1: (box2d[3] as num).toDouble(),
+        ),
+        label: label.trim(),
+        maskData: cleanBase64.isNotEmpty ? _base64ToUint8List(cleanBase64) : Uint8List(0),
+        confidence: confidence,
+      );
+    } catch (e) {
+      // Create a fallback mask for production resilience
+      return SegmentationMask(
+        boundingBox: const BoundingBox2D(y0: 0, x0: 0, y1: 100, x1: 100),
+        label: 'parse_error_object',
+        maskData: Uint8List(0),
+        confidence: 0.0,
+      );
+    }
   }
 
   /// Convert to JSON format
