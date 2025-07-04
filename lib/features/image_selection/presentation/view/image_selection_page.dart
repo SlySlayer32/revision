@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/core/di/service_locator.dart';
 // import 'package:revision/features/image_editing/presentation/view/image_annotation_page.dart'; // Disabled
+import 'package:revision/features/ai_processing/presentation/pages/ai_processing_page.dart';
 import 'package:revision/features/image_selection/domain/entities/image_source.dart';
 import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
 import 'package:revision/features/image_selection/presentation/cubit/image_selection_cubit.dart';
