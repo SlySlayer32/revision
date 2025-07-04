@@ -67,7 +67,8 @@ class GenerateSegmentationMasksUseCase {
     // Validate confidence threshold
     if (confidenceThreshold < 0.0 || confidenceThreshold > 1.0) {
       return const Failure(
-        ImageValidationException('Confidence threshold must be between 0.0 and 1.0'),
+        ImageValidationException(
+            'Confidence threshold must be between 0.0 and 1.0'),
       );
     }
 
@@ -112,7 +113,8 @@ class GenerateSegmentationMasksUseCase {
         imageHeight: result.imageHeight,
         modelVersion: result.modelVersion,
         confidence: filteredMasks.isNotEmpty
-            ? filteredMasks.map((m) => m.confidence).reduce((a, b) => a + b) / filteredMasks.length
+            ? filteredMasks.map((m) => m.confidence).reduce((a, b) => a + b) /
+                filteredMasks.length
             : 0.0,
       );
 
@@ -186,7 +188,8 @@ class DetectObjectsWithBoundingBoxesUseCase {
       // Step 1: Validate inputs
       final validationResult = ImageValidator.validateImageData(imageData);
       if (validationResult.isFailure) {
-        return Failure<List<Map<String, dynamic>>>(validationResult.exceptionOrNull!);
+        return Failure<List<Map<String, dynamic>>>(
+            validationResult.exceptionOrNull!);
       }
 
       // Step 2: Execute object detection
@@ -221,7 +224,9 @@ class DetectObjectsWithBoundingBoxesUseCase {
         operation: 'GEMINI_OBJECT_DETECTION',
         context: {
           'detectedObjects': result.length,
-          'labels': result.map((obj) => obj['label'] ?? obj['name'] ?? 'unknown').toList(),
+          'labels': result
+              .map((obj) => obj['label'] ?? obj['name'] ?? 'unknown')
+              .toList(),
         },
       );
 
