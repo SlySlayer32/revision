@@ -42,7 +42,7 @@ class GeminiRequestValidator {
   }
 
   /// Validates image bytes
-  static ValidationResult validateImageBytes(Uint8List? imageBytes) {
+  ValidationResult validateImageBytes(Uint8List? imageBytes) {
     if (imageBytes == null) {
       return const ValidationResult.success(); // Optional image is valid
     }
