@@ -209,7 +209,7 @@ class GeminiRequestValidator {
       }
       
       // Check for potentially problematic characters
-      if (trimmedTargets.contains(RegExp(r'[<>{}[\]"\'\\]'))) {
+      if (trimmedTargets.contains(RegExp(r'[<>{}[\]"\\\']'))) {
         return const ValidationResult.failure(
           'Target objects contains invalid characters'
         );
