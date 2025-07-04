@@ -228,11 +228,7 @@ class _ImageSelectionView extends StatelessWidget {
     // Navigate to AI processing page with Gemini segmentation
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => AiProcessingPage(
-          selectedImage: selectedImage,
-        ),
-      ),
+      AiProcessingPage.route(selectedImage),
     );
   }
 }
