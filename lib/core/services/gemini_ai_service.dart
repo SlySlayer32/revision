@@ -161,6 +161,9 @@ class GeminiAIService implements AIService {
     required Uint8List imageBytes,
     String? model,
   }) async {
+    // Validate request parameters
+    _validateApiRequest(prompt: prompt, imageBytes: imageBytes, model: model);
+    
     final apiKey = EnvConfig.geminiApiKey!;
     final modelName = model ?? _remoteConfig.geminiModel;
     final base64Image = base64Encode(imageBytes);
