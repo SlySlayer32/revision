@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:revision/features/ai_processing/domain/entities/spatial_analysis_result.dart';
 import 'package:revision/features/ai_processing/domain/entities/spatial_point.dart';
