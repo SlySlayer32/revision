@@ -205,6 +205,9 @@ void _registerUseCases() {
     )
     ..registerLazySingleton<ProcessImageWithGeminiUseCase>(
       () => ProcessImageWithGeminiUseCase(getIt<GeminiPipelineService>()),
+    )
+    ..registerLazySingleton<GenerateSegmentationMasksUseCase>(
+      () => GenerateSegmentationMasksUseCase(getIt<GeminiAIService>()),
     );
 }
 
