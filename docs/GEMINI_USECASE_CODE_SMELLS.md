@@ -1,53 +1,62 @@
-# ProcessImageWithGeminiUseCase Code Smells Analysis
+# 🔍 GeminiAIService Code Smells Analysis
 
-## 📋 Overview
+## Overview
+Analysis of `lib/core/services/gemini_ai_service.dart` for code quality issues, violations of clean code principles, and potential refactoring opportunities.
 
-Analysis of code quality issues, anti-patterns, and maintenance risks in the `ProcessImageWithGeminiUseCase` implementation.
+## 🚨 Critical Code Smells Identified
 
-**File:** `lib/features/ai_processing/domain/usecases/process_image_with_gemini_usecase.dart`
+### 1. **God Class** (Severity: HIGH)
+- **Issue**: The `GeminiAIService` class has grown to 992 lines with too many responsibilities
+- **Problems**:
+  - Handles HTTP requests, response parsing, error handling, validation, and business logic
+  - Multiple reasons to change (SRP violation)
+  - Difficult to test and maintain
 
-## 🚨 Identified Code Smells
+### 2. **Long Methods** (Severity: HIGH)
+- **Issue**: Several methods exceed 30-50 lines
+- **Examples**:
+  - `_handleApiResponse()` - Complex nested error handling
+  - `processImagePrompt()` - Multiple responsibilities
+  - `generateSegmentationMasks()` - Complex logic flow
 
-### 1. **Magic Numbers** (MEDIUM)
+### 3. **Duplicate Code** (Severity: MEDIUM)
+- **Issue**: Repeated patterns across methods
+- **Examples**:
+  - Similar error handling patterns in all public methods
+  - Repeated request body construction
+  - Similar validation logic
 
-**Problem:**
+### 4. **Magic Numbers and Strings** (Severity: MEDIUM)
+- **Issue**: Hard-coded values scattered throughout
+- **Examples**:
+  - `20000` (max prompt length)
+  - `20 * 1024 * 1024` (max image size)
+  - `30` (min API key length)
+  - HTTP status codes without named constants
 
-- Hardcoded magic numbers without constants
-- Size limits, conversion factors scattered in code
+### 5. **Complex Conditional Logic** (Severity: MEDIUM)
+- **Issue**: Nested if-else statements and complex boolean expressions
+- **Examples**:
+  - `_handleApiResponse()` with multiple status code checks
+  - Response parsing logic with nested null checks
 
-**Examples:**
+### 6. **Feature Envy** (Severity: MEDIUM)
+- **Issue**: Methods accessing external objects more than their own
+- **Examples**:
+  - Heavy reliance on `EnvConfig` and `_remoteConfig`
+  - Multiple calls to external configuration objects
 
-```dart
-const maxSizeMB = 10;  // Should be in constants file
-final sizeMB = imageData.length / (1024 * 1024);  // Magic conversion factor
-```
+### 7. **Primitive Obsession** (Severity: MEDIUM)
+- **Issue**: Using primitive types instead of domain objects
+- **Examples**:
+  - Using `Map<String, dynamic>` for structured data
+  - Raw `Uint8List` handling without wrapper classes
 
-**Impact:**
-
-- Maintenance difficulty when requirements change
-- Inconsistent size limits across codebase
-- Poor readability and documentation
-
----
-
-### 2. **Error Handling Anti-patterns** (HIGH)
-
-**Problem:**
-
-- String-based error detection instead of proper exception types
-
-- Overly broad catch-all exception handling
-- Error message parsing with `toString().contains()`
-
-**Examples:**
-
-```dart
-if (e.toString().contains('403') || e.toString().contains('forbidden')) {
-  errorMessage = 'Firebase AI access denied...';
-} else if (e.toString().contains('404') || e.toString().contains('not found')) {
-
-  errorMessage = 'Gemini model not found...';
-}
+### 8. **Inappropriate Intimacy** (Severity: LOW)
+- **Issue**: Too close coupling with configuration classes
+- **Examples**:
+  - Direct access to `EnvConfig.geminiApiKey`
+  - Tight coupling with `FirebaseAIRemoteConfigService`
 ```
 
 **Impact:**
