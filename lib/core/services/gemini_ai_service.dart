@@ -116,7 +116,7 @@ class GeminiAIService implements AIService {
       }
     } catch (e) {
       log('🚨 Gemini API connectivity test failed: $e');
-      throw StateError('Failed to connect to Gemini API: $e');
+      throw StateError('${GeminiConstants.connectivityTestFailedError}: $e');
     }
   }
 
