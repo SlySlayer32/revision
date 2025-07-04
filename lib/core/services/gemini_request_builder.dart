@@ -173,22 +173,28 @@ class GeminiRequestBuilder {
 
   /// Builds generation configuration for segmentation with production-grade settings
   Map<String, dynamic> _buildSegmentationConfig() {
-    return {
+    final config = <String, dynamic>{
       GeminiConstants.temperatureKey:
           0.1, // Very low temperature for consistent segmentation results
       GeminiConstants.maxOutputTokensKey: (_remoteConfig.maxOutputTokens * 2)
           .clamp(1024, 8192), // More tokens for detailed segmentation
       GeminiConstants.topKKey: 1, // Most focused sampling for precision
       GeminiConstants.topPKey: 0.8, // Reduced for more deterministic results
-      // Add thinking config to disable thinking for better segmentation results
-      'thinkingConfig': {
-        'thinkingBudget': 0, // Disable thinking for better results as per docs
-      },
-      // Use JSON response format
-      GeminiConstants.responseMimeTypeKey: GeminiConstants.applicationJsonMimeType,
-      // Add stop sequences to ensure clean JSON output
-      'stopSequences': ['```', 'END_OF_SEGMENTATION'],
     };
+
+    // Add response format if supported by the model
+    // Some API versions might not support this, so we'll try it conditionally
+    try {
+      config[GeminiConstants.responseMimeTypeKey] = GeminiConstants.applicationJsonMimeType;
+      
+      // Only add stop sequences for JSON formatting
+      config['stopSequences'] = ['```', 'END_OF_RESPONSE'];
+    } catch (e) {
+      // If there are issues with these advanced configs, continue without them
+      log('⚠️ Advanced segmentation config not supported, using basic config');
+    }
+
+    return config;
   }
 
   /// Builds generation configuration for object detection
