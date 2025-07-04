@@ -670,13 +670,23 @@ Focus on creating a clean, professional result that matches the editing intent.
     required String prompt,
     required Uint8List imageBytes,
   }) async {
-    final apiKey = EnvConfig.geminiApiKey!;
-    const modelName = GeminiConstants.gemini2_5FlashModel;
-
-    // Validate API key format
-    if (apiKey.length < 30) {
-      throw Exception('Invalid Gemini API key format - too short');
+    final apiKey = EnvConfig.geminiApiKey;
+    
+    // Enhanced API key validation
+    if (apiKey == null || apiKey.isEmpty) {
+      throw Exception('Gemini API key is not configured. Please check your environment variables.');
     }
+    
+    if (apiKey.length < 30) {
+      throw Exception('Invalid Gemini API key format - too short (${apiKey.length} chars). Expected at least 30 characters.');
+    }
+    
+    // Check for common API key issues
+    if (!apiKey.startsWith('AIza')) {
+      log('⚠️ API key does not start with expected prefix. Key prefix: ${apiKey.substring(0, 4)}');
+    }
+
+    const modelName = GeminiConstants.gemini2_5FlashModel;
 
     final requestBody = _requestBuilder.buildSegmentationRequest(
       prompt: prompt,
@@ -685,29 +695,40 @@ Focus on creating a clean, professional result that matches the editing intent.
 
     log('🎭 Making segmentation request to Gemini 2.5...');
     log('🔧 Model: $modelName');
-    log('📷 Image size: ${imageBytes.length} bytes');
+    log('📷 Image size: ${imageBytes.length} bytes (${(imageBytes.length / 1024 / 1024).toStringAsFixed(2)} MB)');
     log('📝 Prompt length: ${prompt.length} characters');
     log('🔍 Request structure: ${requestBody.keys.toList()}');
     log('🔑 API key prefix: ${apiKey.substring(0, 10)}...');
+    log('📋 Request content parts: ${(requestBody['contents'] as List).first['parts'].length}');
 
     final url = '$_baseUrl/$modelName:generateContent?key=$apiKey';
     log('🌐 Request URL: ${url.replaceAll(apiKey, 'API_KEY_HIDDEN')}');
 
-    final response = await _httpClient
-        .post(
-          Uri.parse(url),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(requestBody),
-        )
-        .timeout(_remoteConfig.requestTimeout);
-
-    log('📥 Response status: ${response.statusCode}');
-    log('📄 Response length: ${response.body.length} characters');
-    log('📋 Response preview: ${response.body.length > 500 ? response.body.substring(0, 500) + "..." : response.body}');
-
     try {
+      final response = await _httpClient
+          .post(
+            Uri.parse(url),
+            headers: {
+              'Content-Type': 'application/json',
+              'User-Agent': 'Revision-Flutter-App/1.0',
+            },
+            body: jsonEncode(requestBody),
+          )
+          .timeout(_remoteConfig.requestTimeout);
+
+      log('📥 Response status: ${response.statusCode}');
+      log('📄 Response length: ${response.body.length} characters');
+      
+      // Show more of the response for debugging
+      if (response.body.length <= 1000) {
+        log('📋 Full response: ${response.body}');
+      } else {
+        log('📋 Response preview: ${response.body.substring(0, 1000)}...');
+      }
+
       return GeminiResponseHandler.handleTextResponse(response);
     } catch (e) {
+      log('❌ HTTP request failed: $e');
       if (e is Exception) {
         return _handleResponseError(e, 'segmentation');
       }
