@@ -756,4 +756,65 @@ Focus on creating a clean, professional result that matches the editing intent.
   List<Map<String, dynamic>> _parseObjectDetectionResponse(String response) {
     return GeminiResponseHandler.parseObjectDetectionResponse(response);
   }
+
+  /// Handle Gemini API response errors with fallback strategies
+  String _handleResponseError(Exception error, String operation) {
+    final errorMessage = error.toString();
+    
+    log('❌ Gemini API error in $operation: $errorMessage');
+    
+    // Check for specific error types and provide appropriate fallbacks
+    if (errorMessage.contains('No content parts')) {
+      log('🔄 Handling "No content parts" error - likely API structure change');
+      return _getFallbackResponse(operation);
+    } else if (errorMessage.contains('No candidates')) {
+      log('🔄 Handling "No candidates" error - likely empty response');
+      return _getFallbackResponse(operation);
+    } else if (errorMessage.contains('Content was filtered')) {
+      log('🔄 Handling content filtering - using safe fallback');
+      return _getSafeContentFallback(operation);
+    } else if (errorMessage.contains('safety filters')) {
+      log('🔄 Handling safety filter block - using safe fallback');
+      return _getSafeContentFallback(operation);
+    } else {
+      // For other errors, rethrow to maintain existing error handling
+      throw error;
+    }
+  }
+
+  /// Get fallback response for different operations
+  String _getFallbackResponse(String operation) {
+    switch (operation.toLowerCase()) {
+      case 'text processing':
+      case 'text prompt':
+        return 'I apologize, but I\'m experiencing technical difficulties processing your request. Please try again in a moment.';
+      case 'image analysis':
+      case 'image processing':
+        return 'Unable to analyze the image at this time due to technical issues. Please try uploading the image again.';
+      case 'segmentation':
+        return '{"masks": [], "error": "Segmentation temporarily unavailable", "fallback": true}';
+      case 'object detection':
+        return '[]'; // Empty array for object detection
+      default:
+        return 'Service temporarily unavailable. Please try again later.';
+    }
+  }
+
+  /// Get safe content fallback for filtered responses
+  String _getSafeContentFallback(String operation) {
+    switch (operation.toLowerCase()) {
+      case 'text processing':
+      case 'text prompt':
+        return 'I cannot process this request as it may violate content guidelines. Please try rephrasing your request.';
+      case 'image analysis':
+      case 'image processing':
+        return 'Unable to analyze this image due to content guidelines. Please try a different image.';
+      case 'segmentation':
+        return '{"masks": [], "error": "Content filtered for safety", "filtered": true}';
+      case 'object detection':
+        return '[]'; // Empty array for object detection
+      default:
+        return 'Content cannot be processed due to safety guidelines.';
+    }
+  }
 }
