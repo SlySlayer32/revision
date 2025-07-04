@@ -91,7 +91,8 @@ class GeminiRequestBuilder {
     final base64Image = base64Encode(imageBytes);
 
     // Combine system instruction with user prompt for compatibility
-    final enhancedPrompt = '''You are an expert in computer vision and object segmentation. Provide accurate segmentation information for the requested objects. Output JSON format only with precise coordinates and confidence scores.
+    final enhancedPrompt =
+        '''You are an expert in computer vision and object segmentation. Provide accurate segmentation information for the requested objects. Output JSON format only with precise coordinates and confidence scores.
 
 $prompt''';
 
