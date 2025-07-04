@@ -39,6 +39,20 @@ class GeminiResponseHandler {
   static void _validateResponseStatus(http.Response response) {
     switch (response.statusCode) {
       case GeminiConstants.httpOk:
+        // Before returning success, check if the response body contains an error
+        try {
+          final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+          if (responseData.containsKey('error')) {
+            final error = responseData['error'] as Map<String, dynamic>;
+            final errorMessage = error['message'] ?? 'Unknown API error';
+            final errorCode = error['code'] ?? response.statusCode;
+            log('❌ Gemini API returned error in 200 response: $errorMessage');
+            throw Exception('Gemini API error ($errorCode): $errorMessage');
+          }
+        } catch (parseError) {
+          // If we can't parse the response, let it continue to normal processing
+          log('📝 Response parsing in validation (continuing): $parseError');
+        }
         return; // Success
 
       case GeminiConstants.httpBadRequest:
