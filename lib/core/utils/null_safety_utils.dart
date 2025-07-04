@@ -175,7 +175,7 @@ class NullSafetyUtils {
     int fallback = 0,
     String? context,
   }) {
-    if (isNullOrEmpty(value)) {
+    if (isStringNullOrEmpty(value)) {
       if (kDebugMode && context != null) {
         debugPrint('⚠️ Null/empty string in parseInt: $context');
       }
@@ -198,7 +198,7 @@ class NullSafetyUtils {
     double fallback = 0.0,
     String? context,
   }) {
-    if (isNullOrEmpty(value)) {
+    if (isStringNullOrEmpty(value)) {
       if (kDebugMode && context != null) {
         debugPrint('⚠️ Null/empty string in parseDouble: $context');
       }
