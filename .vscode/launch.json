@@ -135,7 +135,7 @@
         "--dart-define",
         "USE_AUTH_EMULATOR=true",
         "--dart-define",
-        "GEMINI_API_KEY=AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM",
+        "USE_AUTH_EMULATOR=true",
         "-d",
         "android"
       ],
@@ -161,7 +161,7 @@
         "--dart-define",
         "USE_AUTH_EMULATOR=true",
         "--dart-define",
-        "GEMINI_API_KEY=AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM",
+        "USE_AUTH_EMULATOR=true",
         "-d",
         "ios"
       ],
@@ -183,7 +183,7 @@
         "--dart-define",
         "ENVIRONMENT=staging",
         "--dart-define",
-        "GEMINI_API_KEY=AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM",
+        "ENVIRONMENT=staging",
         "-d",
         "chrome"
       ],
@@ -205,7 +205,7 @@
         "--dart-define",
         "ENVIRONMENT=production",
         "--dart-define",
-        "GEMINI_API_KEY=AIzaSyCQWfzgmnyI9LPXBgIhqwqZwWaQMZgCRRM",
+        "ENVIRONMENT=production",
         "-d",
         "chrome",
         "--release"
