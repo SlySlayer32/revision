@@ -622,43 +622,14 @@ the text label in the key "label". Use descriptive labels.
     required Uint8List imageBytes,
   }) async {
     final apiKey = EnvConfig.geminiApiKey!;
-    const modelName = 'gemini-2.5-flash'; // Use 2.5 for segmentation
-    final base64Image = base64Encode(imageBytes);
+    const modelName = GeminiConstants.gemini2_5FlashModel;
 
-    final requestBody = {
-      'contents': [
-        {
-          'parts': [
-            {'text': prompt},
-            {
-              'inline_data': {
-                'mime_type': 'image/jpeg',
-                'data': base64Image,
-              },
-            },
-          ],
-        },
-      ],
-      'generationConfig': {
-        'temperature': 0.1, // Low temperature for consistent results
-        'maxOutputTokens': _remoteConfig.maxOutputTokens,
-        'topK': 32,
-        'topP': 0.9,
-        'response_mime_type': 'application/json', // Request JSON response
-      },
-      // Disable thinking for better object detection results
-      'systemInstruction': {
-        'parts': [
-          {
-            'text':
-                'You are an expert computer vision system. Provide accurate segmentation masks in the requested JSON format. Focus on precision and avoid hallucinations.'
-          }
-        ]
-      },
-      'thinking_config': {
-        'thinking_budget': 0 // Disable thinking for better results
-      }
-    };
+    final requestBody = _requestBuilder.buildSegmentationRequest(
+      prompt: prompt,
+      imageBytes: imageBytes,
+      model: modelName,
+      config: _remoteConfig,
+    );
 
     log('🎭 Making segmentation request to Gemini 2.5...');
     log('🔧 Model: $modelName');
@@ -672,7 +643,7 @@ the text label in the key "label". Use descriptive labels.
         )
         .timeout(_remoteConfig.requestTimeout);
 
-    return _handleApiResponse(response);
+    return _responseHandler.handleTextResponse(response);
   }
 
   /// Parse segmentation response from Gemini API
