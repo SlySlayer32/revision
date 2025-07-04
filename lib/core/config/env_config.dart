@@ -1,4 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'environment_detector.dart';
 
 /// Environment configuration for Firebase AI Logic and other settings.
@@ -17,7 +18,33 @@ class EnvConfig {
   /// Since Firebase AI Logic doesn't support image input, we need direct API access
   static String? get geminiApiKey {
     try {
-      return dotenv.env['GEMINI_API_KEY'];
+      // Determine the key based on the environment
+      String keyName;
+      if (isDevelopment) {
+        keyName = 'GEMINI_API_KEY_DEV';
+      } else if (isStaging) {
+        keyName = 'GEMINI_API_KEY_STAGING';
+      } else if (isProduction) {
+        keyName = 'GEMINI_API_KEY_PROD';
+      } else {
+        keyName = 'GEMINI_API_KEY'; // Fallback for unknown environments
+      }
+
+      // First, try to get the environment-specific key from dotenv
+      String? apiKey = dotenv.env[keyName];
+
+      // If not found, fall back to the generic key for backward compatibility
+      if (apiKey == null || apiKey.isEmpty) {
+        apiKey = dotenv.env['GEMINI_API_KEY'];
+      }
+
+      // If still not found, try dart-define as a last resort
+      if (apiKey == null || apiKey.isEmpty) {
+        const fallback = String.fromEnvironment('GEMINI_API_KEY');
+        return fallback.isNotEmpty ? fallback : null;
+      }
+
+      return apiKey;
     } catch (e) {
       // If dotenv is not initialized, try dart-define fallback
       const fallback = String.fromEnvironment('GEMINI_API_KEY');
