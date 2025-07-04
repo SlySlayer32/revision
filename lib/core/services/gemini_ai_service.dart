@@ -241,11 +241,6 @@ class GeminiAIService implements AIService {
     }
   }
 
-  /// Extract image data from API response
-  Uint8List? _extractImageFromResponse(Map<String, dynamic> data) {
-    return _responseHandler.extractImageFromResponse(data);
-  }
-
   @override
   Future<String> processTextPrompt(String prompt) async {
     await waitForInitialization();
