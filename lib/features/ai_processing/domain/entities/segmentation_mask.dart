@@ -40,12 +40,12 @@ class SegmentationMask extends Equatable {
     try {
       // Validate required fields
       if (!json.containsKey('box_2d') || !json.containsKey('label')) {
-        throw FormatException('Missing required fields: box_2d or label');
+        throw const FormatException('Missing required fields: box_2d or label');
       }
 
       final box2d = json['box_2d'] as List<dynamic>?;
       if (box2d == null || box2d.length != 4) {
-        throw FormatException('Invalid box_2d format: expected [y0, x0, y1, x1]');
+        throw const FormatException('Invalid box_2d format: expected [y0, x0, y1, x1]');
       }
 
       // Handle mask data gracefully
