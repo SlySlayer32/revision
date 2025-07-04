@@ -3,12 +3,14 @@
 ## 📋 Issue Summary
 
 **Problem**: Unexpected null values during Flutter navigation causing:
-- Navigation events showing `"name": null` 
+
+- Navigation events showing `"name": null`
 - Route settings with null values
 - Argument casting failures
 - App crashes due to null reference errors
 
 **Root Causes Identified**:
+
 1. ❌ Routes created without proper `RouteSettings`
 2. ❌ Unsafe argument casting without null checks  
 3. ❌ Missing route name registration
@@ -31,6 +33,7 @@ class RouteNames {
 ```
 
 **Benefits**:
+
 - ✅ No more null route names
 - ✅ Centralized route management
 - ✅ Route validation capabilities
@@ -61,6 +64,7 @@ class RouteFactory {
 ```
 
 **Benefits**:
+
 - ✅ All routes have proper settings
 - ✅ Debug logging for development
 - ✅ Consistent route creation
@@ -114,6 +118,7 @@ class SafeNavigation {
 ```
 
 **Benefits**:
+
 - ✅ Type-safe argument extraction
 - ✅ Comprehensive error handling
 - ✅ Graceful fallback navigation
@@ -178,8 +183,9 @@ static Route<void> route() {
 ```
 
 **Fixed Files**:
+
 - ✅ `login_page.dart`
-- ✅ `signup_page.dart` 
+- ✅ `signup_page.dart`
 - ✅ `welcome_page.dart`
 - ✅ `dashboard_page.dart`
 - ✅ `ai_processing_page.dart`
@@ -302,6 +308,7 @@ flutter test
 ## 📊 Before vs After Comparison
 
 ### Before (Problematic)
+
 ```json
 {
   "type": "Event",
@@ -318,6 +325,7 @@ flutter test
 ```
 
 ### After (Fixed)
+
 ```json
 {
   "type": "Event", 
@@ -348,6 +356,7 @@ flutter test
 For any remaining routes not yet updated:
 
 1. **Replace MaterialPageRoute**:
+
    ```dart
    // Old
    return MaterialPageRoute(builder: (_) => MyPage());
@@ -360,6 +369,7 @@ For any remaining routes not yet updated:
    ```
 
 2. **Replace argument extraction**:
+
    ```dart
    // Old
    final args = ModalRoute.of(context)!.settings.arguments as MyArgs;
@@ -372,6 +382,7 @@ For any remaining routes not yet updated:
    ```
 
 3. **Replace navigation calls**:
+
    ```dart
    // Old
    Navigator.pushNamed(context, '/my-route');
