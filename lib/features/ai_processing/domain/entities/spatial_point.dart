@@ -1,5 +1,5 @@
 /// Represents a point in spatial coordinate system
-/// 
+///
 /// Used for marking specific locations in images for spatial analysis
 class SpatialPoint {
   const SpatialPoint({
@@ -12,7 +12,7 @@ class SpatialPoint {
   /// X coordinate (0.0 to 1.0 as percentage of image width)
   final double x;
 
-  /// Y coordinate (0.0 to 1.0 as percentage of image height)  
+  /// Y coordinate (0.0 to 1.0 as percentage of image height)
   final double y;
 
   /// Optional label for the point
@@ -55,7 +55,8 @@ class SpatialPoint {
 
   @override
   String toString() {
-    final confidenceStr = confidence != null ? ' (${confidence!.toStringAsFixed(2)})' : '';
+    final confidenceStr =
+        confidence != null ? ' (${confidence!.toStringAsFixed(2)})' : '';
     final labelStr = label != null ? ' "$label"' : '';
     return 'SpatialPoint(${x.toStringAsFixed(3)}, ${y.toStringAsFixed(3)})$labelStr$confidenceStr';
   }

@@ -2,7 +2,7 @@ import 'package:revision/features/ai_processing/domain/entities/spatial_point.da
 import 'package:revision/features/ai_processing/domain/entities/spatial_region.dart';
 
 /// Result of spatial analysis containing detected objects and their relationships
-/// 
+///
 /// This class encapsulates the complete spatial understanding analysis
 /// based on Gemini's spatial capabilities
 class SpatialAnalysisResult {
@@ -48,7 +48,7 @@ class SpatialAnalysisResult {
   String? getRelationshipBetween(String object1, String object2) {
     final key1 = '${object1}_$object2';
     final key2 = '${object2}_$object1';
-    
+
     return relationships[key1] ?? relationships[key2];
   }
 
@@ -73,14 +73,14 @@ class SpatialAnalysisResult {
   /// Gets the largest object by area
   SpatialRegion? getLargestObject() {
     if (objects.isEmpty) return null;
-    
+
     return objects.reduce((a, b) => a.area > b.area ? a : b);
   }
 
   /// Gets the most confident object
   SpatialRegion? getMostConfidentObject() {
     if (objects.isEmpty) return null;
-    
+
     return objects.reduce((a, b) => a.confidence > b.confidence ? a : b);
   }
 
@@ -98,27 +98,27 @@ class SpatialAnalysisResult {
   /// Groups objects by their spatial relationships
   Map<String, List<SpatialRegion>> groupObjectsByRelationship() {
     final groups = <String, List<SpatialRegion>>{};
-    
+
     for (final relationship in relationships.values) {
       groups[relationship] = [];
     }
 
     // This is a simplified grouping - in practice, you'd need more complex logic
     // to map relationships back to specific objects
-    
+
     return groups;
   }
 
   /// Calculates spatial density (objects per unit area)
   double calculateSpatialDensity() {
     if (objects.isEmpty) return 0.0;
-    
+
     // Calculate the area covered by all objects
     double totalArea = 0.0;
     for (final obj in objects) {
       totalArea += obj.area;
     }
-    
+
     return objects.length / (totalArea > 0 ? totalArea : 1.0);
   }
 
