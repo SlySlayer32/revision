@@ -144,7 +144,7 @@ class GeminiRequestValidator {
   }
 
   /// Validates a text-only request
-  static ValidationResult validateTextRequest({
+  ValidationResult validateTextRequest({
     required String prompt,
     String? model,
   }) {
@@ -156,7 +156,7 @@ class GeminiRequestValidator {
   }
 
   /// Validates a multimodal request
-  static ValidationResult validateMultimodalRequest({
+  ValidationResult validateMultimodalRequest({
     required String prompt,
     required Uint8List imageBytes,
     String? model,
