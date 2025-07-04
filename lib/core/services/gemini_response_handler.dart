@@ -155,10 +155,23 @@ class GeminiResponseHandler {
           throw Exception('Gemini API error: ${error.toString()}');
         }
         
+        // Check if there's a 'blocked' or 'finishReason' indicating filtering
+        if (candidate.containsKey('finishReason')) {
+          final finishReason = candidate['finishReason'];
+          if (finishReason == 'SAFETY' || finishReason == 'RECITATION') {
+            throw Exception('Content was blocked by Gemini safety filters. Reason: $finishReason');
+          } else if (finishReason == 'MAX_TOKENS') {
+            throw Exception('Response was truncated due to maximum token limit');
+          } else if (finishReason == 'OTHER') {
+            throw Exception('Content generation stopped for other reasons');
+          }
+        }
+        
         // This might be an authentication or quota issue
         throw Exception('Invalid Gemini API response - only role field present. '
             'This typically indicates an authentication issue, quota exceeded, '
-            'or malformed request. Check your API key and request format.');
+            'malformed request, or content filtering. '
+            'Full response: ${data.toString().length > 1000 ? data.toString().substring(0, 1000) + "..." : data.toString()}');
       }
 
       // If still no parts, this is likely an API structure change
