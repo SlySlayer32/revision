@@ -18,7 +18,8 @@ class NullSafetyUtils {
     }
 
     if (logWhenNull && context != null) {
-      debugPrint('⚠️ Null value detected in: $context. Using fallback: $fallback');
+      debugPrint(
+          '⚠️ Null value detected in: $context. Using fallback: $fallback');
     }
 
     return fallback;
@@ -95,7 +96,8 @@ class NullSafetyUtils {
       return function();
     } catch (e) {
       if (logErrors) {
-        debugPrint('❌ Error executing function${context != null ? ' in $context' : ''}: $e');
+        debugPrint(
+            '❌ Error executing function${context != null ? ' in $context' : ''}: $e');
       }
       return null;
     }
@@ -118,7 +120,8 @@ class NullSafetyUtils {
       return await function();
     } catch (e) {
       if (logErrors) {
-        debugPrint('❌ Error executing async function${context != null ? ' in $context' : ''}: $e');
+        debugPrint(
+            '❌ Error executing async function${context != null ? ' in $context' : ''}: $e');
       }
       return null;
     }
@@ -186,7 +189,8 @@ class NullSafetyUtils {
       return int.parse(value!);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ Error parsing int${context != null ? ' in $context' : ''}: $e');
+        debugPrint(
+            '❌ Error parsing int${context != null ? ' in $context' : ''}: $e');
       }
       return fallback;
     }
@@ -209,7 +213,8 @@ class NullSafetyUtils {
       return double.parse(value!);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ Error parsing double${context != null ? ' in $context' : ''}: $e');
+        debugPrint(
+            '❌ Error parsing double${context != null ? ' in $context' : ''}: $e');
       }
       return fallback;
     }
@@ -231,13 +236,14 @@ class NullSafetyUtils {
     String? context,
   }) {
     if (callback == null) return null;
-    
+
     return () {
       try {
         callback();
       } catch (e) {
         if (kDebugMode) {
-          debugPrint('❌ Error in callback${context != null ? ' ($context)' : ''}: $e');
+          debugPrint(
+              '❌ Error in callback${context != null ? ' ($context)' : ''}: $e');
         }
       }
     };
@@ -249,13 +255,14 @@ class NullSafetyUtils {
     String? context,
   }) {
     if (callback == null) return null;
-    
+
     return (T value) {
       try {
         callback(value);
       } catch (e) {
         if (kDebugMode) {
-          debugPrint('❌ Error in value callback${context != null ? ' ($context)' : ''}: $e');
+          debugPrint(
+              '❌ Error in value callback${context != null ? ' ($context)' : ''}: $e');
         }
       }
     };
