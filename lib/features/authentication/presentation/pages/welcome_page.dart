@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:revision/core/navigation/route_factory.dart' as app_routes;
+import 'package:revision/core/navigation/route_names.dart';
 import 'package:revision/features/authentication/presentation/pages/login_page.dart';
 import 'package:revision/features/authentication/presentation/pages/signup_page.dart';
 
@@ -9,8 +11,9 @@ class WelcomePage extends StatelessWidget {
 
   /// Creates a [Route] for this page
   static Route<void> route() {
-    return MaterialPageRoute<void>(
+    return app_routes.RouteFactory.createRoute<void>(
       builder: (_) => const WelcomePage(),
+      routeName: RouteNames.welcome,
     );
   }
 
