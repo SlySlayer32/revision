@@ -158,6 +158,8 @@ class ProcessingContext extends Equatable {
       ProcessingType.objectRemoval => 25,
       ProcessingType.backgroundChange => 30,
       ProcessingType.faceEdit => 18,
+      ProcessingType.segmentation => 12,
+      ProcessingType.objectDetection => 8,
       ProcessingType.custom => 20,
     };
 
