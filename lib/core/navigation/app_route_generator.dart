@@ -9,7 +9,6 @@ import 'package:revision/features/authentication/presentation/pages/signup_page.
 import 'package:revision/features/authentication/presentation/pages/welcome_page.dart';
 import 'package:revision/features/dashboard/view/dashboard_page.dart';
 import 'package:revision/features/demo/object_removal_demo_page.dart';
-import 'package:revision/features/home/view/home_page.dart';
 import 'package:revision/features/image_selection/presentation/view/image_selection_page.dart';
 
 /// App-wide route generator that provides null-safe navigation
