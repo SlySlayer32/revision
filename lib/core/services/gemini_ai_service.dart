@@ -5,7 +5,6 @@ import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:revision/core/config/env_config.dart';
-import 'package:revision/core/constants/firebase_ai_constants.dart';
 import 'package:revision/core/constants/gemini_constants.dart';
 import 'package:revision/core/services/ai_error_handler.dart';
 import 'package:revision/core/services/ai_service.dart';
