@@ -370,28 +370,3 @@ class GeminiSpatialService {
     }
   }
 }
-
-/// Bounding box for spatial regions
-class SpatialBoundingBox {
-  const SpatialBoundingBox({
-    required this.left,
-    required this.top,
-    required this.right,
-    required this.bottom,
-  });
-
-  final double left;
-  final double top;
-  final double right;
-  final double bottom;
-
-  double get width => right - left;
-  double get height => bottom - top;
-  double get centerX => left + (width / 2);
-  double get centerY => top + (height / 2);
-
-  @override
-  String toString() {
-    return 'SpatialBoundingBox(left: $left, top: $top, right: $right, bottom: $bottom)';
-  }
-}
