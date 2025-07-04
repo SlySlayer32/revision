@@ -150,10 +150,9 @@ class GeminiAIService implements AIService {
     final apiKey = EnvConfig.geminiApiKey!;
     final modelName = model ?? _remoteConfig.geminiModel;
 
-    final requestBody = _requestBuilder.buildTextRequest(
+    final requestBody = _requestBuilder.buildTextOnlyRequest(
       prompt: prompt,
       model: modelName,
-      config: _remoteConfig,
     );
 
     final response = await _httpClient
