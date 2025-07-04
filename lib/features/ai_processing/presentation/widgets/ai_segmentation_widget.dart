@@ -139,7 +139,7 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
 
     try {
       // Create processing context for segmentation
-      final context = ProcessingContext.segmentation(
+      final processingContext = ProcessingContext.segmentation(
         targetObjects: _targetObjectsController.text.trim().isNotEmpty 
             ? _targetObjectsController.text.trim() 
             : null,
@@ -150,7 +150,7 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
       if (mounted) {
         context.read<GeminiPipelineCubit>().startSegmentation(
           imageData: widget.selectedImage.bytes!,
-          targetObjects: context.customInstructions?.contains('targetObjects') == true
+          targetObjects: processingContext.customInstructions?.contains('targetObjects') == true
               ? _targetObjectsController.text.trim()
               : null,
           confidenceThreshold: _confidenceThreshold,
