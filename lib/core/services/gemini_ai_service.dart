@@ -535,7 +535,7 @@ Focus on creating a clean, professional result that matches the editing intent.
   /// - Robust error handling with detailed logging
   /// - Optimized API configuration for segmentation tasks
   /// - Fallback mechanisms for edge cases
-  /// 
+  ///
   /// For best results:
   /// - Use images 1024x1024 or smaller
   /// - Provide specific target objects when possible
@@ -560,7 +560,8 @@ Focus on creating a clean, professional result that matches the editing intent.
         );
 
         if (!validationResult.isValid) {
-          throw ArgumentError(validationResult.errorMessage ?? 'Invalid segmentation request');
+          throw ArgumentError(
+              validationResult.errorMessage ?? 'Invalid segmentation request');
         }
 
         // Create the enhanced segmentation prompt using the builder
@@ -613,8 +614,11 @@ Focus on creating a clean, professional result that matches the editing intent.
                 imageWidth: result.imageWidth,
                 imageHeight: result.imageHeight,
                 modelVersion: result.modelVersion,
-                confidence: filteredMasks.isNotEmpty 
-                    ? filteredMasks.map((m) => m.confidence).reduce((a, b) => a + b) / filteredMasks.length
+                confidence: filteredMasks.isNotEmpty
+                    ? filteredMasks
+                            .map((m) => m.confidence)
+                            .reduce((a, b) => a + b) /
+                        filteredMasks.length
                     : 0.0,
               )
             : result;
@@ -661,6 +665,8 @@ Focus on creating a clean, professional result that matches the editing intent.
     log('🎭 Making segmentation request to Gemini 2.5...');
     log('🔧 Model: $modelName');
     log('📷 Image size: ${imageBytes.length} bytes');
+    log('📝 Prompt length: ${prompt.length} characters');
+    log('🔍 Request structure: ${requestBody.keys.toList()}');
 
     final response = await _httpClient
         .post(
@@ -669,6 +675,10 @@ Focus on creating a clean, professional result that matches the editing intent.
           body: jsonEncode(requestBody),
         )
         .timeout(_remoteConfig.requestTimeout);
+
+    log('📥 Response status: ${response.statusCode}');
+    log('📄 Response length: ${response.body.length} characters');
+    log('📋 Response preview: ${response.body.length > 200 ? response.body.substring(0, 200) + "..." : response.body}');
 
     return GeminiResponseHandler.handleTextResponse(response);
   }
