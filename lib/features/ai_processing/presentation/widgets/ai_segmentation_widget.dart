@@ -183,4 +183,15 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
       );
     }
   }
+
+  void _showSuccessMessage(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
 }
