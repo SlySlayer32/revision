@@ -153,6 +153,41 @@ class GeminiResponseHandler {
     return null;
   }
 
+  /// Extract image data from API response
+  static Uint8List? extractImageFromResponse(Map<String, dynamic> data) {
+    if (data[GeminiConstants.candidatesKey] == null || 
+        (data[GeminiConstants.candidatesKey] as List).isEmpty) {
+      log('⚠️ No candidates in image generation response');
+      return null;
+    }
+
+    final candidate = (data[GeminiConstants.candidatesKey] as List)[0] as Map<String, dynamic>;
+    if (candidate[GeminiConstants.contentKey] == null || 
+        candidate[GeminiConstants.contentKey][GeminiConstants.partsKey] == null) {
+      log('⚠️ No content parts in image generation response');
+      return null;
+    }
+
+    final parts = candidate[GeminiConstants.contentKey][GeminiConstants.partsKey] as List;
+
+    for (final part in parts) {
+      if (part[GeminiConstants.inlineDataKey] != null &&
+          part[GeminiConstants.inlineDataKey][GeminiConstants.mimeTypeKey] != null &&
+          part[GeminiConstants.inlineDataKey][GeminiConstants.mimeTypeKey]
+              .toString()
+              .startsWith('image/') &&
+          part[GeminiConstants.inlineDataKey][GeminiConstants.dataKey] != null) {
+        final base64Data = part[GeminiConstants.inlineDataKey][GeminiConstants.dataKey] as String;
+        final imageBytes = base64Decode(base64Data);
+        log('🖼️ Successfully extracted generated image (${imageBytes.length} bytes)');
+        return Uint8List.fromList(imageBytes);
+      }
+    }
+
+    log('⚠️ No image data found in generation response');
+    return null;
+  }
+
   /// Parses segmentation response from Gemini API
   static Map<String, dynamic> parseSegmentationResponse(String response) {
     try {
