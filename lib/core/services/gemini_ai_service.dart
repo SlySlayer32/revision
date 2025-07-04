@@ -125,6 +125,9 @@ class GeminiAIService implements AIService {
     required String prompt,
     String? model,
   }) async {
+    // Validate request parameters
+    _validateApiRequest(prompt: prompt, model: model);
+    
     final apiKey = EnvConfig.geminiApiKey!;
     final modelName = model ?? _remoteConfig.geminiModel;
 
