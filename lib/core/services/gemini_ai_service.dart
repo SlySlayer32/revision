@@ -651,6 +651,41 @@ the text label in the key "label". Use descriptive labels.
     return _responseHandler.parseSegmentationResponse(response);
   }
 
+  /// Enhanced object detection using Gemini 2.0+ bounding box capabilities
+  ///
+  /// Uses the new object detection features available in Gemini 2.0 and later
+  /// to detect objects and get their bounding box coordinates in normalized format.
+  Future<List<Map<String, dynamic>>> detectObjectsWithBoundingBoxes({
+    required Uint8List imageBytes,
+    String? targetObjects,
+  }) async {
+    await waitForInitialization();
+
+    return _errorHandler.executeWithRetry<List<Map<String, dynamic>>>(
+      () async {
+        final prompt = targetObjects != null && targetObjects.isNotEmpty
+            ? 'Detect the $targetObjects in the image. The box_2d should be [ymin, xmin, ymax, xmax] normalized to 0-1000.'
+            : 'Detect all of the prominent items in the image. The box_2d should be [ymin, xmin, ymax, xmax] normalized to 0-1000.';
+
+        final response = await _makeObjectDetectionRequest(
+          prompt: prompt,
+          imageBytes: imageBytes,
+        );
+
+        // Parse the object detection response
+        final detectionData = _parseObjectDetectionResponse(response);
+
+        log('✅ Detected ${detectionData.length} objects with bounding boxes');
+
+        return detectionData;
+      },
+      'detectObjectsWithBoundingBoxes',
+    ).catchError((e) {
+      log('❌ detectObjectsWithBoundingBoxes failed after all retries: $e');
+      return <Map<String, dynamic>>[];
+    });
+  }
+
   /// Parse object detection response from Gemini API
   List<Map<String, dynamic>> _parseObjectDetectionResponse(String response) {
     return _responseHandler.parseObjectDetectionResponse(response);
