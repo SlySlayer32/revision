@@ -91,28 +91,38 @@ class AiProcessingView extends StatelessWidget {
               const SizedBox(width: 24),
               Expanded(
                 flex: 1,
-                child: BlocBuilder<ImageEditorCubit, ImageEditorState>(
-                  builder: (context, editorState) {
-                    final currentAnnotatedImage = annotatedImage ??
-                        AnnotatedImage(
-                          imageBytes: image.bytes!,
-                          annotations: editorState.strokes,
-                        );
-                    return ProcessingControls(
-                      selectedImage: image,
-                      annotatedImage: currentAnnotatedImage,
-                      onStartProcessing: (prompt, processingContext) {
-                        context
-                            .read<GeminiPipelineCubit>()
-                            .startImageProcessing(
-                              selectedImage: image,
-                              prompt: prompt,
-                              annotatedImage: currentAnnotatedImage,
-                              processingContext: processingContext,
-                            );
-                      },
-                    );
-                  },
+                child: Column(
+                  children: [
+                    // AI Segmentation Widget
+                    AISegmentationWidget(selectedImage: image),
+                    const SizedBox(height: 16),
+                    // Traditional Processing Controls
+                    Expanded(
+                      child: BlocBuilder<ImageEditorCubit, ImageEditorState>(
+                        builder: (context, editorState) {
+                          final currentAnnotatedImage = annotatedImage ??
+                              AnnotatedImage(
+                                imageBytes: image.bytes!,
+                                annotations: editorState.strokes,
+                              );
+                          return ProcessingControls(
+                            selectedImage: image,
+                            annotatedImage: currentAnnotatedImage,
+                            onStartProcessing: (prompt, processingContext) {
+                              context
+                                  .read<GeminiPipelineCubit>()
+                                  .startImageProcessing(
+                                    selectedImage: image,
+                                    prompt: prompt,
+                                    annotatedImage: currentAnnotatedImage,
+                                    processingContext: processingContext,
+                                  );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
