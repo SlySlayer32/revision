@@ -138,22 +138,29 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
     });
 
     try {
-      // Create processing context for segmentation
-      final processingContext = ProcessingContext.segmentation(
+      // Get the segmentation use case from service locator
+      final segmentationUseCase = getIt<GenerateSegmentationMasksUseCase>();
+      
+      // Start segmentation
+      final result = await segmentationUseCase(
+        widget.selectedImage.bytes!,
         targetObjects: _targetObjectsController.text.trim().isNotEmpty 
             ? _targetObjectsController.text.trim() 
             : null,
         confidenceThreshold: _confidenceThreshold,
       );
 
-      // Start segmentation using the cubit
       if (mounted) {
-        context.read<GeminiPipelineCubit>().startSegmentation(
-          imageData: widget.selectedImage.bytes!,
-          targetObjects: processingContext.customInstructions?.contains('targetObjects') == true
-              ? _targetObjectsController.text.trim()
-              : null,
-          confidenceThreshold: _confidenceThreshold,
+        result.when(
+          success: (segmentationResult) {
+            _showSuccessMessage(
+              'Successfully detected ${segmentationResult.masks.length} objects!'
+            );
+            // TODO: Navigate to mask editing interface or display results
+          },
+          failure: (error) {
+            _showErrorMessage('Segmentation failed: ${error.toString()}');
+          },
         );
       }
     } catch (e) {
