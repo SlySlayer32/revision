@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:revision/core/navigation/route_factory.dart' as app_routes;
+import 'package:revision/core/navigation/route_names.dart';
 import 'package:revision/features/authentication/presentation/blocs/authentication_bloc.dart';
 // import 'package:revision/debug/firebase_setup_checker.dart'; // Disabled
 // import 'package:revision/debug/firebase_ai_test_page.dart'; // Disabled
@@ -12,8 +14,9 @@ class HomePage extends StatelessWidget {
 
   /// Creates a [Route] for this page
   static Route<void> route() {
-    return MaterialPageRoute<void>(
+    return app_routes.RouteFactory.createRoute<void>(
       builder: (_) => const HomePage(),
+      routeName: RouteNames.home,
     );
   }
 
