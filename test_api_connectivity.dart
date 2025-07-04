@@ -9,13 +9,11 @@ import 'package:revision/core/config/env_config.dart';
 void main() async {
   log('🧪 Testing Gemini API connectivity...');
   
-  // Load environment variables
-  await EnvConfig.load();
-  
   final apiKey = EnvConfig.geminiApiKey;
   
   if (apiKey == null || apiKey.isEmpty) {
-    log('❌ API key not found');
+    log('❌ API key not found. Make sure to set GEMINI_API_KEY environment variable.');
+    log('💡 Run with: dart run test_api_connectivity.dart --dart-define=GEMINI_API_KEY=your_key');
     exit(1);
   }
   
