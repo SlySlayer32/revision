@@ -208,7 +208,14 @@ class GeminiAIService implements AIService {
         )
         .timeout(_remoteConfig.requestTimeout);
 
-    return GeminiResponseHandler.handleTextResponse(response);
+    try {
+      return GeminiResponseHandler.handleTextResponse(response);
+    } catch (e) {
+      if (e is Exception) {
+        return _handleResponseError(e, 'image analysis');
+      }
+      rethrow;
+    }
   }
 
   /// Make an image generation request to Gemini API
