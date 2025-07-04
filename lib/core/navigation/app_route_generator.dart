@@ -35,7 +35,10 @@ class AppRouteGenerator {
         case RouteNames.home:
           return _createRoute(
             const AuthenticationWrapper(),
-            settings.copyWith(name: RouteNames.root),
+            RouteSettings(
+              name: RouteNames.root,
+              arguments: settings.arguments,
+            ),
           );
 
         case RouteNames.welcome:
