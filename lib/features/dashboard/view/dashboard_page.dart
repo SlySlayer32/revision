@@ -259,8 +259,9 @@ class _DashboardViewState extends State<DashboardView> {
     switch (route) {
       case '/image-selection':
         Navigator.of(context).push(
-          MaterialPageRoute<void>(
+          app_routes.RouteFactory.createRoute<void>(
             builder: (context) => const ImageSelectionPage(),
+            routeName: RouteNames.imageSelection,
           ),
         );
         break;
