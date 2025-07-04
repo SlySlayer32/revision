@@ -193,8 +193,10 @@ class GeminiResponseHandler {
     return result;
   }
 
-  /// Extracts image data from API response
+  /// Extracts image data from API response with enhanced error handling
   static Uint8List? _extractImageData(Map<String, dynamic> data) {
+    log('🔍 Extracting image data from response...');
+    
     if (data[GeminiConstants.candidatesKey] == null ||
         (data[GeminiConstants.candidatesKey] as List).isEmpty) {
       log('⚠️ No candidates in image generation response');
@@ -204,10 +206,20 @@ class GeminiResponseHandler {
     final candidates = data[GeminiConstants.candidatesKey] as List;
     final candidate = candidates[0] as Map<String, dynamic>;
 
+    log('👤 Image candidate keys: ${candidate.keys.toList()}');
+    log('🏁 Image finish reason: ${candidate[GeminiConstants.finishReasonKey]}');
+
+    // Check for content filtering or safety issues
+    if (candidate[GeminiConstants.finishReasonKey] == GeminiConstants.safetyFinishReason) {
+      log('⚠️ Image generation was filtered by safety filters');
+      return null;
+    }
+
     if (candidate[GeminiConstants.contentKey] == null ||
         candidate[GeminiConstants.contentKey][GeminiConstants.partsKey] ==
             null) {
       log('⚠️ No content parts in image generation response');
+      log('📝 Candidate structure: ${candidate.toString()}');
       return null;
     }
 
@@ -215,27 +227,48 @@ class GeminiResponseHandler {
         candidate[GeminiConstants.contentKey] as Map<String, dynamic>;
     final parts = content[GeminiConstants.partsKey] as List;
 
-    for (final part in parts) {
-      final partMap = part as Map<String, dynamic>;
+    log('🧩 Found ${parts.length} parts in image response');
+
+    if (parts.isEmpty) {
+      log('⚠️ Parts array is empty in image response');
+      return null;
+    }
+
+    for (int i = 0; i < parts.length; i++) {
+      final partMap = parts[i] as Map<String, dynamic>;
+      log('🧩 Image part $i keys: ${partMap.keys.toList()}');
 
       if (partMap[GeminiConstants.inlineDataKey] != null) {
         final inlineData =
             partMap[GeminiConstants.inlineDataKey] as Map<String, dynamic>;
 
+        log('📎 Inline data keys: ${inlineData.keys.toList()}');
+        
         if (inlineData[GeminiConstants.mimeTypeKey] != null &&
             inlineData[GeminiConstants.mimeTypeKey]
                 .toString()
                 .startsWith('image/') &&
             inlineData[GeminiConstants.dataKey] != null) {
-          final base64Data = inlineData[GeminiConstants.dataKey] as String;
-          final imageBytes = base64Decode(base64Data);
-          log('🖼️ Successfully extracted generated image (${imageBytes.length} bytes)');
-          return Uint8List.fromList(imageBytes);
+          
+          try {
+            final base64Data = inlineData[GeminiConstants.dataKey] as String;
+            final imageBytes = base64Decode(base64Data);
+            log('🖼️ Successfully extracted generated image (${imageBytes.length} bytes)');
+            log('🎨 MIME type: ${inlineData[GeminiConstants.mimeTypeKey]}');
+            return Uint8List.fromList(imageBytes);
+          } catch (e) {
+            log('❌ Failed to decode base64 image data: $e');
+            return null;
+          }
+        } else {
+          log('⚠️ Inline data missing required fields:');
+          log('  - MIME type: ${inlineData[GeminiConstants.mimeTypeKey]}');
+          log('  - Has data: ${inlineData[GeminiConstants.dataKey] != null}');
         }
       }
     }
 
-    log('⚠️ No image data found in generation response');
+    log('⚠️ No image data found in generation response after checking all parts');
     return null;
   }
 
