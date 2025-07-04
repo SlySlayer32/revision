@@ -770,7 +770,14 @@ Focus on creating a clean, professional result that matches the editing intent.
         )
         .timeout(_remoteConfig.requestTimeout);
 
-    return GeminiResponseHandler.handleTextResponse(response);
+    try {
+      return GeminiResponseHandler.handleTextResponse(response);
+    } catch (e) {
+      if (e is Exception) {
+        return _handleResponseError(e, 'object detection');
+      }
+      rethrow;
+    }
   }
 
   /// Parse object detection response from Gemini API
