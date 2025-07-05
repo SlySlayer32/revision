@@ -1001,3 +1001,4 @@ class Point<T extends num> {
   final T x, y;
   Point(this.x, this.y);
 }
+
