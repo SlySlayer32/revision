@@ -554,3 +554,61 @@ class FirebaseEmulatorService {
   }
 }
 
+#!/bin/bash
+
+echo "🤖 Setting up Android development environment..."
+
+# Check if Android SDK is installed
+if [ ! -d "$ANDROID_HOME" ]; then
+    echo "❌ ANDROID_HOME not set. Please install Android Studio first."
+    exit 1
+fi
+
+# Accept all Android licenses
+echo "📝 Accepting Android licenses..."
+yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+
+# Install required SDK components
+echo "📦 Installing required Android SDK components..."
+$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+    "platform-tools" \
+    "platforms;android-34" \
+    "platforms;android-33" \
+    "build-tools;34.0.0" \
+    "emulator" \
+    "system-images;android-34;google_apis;x86_64"
+
+# Create high-performance emulator
+echo "🚀 Creating high-performance Android emulator..."
+$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
+    --name "Revision_Dev" \
+    --package "system-images;android-34;google_apis;x86_64" \
+    --device "pixel_7_pro" \
+    --force
+
+# Configure emulator for optimal performance
+echo "⚡ Configuring emulator performance..."
+cat > ~/.android/avd/Revision_Dev.avd/config.ini << EOF
+hw.cpu.arch=x86_64
+hw.cpu.ncore=4
+hw.ramSize=4096
+hw.gpu.enabled=yes
+hw.gpu.mode=host
+hw.keyboard=yes
+hw.sensors.orientation=yes
+hw.sensors.proximity=yes
+hw.dPad=no
+hw.gsmModem=yes
+hw.gps=yes
+hw.battery=yes
+hw.accelerometer=yes
+hw.gyroscope=yes
+hw.audioInput=yes
+hw.audioOutput=yes
+hw.sdCard=yes
+disk.dataPartition.size=8192MB
+vm.heapSize=512
+EOF
+
+echo "✅ Android development environment setup complete!"
+echo "🚀 Start emulator with: emulator -avd Revision_Dev -gpu host -memory 4096"
