@@ -616,3 +616,4 @@ EOF
 
 echo "✅ Android development environment setup complete!"
 echo "🚀 Start emulator with: emulator -avd Revision_Dev -gpu host -memory 4096"
+
