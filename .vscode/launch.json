@@ -210,7 +210,7 @@
         "--dart-define",
         "ENVIRONMENT=staging",
         "--dart-define",
-        "ENVIRONMENT=staging",
+        "GEMINI_API_KEY=YOUR_STAGING_GEMINI_API_KEY_HERE",
         "-d",
         "chrome"
       ],
