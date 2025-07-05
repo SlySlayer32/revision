@@ -618,7 +618,7 @@ echo "✅ Android development environment setup complete!"
 echo "🚀 Start emulator with: emulator -avd Revision_Dev -gpu host -memory 4096"
 
 
- Android-Specific Firebase Configuration
+4. Android-Specific Firebase Configuration
 
 // lib/core/config/android_firebase_config.dart
 import 'dart:developer';
