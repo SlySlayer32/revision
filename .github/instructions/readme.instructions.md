@@ -155,3 +155,4 @@ Before suggesting code, ensure:
 - Prioritize developer experience and maintainability
 - Include comprehensive documentation
 - Think about the entire software lifecycle
+- Use version control and branching strategies
