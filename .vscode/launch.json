@@ -11,7 +11,7 @@
         "development",
         "--dart-define=ENVIRONMENT=development",
         "--dart-define=USE_AUTH_EMULATOR=true",
-        "--dart-define=USE_FIRESTORE_EMULATOR=true",
+        "--dart-define=USE_FIRESTORE_EMULATOR=true", 
         "--dart-define=USE_FUNCTIONS_EMULATOR=true",
         "--dart-define=GEMINI_API_KEY=YOUR_DEVELOPMENT_GEMINI_API_KEY_HERE"
       ],
@@ -41,24 +41,16 @@
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
       }
     },
-      "env": {
-        "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
-      }
-    },
     {
       "name": "🔴 Production",
-      "request": "launch",
       "type": "dart",
+      "request": "launch",
       "program": "lib/main_production.dart",
       "args": [
         "--flavor",
         "production",
-        "--target",
-        "lib/main_production.dart",
-        "--dart-define",
-        "ENVIRONMENT=production",
-        "--dart-define",
-        "GEMINI_API_KEY=YOUR_PRODUCTION_GEMINI_API_KEY_HERE"
+        "--dart-define=ENVIRONMENT=production",
+        "--dart-define=GEMINI_API_KEY=YOUR_PRODUCTION_GEMINI_API_KEY_HERE"
       ],
       "toolArgs": [
         "--vm-service-port=8183"
@@ -69,22 +61,15 @@
     },
     {
       "name": "🌐 Development Web",
-      "request": "launch",
       "type": "dart",
+      "request": "launch",
       "program": "lib/main_development.dart",
       "args": [
-        "--target",
-        "lib/main_development.dart",
-        "--dart-define",
-        "ENVIRONMENT=development",
-        "--dart-define",
-        "USE_AUTH_EMULATOR=true",
-        "--dart-define",
-        "USE_FIRESTORE_EMULATOR=true",
-        "--dart-define",
-        "USE_FUNCTIONS_EMULATOR=true",
-        "--dart-define",
-        "GEMINI_API_KEY=YOUR_DEVELOPMENT_GEMINI_API_KEY_HERE",
+        "--dart-define=ENVIRONMENT=development",
+        "--dart-define=USE_AUTH_EMULATOR=true",
+        "--dart-define=USE_FIRESTORE_EMULATOR=true",
+        "--dart-define=USE_FUNCTIONS_EMULATOR=true",
+        "--dart-define=GEMINI_API_KEY=YOUR_DEVELOPMENT_GEMINI_API_KEY_HERE",
         "-d",
         "chrome"
       ],
@@ -98,26 +83,18 @@
     },
     {
       "name": "🧪 Development + Debug Tools",
-      "request": "launch",
       "type": "dart",
+      "request": "launch",
       "program": "lib/main_development.dart",
       "args": [
         "--flavor",
         "development",
-        "--target",
-        "lib/main_development.dart",
-        "--dart-define",
-        "ENVIRONMENT=development",
-        "--dart-define",
-        "USE_AUTH_EMULATOR=true",
-        "--dart-define",
-        "USE_FIRESTORE_EMULATOR=true",
-        "--dart-define",
-        "USE_FUNCTIONS_EMULATOR=true",
-        "--dart-define",
-        "GEMINI_API_KEY=YOUR_DEVELOPMENT_GEMINI_API_KEY_HERE",
-        "--dart-define",
-        "ENABLE_DEBUG_TOOLS=true"
+        "--dart-define=ENVIRONMENT=development",
+        "--dart-define=USE_AUTH_EMULATOR=true",
+        "--dart-define=USE_FIRESTORE_EMULATOR=true",
+        "--dart-define=USE_FUNCTIONS_EMULATOR=true",
+        "--dart-define=GEMINI_API_KEY=YOUR_DEVELOPMENT_GEMINI_API_KEY_HERE",
+        "--dart-define=ENABLE_DEBUG_TOOLS=true"
       ],
       "toolArgs": [
         "--vm-service-port=8185"
@@ -129,24 +106,17 @@
     },
     {
       "name": "📱 Development Android",
-      "request": "launch",
       "type": "dart",
+      "request": "launch",
       "program": "lib/main_development.dart",
       "args": [
         "--flavor",
         "development",
-        "--target",
-        "lib/main_development.dart",
-        "--dart-define",
-        "ENVIRONMENT=development",
-        "--dart-define",
-        "USE_AUTH_EMULATOR=true",
-        "--dart-define",
-        "USE_FIRESTORE_EMULATOR=true",
-        "--dart-define",
-        "USE_FUNCTIONS_EMULATOR=true",
-        "--dart-define",
-        "GEMINI_API_KEY=YOUR_DEVELOPMENT_GEMINI_API_KEY_HERE",
+        "--dart-define=ENVIRONMENT=development",
+        "--dart-define=USE_AUTH_EMULATOR=true",
+        "--dart-define=USE_FIRESTORE_EMULATOR=true",
+        "--dart-define=USE_FUNCTIONS_EMULATOR=true",
+        "--dart-define=GEMINI_API_KEY=YOUR_DEVELOPMENT_GEMINI_API_KEY_HERE",
         "-d",
         "android"
       ],
@@ -159,25 +129,18 @@
       "preLaunchTask": "shell: Start Firebase Emulators"
     },
     {
-      "name": "🍎 Development iOS",
-      "request": "launch",
+      "name": "🍎 Development iOS", 
       "type": "dart",
+      "request": "launch",
       "program": "lib/main_development.dart",
       "args": [
         "--flavor",
         "development",
-        "--target",
-        "lib/main_development.dart",
-        "--dart-define",
-        "ENVIRONMENT=development",
-        "--dart-define",
-        "USE_AUTH_EMULATOR=true",
-        "--dart-define",
-        "USE_FIRESTORE_EMULATOR=true",
-        "--dart-define",
-        "USE_FUNCTIONS_EMULATOR=true",
-        "--dart-define",
-        "GEMINI_API_KEY=YOUR_DEVELOPMENT_GEMINI_API_KEY_HERE",
+        "--dart-define=ENVIRONMENT=development",
+        "--dart-define=USE_AUTH_EMULATOR=true",
+        "--dart-define=USE_FIRESTORE_EMULATOR=true",
+        "--dart-define=USE_FUNCTIONS_EMULATOR=true",
+        "--dart-define=GEMINI_API_KEY=YOUR_DEVELOPMENT_GEMINI_API_KEY_HERE",
         "-d",
         "ios"
       ],
@@ -191,16 +154,12 @@
     },
     {
       "name": "🌐 Staging Web",
-      "request": "launch",
       "type": "dart",
+      "request": "launch",
       "program": "lib/main_staging.dart",
       "args": [
-        "--target",
-        "lib/main_staging.dart",
-        "--dart-define",
-        "ENVIRONMENT=staging",
-        "--dart-define",
-        "GEMINI_API_KEY=YOUR_STAGING_GEMINI_API_KEY_HERE",
+        "--dart-define=ENVIRONMENT=staging",
+        "--dart-define=GEMINI_API_KEY=YOUR_STAGING_GEMINI_API_KEY_HERE",
         "-d",
         "chrome"
       ],
@@ -213,16 +172,12 @@
     },
     {
       "name": "🌐 Production Web",
-      "request": "launch",
       "type": "dart",
+      "request": "launch",
       "program": "lib/main_production.dart",
       "args": [
-        "--target",
-        "lib/main_production.dart",
-        "--dart-define",
-        "ENVIRONMENT=production",
-        "--dart-define",
-        "GEMINI_API_KEY=YOUR_PRODUCTION_GEMINI_API_KEY_HERE",
+        "--dart-define=ENVIRONMENT=production",
+        "--dart-define=GEMINI_API_KEY=YOUR_PRODUCTION_GEMINI_API_KEY_HERE",
         "-d",
         "chrome",
         "--release"
