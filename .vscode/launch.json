@@ -89,7 +89,6 @@
         "--dart-define=USE_AUTH_EMULATOR=true",
         "--dart-define=USE_FIRESTORE_EMULATOR=true",
         "--dart-define=USE_FUNCTIONS_EMULATOR=true",
-        "--dart-define=GEMINI_API_KEY=YOUR_DEVELOPMENT_GEMINI_API_KEY_HERE",
         "--dart-define=ENABLE_DEBUG_TOOLS=true"
       ],
       "toolArgs": [
