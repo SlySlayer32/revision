@@ -1002,3 +1002,203 @@ class Point<T extends num> {
   Point(this.x, this.y);
 }
 
+
+5. DEVELOPMENT WORKFLOW OPTIMIZATION
+Complete Development Setup Script
+#!/bin/bash
+
+set -e
+
+echo "🚀 Setting up Revision development environment..."
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_status() {
+    echo -e "${GREEN}✅ $1${NC}"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠️  $1${NC}"
+}
+
+print_error() {
+    echo -e "${RED}❌ $1${NC}"
+}
+
+# Check prerequisites
+echo "🔍 Checking prerequisites..."
+
+# Check Flutter
+if ! command -v flutter &> /dev/null; then
+    print_error "Flutter not found. Please install Flutter first."
+    exit 1
+fi
+
+# Check Firebase CLI
+if ! command -v firebase &> /dev/null; then
+    print_error "Firebase CLI not found. Installing..."
+    npm install -g firebase-tools
+fi
+
+# Check FlutterFire CLI
+if ! command -v flutterfire &> /dev/null; then
+    print_error "FlutterFire CLI not found. Installing..."
+    dart pub global activate flutterfire_cli
+fi
+
+print_status "Prerequisites check completed"
+
+# Flutter doctor
+echo "🏥 Running Flutter doctor..."
+flutter doctor -v
+
+# Clean and get dependencies
+echo "🧹 Cleaning project..."
+flutter clean
+flutter pub get
+
+# Generate code
+echo "🔧 Generating code..."
+dart run build_runner build --delete-conflicting-outputs
+
+# Setup Firebase emulators
+echo "🔥 Setting up Firebase emulators..."
+if [ ! -f "firebase.json" ]; then
+    firebase init emulators
+fi
+
+# Create emulator data directory
+mkdir -p .firebase/emulator-data
+
+# Setup environment files
+echo "📝 Setting up environment files..."
+if [ ! -f ".env.development" ]; then
+    cat > .env.development << EOF
+ENVIRONMENT=development
+GEMINI_API_KEY=your_development_gemini_api_key_here
+FIREBASE_PROJECT_ID=revision-464202-dev
+EOF
+    print_warning "Please update .env.development with your actual API keys"
+fi
+
+# Setup Android emulator
+echo "🤖 Setting up Android emulator..."
+if command -v $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager &> /dev/null; then
+    # Check if emulator exists
+    if ! $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd | grep -q "Revision_Dev"; then
+        print_status "Creating Android emulator..."
+        $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
+            --name "Revision_Dev" \
+            --package "system-images;android-34;google_apis;x86_64" \
+            --device "pixel_7_pro" \
+            --force
+    else
+        print_status "Android emulator already exists"
+    fi
+else
+    print_warning "Android SDK not found. Skipping emulator setup."
+fi
+
+# Create development scripts
+echo "📜 Creating development scripts..."
+mkdir -p scripts
+
+# Development run script
+cat > scripts/run-dev.sh << 'EOF'
+#!/bin/bash
+echo "🚀 Starting Revision in development mode..."
+
+# Start Firebase emulators in background
+echo "🔥 Starting Firebase emulators..."
+firebase emulators:start --import=.firebase/emulator-data --export-on-exit &
+FIREBASE_PID=$!
+
+# Wait for emulators to start
+sleep 10
+
+# Start Flutter app
+echo "📱 Starting Flutter app..."
+flutter run \
+    --dart-define=ENVIRONMENT=development \
+    --dart-define=GEMINI_API_KEY=${GEMINI_API_KEY_DEV} \
+    --target lib/main_development.dart
+
+# Cleanup on exit
+trap "kill $FIREBASE_PID" EXIT
+EOF
+
+chmod +x scripts/run-dev.sh
+
+# Testing script
+cat > scripts/run-tests.sh << 'EOF'
+#!/bin/bash
+echo "🧪 Running comprehensive tests..."
+
+# Unit tests
+echo "🔬 Running unit tests..."
+flutter test --coverage
+
+# Integration tests
+echo "🔗 Running integration tests..."
+flutter test integration_test/
+
+# Generate coverage report
+echo "📊 Generating coverage report..."
+genhtml coverage/lcov.info -o coverage/html
+
+echo "✅ All tests completed. Coverage report: coverage/html/index.html"
+EOF
+
+chmod +x scripts/run-tests.sh
+
+# Build script
+cat > scripts/build-all.sh << 'EOF'
+#!/bin/bash
+echo "🏗️ Building for all platforms..."
+
+# Clean first
+flutter clean
+flutter pub get
+
+# Build Android
+echo "🤖 Building Android..."
+flutter build apk --dart-define=ENVIRONMENT=production
+
+# Build iOS (if on macOS)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "🍎 Building iOS..."
+    flutter build ios --dart-define=ENVIRONMENT=production
+fi
+
+# Build Web
+echo "🌐 Building Web..."
+flutter build web --dart-define=ENVIRONMENT=production
+
+echo "✅ All builds completed"
+EOF
+
+chmod +x scripts/build-all.sh
+
+print_status "Development environment setup completed!"
+
+echo ""
+echo "🎉 Setup Summary:"
+echo "   • Flutter project cleaned and dependencies installed"
+echo "   • Firebase emulators configured"
+echo "   • Android emulator created (if Android SDK available)"
+echo "   • Development scripts created in scripts/ directory"
+echo ""
+echo "🚀 Next steps:"
+echo "   1. Update .env.development with your API keys"
+echo "   2. Run: ./scripts/run-dev.sh"
+echo "   3. Open http://localhost:4000 for Firebase Emulator UI"
+echo ""
+echo "📚 Available commands:"
+echo "   • ./scripts/run-dev.sh     - Start development environment"
+echo "   • ./scripts/run-tests.sh   - Run all tests with coverage"
+echo "   • ./scripts/build-all.sh   - Build for all platforms"
