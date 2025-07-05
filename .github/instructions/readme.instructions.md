@@ -880,4 +880,4 @@ class ImageProcessingService {
         
         if (colorDiff <= tolerance) {
           // Mark as selected (white)
-          mask.setPixel(point.x, point.y, img.ColorRg
+          mask.setPixel(point.x, point.y, img.ColorRg 
