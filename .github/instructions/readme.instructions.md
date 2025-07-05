@@ -1307,4 +1307,104 @@ class DebugService {
           final client = HttpClient();
           final request = await client.getUrl(Uri.parse(url));
           request.headers.set('User-Agent', 'Revision-Debug/1.0');
-          final
+            final response = await request.close();
+          log('   • $url: ${response.statusCode == 200 ? '✅ OK' : '❌ ${response.statusCode}'}');
+          client.close();
+        } catch (e) {
+          log('   • $url: ❌ Failed ($e)');
+        }
+      }
+      
+    } catch (e) {
+      log('❌ Failed to log network info: $e');
+    }
+  }
+  
+  /// Checks if using Firebase emulator
+  static bool _isUsingEmulator(String projectId) {
+    return projectId.contains('demo-') || projectId.contains('dev');
+  }
+  
+  /// Logs detailed error information
+  static void logError(
+    String context,
+    dynamic error,
+    StackTrace? stackTrace, {
+    Map<String, dynamic>? additionalInfo,
+  }) {
+    if (!kDebugMode) return;
+    
+    log('❌ ERROR in $context:');
+    log('   • Error: $error');
+    log('   • Type: ${error.runtimeType}');
+    
+    if (additionalInfo != null) {
+      log('   • Additional Info:');
+      additionalInfo.forEach((key, value) {
+        log('     - $key: $value');
+      });
+    }
+    
+    if (stackTrace != null) {
+      log('   • Stack Trace:');
+      final lines = stackTrace.toString().split('\n');
+      for (int i = 0; i < lines.length && i < 10; i++) {
+        log('     ${lines[i]}');
+      }
+    }
+  }
+  
+  /// Logs performance metrics
+  static void logPerformance(
+    String operation,
+    Duration duration, {
+    Map<String, dynamic>? metrics,
+  }) {
+    if (!kDebugMode) return;
+    
+    final ms = duration.inMilliseconds;
+    final status = ms < 1000 ? '🟢' : ms < 3000 ? '🟡' : '🔴';
+    
+    log('⏱️ PERFORMANCE $status $operation: ${ms}ms');
+    
+    if (metrics != null) {
+      metrics.forEach((key, value) {
+        log('   • $key: $value');
+      });
+    }
+  }
+  
+  /// Logs AI operation details
+  static void logAIOperation(
+    String operation,
+    Map<String, dynamic> details,
+  ) {
+    if (!kDebugMode) return;
+    
+    log('🤖 AI OPERATION: $operation');
+    details.forEach((key, value) {
+      log('   • $key: $value');
+    });
+  }
+  
+  /// Logs Firebase operation details
+  static void logFirebaseOperation(
+    String operation,
+    String collection,
+    String? documentId, {
+    Map<String, dynamic>? data,
+  }) {
+    if (!kDebugMode) return;
+    
+    log('🔥 FIREBASE: $operation');
+    log('   • Collection: $collection');
+    if (documentId != null) log('   • Document: $documentId');
+    
+    if (data != null) {
+      log('   • Data:');
+      data.forEach((key, value) {
+        log('     - $key: ${value.toString().length > 100 ? '${value.toString().substring(0, 100)}...' : value}');
+      });
+    }
+  }
+}
