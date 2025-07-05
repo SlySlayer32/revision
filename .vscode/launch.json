@@ -93,6 +93,8 @@
         "USE_FIRESTORE_EMULATOR=true",
         "--dart-define",
         "USE_FUNCTIONS_EMULATOR=true",
+        "--dart-define",
+        "GEMINI_API_KEY=YOUR_DEVELOPMENT_GEMINI_API_KEY_HERE",
         "-d",
         "chrome"
       ],
