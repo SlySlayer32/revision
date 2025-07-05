@@ -15,7 +15,9 @@
         "--dart-define=USE_FUNCTIONS_EMULATOR=true",
         "--dart-define=GEMINI_API_KEY=YOUR_DEVELOPMENT_GEMINI_API_KEY_HERE"
       ],
-      "vmServicePort": 8181,
+      "toolArgs": [
+        "--vm-service-port=8181"
+      ],
       "env": {
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
       },
