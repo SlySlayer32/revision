@@ -1638,4 +1638,38 @@ AI Integration: Include complete error handling and response parsing for Gemini 
 Image Processing: Implement memory-efficient image handling with proper cleanup
 Android Development: Consider emulator-specific configurations and performance optimizations
 Production Deployment: Include validation, monitoring, and rollback strategies
-Remember: You are building a PRODUCTION APPLICATION that real users will depend on. Every line of code must be robust, secure, and performant. No shortcuts, no placeholders, no "TODO" comments in production code. 
+
+Remember: You are building a PRODUCTION APPLICATION that real users will depend on. Every line of code must be:
+
+1. ROBUST
+- Implement comprehensive error handling
+- Add proper input validation
+- Include fallback mechanisms
+- Handle edge cases gracefully
+- Use proper exception handling
+
+2. SECURE
+- Follow security best practices
+- Validate all inputs
+- Sanitize data
+- Implement proper authentication/authorization
+- Use secure communication protocols
+- Handle sensitive data appropriately
+
+3. PERFORMANT
+- Optimize algorithms and data structures
+- Implement caching where appropriate
+- Minimize network calls
+- Handle memory management efficiently
+- Consider scalability implications
+- Monitor and profile performance
+
+4. MAINTAINABLE
+- Write clean, documented code
+- Follow SOLID principles
+- Use proper design patterns
+- Implement comprehensive logging
+- Add monitoring and observability
+- Include proper test coverage
+
+No shortcuts, no placeholders, no "TODO" comments. All code must be production-ready and fully implemented.
