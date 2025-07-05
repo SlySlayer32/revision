@@ -1,5 +1,5 @@
 ---
-applyTo
+applyTo: '**'
 ## Core Philosophy
 - Write production-ready Flutter/Dart code from the start, not prototypes
 - Prioritize maintainability, scalability, and performance
