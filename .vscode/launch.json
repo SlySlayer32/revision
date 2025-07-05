@@ -146,7 +146,9 @@
         "--dart-define",
         "USE_AUTH_EMULATOR=true",
         "--dart-define",
-        "USE_AUTH_EMULATOR=true",
+        "USE_FIRESTORE_EMULATOR=true",
+        "--dart-define",
+        "USE_FUNCTIONS_EMULATOR=true",
         "-d",
         "android"
       ],
@@ -155,7 +157,8 @@
       ],
       "env": {
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
-      }
+      },
+      "preLaunchTask": "shell: Start Firebase Emulators"
     },
     {
       "name": "🍎 Development iOS",
