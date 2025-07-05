@@ -10,7 +10,7 @@ import 'package:revision/features/ai_processing/infrastructure/services/analysis
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
 
 /// Service for analyzing annotated images and generating AI editing prompts
-/// 
+///
 /// Refactored to follow Single Responsibility Principle by delegating
 /// specific concerns to dedicated services: validation, prompt generation,
 /// execution, and fallback handling.
@@ -37,19 +37,23 @@ class AiAnalysisService {
 
     try {
       log('🔄 Starting AI analysis of annotated image with ${annotatedImage.annotations.length} strokes');
-      
+
       // Step 1: Validate inputs using dedicated validator
-      final validationResult = await AnalysisInputValidator.validate(annotatedImage);
+      final validationResult =
+          await AnalysisInputValidator.validate(annotatedImage);
       if (validationResult.isFailure) {
-        return _handleValidationFailure(validationResult, annotatedImage, stopwatch.elapsed);
+        return _handleValidationFailure(
+            validationResult, annotatedImage, stopwatch.elapsed);
       }
 
       // Step 2: Generate prompt using dedicated generator
-      final prompt = AnalysisPromptGenerator.generateSystemPrompt(annotatedImage.annotations);
+      final prompt = AnalysisPromptGenerator.generateSystemPrompt(
+          annotatedImage.annotations);
 
       // Step 3: Execute analysis using dedicated executor
-      final executionResult = await _analysisExecutor.execute(annotatedImage, prompt);
-      
+      final executionResult =
+          await _analysisExecutor.execute(annotatedImage, prompt);
+
       if (executionResult.isSuccess) {
         return executionResult.valueOrNull!;
       } else {
@@ -63,7 +67,7 @@ class AiAnalysisService {
     } catch (e, stackTrace) {
       stopwatch.stop();
       log('❌ AI analysis failed: $e', stackTrace: stackTrace);
-      
+
       // Use fallback handler for graceful degradation
       return await AnalysisFallbackHandler.createFallbackResult(
         annotatedImage,
@@ -79,9 +83,10 @@ class AiAnalysisService {
     AnnotatedImage annotatedImage,
     Duration processingTime,
   ) async {
-    final errorMessage = validationResult.exceptionOrNull?.toString() ?? 'Validation failed';
+    final errorMessage =
+        validationResult.exceptionOrNull?.toString() ?? 'Validation failed';
     log('⚠️ Validation failed: $errorMessage');
-    
+
     return await AnalysisFallbackHandler.createFallbackResult(
       annotatedImage,
       processingTime,

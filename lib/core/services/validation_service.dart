@@ -5,7 +5,7 @@ import 'package:revision/core/utils/result.dart';
 import 'package:revision/features/ai_processing/domain/exceptions/ai_processing_exception.dart';
 
 /// Production-grade input validation service
-/// 
+///
 /// Provides comprehensive validation for all user inputs and data
 /// to ensure security, data integrity, and prevent errors.
 class ValidationService {
@@ -18,9 +18,9 @@ class ValidationService {
   // ============================================================================
 
   /// Validates email address format and domain
-  /// 
+  ///
   /// [email] - The email address to validate
-  /// 
+  ///
   /// Returns [Success] if valid, [Failure] with validation error if invalid
   Result<void> validateEmail(String email) {
     if (email.isEmpty) {
@@ -57,9 +57,9 @@ class ValidationService {
   // ============================================================================
 
   /// Validates password strength and security requirements
-  /// 
+  ///
   /// [password] - The password to validate
-  /// 
+  ///
   /// Returns [Success] if valid, [Failure] with specific requirements if invalid
   Result<void> validatePassword(String password) {
     if (password.isEmpty) {
@@ -69,7 +69,7 @@ class ValidationService {
     }
 
     if (password.length < AppConstants.minPasswordLength) {
-      return Failure(
+      return const Failure(
         ValidationException(
           'Password must be at least ${AppConstants.minPasswordLength} characters long',
         ),
@@ -107,14 +107,23 @@ class ValidationService {
   /// Checks if password matches common weak patterns
   bool _isCommonWeakPassword(String password) {
     final commonWeakPasswords = [
-      'password', 'password123', '123456', '12345678',
-      'qwerty', 'abc123', 'admin', 'letmein',
-      'welcome', 'monkey', 'dragon', 'master',
+      'password',
+      'password123',
+      '123456',
+      '12345678',
+      'qwerty',
+      'abc123',
+      'admin',
+      'letmein',
+      'welcome',
+      'monkey',
+      'dragon',
+      'master',
     ];
 
     return commonWeakPasswords.contains(password.toLowerCase()) ||
-           _isSequentialPattern(password) ||
-           _isRepeatingPattern(password);
+        _isSequentialPattern(password) ||
+        _isRepeatingPattern(password);
   }
 
   /// Checks for sequential patterns (123456, abcdef)
@@ -154,9 +163,9 @@ class ValidationService {
   // ============================================================================
 
   /// Validates username format and restrictions
-  /// 
+  ///
   /// [username] - The username to validate
-  /// 
+  ///
   /// Returns [Success] if valid, [Failure] with validation error if invalid
   Result<void> validateUsername(String username) {
     if (username.isEmpty) {
@@ -177,7 +186,8 @@ class ValidationService {
     // Check for reserved usernames
     if (_isReservedUsername(username)) {
       return const Failure(
-        ValidationException('This username is reserved. Please choose another.'),
+        ValidationException(
+            'This username is reserved. Please choose another.'),
       );
     }
 
@@ -187,9 +197,20 @@ class ValidationService {
   /// Checks if username is reserved
   bool _isReservedUsername(String username) {
     final reservedUsernames = [
-      'admin', 'administrator', 'root', 'system', 'user',
-      'api', 'app', 'service', 'bot', 'test',
-      'null', 'undefined', 'anonymous', 'guest',
+      'admin',
+      'administrator',
+      'root',
+      'system',
+      'user',
+      'api',
+      'app',
+      'service',
+      'bot',
+      'test',
+      'null',
+      'undefined',
+      'anonymous',
+      'guest',
     ];
 
     return reservedUsernames.contains(username.toLowerCase());
@@ -200,10 +221,10 @@ class ValidationService {
   // ============================================================================
 
   /// Validates image data for size, format, and integrity
-  /// 
+  ///
   /// [imageData] - The image data as bytes
   /// [filename] - Optional filename for format validation
-  /// 
+  ///
   /// Returns [Success] if valid, [Failure] with validation error if invalid
   Result<void> validateImageData(Uint8List imageData, {String? filename}) {
     if (imageData.isEmpty) {
@@ -252,20 +273,33 @@ class ValidationService {
 
     // PNG: 89 50 4E 47 0D 0A 1A 0A
     if (data.length >= 8 &&
-        data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E &&
-        data[3] == 0x47 && data[4] == 0x0D && data[5] == 0x0A &&
-        data[6] == 0x1A && data[7] == 0x0A) return true;
+        data[0] == 0x89 &&
+        data[1] == 0x50 &&
+        data[2] == 0x4E &&
+        data[3] == 0x47 &&
+        data[4] == 0x0D &&
+        data[5] == 0x0A &&
+        data[6] == 0x1A &&
+        data[7] == 0x0A) return true;
 
     // WebP: RIFF...WEBP
     if (data.length >= 12 &&
-        data[0] == 0x52 && data[1] == 0x49 && data[2] == 0x46 &&
-        data[3] == 0x46 && data[8] == 0x57 && data[9] == 0x45 &&
-        data[10] == 0x42 && data[11] == 0x50) return true;
+        data[0] == 0x52 &&
+        data[1] == 0x49 &&
+        data[2] == 0x46 &&
+        data[3] == 0x46 &&
+        data[8] == 0x57 &&
+        data[9] == 0x45 &&
+        data[10] == 0x42 &&
+        data[11] == 0x50) return true;
 
     // GIF: GIF87a or GIF89a
     if (data.length >= 6 &&
-        data[0] == 0x47 && data[1] == 0x49 && data[2] == 0x46 &&
-        data[3] == 0x38 && (data[4] == 0x37 || data[4] == 0x39) &&
+        data[0] == 0x47 &&
+        data[1] == 0x49 &&
+        data[2] == 0x46 &&
+        data[3] == 0x38 &&
+        (data[4] == 0x37 || data[4] == 0x39) &&
         data[5] == 0x61) return true;
 
     return false;
@@ -304,12 +338,12 @@ class ValidationService {
   // ============================================================================
 
   /// Validates text input for length and content safety
-  /// 
+  ///
   /// [text] - The text to validate
   /// [minLength] - Minimum required length
   /// [maxLength] - Maximum allowed length
   /// [fieldName] - Name of the field for error messages
-  /// 
+  ///
   /// Returns [Success] if valid, [Failure] with validation error if invalid
   Result<void> validateText(
     String text, {
@@ -367,9 +401,9 @@ class ValidationService {
   // ============================================================================
 
   /// Validates multiple inputs at once
-  /// 
+  ///
   /// [validations] - Map of field names to validation functions
-  /// 
+  ///
   /// Returns [Success] if all valid, [Failure] with first error if any invalid
   Result<void> validateAll(Map<String, Result<void> Function()> validations) {
     for (final entry in validations.entries) {
@@ -388,9 +422,9 @@ class ValidationService {
 /// Custom exception for validation errors
 class ValidationException implements Exception {
   const ValidationException(this.message);
-  
+
   final String message;
-  
+
   @override
   String toString() => 'ValidationException: $message';
 }

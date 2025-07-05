@@ -5,12 +5,12 @@ import 'package:revision/features/ai_processing/infrastructure/services/analysis
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
 
 /// Service responsible for handling fallback scenarios in AI analysis
-/// 
+///
 /// Provides graceful degradation when primary AI services fail
 /// following the Graceful Degradation principle.
 class AnalysisFallbackHandler {
   /// Creates a fallback result when AI analysis fails
-  /// 
+  ///
   /// Generates a reasonable default response to maintain user experience
   /// even when external AI services are unavailable.
   static Future<ProcessingResult> createFallbackResult(
@@ -21,9 +21,10 @@ class AnalysisFallbackHandler {
     log('🔄 Creating fallback result due to AI analysis failure');
 
     final strokeCount = annotatedImage.annotations.length;
-    
+
     // Generate fallback prompt using local logic
-    final fallbackPrompt = AnalysisPromptGenerator.generateFallbackPrompt(strokeCount);
+    final fallbackPrompt =
+        AnalysisPromptGenerator.generateFallbackPrompt(strokeCount);
 
     return ProcessingResult(
       processedImageData: annotatedImage.imageBytes,
@@ -57,28 +58,28 @@ class AnalysisFallbackHandler {
   /// Determines if an error should trigger fallback behavior
   static bool shouldUseFallback(Object error) {
     final errorString = error.toString().toLowerCase();
-    
+
     // Network errors should use fallback
-    if (errorString.contains('network') || 
+    if (errorString.contains('network') ||
         errorString.contains('timeout') ||
         errorString.contains('connection')) {
       return true;
     }
-    
+
     // API quota/limit errors should use fallback
-    if (errorString.contains('quota') || 
+    if (errorString.contains('quota') ||
         errorString.contains('limit') ||
         errorString.contains('rate')) {
       return true;
     }
-    
+
     // Service unavailable errors should use fallback
-    if (errorString.contains('503') || 
+    if (errorString.contains('503') ||
         errorString.contains('502') ||
         errorString.contains('unavailable')) {
       return true;
     }
-    
+
     return false;
   }
 
@@ -87,7 +88,7 @@ class AnalysisFallbackHandler {
     if (shouldUseFallback(error)) {
       return 'AI service temporarily unavailable. Using local processing instead.';
     }
-    
+
     return 'Processing completed with alternative method due to: ${error.toString()}';
   }
 }

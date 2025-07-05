@@ -138,15 +138,16 @@ class RouteFactory {
   static T? getArguments<T>(BuildContext context) {
     final settings = ModalRoute.of(context)?.settings;
     final arguments = settings?.arguments;
-    
+
     if (arguments is T) {
       return arguments;
     }
-    
+
     if (kDebugMode && arguments != null) {
-      debugPrint('⚠️ Route arguments type mismatch. Expected: $T, Got: ${arguments.runtimeType}');
+      debugPrint(
+          '⚠️ Route arguments type mismatch. Expected: $T, Got: ${arguments.runtimeType}');
     }
-    
+
     return null;
   }
 

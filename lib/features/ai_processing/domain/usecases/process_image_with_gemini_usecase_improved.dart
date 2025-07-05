@@ -96,8 +96,7 @@ class ProcessImageWithGeminiUseCaseImproved {
           .toList();
 
       // Use marked object removal for specific areas
-      final result =
-          await _geminiPipelineService.processImageWithMarkedObjects(
+      final result = await _geminiPipelineService.processImageWithMarkedObjects(
         imageData: imageData,
         markedAreas: markedAreaMaps,
       );

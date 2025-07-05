@@ -20,16 +20,16 @@ class ImageMarker extends Equatable {
   final String id;
   final String label;
   final MarkerType markerType;
-  
+
   /// Bounding box for the marker (required for AI-generated markers)
   final BoundingBox2D? boundingBox;
-  
+
   /// Associated segmentation mask (for AI-generated segmentation)
   final SegmentationMask? segmentationMask;
-  
+
   /// Confidence score (for AI-generated markers)
   final double? confidence;
-  
+
   /// Simple x,y coordinates (for user-defined point markers)
   final (double x, double y)? coordinates;
 
@@ -146,13 +146,17 @@ class ImageMarker extends Equatable {
 
       case MarkerType.aiDetection:
         if (boundingBox == null) return false;
-        final absoluteBox = boundingBox!.toAbsoluteCoordinates(imageWidth, imageHeight);
-        return x >= absoluteBox.x0 && x <= absoluteBox.x1 &&
-               y >= absoluteBox.y0 && y <= absoluteBox.y1;
+        final absoluteBox =
+            boundingBox!.toAbsoluteCoordinates(imageWidth, imageHeight);
+        return x >= absoluteBox.x0 &&
+            x <= absoluteBox.x1 &&
+            y >= absoluteBox.y0 &&
+            y <= absoluteBox.y1;
 
       case MarkerType.aiSegmentation:
         if (segmentationMask == null) return false;
-        return segmentationMask!.containsPoint(x.round(), y.round(), imageWidth, imageHeight);
+        return segmentationMask!
+            .containsPoint(x.round(), y.round(), imageWidth, imageHeight);
     }
   }
 
@@ -186,10 +190,10 @@ extension BoundingBox2DExtension on BoundingBox2D {
 enum MarkerType {
   /// User-defined marker (point or area selection)
   userDefined,
-  
+
   /// AI-detected object with bounding box
   aiDetection,
-  
+
   /// AI-generated segmentation mask
   aiSegmentation,
 }

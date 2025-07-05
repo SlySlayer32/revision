@@ -23,7 +23,10 @@ class ImageEditorCubit extends Cubit<ImageEditorState> {
       final currentStroke = currentStrokes.last.copyWith(
         points: [...currentStrokes.last.points, point],
       );
-      final updatedStrokes = [...currentStrokes.sublist(0, currentStrokes.length - 1), currentStroke];
+      final updatedStrokes = [
+        ...currentStrokes.sublist(0, currentStrokes.length - 1),
+        currentStroke
+      ];
       emit(ImageEditorDrawing(strokes: updatedStrokes));
     }
   }

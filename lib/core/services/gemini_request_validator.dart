@@ -195,8 +195,7 @@ class GeminiRequestValidator {
     // Validate confidence threshold
     if (confidenceThreshold < 0.0 || confidenceThreshold > 1.0) {
       return const ValidationResult.failure(
-        'Confidence threshold must be between 0.0 and 1.0'
-      );
+          'Confidence threshold must be between 0.0 and 1.0');
     }
 
     // Validate target objects format
@@ -204,30 +203,28 @@ class GeminiRequestValidator {
       final trimmedTargets = targetObjects.trim();
       if (trimmedTargets.length > 200) {
         return const ValidationResult.failure(
-          'Target objects description is too long (max 200 characters)'
-        );
+            'Target objects description is too long (max 200 characters)');
       }
-      
+
       // Check for potentially problematic characters
       if (trimmedTargets.contains(RegExp(r'[<>{}"\[\]\\]'))) {
         return const ValidationResult.failure(
-          'Target objects contains invalid characters'
-        );
+            'Target objects contains invalid characters');
       }
     }
 
     // Validate image size for segmentation (more restrictive)
-    if (imageBytes.length > 15 * 1024 * 1024) { // 15MB max for segmentation
+    if (imageBytes.length > 15 * 1024 * 1024) {
+      // 15MB max for segmentation
       return const ValidationResult.failure(
-        'Image too large for segmentation (max 15MB recommended)'
-      );
+          'Image too large for segmentation (max 15MB recommended)');
     }
 
     // Check for minimum image size
-    if (imageBytes.length < 1024) { // 1KB minimum
+    if (imageBytes.length < 1024) {
+      // 1KB minimum
       return const ValidationResult.failure(
-        'Image too small for reliable segmentation'
-      );
+          'Image too small for reliable segmentation');
     }
 
     return const ValidationResult.success();

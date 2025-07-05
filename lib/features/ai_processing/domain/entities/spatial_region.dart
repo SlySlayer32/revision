@@ -1,8 +1,9 @@
 import 'dart:math' as math;
+
 import 'package:revision/features/ai_processing/domain/entities/spatial_point.dart';
 
 /// Represents a spatial region containing an object or area of interest
-/// 
+///
 /// Used for object detection and spatial analysis results
 class SpatialRegion {
   const SpatialRegion({
@@ -146,8 +147,10 @@ class SpatialRegion {
     return SpatialRegion(
       id: json['id'] as String,
       name: json['name'] as String,
-      centerPoint: SpatialPoint.fromJson(json['centerPoint'] as Map<String, dynamic>),
-      boundingBox: SpatialBoundingBox.fromJson(json['boundingBox'] as Map<String, dynamic>),
+      centerPoint:
+          SpatialPoint.fromJson(json['centerPoint'] as Map<String, dynamic>),
+      boundingBox: SpatialBoundingBox.fromJson(
+          json['boundingBox'] as Map<String, dynamic>),
       confidence: (json['confidence'] as num).toDouble(),
       description: json['description'] as String?,
       objectType: json['objectType'] as String?,
@@ -201,7 +204,8 @@ class SpatialBoundingBox {
     final overlapRight = math.min(right, other.right);
     final overlapBottom = math.min(bottom, other.bottom);
 
-    final overlapArea = (overlapRight - overlapLeft) * (overlapBottom - overlapTop);
+    final overlapArea =
+        (overlapRight - overlapLeft) * (overlapBottom - overlapTop);
     final unionArea = area + other.area - overlapArea;
 
     return unionArea > 0 ? overlapArea / unionArea : 0.0;

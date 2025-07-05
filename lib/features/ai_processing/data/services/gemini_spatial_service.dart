@@ -1,16 +1,15 @@
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:revision/features/ai_processing/domain/entities/spatial_analysis_result.dart';
 import 'package:revision/features/ai_processing/domain/entities/spatial_point.dart';
 import 'package:revision/features/ai_processing/domain/entities/spatial_region.dart';
 
 /// Spatial Understanding service based on Gemini's spatial capabilities
-/// 
+///
 /// Implements the spatial understanding techniques from:
 /// https://colab.research.google.com/github/google-gemini/cookbook/blob/main/quickstarts/Spatial_understanding.ipynb
 class GeminiSpatialService {
   static const String _model = 'gemini-2.0-flash-exp';
-  
+
   /// Analyzes spatial relationships in an image using Gemini's spatial understanding
   Future<SpatialAnalysisResult?> analyzeSpatialRelationships({
     required Uint8List imageBytes,
@@ -20,7 +19,7 @@ class GeminiSpatialService {
     try {
       // Prepare the spatial analysis prompt
       final spatialPrompt = _buildSpatialPrompt(query, referencePoints);
-      
+
       if (kDebugMode) {
         debugPrint('🔍 Spatial Analysis: Analyzing image with query: $query');
       }
@@ -52,9 +51,10 @@ class GeminiSpatialService {
   }) async {
     try {
       final prompt = _buildObjectLocationPrompt(objectTypes);
-      
+
       if (kDebugMode) {
-        debugPrint('🔍 Object Location: Searching for ${objectTypes.join(', ')}');
+        debugPrint(
+            '🔍 Object Location: Searching for ${objectTypes.join(', ')}');
       }
 
       final response = await _callGeminiSpatialAPI(
@@ -83,9 +83,10 @@ class GeminiSpatialService {
   }) async {
     try {
       final prompt = _buildRelationshipPrompt(objects);
-      
+
       if (kDebugMode) {
-        debugPrint('🔍 Relationship Analysis: Analyzing relationships between ${objects.join(', ')}');
+        debugPrint(
+            '🔍 Relationship Analysis: Analyzing relationships between ${objects.join(', ')}');
       }
 
       final response = await _callGeminiSpatialAPI(
@@ -108,29 +109,34 @@ class GeminiSpatialService {
   }
 
   /// Builds spatial analysis prompt based on Gemini cookbook patterns
-  String _buildSpatialPrompt(String query, List<SpatialPoint>? referencePoints) {
+  String _buildSpatialPrompt(
+      String query, List<SpatialPoint>? referencePoints) {
     final buffer = StringBuffer();
-    
+
     buffer.writeln('Analyze the spatial relationships in this image.');
     buffer.writeln('Focus on: $query');
     buffer.writeln();
     buffer.writeln('Please provide:');
-    buffer.writeln('1. Object locations using coordinates (x, y as percentages of image dimensions)');
-    buffer.writeln('2. Spatial relationships (above, below, left, right, inside, outside)');
+    buffer.writeln(
+        '1. Object locations using coordinates (x, y as percentages of image dimensions)');
+    buffer.writeln(
+        '2. Spatial relationships (above, below, left, right, inside, outside)');
     buffer.writeln('3. Relative distances and positioning');
     buffer.writeln('4. Any spatial context relevant to the query');
-    
+
     if (referencePoints != null && referencePoints.isNotEmpty) {
       buffer.writeln();
       buffer.writeln('Reference points provided:');
       for (int i = 0; i < referencePoints.length; i++) {
         final point = referencePoints[i];
-        buffer.writeln('Point ${i + 1}: (${point.x}, ${point.y}) - ${point.label ?? 'Unknown'}');
+        buffer.writeln(
+            'Point ${i + 1}: (${point.x}, ${point.y}) - ${point.label ?? 'Unknown'}');
       }
     }
 
     buffer.writeln();
-    buffer.writeln('Format your response as JSON with the following structure:');
+    buffer
+        .writeln('Format your response as JSON with the following structure:');
     buffer.writeln('''{
   "objects": [
     {
@@ -157,19 +163,19 @@ class GeminiSpatialService {
   /// Builds object location prompt
   String _buildObjectLocationPrompt(List<String> objectTypes) {
     final buffer = StringBuffer();
-    
+
     buffer.writeln('Identify and locate the following objects in this image:');
     for (final objectType in objectTypes) {
       buffer.writeln('- $objectType');
     }
-    
+
     buffer.writeln();
     buffer.writeln('For each object found, provide:');
     buffer.writeln('1. Exact location coordinates (x, y as percentages)');
     buffer.writeln('2. Bounding box coordinates');
     buffer.writeln('3. Confidence level');
     buffer.writeln('4. Brief description');
-    
+
     buffer.writeln();
     buffer.writeln('Respond in JSON format with an array of found objects.');
 
@@ -179,16 +185,18 @@ class GeminiSpatialService {
   /// Builds relationship analysis prompt
   String _buildRelationshipPrompt(List<String> objects) {
     final buffer = StringBuffer();
-    
-    buffer.writeln('Analyze the spatial relationships between these objects in the image:');
+
+    buffer.writeln(
+        'Analyze the spatial relationships between these objects in the image:');
     for (final object in objects) {
       buffer.writeln('- $object');
     }
-    
+
     buffer.writeln();
     buffer.writeln('Describe how each object relates spatially to the others.');
-    buffer.writeln('Include relative positions, distances, and any containment relationships.');
-    
+    buffer.writeln(
+        'Include relative positions, distances, and any containment relationships.');
+
     return buffer.toString();
   }
 
@@ -203,10 +211,10 @@ class GeminiSpatialService {
       // 1. Encode image properly for spatial analysis
       // 2. Use specific model configurations for spatial tasks
       // 3. Parse spatial coordinates and relationships
-      
+
       // Placeholder for actual API integration
       // TODO: Integrate with your existing GeminiAIService
-      
+
       if (kDebugMode) {
         debugPrint('🔗 Calling Gemini API for spatial analysis');
         debugPrint('🔗 Model: $_model');
@@ -275,7 +283,8 @@ class GeminiSpatialService {
       }
     }
 
-    final summary = response['summary'] as String? ?? 'Spatial analysis completed';
+    final summary =
+        response['summary'] as String? ?? 'Spatial analysis completed';
 
     return SpatialAnalysisResult(
       objects: objects,

@@ -5,7 +5,7 @@ import 'package:revision/core/error/failures.dart';
 import 'package:revision/features/authentication/domain/exceptions/auth_exception.dart';
 
 /// Production-grade exception handling service
-/// 
+///
 /// Centralizes exception handling patterns to eliminate code duplication
 /// and ensure consistent error processing across the application.
 class ExceptionHandlerService {
@@ -14,11 +14,11 @@ class ExceptionHandlerService {
   ExceptionHandlerService._();
 
   /// Handles Firebase Authentication exceptions with consistent mapping
-  /// 
+  ///
   /// [operation] - Name of the operation being performed (for logging)
   /// [exception] - The caught exception
   /// [context] - Additional context for logging
-  /// 
+  ///
   /// Returns appropriate [AuthenticationFailure] based on exception type
   AuthenticationFailure handleAuthException(
     String operation,
@@ -148,11 +148,11 @@ class ExceptionHandlerService {
   }
 
   /// Handles generic exceptions with structured logging
-  /// 
+  ///
   /// [operation] - Name of the operation being performed
   /// [exception] - The caught exception
   /// [context] - Additional context for logging
-  /// 
+  ///
   /// Returns appropriate [Failure] based on exception type
   Failure handleGenericException(
     String operation,
@@ -202,10 +202,10 @@ class ExceptionHandlerService {
   }
 
   /// Creates a performance-monitored exception handler wrapper
-  /// 
+  ///
   /// [operation] - Name of the operation for logging
   /// [action] - The async action to execute
-  /// 
+  ///
   /// Returns the result of the action or appropriate failure
   Future<T> withExceptionHandling<T>(
     String operation,
@@ -223,11 +223,11 @@ class ExceptionHandlerService {
         error: e,
         name: 'ExceptionHandler',
       );
-      
+
       if (context != null) {
         log('Context: ${context.toString()}', name: 'ExceptionHandler');
       }
-      
+
       rethrow;
     }
   }

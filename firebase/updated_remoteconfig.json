@@ -1,0 +1,86 @@
+{
+  "conditions": [
+    {
+      "name": "android_users",
+      "expression": "device.os == 'android'",
+      "tagColor": "BLUE"
+    },
+    {
+      "name": "debug_mode_users",
+      "expression": "percent <= 5",
+      "tagColor": "ORANGE"
+    }
+  ],
+  "parameters": {
+    "ai_gemini_model": {
+      "defaultValue": {
+        "value": "gemini-2.5-flash"
+      },
+      "description": "Primary Gemini model for text analysis and processing (supports system instructions)",
+      "valueType": "STRING"
+    },
+    "ai_gemini_image_model": {
+      "defaultValue": {
+        "value": "gemini-2.0-flash-preview-image-generation"
+      },
+      "description": "Gemini model for image generation and processing (does NOT support system instructions)",
+      "valueType": "STRING"
+    },
+    "ai_analysis_system_prompt": {
+      "defaultValue": {
+        "value": "You are an AI specialized in analyzing marked objects in images for removal..."
+      },
+      "description": "System instructions for the analysis model",
+      "valueType": "STRING"
+    },
+    "user_prompt_template": {
+      "defaultValue": {
+        "value": "Analyze this image and provide detailed editing instructions for the marked objects."
+      },
+      "description": "Template for user prompts for the analysis model",
+      "valueType": "STRING"
+    },
+    "ai_enable_advanced_features": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Enable experimental AI features",
+      "valueType": "STRING"
+    },
+    "ai_max_output_tokens": {
+      "defaultValue": {
+        "value": "1024"
+      },
+      "description": "Maximum tokens in AI response. Higher = longer responses",
+      "valueType": "STRING"
+    },
+    "ai_request_timeout_seconds": {
+      "defaultValue": {
+        "value": "30"
+      },
+      "description": "Timeout for AI requests in seconds",
+      "valueType": "STRING"
+    },
+    "ai_temperature": {
+      "defaultValue": {
+        "value": "0.4"
+      },
+      "description": "Controls creativity vs consistency (0.0-1.0). Lower = more focused, Higher = more creative",
+      "valueType": "STRING"
+    },
+    "ai_top_k": {
+      "defaultValue": {
+        "value": "40"
+      },
+      "description": "Top-K sampling parameter. Lower = more focused responses",
+      "valueType": "STRING"
+    },
+    "ai_top_p": {
+      "defaultValue": {
+        "value": "0.95"
+      },
+      "description": "Top-P (nucleus) sampling parameter. Lower = more focused responses",
+      "valueType": "STRING"
+    }
+  }
+}

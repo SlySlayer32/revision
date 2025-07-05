@@ -124,10 +124,9 @@ class _ProcessingControlsState extends State<ProcessingControls> {
                     label: 'Priority',
                     value: _controller.selectedPriority,
                     items: PerformancePriority.values,
-                    onChanged: (value) =>
-                        _controller.selectedPriority = value!,
-                    itemBuilder: (priority) =>
-                        ProcessingUIConstants.performancePriorityLabels[priority.name]!,
+                    onChanged: (value) => _controller.selectedPriority = value!,
+                    itemBuilder: (priority) => ProcessingUIConstants
+                        .performancePriorityLabels[priority.name]!,
                   ),
                 ],
               ),

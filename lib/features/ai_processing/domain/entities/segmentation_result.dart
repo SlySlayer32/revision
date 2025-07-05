@@ -52,7 +52,8 @@ class SegmentationResult extends Equatable {
   ) {
     final masksJson = json['masks'] as List<dynamic>? ?? [];
     final masks = masksJson
-        .map((maskJson) => SegmentationMask.fromJson(maskJson as Map<String, dynamic>))
+        .map((maskJson) =>
+            SegmentationMask.fromJson(maskJson as Map<String, dynamic>))
         .toList();
 
     return SegmentationResult(
@@ -61,8 +62,11 @@ class SegmentationResult extends Equatable {
       imageWidth: imageWidth,
       imageHeight: imageHeight,
       modelVersion: json['modelVersion'] as String? ?? 'gemini-2.5-flash',
-      confidence: (json['confidence'] as num?)?.toDouble() ?? 
-        (masks.isNotEmpty ? masks.map((m) => m.confidence).reduce((a, b) => a + b) / masks.length : 0.0),
+      confidence: (json['confidence'] as num?)?.toDouble() ??
+          (masks.isNotEmpty
+              ? masks.map((m) => m.confidence).reduce((a, b) => a + b) /
+                  masks.length
+              : 0.0),
     );
   }
 
@@ -80,22 +84,24 @@ class SegmentationResult extends Equatable {
 
   /// Get masks filtered by label/object type
   List<SegmentationMask> getMasksByLabel(String label) {
-    return masks.where((mask) => 
-      mask.label.toLowerCase().contains(label.toLowerCase())).toList();
+    return masks
+        .where((mask) => mask.label.toLowerCase().contains(label.toLowerCase()))
+        .toList();
   }
 
   /// Get masks that overlap with a given point
   List<SegmentationMask> getMasksAtPoint(int x, int y) {
-    return masks.where((mask) => 
-      mask.containsPoint(x, y, imageWidth, imageHeight)).toList();
+    return masks
+        .where((mask) => mask.containsPoint(x, y, imageWidth, imageHeight))
+        .toList();
   }
 
   /// Get the largest mask by area
   SegmentationMask? getLargestMask() {
     if (masks.isEmpty) return null;
-    
-    return masks.reduce((a, b) => 
-      a.boundingBox.area > b.boundingBox.area ? a : b);
+
+    return masks
+        .reduce((a, b) => a.boundingBox.area > b.boundingBox.area ? a : b);
   }
 
   /// Get masks above a confidence threshold
@@ -115,8 +121,10 @@ class SegmentationResult extends Equatable {
     }
 
     final uniqueLabels = masks.map((m) => m.label).toSet().toList();
-    final avgConfidence = masks.map((m) => m.confidence).reduce((a, b) => a + b) / masks.length;
-    final totalArea = masks.map((m) => m.boundingBox.area).reduce((a, b) => a + b);
+    final avgConfidence =
+        masks.map((m) => m.confidence).reduce((a, b) => a + b) / masks.length;
+    final totalArea =
+        masks.map((m) => m.boundingBox.area).reduce((a, b) => a + b);
 
     return SegmentationStats(
       totalMasks: masks.length,
@@ -129,8 +137,8 @@ class SegmentationResult extends Equatable {
   @override
   String toString() {
     return 'SegmentationResult(masks: ${masks.length}, '
-           'confidence: ${confidence.toStringAsFixed(2)}, '
-           'processingTime: ${processingTimeMs}ms)';
+        'confidence: ${confidence.toStringAsFixed(2)}, '
+        'processingTime: ${processingTimeMs}ms)';
   }
 }
 
@@ -149,13 +157,14 @@ class SegmentationStats extends Equatable {
   final double totalArea;
 
   @override
-  List<Object?> get props => [totalMasks, averageConfidence, uniqueLabels, totalArea];
+  List<Object?> get props =>
+      [totalMasks, averageConfidence, uniqueLabels, totalArea];
 
   @override
   String toString() {
     return 'SegmentationStats(masks: $totalMasks, '
-           'avgConfidence: ${averageConfidence.toStringAsFixed(2)}, '
-           'labels: ${uniqueLabels.length}, '
-           'area: ${totalArea.toStringAsFixed(1)})';
+        'avgConfidence: ${averageConfidence.toStringAsFixed(2)}, '
+        'labels: ${uniqueLabels.length}, '
+        'area: ${totalArea.toStringAsFixed(1)})';
   }
 }

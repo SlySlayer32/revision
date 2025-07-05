@@ -12,7 +12,7 @@ import 'package:revision/features/demo/object_removal_demo_page.dart';
 import 'package:revision/features/image_selection/presentation/view/image_selection_page.dart';
 
 /// App-wide route generator that provides null-safe navigation
-/// 
+///
 /// This class ensures all routes have proper settings and handles
 /// unknown routes gracefully to prevent navigation errors.
 class AppRouteGenerator {
@@ -25,7 +25,8 @@ class AppRouteGenerator {
 
     debugPrint('🔗 AppRouteGenerator: Generating route: $routeName');
     if (arguments != null) {
-      debugPrint('🔗 AppRouteGenerator: Arguments: ${NavigationArguments.debugSummary(arguments)}');
+      debugPrint(
+          '🔗 AppRouteGenerator: Arguments: ${NavigationArguments.debugSummary(arguments)}');
     }
 
     try {
@@ -88,7 +89,7 @@ class AppRouteGenerator {
     } catch (e, stackTrace) {
       debugPrint('❌ AppRouteGenerator: Error generating route $routeName: $e');
       debugPrint('❌ Stack trace: $stackTrace');
-      
+
       return SafeNavigation.createErrorRoute(
         'Failed to generate route: $routeName\nError: $e',
       );
@@ -109,12 +110,15 @@ class AppRouteGenerator {
   /// Generates AI processing route with argument validation
   static Route<dynamic> _generateAiProcessingRoute(RouteSettings settings) {
     final args = NavigationArguments.toSafeMap(settings.arguments);
-    
-    final selectedImage = NavigationArguments.extractValue(args, 'selectedImage');
-    final annotatedImage = NavigationArguments.extractValue(args, 'annotatedImage');
+
+    final selectedImage =
+        NavigationArguments.extractValue(args, 'selectedImage');
+    final annotatedImage =
+        NavigationArguments.extractValue(args, 'annotatedImage');
 
     if (selectedImage == null) {
-      debugPrint('⚠️ AppRouteGenerator: AI processing route missing selectedImage');
+      debugPrint(
+          '⚠️ AppRouteGenerator: AI processing route missing selectedImage');
       return SafeNavigation.createErrorRoute(
         'AI Processing requires a selected image.\nPlease select an image first.',
       );
@@ -144,9 +148,9 @@ class AppRouteGenerator {
   /// Generates route for unknown/undefined routes
   static Route<dynamic> _generateUnknownRoute(RouteSettings settings) {
     final routeName = settings.name ?? 'unknown';
-    
+
     debugPrint('⚠️ AppRouteGenerator: Unknown route: $routeName');
-    
+
     return MaterialPageRoute<void>(
       settings: RouteSettings(
         name: RouteNames.notFound,
@@ -191,11 +195,11 @@ class AppRouteGenerator {
       case RouteNames.aiProcessing:
         final args = NavigationArguments.toSafeMap(arguments);
         return NavigationArguments.validateArguments(args, ['selectedImage']);
-      
+
       case RouteNames.error:
         final args = NavigationArguments.toSafeMap(arguments);
         return NavigationArguments.validateArguments(args, ['error']);
-      
+
       default:
         return true; // Most routes don't require specific arguments
     }

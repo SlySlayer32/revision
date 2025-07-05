@@ -37,5 +37,6 @@ class GeminiPipelineState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, processingResult, errorMessage, progressMessage];
+  List<Object?> get props =>
+      [status, processingResult, errorMessage, progressMessage];
 }

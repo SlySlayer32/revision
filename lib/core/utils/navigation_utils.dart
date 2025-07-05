@@ -16,7 +16,8 @@ class NavigationUtils {
   }) async {
     if (!context.mounted) {
       if (kDebugMode) {
-        debugPrint('⚠️ Context not mounted during navigation to ${routeName ?? 'unknown route'}');
+        debugPrint(
+            '⚠️ Context not mounted during navigation to ${routeName ?? 'unknown route'}');
       }
       return null;
     }
@@ -44,20 +45,23 @@ class NavigationUtils {
   }) async {
     if (!context.mounted) {
       if (kDebugMode) {
-        debugPrint('⚠️ Context not mounted during replacement to ${routeName ?? 'unknown route'}');
+        debugPrint(
+            '⚠️ Context not mounted during replacement to ${routeName ?? 'unknown route'}');
       }
       return null;
     }
 
     try {
-      final navigationResult = await Navigator.of(context).pushReplacement(newRoute, result: result);
+      final navigationResult =
+          await Navigator.of(context).pushReplacement(newRoute, result: result);
       if (kDebugMode && routeName != null) {
         debugPrint('✅ Successfully replaced route with: $routeName');
       }
       return navigationResult;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ Route replacement error to ${routeName ?? 'unknown route'}: $e');
+        debugPrint(
+            '❌ Route replacement error to ${routeName ?? 'unknown route'}: $e');
       }
       return null;
     }
@@ -101,7 +105,8 @@ class NavigationUtils {
   }) async {
     if (!context.mounted) {
       if (kDebugMode) {
-        debugPrint('⚠️ Context not mounted during named navigation to $routeName');
+        debugPrint(
+            '⚠️ Context not mounted during named navigation to $routeName');
       }
       return null;
     }
@@ -115,7 +120,8 @@ class NavigationUtils {
     }
 
     try {
-      final result = await Navigator.of(context).pushNamed(routeName, arguments: arguments);
+      final result = await Navigator.of(context)
+          .pushNamed(routeName, arguments: arguments);
       if (kDebugMode) {
         debugPrint('✅ Successfully navigated to named route: $routeName');
       }
@@ -129,13 +135,14 @@ class NavigationUtils {
   }
 
   /// Safely gets route arguments with type checking
-  static T? safeGetRouteArguments<T>(BuildContext context, {
+  static T? safeGetRouteArguments<T>(
+    BuildContext context, {
     String? expectedType,
   }) {
     try {
       final settings = ModalRoute.of(context)?.settings;
       final arguments = settings?.arguments;
-      
+
       if (arguments == null) {
         if (kDebugMode && expectedType != null) {
           debugPrint('⚠️ No route arguments found, expected: $expectedType');
@@ -145,13 +152,15 @@ class NavigationUtils {
 
       if (arguments is T) {
         if (kDebugMode) {
-          debugPrint('✅ Successfully retrieved route arguments of type: ${arguments.runtimeType}');
+          debugPrint(
+              '✅ Successfully retrieved route arguments of type: ${arguments.runtimeType}');
         }
         return arguments as T;
       }
 
       if (kDebugMode) {
-        debugPrint('⚠️ Route arguments type mismatch. Expected: $T, Got: ${arguments.runtimeType}');
+        debugPrint(
+            '⚠️ Route arguments type mismatch. Expected: $T, Got: ${arguments.runtimeType}');
       }
       return null;
     } catch (e) {
@@ -205,7 +214,8 @@ class NavigationUtils {
   }) async {
     if (!context.mounted) {
       if (kDebugMode) {
-        debugPrint('⚠️ Context not mounted during stack clear to ${routeName ?? 'unknown route'}');
+        debugPrint(
+            '⚠️ Context not mounted during stack clear to ${routeName ?? 'unknown route'}');
       }
       return null;
     }
@@ -221,7 +231,8 @@ class NavigationUtils {
       return result;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ Stack clear navigation error to ${routeName ?? 'unknown route'}: $e');
+        debugPrint(
+            '❌ Stack clear navigation error to ${routeName ?? 'unknown route'}: $e');
       }
       return null;
     }
@@ -234,7 +245,8 @@ class NavigationUtils {
   ) {
     if (!context.mounted) {
       if (kDebugMode) {
-        debugPrint('⚠️ Context not mounted during popUntil to $targetRouteName');
+        debugPrint(
+            '⚠️ Context not mounted during popUntil to $targetRouteName');
       }
       return;
     }
@@ -260,7 +272,7 @@ class NavigationUtils {
     try {
       final navigator = Navigator.of(context);
       debugPrint('📍 Current Navigation Stack:');
-      
+
       // This is a simplified representation since we can't easily access the full stack
       final currentRoute = ModalRoute.of(context);
       if (currentRoute != null) {
