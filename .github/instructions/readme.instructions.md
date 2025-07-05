@@ -1203,3 +1203,108 @@ echo "   • ./scripts/run-dev.sh     - Start development environment"
 echo "   • ./scripts/run-tests.sh   - Run all tests with coverage"
 echo "   • ./scripts/build-all.sh   - Build for all platforms"
 
+6. DEBUGGING & TROUBLESHOOTING GUIDE
+Comprehensive Debug Service
+// lib/core/services/debug_service.dart
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
+/// Comprehensive debugging service for development
+class DebugService {
+  static bool _isInitialized = false;
+  
+  /// Initializes debug service with comprehensive system info
+  static Future<void> initialize() async {
+    if (!kDebugMode || _isInitialized) return;
+    
+    try {
+      log('🐛 Initializing Debug Service...');
+      
+      await _logSystemInfo();
+      await _logFirebaseInfo();
+      await _logNetworkInfo();
+      
+      _isInitialized = true;
+      log('✅ Debug Service initialized');
+      
+    } catch (e) {
+      log('❌ Debug Service initialization failed: $e');
+    }
+  }
+  
+  /// Logs comprehensive system information
+  static Future<void> _logSystemInfo() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final deviceInfo = DeviceInfoPlugin();
+      
+      log('📱 App Info:');
+      log('   • Name: ${packageInfo.appName}');
+      log('   • Version: ${packageInfo.version}+${packageInfo.buildNumber}');
+      log('   • Package: ${packageInfo.packageName}');
+      
+      if (Platform.isAndroid) {
+        final androidInfo = await deviceInfo.androidInfo;
+        log('🤖 Android Device:');
+        log('   • Model: ${androidInfo.model}');
+        log('   • Manufacturer: ${androidInfo.manufacturer}');
+        log('   • Android Version: ${androidInfo.version.release}');
+        log('   • SDK: ${androidInfo.version.sdkInt}');
+        log('   • Is Emulator: ${!androidInfo.isPhysicalDevice}');
+      } else if (Platform.isIOS) {
+        final iosInfo = await deviceInfo.iosInfo;
+        log('🍎 iOS Device:');
+        log('   • Model: ${iosInfo.model}');
+        log('   • Name: ${iosInfo.name}');
+        log('   • iOS Version: ${iosInfo.systemVersion}');
+        log('   • Is Simulator: ${!iosInfo.isPhysicalDevice}');
+      }
+      
+    } catch (e) {
+      log('❌ Failed to log system info: $e');
+    }
+  }
+  
+  /// Logs Firebase connection status
+  static Future<void> _logFirebaseInfo() async {
+    try {
+      log('🔥 Firebase Info:');
+      
+      final app = Firebase.app();
+      log('   • Project ID: ${app.options.projectId}');
+      log('   • App ID: ${app.options.appId}');
+      
+      // Check Auth status
+      final auth = FirebaseAuth.instance;
+      log('   • Auth User: ${auth.currentUser?.email ?? 'Not signed in'}');
+      log('   • Auth Emulator: ${_isUsingEmulator(auth.app.options.projectId)}');
+      
+    } catch (e) {
+      log('❌ Failed to log Firebase info: $e');
+    }
+  }
+  
+  /// Logs network connectivity information
+  static Future<void> _logNetworkInfo() async {
+    try {
+      log('🌐 Network Info:');
+      
+      // Test connectivity to various services
+      final testUrls = [
+        'https://www.google.com',
+        'https://firebase.googleapis.com',
+        'https://generativelanguage.googleapis.com',
+      ];
+      
+      for (final url in testUrls) {
+        try {
+          final client = HttpClient();
+          final request = await client.getUrl(Uri.parse(url));
+          request.headers.set('User-Agent', 'Revision-Debug/1.0');
+          final
