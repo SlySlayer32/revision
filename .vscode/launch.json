@@ -47,8 +47,7 @@
       "args": [
         "--flavor",
         "production",
-        "--dart-define=ENVIRONMENT=production",
-        "--dart-define=GEMINI_API_KEY=YOUR_PRODUCTION_GEMINI_API_KEY_HERE"
+        "--dart-define=ENVIRONMENT=production"
       ],
       "toolArgs": [
         "--vm-service-port=8183"
