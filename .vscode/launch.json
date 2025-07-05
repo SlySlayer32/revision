@@ -68,7 +68,7 @@
         "--dart-define",
         "ENVIRONMENT=production",
         "--dart-define",
-        "ENVIRONMENT=production"
+        "GEMINI_API_KEY=YOUR_PRODUCTION_GEMINI_API_KEY_HERE"
       ],
       "toolArgs": [
         "--vm-service-port=8183"
