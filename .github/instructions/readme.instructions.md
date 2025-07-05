@@ -1,8 +1,6 @@
 ---
 applyTo: '**'
 ---
-# GitHub Copilot Instructions - Ampcode Style Production Development
-
 ## Core Philosophy
 - Write production-ready code from the start, not prototypes
 - Prioritize maintainability, scalability, and performance
