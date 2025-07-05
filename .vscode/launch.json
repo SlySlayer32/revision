@@ -152,7 +152,6 @@
       "program": "lib/main_staging.dart",
       "args": [
         "--dart-define=ENVIRONMENT=staging",
-        "--dart-define=GEMINI_API_KEY=YOUR_STAGING_GEMINI_API_KEY_HERE",
         "-d",
         "chrome"
       ],
