@@ -2,155 +2,257 @@
 applyTo: '**'
 ---
 ## Core Philosophy
-- Write production-ready code from the start, not prototypes
+- Write production-ready Flutter/Dart code from the start, not prototypes
 - Prioritize maintainability, scalability, and performance
-- Follow enterprise-grade patterns and practices
-- Implement comprehensive error handling and logging
-- Write self-documenting code with clear intent
+- Follow Flutter/Dart best practices and enterprise-grade patterns
+- Implement comprehensive error handling with proper exception types
+- Write self-documenting code with clear intent and purpose
 
 ## Code Quality Standards
 
 ### Architecture & Design Patterns
-- Use SOLID principles and clean architecture
-- Implement dependency injection and inversion of control
-- Apply appropriate design patterns (Factory, Strategy, Observer, etc.)
-- Separate concerns with clear boundaries between layers
-- Use composition over inheritance
+- Use SOLID principles with clean architecture (presentation, domain, data layers)
+- Implement dependency injection using get_it, injectable, or riverpod
+- Apply appropriate design patterns (Repository, Factory, Strategy, Observer, Singleton)
+- Separate concerns with clear boundaries between UI, business logic, and data layers
+- Use composition over inheritance, leverage Dart mixins appropriately
+- Follow BLoC/Cubit pattern for state management or use Riverpod consistently
 
 ### Error Handling & Resilience
-- Implement comprehensive error handling with specific exception types
-- Add retry logic with exponential backoff for external calls
-- Include circuit breaker patterns for service dependencies
-- Log errors with correlation IDs and structured logging
-- Validate all inputs and sanitize outputs
+- Implement comprehensive error handling with custom exception classes extending Exception
+- Use Result/Either pattern for error handling in business logic
+- Add retry logic with exponential backoff for network calls using dio_retry_interceptor
+- Include circuit breaker patterns for external service dependencies
+- Log errors with correlation IDs using logger package with structured logging
+- Validate all inputs using built_value, freezed, or manual validation
+- Use Dart's null safety features effectively
 
 ### Performance & Scalability
-- Write async/await code where appropriate
-- Implement proper connection pooling and resource management
-- Use caching strategies (Redis, in-memory) with TTL
-- Optimize database queries with proper indexing considerations
-- Implement pagination for large datasets
+- Write async/await code properly, avoid blocking the UI thread
+- Implement proper connection pooling using dio with connection timeout
+- Use caching strategies (shared_preferences, hive, sqflite) with TTL
+- Optimize widget rebuilds with const constructors and proper keys
+- Implement pagination for large datasets using ListView.builder
+- Use isolates for CPU-intensive operations
+- Implement proper image caching and optimization
 
 ### Security Best Practices
-- Validate and sanitize all user inputs
-- Use parameterized queries to prevent SQL injection
-- Implement proper authentication and authorization
-- Hash passwords with salt using bcrypt or similar
-- Use HTTPS and secure headers
-- Implement rate limiting and request throttling
+- Validate and sanitize all user inputs using form validators
+- Use parameterized queries with sqflite to prevent SQL injection
+- Implement proper authentication with secure token storage (flutter_secure_storage)
+- Hash sensitive data using crypto package
+- Use HTTPS for all network requests with certificate pinning
+- Implement biometric authentication where appropriate
+- Use obfuscation for release builds
+- Validate SSL certificates and implement certificate pinning
 
 ## Code Structure Requirements
 
 ### Functions & Methods
-- Keep functions small and focused (single responsibility)
-- Use descriptive names that explain intent
-- Include comprehensive JSDoc/docstring comments
-- Add input validation and type checking
-- Return consistent response formats
+- Keep functions small and focused (single responsibility principle)
+- Use descriptive names that explain intent (getUserProfile, not getUser)
+- Include comprehensive dartdoc comments with @param and @returns
+- Add input validation and null checks
+- Return consistent response types using sealed classes or Result patterns
+- Use named parameters for functions with multiple arguments
 
-### Classes & Modules
-- Use TypeScript interfaces and types for all data structures
-- Implement proper encapsulation with private/protected members
-- Add constructor validation and initialization
-- Include static factory methods where appropriate
-- Export only necessary public APIs
+### Classes & Widgets
+- Use immutable data classes with freezed or built_value
+- Implement proper widget lifecycle management
+- Add const constructors where possible for performance
+- Use StatelessWidget over StatefulWidget when state is not needed
+- Implement proper dispose methods for controllers and streams
+- Export only necessary public APIs from libraries
+- Use extension methods to add functionality to existing classes
 
 ### Database & Data Access
-- Use repository pattern for data access
+- Use repository pattern for data access abstraction
 - Implement database transactions for multi-step operations
-- Add connection pooling and timeout configurations
-- Include database migration scripts
-- Use ORM/ODM with proper entity relationships
+- Add proper database migration handling with sqflite
+- Use ORM like drift or moor for complex database operations
+- Implement proper connection management and cleanup
+- Cache frequently accessed data appropriately
+
+## Flutter-Specific Requirements
+
+### Widget Development
+- Use const constructors wherever possible for performance
+- Implement proper key usage for widget identification
+- Use Builder widgets to limit rebuild scope
+- Implement custom widgets for reusable UI components
+- Use Slivers for complex scrollable layouts
+- Implement proper accessibility features (semantics)
+
+### State Management
+- Use BLoC/Cubit pattern with proper event/state definitions
+- Implement proper state disposal to prevent memory leaks
+- Use context.read() and context.watch() appropriately
+- Implement loading, success, and error states consistently
+- Use sealed classes for state definitions with freezed
+- Avoid setState in complex widgets, prefer BLoC/Riverpod
+
+### Navigation & Routing
+- Use named routes with proper route generation
+- Implement deep linking support with go_router
+- Add proper navigation guards and authentication checks
+- Use proper page transitions and animations
+- Implement bottom navigation with proper state preservation
+
+### Platform Integration
+- Use method channels for platform-specific functionality
+- Implement proper platform checks (Platform.isAndroid/isIOS)
+- Use platform-specific UI patterns (Material/Cupertino)
+- Implement proper permission handling with permission_handler
+- Use native splash screens and app icons
 
 ## Testing Requirements
-- Write unit tests for all business logic
-- Include integration tests for API endpoints
-- Add end-to-end tests for critical user flows
-- Mock external dependencies properly
+- Write unit tests for all business logic and utilities
+- Include widget tests for all custom widgets
+- Add integration tests for critical user flows
+- Mock dependencies using mockito or mocktail
+- Test BLoC/Cubit states and events thoroughly
 - Achieve minimum 80% code coverage
+- Use golden tests for UI consistency
+- Test error scenarios and edge cases
 
 ## Documentation Standards
-- Include README with setup, usage, and deployment instructions
-- Document API endpoints with OpenAPI/Swagger specs
-- Add inline comments for complex business logic
-- Include architecture diagrams and decision records
-- Document environment variables and configuration
+- Include README with Flutter setup, dependencies, and build instructions
+- Document API integration with clear examples
+- Add inline dartdoc comments for public APIs
+- Include architecture diagrams showing layer separation
+- Document build flavors and environment configuration
+- Document state management patterns used
+- Include troubleshooting section for common issues
 
-## Technology-Specific Guidelines
+## Dart/Flutter-Specific Guidelines
 
-### Node.js/TypeScript
-- Use strict TypeScript configuration
-- Implement proper middleware chain for Express
-- Use environment-based configuration with validation
-- Include health check endpoints
-- Implement graceful shutdown handling
+### Dart Language Features
+- Use null safety effectively with proper null checks
+- Implement proper async/await patterns, avoid .then() chains
+- Use extension methods for utility functions
+- Leverage Dart's collection methods (map, where, fold, etc.)
+- Use sealed classes with freezed for data modeling
+- Implement proper toString, hashCode, and equality operators
+- Use late keyword appropriately for lazy initialization
 
-### React/Frontend
-- Use functional components with hooks
-- Implement proper state management (Redux/Zustand)
-- Add loading states and error boundaries
-- Use TypeScript for all components and props
-- Implement proper form validation
+### Package Management
+- Keep pubspec.yaml organized with proper versioning
+- Use dependency overrides sparingly and document reasons
+- Implement proper dev_dependencies separation
+- Use path dependencies for local packages
+- Keep dependencies up to date with regular updates
+- Use specific version constraints to avoid breaking changes
 
-### Python
-- Follow PEP 8 style guidelines
-- Use type hints for all functions and classes
-- Implement proper virtual environment setup
-- Use dataclasses or Pydantic for data models
-- Include proper logging configuration
+### Build Configuration
+- Implement proper build flavors (development, staging, production)
+- Use environment variables with --dart-define
+- Configure proper app signing for release builds
+- Implement proper obfuscation and minification
+- Use proper asset management and optimization
+- Configure proper launcher icons and splash screens
 
-### Database
-- Use migrations for schema changes
-- Implement proper indexing strategies
-- Add foreign key constraints and relationships
-- Use connection pooling
-- Include backup and recovery procedures
+### Performance Optimization
+- Use const constructors and widgets extensively
+- Implement proper image caching and optimization
+- Use ListView.builder for large lists
+- Implement proper memory management and disposal
+- Use isolates for heavy computations
+- Optimize app startup time and bundle size
+- Use proper widget keys for efficient rebuilds
+
+## Error Handling Patterns
+
+### Exception Hierarchy
+```dart
+// Create specific exception types
+abstract class AppException implements Exception {
+  final String message;
+  final String? code;
+  const AppException(this.message, [this.code]);
+}
+
+class NetworkException extends AppException {
+  const NetworkException(String message, [String? code]) : super(message, code);
+}
+
+class ValidationException extends AppException {
+  const ValidationException(String message, [String? code]) : super(message, code);
+}
+```
+
+### Result Pattern Implementation
+- Use Result<T, E> pattern for operations that can fail
+- Implement proper error propagation through layers
+- Use sealed classes for different result states
+- Handle errors at appropriate architectural layers
 
 ## Deployment & DevOps
-- Include Dockerfile with multi-stage builds
-- Add docker-compose for local development
-- Include CI/CD pipeline configuration
+- Include proper Android and iOS build configurations
+- Add fastlane configuration for automated deployment
+- Include CI/CD pipeline with GitHub Actions
 - Add environment-specific configuration files
-- Implement health checks and monitoring
+- Implement proper app versioning and build numbers
+- Include crash reporting with Firebase Crashlytics
+- Add performance monitoring with Firebase Performance
 
 ## Code Examples Format
-When providing code examples:
-1. Include complete, runnable implementations
-2. Add comprehensive error handling
-3. Include relevant imports and dependencies
-4. Add configuration and setup code
-5. Include test examples
-6. Add deployment configurations
+When providing Flutter/Dart code examples:
+1. Include complete, runnable widget implementations
+2. Add comprehensive error handling with try-catch blocks
+3. Include relevant imports and pubspec.yaml dependencies
+4. Add proper state management integration
+5. Include widget and unit test examples
+6. Add build configuration and deployment setup
+7. Use proper Dart formatting and linting rules
 
 ## Response Structure
-For each code suggestion:
-1. Explain the architectural approach
-2. Provide the complete implementation
-3. Include error handling and edge cases
-4. Add relevant tests
-5. Suggest monitoring and logging
-6. Include deployment considerations
+For each Flutter code suggestion:
+1. Explain the architectural approach and layer separation
+2. Provide complete widget/class implementations
+3. Include error handling and loading states
+4. Add relevant tests (unit, widget, integration)
+5. Suggest performance optimizations
+6. Include accessibility considerations
+7. Add deployment and build considerations
 
 ## Quality Checklist
-Before suggesting code, ensure:
-- [ ] Follows SOLID principles
+Before suggesting Flutter/Dart code, ensure:
+- [ ] Follows Flutter/Dart best practices and conventions
+- [ ] Uses null safety effectively
 - [ ] Includes comprehensive error handling
 - [ ] Has proper input validation
-- [ ] Uses appropriate design patterns
-- [ ] Includes logging and monitoring
-- [ ] Has security considerations
-- [ ] Is properly typed/documented
-- [ ] Includes relevant tests
-- [ ] Considers performance implications
-- [ ] Follows project conventions
+- [ ] Uses appropriate state management patterns
+- [ ] Includes proper logging and monitoring
+- [ ] Has security considerations (secure storage, network security)
+- [ ] Is properly typed with dartdoc comments
+- [ ] Includes relevant tests (unit, widget, integration)
+- [ ] Considers performance implications (const widgets, efficient rebuilds)
+- [ ] Follows project architecture patterns
+- [ ] Uses proper dependency injection
+- [ ] Implements proper disposal and cleanup
+- [ ] Includes accessibility features
+- [ ] Uses appropriate Flutter widgets and patterns
 
-## Ampcode-Specific Behaviors
-- Always think in terms of production systems
-- Consider scalability from day one
-- Implement monitoring and observability
-- Use infrastructure as code approaches
-- Design for failure and recovery
-- Prioritize developer experience and maintainability
-- Include comprehensive documentation
-- Think about the entire software lifecycle
-- Use version control and branching strategies
+## Flutter-Specific Behaviors
+- Always think in terms of widget composition and reusability
+- Consider platform differences (Material vs Cupertino)
+- Implement proper responsive design for different screen sizes
+- Use Flutter's animation framework appropriately
+- Implement proper theme management and dark mode support
+- Consider offline functionality and data synchronization
+- Use Flutter's testing framework comprehensively
+- Implement proper internationalization (i18n) support
+- Consider app lifecycle management and background processing
+- Use Flutter's accessibility features and semantic widgets
+- Implement proper form validation and user input handling
+- Consider battery optimization and performance monitoring
+
+## Revision App-Specific Patterns
+- Follow the existing flavor structure (development, staging, production)
+- Use the established dependency injection pattern
+- Maintain consistency with existing state management approach
+- Follow the project's folder structure and naming conventions
+- Integrate with existing logging and monitoring solutions
+- Use the established error handling patterns
+- Follow the existing testing patterns and coverage requirements
+- Maintain consistency with existing UI/UX patterns and themes
