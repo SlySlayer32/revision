@@ -450,7 +450,6 @@ class FirebaseEmulatorService {
       // Determine host (use 10.0.2.2 for Android emulator, localhost for others)
       final host = await _getEmulatorHost();
       
-      //
       // Connect to Authentication Emulator
       await FirebaseAuth.instance.useAuthEmulator(host, 9099);
       log('✅ Connected to Auth Emulator at $host:9099');
