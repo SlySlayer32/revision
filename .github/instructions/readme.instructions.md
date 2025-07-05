@@ -880,4 +880,124 @@ class ImageProcessingService {
         
         if (colorDiff <= tolerance) {
           // Mark as selected (white)
-          mask.setPixel(point.x, point.y, img.ColorRg 
+          mask.setPixel(point.x, point.y, img.ColorRg  mask.setPixel(point.x, point.y, img.ColorRgb8(255, 255, 255));
+          
+          // Add neighboring pixels to stack
+          stack.addAll([
+            Point(point.x + 1, point.y),
+            Point(point.x - 1, point.y),
+            Point(point.x, point.y + 1),
+            Point(point.x, point.y - 1),
+          ]);
+        }
+      }
+      
+      // Apply morphological operations to clean up mask
+      final cleanedMask = _cleanupMask(mask);
+      
+      // Convert to PNG bytes
+      final maskBytes = img.encodePng(cleanedMask);
+      
+      log('✅ Flood fill completed: ${visited.length} pixels selected');
+      return Uint8List.fromList(maskBytes);
+      
+    } catch (e) {
+      log('❌ Flood fill failed: $e');
+      rethrow;
+    }
+  }
+  
+  /// Calculates color difference between two pixels
+  static double _calculateColorDifference(img.Pixel pixel1, img.Pixel pixel2) {
+    final r1 = pixel1.r.toDouble();
+    final g1 = pixel1.g.toDouble();
+    final b1 = pixel1.b.toDouble();
+    
+    final r2 = pixel2.r.toDouble();
+    final g2 = pixel2.g.toDouble();
+    final b2 = pixel2.b.toDouble();
+    
+    // Use Euclidean distance in RGB space
+    return ((r1 - r2) * (r1 - r2) + 
+            (g1 - g2) * (g1 - g2) + 
+            (b1 - b2) * (b1 - b2)) / (255 * 255 * 3);
+  }
+  
+  /// Cleans up mask using morphological operations
+  static img.Image _cleanupMask(img.Image mask) {
+    // Apply opening (erosion followed by dilation) to remove noise
+    var cleaned = img.erode(mask, kernel: img.Kernel.circle(radius: 2));
+    cleaned = img.dilate(cleaned, kernel: img.Kernel.circle(radius: 3));
+    
+    // Apply Gaussian blur for smooth edges
+    cleaned = img.gaussianBlur(cleaned, radius: 1.0);
+    
+    return cleaned;
+  }
+  
+  /// Combines original image with AI-generated inpainted result
+  static Future<Uint8List> combineImages(
+    Uint8List originalBytes,
+    Uint8List inpaintedBytes,
+    Uint8List maskBytes,
+  ) async {
+    try {
+      log('🎨 Combining original and inpainted images...');
+      
+      // Decode all images
+      final original = img.decodeImage(originalBytes);
+      final inpainted = img.decodeImage(inpaintedBytes);
+      final mask = img.decodeImage(maskBytes);
+      
+      if (original == null || inpainted == null || mask == null) {
+        throw Exception('Failed to decode one or more images');
+      }
+      
+      // Ensure all images have the same dimensions
+      final width = original.width;
+      final height = original.height;
+      
+      final resizedInpainted = img.copyResize(inpainted, width: width, height: height);
+      final resizedMask = img.copyResize(mask, width: width, height: height);
+      
+      // Create result image
+      final result = img.Image(width: width, height: height);
+      
+      // Blend images pixel by pixel
+      for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+          final maskPixel = resizedMask.getPixel(x, y);
+          final maskValue = maskPixel.r / 255.0; // Use red channel as mask
+          
+          final originalPixel = original.getPixel(x, y);
+          final inpaintedPixel = resizedInpainted.getPixel(x, y);
+          
+          // Blend based on mask value
+          final blendedR = (originalPixel.r * (1 - maskValue) + inpaintedPixel.r * maskValue).round();
+          final blendedG = (originalPixel.g * (1 - maskValue) + inpaintedPixel.g * maskValue).round();
+          final blendedB = (originalPixel.b * (1 - maskValue) + inpaintedPixel.b * maskValue).round();
+          
+          result.setPixel(x, y, img.ColorRgb8(blendedR, blendedG, blendedB));
+        }
+      }
+      
+      // Apply final enhancement
+      final enhanced = img.adjustColor(result, contrast: 1.02, brightness: 1.01);
+      
+      // Encode result
+      final resultBytes = img.encodeJpg(enhanced, quality: 95);
+      
+      log('✅ Images combined successfully');
+      return Uint8List.fromList(resultBytes);
+      
+    } catch (e) {
+      log('❌ Image combination failed: $e');
+      rethrow;
+    }
+  }
+}
+
+class Point<T extends num> {
+  final T x, y;
+  Point(this.x, this.y);
+}
