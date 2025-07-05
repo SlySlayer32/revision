@@ -675,3 +675,208 @@ class AndroidFirebaseConfig {
   }
 }
 
+4. IMAGE PROCESSING & SEGMENTATION
+Advanced Image Processing Service
+// lib/core/services/image_processing_service.dart
+import 'dart:developer';
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:image/image.dart' as img;
+
+/// Production-grade image processing with AI segmentation support
+class ImageProcessingService {
+  
+  /// Processes image for AI analysis with optimal quality
+  static Future<Uint8List> prepareImageForAI(
+    Uint8List originalBytes, {
+    int maxWidth = 1024,
+    int maxHeight = 1024,
+    int quality = 85,
+  }) async {
+    try {
+      log('🖼️ Preparing image for AI analysis...');
+      
+      // Decode original image
+      final originalImage = img.decodeImage(originalBytes);
+      if (originalImage == null) {
+        throw Exception('Failed to decode image');
+      }
+      
+      log('📏 Original image: ${originalImage.width}x${originalImage.height}');
+      
+      // Calculate optimal dimensions maintaining aspect ratio
+      final aspectRatio = originalImage.width / originalImage.height;
+      int targetWidth, targetHeight;
+      
+      if (aspectRatio > 1) {
+        // Landscape
+        targetWidth = maxWidth;
+        targetHeight = (maxWidth / aspectRatio).round();
+      } else {
+        // Portrait or square
+        targetHeight = maxHeight;
+        targetWidth = (maxHeight * aspectRatio).round();
+      }
+      
+      // Resize image with high-quality algorithm
+      final resizedImage = img.copyResize(
+        originalImage,
+        width: targetWidth,
+        height: targetHeight,
+        interpolation: img.Interpolation.cubic,
+      );
+      
+      // Enhance image for better AI analysis
+      final enhancedImage = _enhanceImageForAI(resizedImage);
+      
+      // Encode with optimal settings
+      final processedBytes = img.encodeJpg(
+        enhancedImage,
+        quality: quality,
+      );
+      
+      log('✅ Image prepared: ${targetWidth}x${targetHeight}, ${processedBytes.length} bytes');
+      return Uint8List.fromList(processedBytes);
+      
+    } catch (e) {
+      log('❌ Image preparation failed: $e');
+      rethrow;
+    }
+  }
+  
+  /// Enhances image quality for better AI analysis
+  static img.Image _enhanceImageForAI(img.Image image) {
+    // Apply subtle enhancements for better AI recognition
+    var enhanced = img.adjustColor(
+      image,
+      contrast: 1.1,
+      brightness: 1.05,
+      saturation: 1.05,
+    );
+    
+    // Apply noise reduction
+    enhanced = img.gaussianBlur(enhanced, radius: 0.5);
+    
+    return enhanced;
+  }
+  
+  /// Creates precise mask from user input points
+  static Future<Uint8List> createSegmentationMask(
+    Uint8List imageBytes,
+    List<Offset> userPoints,
+    Size imageSize,
+  ) async {
+    try {
+      log('🎯 Creating segmentation mask from ${userPoints.length} points');
+      
+      // Create mask canvas
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      
+      // Set up mask properties
+      final paint = Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.fill
+        ..strokeWidth = 20.0
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round;
+      
+      // Fill background with black
+      canvas.drawRect(
+        Rect.fromLTWH(0, 0, imageSize.width, imageSize.height),
+        Paint()..color = Colors.black,
+      );
+      
+      // Create mask from user points
+      if (userPoints.isNotEmpty) {
+        final path = Path();
+        path.moveTo(userPoints.first.dx, userPoints.first.dy);
+        
+        for (int i = 1; i < userPoints.length; i++) {
+          path.lineTo(userPoints[i].dx, userPoints[i].dy);
+        }
+        
+        // Close the path for filled mask
+        path.close();
+        
+        // Draw filled mask
+        canvas.drawPath(path, paint);
+        
+        // Add feathered edges for better blending
+        final featherPaint = Paint()
+          ..color = Colors.white.withOpacity(0.5)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 10.0
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5.0);
+        
+        canvas.drawPath(path, featherPaint);
+      }
+      
+      // Convert to image
+      final picture = recorder.endRecording();
+      final maskImage = await picture.toImage(
+        imageSize.width.toInt(),
+        imageSize.height.toInt(),
+      );
+      
+      // Convert to bytes
+      final byteData = await maskImage.toByteData(format: ui.ImageByteFormat.png);
+      final maskBytes = byteData!.buffer.asUint8List();
+      
+      log('✅ Segmentation mask created: ${maskBytes.length} bytes');
+      return maskBytes;
+      
+    } catch (e) {
+      log('❌ Mask creation failed: $e');
+      rethrow;
+    }
+  }
+  
+  /// Applies intelligent flood fill for object selection
+  static Future<Uint8List> intelligentFloodFill(
+    Uint8List imageBytes,
+    Offset seedPoint,
+    double tolerance,
+  ) async {
+    try {
+      log('🌊 Applying intelligent flood fill at (${seedPoint.dx}, ${seedPoint.dy})');
+      
+      // Decode image
+      final image = img.decodeImage(imageBytes);
+      if (image == null) throw Exception('Failed to decode image');
+      
+      // Get seed pixel color
+      final seedX = seedPoint.dx.toInt().clamp(0, image.width - 1);
+      final seedY = seedPoint.dy.toInt().clamp(0, image.height - 1);
+      final seedPixel = image.getPixel(seedX, seedY);
+      
+      // Create mask using flood fill algorithm
+      final mask = img.Image(width: image.width, height: image.height);
+      img.fill(mask, color: img.ColorRgb8(0, 0, 0)); // Black background
+      
+      // Implement intelligent flood fill
+      final visited = <String>{};
+      final stack = <Point<int>>[Point(seedX, seedY)];
+      
+      while (stack.isNotEmpty) {
+        final point = stack.removeLast();
+        final key = '${point.x},${point.y}';
+        
+        if (visited.contains(key) ||
+            point.x < 0 || point.x >= image.width ||
+            point.y < 0 || point.y >= image.height) {
+          continue;
+        }
+        
+        visited.add(key);
+        
+        final currentPixel = image.getPixel(point.x, point.y);
+        final colorDiff = _calculateColorDifference(seedPixel, currentPixel);
+        
+        if (colorDiff <= tolerance) {
+          // Mark as selected (white)
+          mask.setPixel(point.x, point.y, img.ColorRg
