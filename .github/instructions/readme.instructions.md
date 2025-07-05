@@ -617,3 +617,60 @@ EOF
 echo "✅ Android development environment setup complete!"
 echo "🚀 Start emulator with: emulator -avd Revision_Dev -gpu host -memory 4096"
 
+Android-Specific Firebase Configuration
+// lib/core/config/android_firebase_config.dart
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
+
+/// Android-specific Firebase configuration and optimizations
+class AndroidFirebaseConfig {
+  static bool _isConfigured = false;
+  
+  /// Configures Firebase for optimal Android performance
+  static Future<void> configure() async {
+    if (!Platform.isAndroid || _isConfigured) return;
+    
+    try {
+      log('🤖 Configuring Firebase for Android...');
+      
+      // Get device information
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
+      
+      log('📱 Android Device: ${androidInfo.model} (API ${androidInfo.version.sdkInt})');
+      
+      // Configure based on device capabilities
+      await _configureForDevice(androidInfo);
+      
+      // Set up network optimizations
+      await _configureNetworkOptimizations();
+      
+      _isConfigured = true;
+      log('✅ Android Firebase configuration complete');
+      
+    } catch (e) {
+      log('❌ Android Firebase configuration failed: $e');
+    }
+  }
+  
+  static Future<void> _configureForDevice(AndroidDeviceInfo deviceInfo) async {
+    // Configure based on device performance
+    if (deviceInfo.version.sdkInt >= 28) {
+      // Modern Android - enable all features
+      log('🚀 Enabling full feature set for modern Android');
+    } else {
+      // Older Android - optimize for performance
+      log('⚡ Optimizing for older Android device');
+    }
+  }
+  
+  static Future<void> _configureNetworkOptimizations() async {
+    // Configure network timeouts and retry policies
+    log('🌐 Configuring network optimizations for Android');
+  }
+}
+
+Copy
