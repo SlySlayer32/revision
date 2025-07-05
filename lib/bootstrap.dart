@@ -5,6 +5,7 @@ import 'dart:io' show Platform;
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:revision/core/config/env_config.dart';
@@ -249,6 +250,10 @@ Future<void> _configureEmulators() async {
 
 /// Returns the correct emulator host for the current platform
 String _getPlatformSpecificEmulatorHost() {
+  if (kIsWeb) {
+    log('Host platform is web, using localhost for emulators.');
+    return 'localhost';
+  }
   try {
     if (Platform.isAndroid) {
       log('Host platform is Android, using 10.0.2.2 for emulators.');
@@ -262,7 +267,7 @@ String _getPlatformSpecificEmulatorHost() {
       'Platform detection failed in _getPlatformSpecificEmulatorHost: $e. Defaulting to localhost.',
     );
   }
-  log('Defaulting to localhost for emulators (e.g., web, desktop, or fallback).');
+  log('Defaulting to localhost for emulators (e.g., desktop or fallback).');
   return 'localhost';
 }
 
