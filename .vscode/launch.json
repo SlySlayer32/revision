@@ -11,7 +11,7 @@
         "development",
         "--dart-define=ENVIRONMENT=development",
         "--dart-define=USE_AUTH_EMULATOR=true",
-        "--dart-define=USE_FIRESTORE_EMULATOR=true", 
+        "--dart-define=USE_FIRESTORE_EMULATOR=true",
         "--dart-define=USE_FUNCTIONS_EMULATOR=true",
         "--dart-define=GEMINI_API_KEY=YOUR_DEVELOPMENT_GEMINI_API_KEY_HERE"
       ],
@@ -129,7 +129,7 @@
       "preLaunchTask": "shell: Start Firebase Emulators"
     },
     {
-      "name": "🍎 Development iOS", 
+      "name": "🍎 Development iOS",
       "type": "dart",
       "request": "launch",
       "program": "lib/main_development.dart",
