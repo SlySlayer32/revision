@@ -677,6 +677,7 @@ class AndroidFirebaseConfig {
 
 4. IMAGE PROCESSING & SEGMENTATION
 Advanced Image Processing Service
+
 // lib/core/services/image_processing_service.dart
 import 'dart:developer';
 import 'dart:io';
