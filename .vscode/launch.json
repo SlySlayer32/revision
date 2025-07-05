@@ -25,22 +25,22 @@
     },
     {
       "name": "🟡 Staging",
-      "request": "launch",
       "type": "dart",
+      "request": "launch",
       "program": "lib/main_staging.dart",
       "args": [
         "--flavor",
         "staging",
-        "--target",
-        "lib/main_staging.dart",
-        "--dart-define",
-        "ENVIRONMENT=staging",
-        "--dart-define",
-        "GEMINI_API_KEY=YOUR_STAGING_GEMINI_API_KEY_HERE"
+        "--dart-define=ENVIRONMENT=staging",
+        "--dart-define=GEMINI_API_KEY=YOUR_STAGING_GEMINI_API_KEY_HERE"
       ],
       "toolArgs": [
         "--vm-service-port=8182"
       ],
+      "env": {
+        "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
+      }
+    },
       "env": {
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
       }
