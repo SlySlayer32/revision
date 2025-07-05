@@ -451,3 +451,106 @@ class FirebaseEmulatorService {
       final host = await _getEmulatorHost();
       
       //
+      // Connect to Authentication Emulator
+      await FirebaseAuth.instance.useAuthEmulator(host, 9099);
+      log('✅ Connected to Auth Emulator at $host:9099');
+      
+      // Connect to Firestore Emulator
+      FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
+      log('✅ Connected to Firestore Emulator at $host:8080');
+      
+      // Connect to Storage Emulator
+      await FirebaseStorage.instance.useStorageEmulator(host, 9199);
+      log('✅ Connected to Storage Emulator at $host:9199');
+      
+      // Connect to Functions Emulator
+      FirebaseFunctions.instance.useFunctionsEmulator(host, 5001);
+      log('✅ Connected to Functions Emulator at $host:5001');
+      
+      _isConnected = true;
+      log('🎉 All Firebase Emulators connected successfully');
+      
+    } catch (e) {
+      log('❌ Failed to connect to Firebase Emulators: $e');
+      // Don't throw - allow app to continue with production Firebase
+    }
+  }
+
+  /// Determines the correct emulator host based on platform
+  static Future<String> _getEmulatorHost() async {
+    if (Platform.isAndroid) {
+      // Android emulator uses 10.0.2.2 to access host machine
+      return '10.0.2.2';
+    } else if (Platform.isIOS) {
+      // iOS simulator can use localhost
+      return 'localhost';
+    } else {
+      // Web and other platforms
+      return 'localhost';
+    }
+  }
+
+  /// Creates test data in emulators for development
+  static Future<void> seedEmulatorData() async {
+    if (!_isConnected) return;
+
+    try {
+      log('🌱 Seeding emulator with test data...');
+      
+      // Create test user
+      final testUser = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: 'test@revision.app',
+        password: 'testpassword123',
+      );
+      
+      // Add test user profile
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(testUser.user!.uid)
+          .set({
+        'email': 'test@revision.app',
+        'displayName': 'Test User',
+        'createdAt': FieldValue.serverTimestamp(),
+        'isTestUser': true,
+      });
+      
+      // Add sample edited images
+      await _createSampleEditedImages(testUser.user!.uid);
+      
+      log('✅ Emulator data seeded successfully');
+      
+    } catch (e) {
+      log('❌ Failed to seed emulator data: $e');
+    }
+  }
+
+  static Future<void> _createSampleEditedImages(String userId) async {
+    final sampleImages = [
+      {
+        'id': 'sample_1',
+        'userId': userId,
+        'originalImageUrl': 'https://example.com/sample1.jpg',
+        'editedImageUrl': 'https://example.com/sample1_edited.jpg',
+        'prompt': 'Remove the person from the background',
+        'createdAt': FieldValue.serverTimestamp(),
+        'processingStatus': 'completed',
+      },
+      {
+        'id': 'sample_2',
+        'userId': userId,
+        'originalImageUrl': 'https://example.com/sample2.jpg',
+        'editedImageUrl': 'https://example.com/sample2_edited.jpg',
+        'prompt': 'Remove the car from the street',
+        'createdAt': FieldValue.serverTimestamp(),
+        'processingStatus': 'completed',
+      },
+    ];
+
+    for (final image in sampleImages) {
+      await FirebaseFirestore.instance
+          .collection('editedImages')
+          .doc(image['id'] as String)
+          .set(image);
+    }
+  }
+}
