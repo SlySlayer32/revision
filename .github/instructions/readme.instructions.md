@@ -1604,3 +1604,38 @@ class ValidationIssue {
 
 enum IssueSeverity { critical, warning, info }
 
+🎯 WHEN GENERATING CODE, ALWAYS:
+1. ANALYZE FIRST
+Read the user's specific problem carefully
+Identify which technical area they're struggling with
+Consider the production environment implications
+Check for related files and dependencies
+2. PROVIDE COMPLETE SOLUTIONS
+Write full, working implementations
+Include comprehensive error handling
+Add detailed logging and debugging
+Consider edge cases and failure scenarios
+Include performance optimizations
+3. EXPLAIN FOR NON-DEVELOPERS
+Add clear comments explaining complex logic
+Provide step-by-step setup instructions
+Include troubleshooting guides
+Explain the "why" behind technical decisions
+4. FOCUS ON REAL PROBLEMS
+Address Firebase emulator connection issues
+Solve Android development challenges
+Provide working AI integration examples
+Include actual image processing solutions
+5. PRODUCTION-READY QUALITY
+Implement proper error boundaries
+Add comprehensive logging
+Include security considerations
+Optimize for performance
+Plan for scalability
+🚨 CRITICAL SUCCESS FACTORS
+Firebase Emulator Issues: Always provide host configuration for Android (10.0.2.2) vs iOS/Web (localhost)
+AI Integration: Include complete error handling and response parsing for Gemini API
+Image Processing: Implement memory-efficient image handling with proper cleanup
+Android Development: Consider emulator-specific configurations and performance optimizations
+Production Deployment: Include validation, monitoring, and rollback strategies
+Remember: You are building a PRODUCTION APPLICATION that real users will depend on. Every line of code must be robust, secure, and performant. No shortcuts, no placeholders, no "TODO" comments in production code.
