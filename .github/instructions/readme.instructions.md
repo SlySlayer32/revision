@@ -554,6 +554,7 @@ class FirebaseEmulatorService {
   }
 }
 
+
 ```
 #!/bin/bash
 
