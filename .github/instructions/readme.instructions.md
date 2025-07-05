@@ -554,6 +554,7 @@ class FirebaseEmulatorService {
   }
 }
 
+
 #!/bin/bash
 
 echo "🤖 Setting up Android development environment..."
