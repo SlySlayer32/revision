@@ -30,8 +30,7 @@
       "args": [
         "--flavor",
         "staging",
-        "--dart-define=ENVIRONMENT=staging",
-        "--dart-define=GEMINI_API_KEY=YOUR_STAGING_GEMINI_API_KEY_HERE"
+        "--dart-define=ENVIRONMENT=staging"
       ],
       "toolArgs": [
         "--vm-service-port=8182"
