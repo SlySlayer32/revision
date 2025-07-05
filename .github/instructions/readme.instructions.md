@@ -1202,3 +1202,4 @@ echo "📚 Available commands:"
 echo "   • ./scripts/run-dev.sh     - Start development environment"
 echo "   • ./scripts/run-tests.sh   - Run all tests with coverage"
 echo "   • ./scripts/build-all.sh   - Build for all platforms"
+
