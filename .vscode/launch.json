@@ -7,20 +7,17 @@
       "request": "launch",
       "program": "lib/main_development.dart",
       "args": [
-        "--flavor",
-        "development",
+        "--flavor=development",
         "--dart-define=ENVIRONMENT=development",
         "--dart-define=USE_AUTH_EMULATOR=true",
         "--dart-define=USE_FIRESTORE_EMULATOR=true",
         "--dart-define=USE_FUNCTIONS_EMULATOR=true"
       ],
-      "toolArgs": [
-        "--vm-service-port=8181"
-      ],
       "env": {
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
       },
-      "preLaunchTask": "shell: Start Firebase Emulators"
+      "console": "debugConsole",
+      "preLaunchTask": "Start Firebase Emulators"
     },
     {
       "name": "🟡 Staging",
@@ -28,16 +25,13 @@
       "request": "launch",
       "program": "lib/main_staging.dart",
       "args": [
-        "--flavor",
-        "staging",
+        "--flavor=staging",
         "--dart-define=ENVIRONMENT=staging"
-      ],
-      "toolArgs": [
-        "--vm-service-port=8182"
       ],
       "env": {
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
-      }
+      },
+      "console": "debugConsole"
     },
     {
       "name": "🔴 Production",
@@ -45,16 +39,13 @@
       "request": "launch",
       "program": "lib/main_production.dart",
       "args": [
-        "--flavor",
-        "production",
+        "--flavor=production",
         "--dart-define=ENVIRONMENT=production"
-      ],
-      "toolArgs": [
-        "--vm-service-port=8183"
       ],
       "env": {
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
-      }
+      },
+      "console": "debugConsole"
     },
     {
       "name": "🌐 Development Web",
@@ -66,15 +57,12 @@
         "--dart-define=USE_AUTH_EMULATOR=true",
         "--dart-define=USE_FIRESTORE_EMULATOR=true",
         "--dart-define=USE_FUNCTIONS_EMULATOR=true",
-        "-d",
-        "chrome"
-      ],
-      "toolArgs": [
-        "--vm-service-port=8184"
+        "--device-id=chrome"
       ],
       "env": {
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
       },
+      "console": "debugConsole",
       "preLaunchTask": "shell: Start Firebase Emulators"
     },
     {
@@ -83,20 +71,17 @@
       "request": "launch",
       "program": "lib/main_development.dart",
       "args": [
-        "--flavor",
-        "development",
+        "--flavor=development",
         "--dart-define=ENVIRONMENT=development",
         "--dart-define=USE_AUTH_EMULATOR=true",
         "--dart-define=USE_FIRESTORE_EMULATOR=true",
         "--dart-define=USE_FUNCTIONS_EMULATOR=true",
         "--dart-define=ENABLE_DEBUG_TOOLS=true"
       ],
-      "toolArgs": [
-        "--vm-service-port=8185"
-      ],
       "env": {
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
       },
+      "console": "debugConsole",
       "preLaunchTask": "shell: Start Firebase Emulators"
     },
     {
@@ -105,21 +90,17 @@
       "request": "launch",
       "program": "lib/main_development.dart",
       "args": [
-        "--flavor",
-        "development",
+        "--flavor=development",
         "--dart-define=ENVIRONMENT=development",
         "--dart-define=USE_AUTH_EMULATOR=true",
         "--dart-define=USE_FIRESTORE_EMULATOR=true",
         "--dart-define=USE_FUNCTIONS_EMULATOR=true",
-        "-d",
-        "android"
-      ],
-      "toolArgs": [
-        "--vm-service-port=8186"
+        "--device-id=android"
       ],
       "env": {
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
       },
+      "console": "debugConsole",
       "preLaunchTask": "shell: Start Firebase Emulators"
     },
     {
@@ -128,21 +109,17 @@
       "request": "launch",
       "program": "lib/main_development.dart",
       "args": [
-        "--flavor",
-        "development",
+        "--flavor=development",
         "--dart-define=ENVIRONMENT=development",
         "--dart-define=USE_AUTH_EMULATOR=true",
         "--dart-define=USE_FIRESTORE_EMULATOR=true",
         "--dart-define=USE_FUNCTIONS_EMULATOR=true",
-        "-d",
-        "ios"
-      ],
-      "toolArgs": [
-        "--vm-service-port=8187"
+        "--device-id=ios"
       ],
       "env": {
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
       },
+      "console": "debugConsole",
       "preLaunchTask": "shell: Start Firebase Emulators"
     },
     {
@@ -152,15 +129,12 @@
       "program": "lib/main_staging.dart",
       "args": [
         "--dart-define=ENVIRONMENT=staging",
-        "-d",
-        "chrome"
-      ],
-      "toolArgs": [
-        "--vm-service-port=8188"
+        "--device-id=chrome"
       ],
       "env": {
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
-      }
+      },
+      "console": "debugConsole"
     },
     {
       "name": "🌐 Production Web",
@@ -169,16 +143,13 @@
       "program": "lib/main_production.dart",
       "args": [
         "--dart-define=ENVIRONMENT=production",
-        "-d",
-        "chrome",
+        "--device-id=chrome",
         "--release"
-      ],
-      "toolArgs": [
-        "--vm-service-port=8189"
       ],
       "env": {
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
-      }
+      },
+      "console": "debugConsole"
     }
   ]
 }
