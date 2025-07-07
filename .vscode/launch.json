@@ -120,7 +120,7 @@
         "DART_VM_OPTIONS": "--old_gen_heap_size=2048"
       },
       "console": "debugConsole",
-      "preLaunchTask": "shell: Start Firebase Emulators"
+      "preLaunchTask": "Start Firebase Emulators"
     },
     {
       "name": "🌐 Staging Web",
