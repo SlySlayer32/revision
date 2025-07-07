@@ -5,33 +5,24 @@
     // Core Dart & Flutter Extensions
     "dart-code.dart-code",
     "dart-code.flutter",
-    
     // State Management
     "felixangelov.bloc",
-    
     // Code Quality & Formatting
     "redhat.vscode-yaml",
     "bradlc.vscode-tailwindcss",
-    
     // Development Workflow
     "emeraldwalk.RunOnSave",
     "ms-vscode.powershell",
-    
     // Git & Version Control
     "eamodio.gitlens",
-    
     // Firebase Integration
     "toba.vsfire",
-    
     // JSON & Configuration
     "ms-vscode.vscode-json",
-    
     // Testing
     "littlefoxteam.vscode-python-test-adapter",
-    
     // Performance & Debugging
     "ms-vscode.vscode-debugger",
-    
     // API Development
     "humao.rest-client"
   ],
