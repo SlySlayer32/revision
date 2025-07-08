@@ -17,15 +17,16 @@ import 'package:revision/features/image_selection/domain/entities/selected_image
 abstract class AiProcessingException implements Exception {
   /// The error message describing what went wrong
   final String message;
-  
+
   /// Optional error code for specific error types
   final String? code;
-  
+
   /// Creates an [AiProcessingException] with the given [message] and optional [code]
   const AiProcessingException(this.message, [this.code]);
-  
+
   @override
-  String toString() => 'AiProcessingException: $message${code != null ? ' (Code: $code)' : ''}';
+  String toString() =>
+      'AiProcessingException: $message${code != null ? ' (Code: $code)' : ''}';
 }
 
 /// Exception thrown when image data is invalid or missing
@@ -77,19 +78,19 @@ class AiProcessingView extends StatelessWidget {
   });
 
   /// The selected image to be processed
-  /// 
+  ///
   /// Must contain either [bytes] or [path] data for image display
   final SelectedImage image;
 
   /// Optional previously annotated image data
-  /// 
+  ///
   /// If provided, existing annotations will be displayed and can be modified
   final AnnotatedImage? annotatedImage;
 
   /// Validates that the image contains valid data
   ///
   /// Throws [InvalidImageException] if the image data is invalid
-  /// 
+  ///
   /// @throws [InvalidImageException] when image data is missing or invalid
   void _validateImageData() {
     if (image.bytes == null && image.path == null) {
@@ -98,14 +99,14 @@ class AiProcessingView extends StatelessWidget {
         'MISSING_IMAGE_DATA',
       );
     }
-    
+
     if (image.bytes != null && image.bytes!.isEmpty) {
       throw const InvalidImageException(
         'Image bytes are empty',
         'EMPTY_IMAGE_BYTES',
       );
     }
-    
+
     if (image.path != null && image.path!.isEmpty) {
       throw const InvalidImageException(
         'Image path is empty',
@@ -118,13 +119,13 @@ class AiProcessingView extends StatelessWidget {
   ///
   /// Returns a widget that displays the image with proper error states and fallbacks
   /// Includes accessibility features and performance optimizations
-  /// 
+  ///
   /// @param context The build context for theme and localization access
   /// @returns A widget displaying the image or appropriate error state
   Widget _buildImageDisplayWidget(BuildContext context) {
     try {
       _validateImageData();
-      
+
       if (image.bytes != null) {
         return _buildMemoryImageWidget(context);
       } else if (image.path != null) {
@@ -182,9 +183,10 @@ class AiProcessingView extends StatelessWidget {
   }
 
   /// Builds error widget with consistent styling and accessibility
-  Widget _buildErrorWidget(BuildContext context, String message, IconData icon) {
+  Widget _buildErrorWidget(
+      BuildContext context, String message, IconData icon) {
     final theme = Theme.of(context);
-    
+
     return Semantics(
       label: 'Error loading image: $message',
       child: Center(
@@ -213,7 +215,7 @@ class AiProcessingView extends StatelessWidget {
   /// Builds widget shown when no image data is available
   Widget _buildNoImageWidget(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Semantics(
       label: 'No image data available',
       child: Center(
@@ -249,13 +251,13 @@ class AiProcessingView extends StatelessWidget {
               onPanStart: (details) {
                 HapticFeedback.lightImpact();
                 context.read<ImageEditorCubit>().startDrawing(
-                  details.localPosition,
-                );
+                      details.localPosition,
+                    );
               },
               onPanUpdate: (details) {
                 context.read<ImageEditorCubit>().drawing(
-                  details.localPosition,
-                );
+                      details.localPosition,
+                    );
               },
               onPanEnd: (_) {
                 HapticFeedback.selectionClick();
@@ -291,9 +293,10 @@ class AiProcessingView extends StatelessWidget {
     return BlocBuilder<ImageEditorCubit, ImageEditorState>(
       builder: (context, state) {
         final hasAnnotations = state.strokes.isNotEmpty;
-        
+
         return Semantics(
-          label: hasAnnotations ? 'Clear annotations' : 'No annotations to clear',
+          label:
+              hasAnnotations ? 'Clear annotations' : 'No annotations to clear',
           child: IconButton(
             icon: const Icon(Icons.clear),
             onPressed: hasAnnotations
@@ -314,7 +317,7 @@ class AiProcessingView extends StatelessWidget {
     if (image.bytes == null) {
       return null;
     }
-    
+
     try {
       return AnnotatedImage(
         imageBytes: image.bytes!,
@@ -332,8 +335,8 @@ class AiProcessingView extends StatelessWidget {
     return Expanded(
       child: BlocBuilder<ImageEditorCubit, ImageEditorState>(
         builder: (context, editorState) {
-          final currentAnnotatedImage = annotatedImage ?? 
-              _createAnnotatedImage(editorState.strokes);
+          final currentAnnotatedImage =
+              annotatedImage ?? _createAnnotatedImage(editorState.strokes);
 
           if (currentAnnotatedImage == null) {
             return const Center(
@@ -349,11 +352,11 @@ class AiProcessingView extends StatelessWidget {
             annotatedImage: currentAnnotatedImage,
             onStartProcessing: (prompt, processingContext) {
               context.read<GeminiPipelineCubit>().startImageProcessing(
-                selectedImage: image,
-                prompt: prompt,
-                annotatedImage: currentAnnotatedImage,
-                processingContext: processingContext,
-              );
+                    selectedImage: image,
+                    prompt: prompt,
+                    annotatedImage: currentAnnotatedImage,
+                    processingContext: processingContext,
+                  );
             },
           );
         },
