@@ -181,33 +181,6 @@ class AiProcessingView extends StatelessWidget {
     );
   }
 
-  /// Builds loading indicator widget
-  Widget _buildLoadingWidget(BuildContext context, ImageChunkEvent progress) {
-    final theme = Theme.of(context);
-    final progressValue = progress.expectedTotalBytes != null
-        ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-        : null;
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(
-            value: progressValue,
-            semanticsLabel: 'Loading image',
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Loading image...',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   /// Builds error widget with consistent styling and accessibility
   Widget _buildErrorWidget(BuildContext context, String message, IconData icon) {
     final theme = Theme.of(context);
