@@ -115,6 +115,68 @@ class AiProcessingView extends StatelessWidget {
     }
   }
 
+  /// Validates that the image is ready for Gemini API processing
+  ///
+  /// According to Gemini API documentation:
+  /// - Supported formats: PNG, JPEG, WebP, HEIC, HEIF
+  /// - Inline data limit: 20MB total request size
+  /// - File API recommended for larger files
+  /// - Images are tokenized: 258 tokens for ≤384px, tiled for larger images
+  ///
+  /// @throws [InvalidImageException] when image data is invalid for API processing
+  void _validateImageForGeminiApi() {
+    _validateImageData();
+
+    // Check file size for inline data limits (20MB total request)
+    if (image.sizeInBytes > 15 * 1024 * 1024) {
+      // 15MB to leave room for text prompts
+      throw const InvalidImageException(
+        'Image too large for inline processing. Consider using File API for images over 15MB.',
+        'IMAGE_TOO_LARGE',
+      );
+    }
+
+    // Validate image format for Gemini API
+    final validGeminiFormats = ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'];
+    final extension = image.name.toLowerCase().split('.').last;
+    if (!validGeminiFormats.contains(extension)) {
+      throw InvalidImageException(
+        'Unsupported image format: $extension. Gemini API supports: ${validGeminiFormats.join(', ')}',
+        'UNSUPPORTED_FORMAT',
+      );
+    }
+  }
+
+  /// Gets the appropriate MIME type for Gemini API based on file extension
+  ///
+  /// Returns the correct MIME type string for the Gemini API request
+  String _getGeminiMimeType() {
+    final extension = image.name.toLowerCase().split('.').last;
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'webp':
+        return 'image/webp';
+      case 'heic':
+        return 'image/heic';
+      case 'heif':
+        return 'image/heif';
+      default:
+        return 'image/jpeg'; // Default fallback
+    }
+  }
+
+  /// Checks if the image is optimized for Gemini API token usage
+  ///
+  /// Images ≤ 384px use 258 tokens, larger images are tiled
+  bool _isOptimizedForTokenUsage() {
+    // This is a simplified check - actual optimization would require image dimensions
+    return image.sizeInBytes <= 1024 * 1024; // 1MB as rough approximation
+  }
+
   /// Builds the image widget with comprehensive error handling and accessibility
   ///
   /// Returns a widget that displays the image with proper error states and fallbacks
