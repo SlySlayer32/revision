@@ -14,11 +14,7 @@ import 'package:revision/features/image_selection/domain/entities/selected_image
 /// This view provides the complete AI processing experience including
 /// image preview, controls, progress tracking, and results display.
 class AiProcessingView extends StatelessWidget {
-  const AiProcessingView({
-    required this.image,
-    this.annotatedImage,
-    super.key,
-  });
+  const AiProcessingView({required this.image, this.annotatedImage, super.key});
 
   final SelectedImage image;
   final AnnotatedImage? annotatedImage;
@@ -37,7 +33,7 @@ class AiProcessingView extends StatelessWidget {
                   icon: const Icon(Icons.clear),
                   onPressed: state.strokes.isNotEmpty
                       ? () =>
-                          context.read<ImageEditorCubit>().clearAnnotations()
+                            context.read<ImageEditorCubit>().clearAnnotations()
                       : null,
                 );
               },
@@ -58,14 +54,14 @@ class AiProcessingView extends StatelessWidget {
                         builder: (context, editorState) {
                           return GestureDetector(
                             onPanStart: (details) {
-                              context
-                                  .read<ImageEditorCubit>()
-                                  .startDrawing(details.localPosition);
+                              context.read<ImageEditorCubit>().startDrawing(
+                                details.localPosition,
+                              );
                             },
                             onPanUpdate: (details) {
-                              context
-                                  .read<ImageEditorCubit>()
-                                  .drawing(details.localPosition);
+                              context.read<ImageEditorCubit>().drawing(
+                                details.localPosition,
+                              );
                             },
                             onPanEnd: (_) {
                               context.read<ImageEditorCubit>().endDrawing();
@@ -74,10 +70,7 @@ class AiProcessingView extends StatelessWidget {
                               painter: AnnotationPainter(
                                 strokes: editorState.strokes,
                               ),
-                              child: Image.memory(
-                                image.bytes!,
-                                fit: BoxFit.contain,
-                              ),
+                              child: _buildImageWidget(),
                             ),
                           );
                         },
@@ -100,7 +93,8 @@ class AiProcessingView extends StatelessWidget {
                     Expanded(
                       child: BlocBuilder<ImageEditorCubit, ImageEditorState>(
                         builder: (context, editorState) {
-                          final currentAnnotatedImage = annotatedImage ??
+                          final currentAnnotatedImage =
+                              annotatedImage ??
                               AnnotatedImage(
                                 imageBytes: image.bytes!,
                                 annotations: editorState.strokes,
