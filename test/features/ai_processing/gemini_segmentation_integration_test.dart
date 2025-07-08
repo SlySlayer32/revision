@@ -11,11 +11,9 @@ import 'package:revision/features/ai_processing/domain/usecases/generate_segment
 
 class MockGeminiAIService extends Mock implements GeminiAIService {}
 
-class FakeUint8List extends Fake implements Uint8List {}
-
 void main() {
   setUpAll(() {
-    registerFallbackValue(FakeUint8List());
+    registerFallbackValue(Uint8List(0));
   });
   group('Gemini 2.5 Segmentation Integration Tests', () {
     late MockGeminiAIService mockGeminiService;
