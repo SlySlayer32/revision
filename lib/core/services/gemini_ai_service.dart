@@ -390,7 +390,30 @@ Provide each suggestion as a clear, actionable sentence.
             imageName: imageName,
           );
 
-  Future<bool> checkContentSafety(Uint8List imageData) async {
+          // Parse response into suggestions
+          final suggestions = response
+              .split('\n')
+              .where((line) => line.trim().isNotEmpty)
+              .map((line) => line.replaceAll(RegExp(r'^\d+\.?\s*'), '').trim())
+              .where((suggestion) => suggestion.isNotEmpty)
+              .take(5)
+              .toList();
+
+          return suggestions.isNotEmpty
+              ? suggestions
+              : _getFallbackSuggestions();
+        }, 'suggestImageEdits')
+        .catchError((e) {
+          log('❌ suggestImageEdits failed after all retries: $e');
+          return _getFallbackSuggestions();
+        });
+  }
+
+  @override
+  Future<bool> checkContentSafety(
+    Uint8List imageData, {
+    String? imageName,
+  }) async {
     await waitForInitialization();
 
     return _errorHandler
@@ -409,32 +432,9 @@ Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a b
           final response = await _makeMultimodalRequest(
             prompt: prompt,
             imageBytes: imageData,
+            imageName: imageName,
           );
 
-          final responseUpper = response.toUpperCase();
-          return responseUpper.contains('SAFE') &&
-              !responseUpper.contains('UNSAFE');
-        }, 'checkContentSafety')
-        .catchError((e) {
-          log('❌ checkContentSafety failed after all retries: $e');
-          return true; // Default to safe on error
-        });
-  }
-
-  @override
-  Future<String> generateEditingPrompt({
-    required Uint8List imageBytes,
-    required List<Map<String, dynamic>> markers,
-  }) async {
-    await waitForInitialization();
-
-    return _errorHandler
-        .executeWithRetry<String>(() async {
-          final markerDescriptions = markers
-              .map(
-                (marker) =>
-                    'Marker at (${marker['x']}, ${marker['y']}): ${marker['description'] ?? 'Object to edit'}',
-              )
               .join('\n');
 
           final prompt =
