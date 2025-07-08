@@ -8,6 +8,7 @@ import 'package:revision/features/ai_processing/presentation/widgets/ai_segmenta
 import 'package:revision/features/ai_processing/presentation/widgets/processing_controls.dart';
 import 'package:revision/features/ai_processing/presentation/widgets/processing_status_display.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
+import 'package:revision/features/image_editing/domain/entities/annotation_stroke.dart';
 import 'package:revision/features/image_editing/presentation/cubit/image_editor_cubit.dart';
 import 'package:revision/features/image_editing/presentation/widgets/annotation_painter.dart';
 import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
