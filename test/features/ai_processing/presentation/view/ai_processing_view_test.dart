@@ -31,7 +31,7 @@ void main() {
     setUp(() {
       mockGeminiPipelineCubit = MockGeminiPipelineCubit();
       mockImageEditorCubit = MockImageEditorCubit();
-      
+
       // Create test image with mock data
       testImage = SelectedImage(
         bytes: Uint8List.fromList([1, 2, 3, 4]), // Mock image bytes
@@ -39,7 +39,7 @@ void main() {
         sizeInBytes: 4,
         source: ImageSource.camera,
       );
-      
+
       testAnnotatedImage = AnnotatedImage(
         imageBytes: Uint8List.fromList([1, 2, 3, 4]),
         annotations: const [],
@@ -62,8 +62,12 @@ void main() {
                   value: mockGeminiPipelineCubit,
                 ),
               ],
-              child: AiProcessingView(
-                image: testImage,
+              child: SizedBox(
+                width: 1024,
+                height: 1024,
+                child: AiProcessingView(
+                  image: testImage,
+                ),
               ),
             ),
           ),
@@ -73,7 +77,8 @@ void main() {
         expect(find.text('AI-Powered Revision'), findsOneWidget);
       });
 
-      testWidgets('creates widget with optional annotated image', (tester) async {
+      testWidgets('creates widget with optional annotated image',
+          (tester) async {
         await tester.pumpWidget(
           MaterialApp(
             home: MultiBlocProvider(
@@ -82,9 +87,13 @@ void main() {
                   value: mockGeminiPipelineCubit,
                 ),
               ],
-              child: AiProcessingView(
-                image: testImage,
-                annotatedImage: testAnnotatedImage,
+              child: SizedBox(
+                width: 1024,
+                height: 1024,
+                child: AiProcessingView(
+                  image: testImage,
+                  annotatedImage: testAnnotatedImage,
+                ),
               ),
             ),
           ),
@@ -112,8 +121,12 @@ void main() {
                   value: mockGeminiPipelineCubit,
                 ),
               ],
-              child: AiProcessingView(
-                image: invalidImage,
+              child: SizedBox(
+                width: 1024,
+                height: 1024,
+                child: AiProcessingView(
+                  image: invalidImage,
+                ),
               ),
             ),
           ),
@@ -122,7 +135,8 @@ void main() {
         expect(find.text('No image data available'), findsOneWidget);
       });
 
-      testWidgets('displays error widget when image loading fails', (tester) async {
+      testWidgets('displays error widget when image loading fails',
+          (tester) async {
         final corruptedImage = SelectedImage(
           bytes: Uint8List.fromList([]), // Empty bytes
           name: 'corrupted.jpg',
@@ -138,8 +152,12 @@ void main() {
                   value: mockGeminiPipelineCubit,
                 ),
               ],
-              child: AiProcessingView(
-                image: corruptedImage,
+              child: SizedBox(
+                width: 1024,
+                height: 1024,
+                child: AiProcessingView(
+                  image: corruptedImage,
+                ),
               ),
             ),
           ),
@@ -150,7 +168,8 @@ void main() {
     });
 
     group('User Interactions', () {
-      testWidgets('clear button is disabled when no annotations', (tester) async {
+      testWidgets('clear button is disabled when no annotations',
+          (tester) async {
         when(() => mockImageEditorCubit.state)
             .thenReturn(const ImageEditorInitial());
 
@@ -162,8 +181,12 @@ void main() {
                   value: mockGeminiPipelineCubit,
                 ),
               ],
-              child: AiProcessingView(
-                image: testImage,
+              child: SizedBox(
+                width: 1024,
+                height: 1024,
+                child: AiProcessingView(
+                  image: testImage,
+                ),
               ),
             ),
           ),
@@ -171,16 +194,17 @@ void main() {
 
         final clearButton = find.byIcon(Icons.clear);
         expect(clearButton, findsOneWidget);
-        
+
         final iconButton = tester.widget<IconButton>(clearButton);
         expect(iconButton.onPressed, isNull);
       });
 
-      testWidgets('clear button is enabled when annotations exist', (tester) async {
-        final strokesState = ImageEditorIdle(
+      testWidgets('clear button is enabled when annotations exist',
+          (tester) async {
+        final strokesState = const ImageEditorIdle(
           strokes: [
             AnnotationStroke(
-              points: const [Offset(0, 0), Offset(10, 10)],
+              points: [Offset(0, 0), Offset(10, 10)],
               color: Colors.red,
               strokeWidth: 2.0,
             ),
@@ -197,8 +221,12 @@ void main() {
                   value: mockGeminiPipelineCubit,
                 ),
               ],
-              child: AiProcessingView(
-                image: testImage,
+              child: SizedBox(
+                width: 1024,
+                height: 1024,
+                child: AiProcessingView(
+                  image: testImage,
+                ),
               ),
             ),
           ),
@@ -206,16 +234,17 @@ void main() {
 
         final clearButton = find.byIcon(Icons.clear);
         expect(clearButton, findsOneWidget);
-        
+
         final iconButton = tester.widget<IconButton>(clearButton);
         expect(iconButton.onPressed, isNotNull);
       });
 
-      testWidgets('calls clearAnnotations when clear button is pressed', (tester) async {
-        final strokesState = ImageEditorIdle(
+      testWidgets('calls clearAnnotations when clear button is pressed',
+          (tester) async {
+        final strokesState = const ImageEditorIdle(
           strokes: [
             AnnotationStroke(
-              points: const [Offset(0, 0), Offset(10, 10)],
+              points: [Offset(0, 0), Offset(10, 10)],
               color: Colors.red,
               strokeWidth: 2.0,
             ),
@@ -235,8 +264,12 @@ void main() {
                   value: mockImageEditorCubit,
                 ),
               ],
-              child: AiProcessingView(
-                image: testImage,
+              child: SizedBox(
+                width: 1024,
+                height: 1024,
+                child: AiProcessingView(
+                  image: testImage,
+                ),
               ),
             ),
           ),
@@ -262,8 +295,12 @@ void main() {
                   value: mockGeminiPipelineCubit,
                 ),
               ],
-              child: AiProcessingView(
-                image: testImage,
+              child: SizedBox(
+                width: 1024,
+                height: 1024,
+                child: AiProcessingView(
+                  image: testImage,
+                ),
               ),
             ),
           ),
@@ -285,8 +322,12 @@ void main() {
                   value: mockGeminiPipelineCubit,
                 ),
               ],
-              child: AiProcessingView(
-                image: testImage,
+              child: SizedBox(
+                width: 1024,
+                height: 1024,
+                child: AiProcessingView(
+                  image: testImage,
+                ),
               ),
             ),
           ),
@@ -298,7 +339,8 @@ void main() {
     });
 
     group('Accessibility', () {
-      testWidgets('provides semantic labels for screen readers', (tester) async {
+      testWidgets('provides semantic labels for screen readers',
+          (tester) async {
         await tester.pumpWidget(
           MaterialApp(
             home: MultiBlocProvider(
@@ -307,8 +349,12 @@ void main() {
                   value: mockGeminiPipelineCubit,
                 ),
               ],
-              child: AiProcessingView(
-                image: testImage,
+              child: SizedBox(
+                width: 1024,
+                height: 1024,
+                child: AiProcessingView(
+                  image: testImage,
+                ),
               ),
             ),
           ),
@@ -336,8 +382,12 @@ void main() {
                   value: mockGeminiPipelineCubit,
                 ),
               ],
-              child: AiProcessingView(
-                image: testImage,
+              child: SizedBox(
+                width: 1024,
+                height: 1024,
+                child: AiProcessingView(
+                  image: testImage,
+                ),
               ),
             ),
           ),
@@ -350,7 +400,8 @@ void main() {
     });
 
     group('Performance', () {
-      testWidgets('uses ValueKey for efficient widget rebuilds', (tester) async {
+      testWidgets('uses ValueKey for efficient widget rebuilds',
+          (tester) async {
         await tester.pumpWidget(
           MaterialApp(
             home: MultiBlocProvider(
@@ -359,8 +410,12 @@ void main() {
                   value: mockGeminiPipelineCubit,
                 ),
               ],
-              child: AiProcessingView(
-                image: testImage,
+              child: SizedBox(
+                width: 1024,
+                height: 1024,
+                child: AiProcessingView(
+                  image: testImage,
+                ),
               ),
             ),
           ),
@@ -369,7 +424,7 @@ void main() {
         // Check that image widget has proper key
         final imageWidget = find.byType(Image);
         expect(imageWidget, findsOneWidget);
-        
+
         final image = tester.widget<Image>(imageWidget);
         expect(image.key, isA<ValueKey<String>>());
       });
@@ -406,9 +461,13 @@ void main() {
                   value: mockGeminiPipelineCubit,
                 ),
               ],
-              child: AiProcessingView(
-                image: testImage,
-                annotatedImage: null, // Explicitly null
+              child: SizedBox(
+                width: 1024,
+                height: 1024,
+                child: AiProcessingView(
+                  image: testImage,
+                  annotatedImage: null, // Explicitly null
+                ),
               ),
             ),
           ),
@@ -433,8 +492,12 @@ void main() {
                   value: mockGeminiPipelineCubit,
                 ),
               ],
-              child: AiProcessingView(
-                image: imageWithEmptyName,
+              child: SizedBox(
+                width: 1024,
+                height: 1024,
+                child: AiProcessingView(
+                  image: imageWithEmptyName,
+                ),
               ),
             ),
           ),
@@ -448,16 +511,16 @@ void main() {
   group('AiProcessingException', () {
     test('creates exception with message and code', () {
       const exception = InvalidImageException('Test message', 'TEST_CODE');
-      
+
       expect(exception.message, 'Test message');
       expect(exception.code, 'TEST_CODE');
-      expect(exception.toString(), 
+      expect(exception.toString(),
           'AiProcessingException: Test message (Code: TEST_CODE)');
     });
 
     test('creates exception with message only', () {
       const exception = InvalidImageException('Test message');
-      
+
       expect(exception.message, 'Test message');
       expect(exception.code, isNull);
       expect(exception.toString(), 'AiProcessingException: Test message');
@@ -465,7 +528,7 @@ void main() {
 
     test('ImageLoadException extends AiProcessingException', () {
       const exception = ImageLoadException('Load failed');
-      
+
       expect(exception, isA<AiProcessingException>());
       expect(exception.message, 'Load failed');
     });
