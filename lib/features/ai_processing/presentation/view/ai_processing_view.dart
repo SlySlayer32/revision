@@ -158,10 +158,6 @@ class AiProcessingView extends StatelessWidget {
             Icons.memory,
           );
         },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return _buildLoadingWidget(context, loadingProgress);
-        },
       ),
     );
   }
@@ -180,10 +176,6 @@ class AiProcessingView extends StatelessWidget {
             'Failed to load image from file: ${image.path}',
             Icons.folder_open,
           );
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return _buildLoadingWidget(context, loadingProgress);
         },
       ),
     );
