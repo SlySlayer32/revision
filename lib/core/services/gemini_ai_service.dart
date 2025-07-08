@@ -435,6 +435,31 @@ Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a b
             imageName: imageName,
           );
 
+          final responseUpper = response.toUpperCase();
+          return responseUpper.contains('SAFE') &&
+              !responseUpper.contains('UNSAFE');
+        }, 'checkContentSafety')
+        .catchError((e) {
+          log('❌ checkContentSafety failed after all retries: $e');
+          return true; // Default to safe on error
+        });
+  }
+
+  @override
+  Future<String> generateEditingPrompt({
+    required Uint8List imageBytes,
+    required List<Map<String, dynamic>> markers,
+    String? imageName,
+  }) async {
+    await waitForInitialization();
+
+    return _errorHandler
+        .executeWithRetry<String>(() async {
+          final markerDescriptions = markers
+              .map(
+                (marker) =>
+                    'Marker at (${marker['x']}, ${marker['y']}): ${marker['description'] ?? 'Object to edit'}',
+              )
               .join('\n');
 
           final prompt =
@@ -453,7 +478,11 @@ Create a comprehensive editing instruction that includes:
 Provide a clear, actionable editing prompt.
 ''';
 
-          return _makeMultimodalRequest(prompt: prompt, imageBytes: imageBytes);
+          return _makeMultimodalRequest(
+            prompt: prompt,
+            imageBytes: imageBytes,
+            imageName: imageName,
+          );
         }, 'generateEditingPrompt')
         .catchError((e) {
           log('❌ generateEditingPrompt failed after all retries: $e');
@@ -465,6 +494,7 @@ Provide a clear, actionable editing prompt.
   Future<Uint8List> processImageWithAI({
     required Uint8List imageBytes,
     required String editingPrompt,
+    String? imageName,
   }) async {
     await waitForInitialization();
 
