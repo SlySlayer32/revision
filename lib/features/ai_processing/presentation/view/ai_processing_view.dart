@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -468,8 +466,10 @@ class AiProcessingView extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             _buildInfoRow(context, 'Format', mimeType),
-            _buildInfoRow(context, 'Size', '${image.sizeInMB.toStringAsFixed(2)} MB'),
-            _buildInfoRow(context, 'Token Usage', isOptimized ? 'Optimized' : 'Tiled'),
+            _buildInfoRow(
+                context, 'Size', '${image.sizeInMB.toStringAsFixed(2)} MB'),
+            _buildInfoRow(
+                context, 'Token Usage', isOptimized ? 'Optimized' : 'Tiled'),
           ],
         ),
       );
