@@ -311,6 +311,15 @@ Provide clear, actionable editing steps.
             imageBytes: imageData,
             imageName: imageName,
           );
+        }, 'processImagePrompt')
+        .catchError((e) {
+          log('❌ processImagePrompt failed after all retries: $e');
+          return '''
+I apologize, but I'm currently unable to analyze this image due to a technical issue.
+
+For object removal, I generally recommend:
+1. Identify the object boundaries carefully
+2. Consider the background pattern for reconstruction
 3. Use content-aware tools for seamless blending
 4. Adjust lighting and shadows to match surroundings
 
@@ -320,7 +329,10 @@ Please try again or contact support if the issue persists.
   }
 
   @override
-  Future<String> generateImageDescription(Uint8List imageData) async {
+  Future<String> generateImageDescription(
+    Uint8List imageData, {
+    String? imageName,
+  }) async {
     await waitForInitialization();
 
     return _errorHandler
@@ -338,23 +350,11 @@ Include:
 Keep the description clear and technical.
 ''';
 
-          return _makeMultimodalRequest(prompt: prompt, imageBytes: imageData);
-        }, 'generateImageDescription')
-        .catchError((e) {
-          log('❌ generateImageDescription failed after all retries: $e');
-          return 'Unable to analyze image at this time.';
-        });
-  }
-
-  @override
-  Future<List<String>> suggestImageEdits(Uint8List imageData) async {
-    await waitForInitialization();
-
-    return _errorHandler
-        .executeWithRetry<List<String>>(() async {
-          const prompt = '''
-Analyze this image and provide 5 specific editing suggestions to improve it.
-
+          return _makeMultimodalRequest(
+            prompt: prompt,
+            imageBytes: imageData,
+            imageName: imageName,
+          );
 Focus on:
 1. Object removal opportunities
 2. Lighting improvements
