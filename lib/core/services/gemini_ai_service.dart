@@ -201,6 +201,10 @@ class GeminiAIService implements AIService {
       imageBytes: imageBytes,
       model: modelName,
       mimeType: mimeType,
+    );
+
+    log('📡 Making multimodal Gemini API request...');
+    log('🔧 Model: $modelName');
     log('📷 Image size: ${imageBytes.length} bytes');
 
     final response = await _httpClient
@@ -273,7 +277,11 @@ class GeminiAIService implements AIService {
   }
 
   @override
-  Future<String> processImagePrompt(Uint8List imageData, String prompt) async {
+  Future<String> processImagePrompt(
+    Uint8List imageData,
+    String prompt, {
+    String? imageName,
+  }) async {
     await waitForInitialization();
 
     return _errorHandler
@@ -301,16 +309,8 @@ Provide clear, actionable editing steps.
           return _makeMultimodalRequest(
             prompt: fullPrompt,
             imageBytes: imageData,
+            imageName: imageName,
           );
-        }, 'processImagePrompt')
-        .catchError((e) {
-          log('❌ processImagePrompt failed after all retries: $e');
-          return '''
-I apologize, but I'm currently unable to analyze this image due to a technical issue.
-
-For object removal, I generally recommend:
-1. Identify the object boundaries carefully
-2. Consider the background pattern for reconstruction
 3. Use content-aware tools for seamless blending
 4. Adjust lighting and shadows to match surroundings
 
