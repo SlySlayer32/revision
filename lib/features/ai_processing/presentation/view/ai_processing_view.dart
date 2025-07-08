@@ -426,6 +426,109 @@ class AiProcessingView extends StatelessWidget {
     );
   }
 
+  /// Builds an info widget showing Gemini API compatibility
+  Widget _buildGeminiApiInfoWidget(BuildContext context) {
+    final theme = Theme.of(context);
+
+    try {
+      _validateImageForGeminiApi();
+      final isOptimized = _isOptimizedForTokenUsage();
+      final mimeType = _getGeminiMimeType();
+
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: theme.colorScheme.outline.withOpacity(0.5),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: theme.colorScheme.primary,
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Gemini API Compatible',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            _buildInfoRow(context, 'Format', mimeType),
+            _buildInfoRow(context, 'Size', '${image.sizeInMB.toStringAsFixed(2)} MB'),
+            _buildInfoRow(context, 'Token Usage', isOptimized ? 'Optimized' : 'Tiled'),
+          ],
+        ),
+      );
+    } catch (e) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.errorContainer,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: theme.colorScheme.error.withOpacity(0.5),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.warning,
+              color: theme.colorScheme.error,
+              size: 16,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'API Compatibility Issue',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  /// Builds an info row for the API compatibility widget
+  Widget _buildInfoRow(BuildContext context, String label, String value) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          Text(
+            value,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
