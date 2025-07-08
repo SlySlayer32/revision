@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:equatable/equatable.dart';
+import 'package:revision/core/constants/app_constants.dart';
 import 'package:revision/features/image_selection/domain/entities/image_source.dart';
 
 /// Represents a selected image with metadata and validation capabilities.
@@ -53,8 +54,9 @@ class SelectedImage extends Equatable {
   }
 
   /// Check if image is valid (size and format)
+  /// Updated to use AppConstants.maxImageSize for consistency
   bool get isValid =>
-      isValidFormat && sizeInBytes <= (50 * 1024 * 1024); // 50MB limit
+      isValidFormat && sizeInBytes <= AppConstants.maxImageSize;
 
   /// Create copy with updated fields
   SelectedImage copyWith({
