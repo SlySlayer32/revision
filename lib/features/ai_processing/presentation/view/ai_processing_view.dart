@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
@@ -18,6 +20,77 @@ class AiProcessingView extends StatelessWidget {
 
   final SelectedImage image;
   final AnnotatedImage? annotatedImage;
+
+  /// Builds the image widget with proper null safety handling
+  Widget _buildImageWidget() {
+    if (image.bytes != null) {
+      return Image.memory(
+        image.bytes!,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: Colors.red,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Error loading image',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    } else if (image.path != null) {
+      return Image.file(
+        File(image.path!),
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: Colors.red,
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Error loading image from file',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    } else {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.image_not_supported,
+              size: 48,
+              color: Colors.grey,
+            ),
+            SizedBox(height: 16),
+            Text(
+              'No image data available',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
