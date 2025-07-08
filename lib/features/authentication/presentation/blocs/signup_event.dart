@@ -16,6 +16,10 @@ final class SignupRequested extends SignupEvent {
     required this.email,
     required this.password,
     required this.confirmPassword,
+    required this.acceptedTerms,
+    required this.acceptedPrivacy,
+    required this.isAdult,
+    this.phoneNumber,
   });
 
   /// The email address
@@ -27,6 +31,26 @@ final class SignupRequested extends SignupEvent {
   /// The confirmation password
   final String confirmPassword;
 
+  /// Whether the user accepted the terms of service
+  final bool acceptedTerms;
+
+  /// Whether the user accepted the privacy policy
+  final bool acceptedPrivacy;
+
+  /// Whether the user confirmed they are 13 or older
+  final bool isAdult;
+
+  /// Optional phone number for verification
+  final String? phoneNumber;
+
   @override
-  List<Object> get props => [email, password, confirmPassword];
+  List<Object?> get props => [
+    email,
+    password,
+    confirmPassword,
+    acceptedTerms,
+    acceptedPrivacy,
+    isAdult,
+    phoneNumber,
+  ];
 }
