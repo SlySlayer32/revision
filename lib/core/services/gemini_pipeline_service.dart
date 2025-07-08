@@ -20,12 +20,15 @@ class GeminiPipelineResult {
 
 class GeminiPipelineService {
   GeminiPipelineService({GeminiAIService? geminiAIService})
-      : _geminiAIService = geminiAIService ?? GeminiAIService();
+    : _geminiAIService = geminiAIService ?? GeminiAIService();
 
   final GeminiAIService _geminiAIService;
 
   Future<GeminiPipelineResult> processImage(
-      Uint8List imageBytes, String prompt) async {
+    Uint8List imageBytes,
+    String prompt,
+    String imageName,
+  ) async {
     final stopwatch = Stopwatch()..start();
 
     try {
@@ -36,6 +39,7 @@ class GeminiPipelineService {
       final result = await _geminiAIService.processImageWithAI(
         imageBytes: imageBytes,
         editingPrompt: prompt,
+        imageName: imageName,
       );
 
       stopwatch.stop();
@@ -68,6 +72,7 @@ class GeminiPipelineService {
   Future<GeminiPipelineResult> processImageWithMarkedObjects({
     required Uint8List imageData,
     required List<Map<String, dynamic>> markedAreas,
+    required String imageName,
   }) async {
     final stopwatch = Stopwatch()..start();
 
@@ -81,7 +86,8 @@ class GeminiPipelineService {
           .toList();
 
       // Create a detailed prompt for object removal
-      final prompt = '''
+      final prompt =
+          '''
 Remove the following objects from this image: ${markedAreaDescriptions.join(', ')}
 
 Instructions:
@@ -98,6 +104,7 @@ Objects to remove: ${markedAreaDescriptions.join(', ')}
       final result = await _geminiAIService.processImageWithAI(
         imageBytes: imageData,
         editingPrompt: prompt,
+        imageName: imageName,
       );
 
       stopwatch.stop();
