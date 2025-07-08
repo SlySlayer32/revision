@@ -180,13 +180,13 @@ class AiProcessingView extends StatelessWidget {
   /// Builds the image widget with comprehensive error handling and accessibility
   ///
   /// Returns a widget that displays the image with proper error states and fallbacks
-  /// Includes accessibility features and performance optimizations
+  /// Includes accessibility features, performance optimizations, and Gemini API validation
   ///
   /// @param context The build context for theme and localization access
   /// @returns A widget displaying the image or appropriate error state
   Widget _buildImageDisplayWidget(BuildContext context) {
     try {
-      _validateImageData();
+      _validateImageForGeminiApi();
 
       if (image.bytes != null) {
         return _buildMemoryImageWidget(context);
