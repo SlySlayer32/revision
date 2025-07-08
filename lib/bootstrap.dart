@@ -14,6 +14,7 @@ import 'package:revision/core/constants/firebase_constants.dart';
 import 'package:revision/core/di/service_locator.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
+import 'package:revision/core/services/preferences_service.dart';
 import 'package:revision/firebase_options.dart';
 
 class AppBlocObserver extends BlocObserver {
@@ -51,6 +52,11 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
 
         // Initialize all services and dependencies
         await _initializeFirebase();
+
+        // Initialize preferences service
+        debugPrint('bootstrap: Initializing preferences service...');
+        await PreferencesService.init();
+        debugPrint('bootstrap: Preferences service initialized');
 
         // Log environment info
         final debugInfo = EnvConfig.getDebugInfo();
