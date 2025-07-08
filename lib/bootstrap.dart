@@ -12,6 +12,8 @@ import 'package:revision/core/config/env_config.dart';
 import 'package:revision/core/config/environment_detector.dart';
 import 'package:revision/core/constants/firebase_constants.dart';
 import 'package:revision/core/di/service_locator.dart';
+import 'package:revision/core/services/analytics_service.dart';
+import 'package:revision/core/services/feature_flag_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
 import 'package:revision/firebase_options.dart';
@@ -155,6 +157,31 @@ Future<void> _initializeFirebase() async {
       );
     } catch (e) {
       debugPrint('⚠️ Firebase Remote Config initialization failed: $e');
+    }
+
+    // Initialize Feature Flag Service
+    debugPrint('_initializeFirebase: Initializing Feature Flag Service...');
+    try {
+      final featureFlagService = getIt<FeatureFlagService>();
+      await featureFlagService.refresh();
+      debugPrint(
+        '_initializeFirebase: Feature Flag Service initialization completed',
+      );
+    } catch (e) {
+      debugPrint('⚠️ Feature Flag Service initialization failed: $e');
+    }
+
+    // Initialize Analytics Service
+    debugPrint('_initializeFirebase: Initializing Analytics Service...');
+    try {
+      final analyticsService = getIt<AnalyticsService>();
+      await analyticsService.initialize();
+      await analyticsService.trackAppLaunch();
+      debugPrint(
+        '_initializeFirebase: Analytics Service initialization completed',
+      );
+    } catch (e) {
+      debugPrint('⚠️ Analytics Service initialization failed: $e');
     }
 
     // Initialize Firebase AI Logic after Firebase is initialized
