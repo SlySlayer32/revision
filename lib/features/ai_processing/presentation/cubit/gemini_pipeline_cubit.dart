@@ -15,7 +15,7 @@ import 'package:revision/features/image_selection/domain/entities/selected_image
 /// 4. Results display
 class GeminiPipelineCubit extends Cubit<GeminiPipelineState> {
   GeminiPipelineCubit(this._processImageWithGeminiUseCase)
-      : super(const GeminiPipelineState());
+    : super(const GeminiPipelineState());
 
   final ProcessImageWithGeminiUseCase _processImageWithGeminiUseCase;
 
@@ -28,18 +28,25 @@ class GeminiPipelineCubit extends Cubit<GeminiPipelineState> {
   }) async {
     final stopwatch = Stopwatch()..start();
     if (selectedImage.bytes == null) {
-      emit(state.copyWith(
+      emit(
+        state.copyWith(
           status: GeminiPipelineStatus.error,
-          errorMessage: 'Selected image data is missing.'));
+          errorMessage: 'Selected image data is missing.',
+        ),
+      );
       return;
     }
 
-    emit(state.copyWith(
+    emit(
+      state.copyWith(
         status: GeminiPipelineStatus.processing,
-        progressMessage: 'Analyzing image with Gemini...'));
+        progressMessage: 'Analyzing image with Gemini...',
+      ),
+    );
 
     final result = await _processImageWithGeminiUseCase(
       selectedImage.bytes!,
+      imageName: selectedImage.name,
       // The use case expects a more generic prompt and context structure
       // This might need to be adjusted based on the final use case implementation
       markedAreas: processingContext.markers.map((m) => m.toAIMap()).toList(),
@@ -55,10 +62,12 @@ class GeminiPipelineCubit extends Cubit<GeminiPipelineState> {
           enhancedPrompt: pipelineResult.analysisPrompt,
           processingTime: stopwatch.elapsed,
         );
-        emit(state.copyWith(
-          status: GeminiPipelineStatus.success,
-          processingResult: processingResult,
-        ));
+        emit(
+          state.copyWith(
+            status: GeminiPipelineStatus.success,
+            processingResult: processingResult,
+          ),
+        );
       },
       failure: (exception) {
         String errorMessage = exception.toString();
@@ -75,8 +84,12 @@ Firebase AI (Gemini) Setup Required:
 Original error: ${exception.toString()}''';
         }
 
-        emit(state.copyWith(
-            status: GeminiPipelineStatus.error, errorMessage: errorMessage));
+        emit(
+          state.copyWith(
+            status: GeminiPipelineStatus.error,
+            errorMessage: errorMessage,
+          ),
+        );
       },
     );
   }
