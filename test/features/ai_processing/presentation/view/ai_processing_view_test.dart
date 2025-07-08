@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
+import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_state.dart';
 import 'package:revision/features/ai_processing/presentation/view/ai_processing_view.dart';
 import 'package:revision/features/image_editing/domain/entities/annotated_image.dart';
 import 'package:revision/features/image_editing/domain/entities/annotation_stroke.dart';
