@@ -355,6 +355,25 @@ Keep the description clear and technical.
             imageBytes: imageData,
             imageName: imageName,
           );
+        }, 'generateImageDescription')
+        .catchError((e) {
+          log('❌ generateImageDescription failed after all retries: $e');
+          return 'Unable to analyze image at this time.';
+        });
+  }
+
+  @override
+  Future<List<String>> suggestImageEdits(
+    Uint8List imageData, {
+    String? imageName,
+  }) async {
+    await waitForInitialization();
+
+    return _errorHandler
+        .executeWithRetry<List<String>>(() async {
+          const prompt = '''
+Analyze this image and provide 5 specific editing suggestions to improve it.
+
 Focus on:
 1. Object removal opportunities
 2. Lighting improvements
@@ -368,28 +387,9 @@ Provide each suggestion as a clear, actionable sentence.
           final response = await _makeMultimodalRequest(
             prompt: prompt,
             imageBytes: imageData,
+            imageName: imageName,
           );
 
-          // Parse response into suggestions
-          final suggestions = response
-              .split('\n')
-              .where((line) => line.trim().isNotEmpty)
-              .map((line) => line.replaceAll(RegExp(r'^\d+\.?\s*'), '').trim())
-              .where((suggestion) => suggestion.isNotEmpty)
-              .take(5)
-              .toList();
-
-          return suggestions.isNotEmpty
-              ? suggestions
-              : _getFallbackSuggestions();
-        }, 'suggestImageEdits')
-        .catchError((e) {
-          log('❌ suggestImageEdits failed after all retries: $e');
-          return _getFallbackSuggestions();
-        });
-  }
-
-  @override
   Future<bool> checkContentSafety(Uint8List imageData) async {
     await waitForInitialization();
 
