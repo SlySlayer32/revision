@@ -166,12 +166,24 @@ class AiProcessingView extends StatelessWidget {
                     Expanded(
                       child: BlocBuilder<ImageEditorCubit, ImageEditorState>(
                         builder: (context, editorState) {
-                          final currentAnnotatedImage =
-                              annotatedImage ??
-                              AnnotatedImage(
-                                imageBytes: image.bytes!,
-                                annotations: editorState.strokes,
-                              );
+                          final currentAnnotatedImage = annotatedImage ??
+                              (image.bytes != null
+                                  ? AnnotatedImage(
+                                      imageBytes: image.bytes!,
+                                      annotations: editorState.strokes,
+                                    )
+                                  : null);
+                          
+                          // Only show processing controls if we have image data
+                          if (currentAnnotatedImage == null) {
+                            return const Center(
+                              child: Text(
+                                'No image data available for processing',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            );
+                          }
+                          
                           return ProcessingControls(
                             selectedImage: image,
                             annotatedImage: currentAnnotatedImage,
