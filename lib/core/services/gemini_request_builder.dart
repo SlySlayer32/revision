@@ -33,6 +33,7 @@ class GeminiRequestBuilder {
     required String prompt,
     required Uint8List imageBytes,
     String? model,
+    String? mimeType,
   }) {
     final base64Image = base64Encode(imageBytes);
 
@@ -44,7 +45,7 @@ class GeminiRequestBuilder {
             {
               GeminiConstants.inlineDataKey: {
                 GeminiConstants.mimeTypeKey:
-                    GeminiConstants.defaultImageMimeType,
+                    mimeType ?? GeminiConstants.defaultImageMimeType,
                 GeminiConstants.dataKey: base64Image,
               },
             },
@@ -53,6 +54,26 @@ class GeminiRequestBuilder {
       ],
       GeminiConstants.generationConfigKey: _buildGenerationConfig(),
     };
+  }
+
+  /// Gets the appropriate MIME type for Gemini API based on file extension
+  static String getMimeType(String fileName) {
+    final extension = fileName.toLowerCase().split('.').last;
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'webp':
+        return 'image/webp';
+      case 'heic':
+        return 'image/heic';
+      case 'heif':
+        return 'image/heif';
+      default:
+        return GeminiConstants.defaultImageMimeType;
+    }
   }
 
   /// Builds an image generation request
@@ -76,9 +97,7 @@ class GeminiRequestBuilder {
 
     return {
       GeminiConstants.contentsKey: [
-        {
-          GeminiConstants.partsKey: parts,
-        },
+        {GeminiConstants.partsKey: parts},
       ],
       GeminiConstants.generationConfigKey: _buildImageGenerationConfig(),
     };
@@ -115,11 +134,11 @@ class GeminiRequestBuilder {
     request[GeminiConstants.systemInstructionKey] = {
       GeminiConstants.partsKey: [
         {
-          GeminiConstants.textKey: 
+          GeminiConstants.textKey:
               'You are an expert image segmentation assistant. '
-              'Always respond with valid JSON containing segmentation data.'
-        }
-      ]
+              'Always respond with valid JSON containing segmentation data.',
+        },
+      ],
     };
 
     return request;
@@ -164,7 +183,8 @@ class GeminiRequestBuilder {
   /// Builds generation configuration for image generation
   Map<String, dynamic> _buildImageGenerationConfig() {
     return {
-      GeminiConstants.temperatureKey: _remoteConfig.temperature *
+      GeminiConstants.temperatureKey:
+          _remoteConfig.temperature *
           GeminiConstants.imageTemperatureMultiplier,
       GeminiConstants.maxOutputTokensKey: _remoteConfig.maxOutputTokens * 2,
       GeminiConstants.topKKey: GeminiConstants.defaultTopK,
@@ -186,8 +206,9 @@ class GeminiRequestBuilder {
     // Add response format if supported by the model
     // Some API versions might not support this, so we'll try it conditionally
     try {
-      config[GeminiConstants.responseMimeTypeKey] = GeminiConstants.applicationJsonMimeType;
-      
+      config[GeminiConstants.responseMimeTypeKey] =
+          GeminiConstants.applicationJsonMimeType;
+
       // Only add stop sequences for JSON formatting
       config['stopSequences'] = ['```', 'END_OF_RESPONSE'];
     } catch (e) {
