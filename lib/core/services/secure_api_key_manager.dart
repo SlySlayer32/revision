@@ -11,6 +11,8 @@ class SecureAPIKeyManager {
   static const int _minKeyLength = 30;
   static const String _expectedPrefix = 'AIza';
   static const String _maskChar = '*';
+  static DateTime? _lastValidation;
+  static const Duration _validationCacheDuration = Duration(minutes: 5);
 
   /// Get API key with security validation
   static String? getSecureApiKey() {
@@ -20,12 +22,46 @@ class SecureAPIKeyManager {
       return null;
     }
 
+    // Cache validation for performance
+    if (_lastValidation != null && 
+        DateTime.now().difference(_lastValidation!) < _validationCacheDuration) {
+      return apiKey;
+    }
+
     // Validate API key format
     if (!_validateApiKeyFormat(apiKey)) {
+      SecurityAuditService.logSecurityException(
+        operation: 'API_KEY_VALIDATION',
+        exception: 'SecurityException',
+        message: 'Invalid API key format detected',
+      );
       throw SecurityException('Invalid API key format detected');
     }
 
+    _lastValidation = DateTime.now();
     return apiKey;
+  }
+
+  /// Check if API key needs refresh (placeholder for future implementation)
+  static bool needsRefresh() {
+    // In a real implementation, this would check token expiry
+    // For Gemini API keys, this is typically not needed as they don't expire
+    return false;
+  }
+
+  /// Refresh API key (placeholder for future implementation)
+  static Future<String?> refreshApiKey() async {
+    // In a real implementation, this would handle token refresh
+    // For Gemini API keys, this would typically involve getting a new key
+    // from the service account or OAuth flow
+    
+    SecurityAuditService.logAuthentication(
+      operation: 'API_KEY_REFRESH',
+      success: false,
+      reason: 'Not implemented for Gemini API keys',
+    );
+    
+    throw UnimplementedError('API key refresh not implemented for Gemini API');
   }
 
   /// Validate API key format without exposing the key

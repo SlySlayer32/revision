@@ -91,6 +91,11 @@ class RateLimitingService {
           maxRequests: 2,
           window: Duration(minutes: 1),
         );
+      case 'gemini_object_detection':
+        return const RateLimitConfig(
+          maxRequests: 3,
+          window: Duration(minutes: 1),
+        );
       default:
         return const RateLimitConfig(
           maxRequests: 10,

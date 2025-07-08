@@ -349,7 +349,12 @@ class GeminiAIService implements AIService {
     required String prompt,
     Uint8List? inputImage,
   }) async {
-    final apiKey = EnvConfig.geminiApiKey!;
+    // Use secure API key validation
+    final apiKey = SecureAPIKeyManager.getSecureApiKey();
+    if (apiKey == null) {
+      throw SecurityException('API key not available for image generation request');
+    }
+
     final modelName = _remoteConfig.geminiImageModel;
 
     final requestBody = _requestBuilder.buildImageGenerationRequest(
@@ -357,27 +362,60 @@ class GeminiAIService implements AIService {
       inputImage: inputImage,
     );
 
-    log('🎨 Making image generation request...');
-    log('📡 Model: $modelName');
+    SecureLogger.log(
+      '🎨 Making image generation request...',
+      operation: 'IMAGE_GENERATION',
+      context: {
+        'model': modelName,
+        'hasInputImage': inputImage != null,
+        'inputImageSize': inputImage?.length,
+      },
+    );
 
-    final response = await _httpClient
-        .post(
-          Uri.parse('$_baseUrl/$modelName:generateContent?key=$apiKey'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(requestBody),
-        )
-        .timeout(_remoteConfig.requestTimeout);
+    final url = '$_baseUrl/$modelName:generateContent?key=$apiKey';
 
-    if (response.statusCode == GeminiConstants.httpOk) {
-      final data = jsonDecode(response.body);
-      return GeminiResponseHandler.extractImageFromResponse(data);
-    } else {
-      log('❌ Image generation API error: ${response.statusCode}');
-      log('📝 Response: ${response.body}');
-      throw Exception(
-        'Gemini API error: ${response.statusCode} - ${response.body}',
+    // Execute with circuit breaker and rate limiting
+    return await CircuitBreakerService.geminiAI.execute(() async {
+      return await RateLimitingService.instance.executeWithRateLimit(
+        'gemini_image_generation',
+        () async {
+          SecurityAuditService.logApiRequest(
+            operation: 'IMAGE_GENERATION',
+            endpoint: url,
+            method: 'POST',
+            metadata: {
+              'modelName': modelName,
+              'requestSize': jsonEncode(requestBody).length,
+            },
+          );
+
+          final response = await SecureRequestHandler.makeSecureRequest(
+            endpoint: url,
+            body: requestBody,
+            operation: 'IMAGE_GENERATION',
+            timeout: _remoteConfig.requestTimeout,
+          );
+
+          if (response.statusCode == GeminiConstants.httpOk) {
+            final data = jsonDecode(response.body);
+            return GeminiResponseHandler.extractImageFromResponse(data);
+          } else {
+            SecurityAuditService.logApiResponse(
+              operation: 'IMAGE_GENERATION',
+              statusCode: response.statusCode,
+              responseSize: response.body.length,
+              duration: 0,
+              metadata: {'error': true},
+            );
+            
+            throw Exception(
+              'Gemini API error: ${response.statusCode} - ${response.body}',
+            );
+          }
+        },
       );
-    }
+    });
+  }
   }
 
   @override
@@ -920,12 +958,20 @@ Focus on creating a clean, professional result that matches the editing intent.
           // Parse the object detection response
           final detectionData = _parseObjectDetectionResponse(response);
 
-          log('✅ Detected ${detectionData.length} objects with bounding boxes');
+          SecureLogger.log(
+            '✅ Detected ${detectionData.length} objects with bounding boxes',
+            operation: 'OBJECT_DETECTION',
+            context: {'detectedObjects': detectionData.length},
+          );
 
           return detectionData;
         }, 'detectObjectsWithBoundingBoxes')
         .catchError((e) {
-          log('❌ detectObjectsWithBoundingBoxes failed after all retries: $e');
+          SecureLogger.logError(
+            'detectObjectsWithBoundingBoxes failed after all retries',
+            operation: 'OBJECT_DETECTION',
+            error: e,
+          );
           return <Map<String, dynamic>>[];
         });
   }
@@ -935,7 +981,12 @@ Focus on creating a clean, professional result that matches the editing intent.
     required String prompt,
     required Uint8List imageBytes,
   }) async {
-    final apiKey = EnvConfig.geminiApiKey!;
+    // Use secure API key validation
+    final apiKey = SecureAPIKeyManager.getSecureApiKey();
+    if (apiKey == null) {
+      throw SecurityException('API key not available for object detection request');
+    }
+
     const modelName = 'gemini-2.0-flash-exp'; // Use 2.0+ for object detection
 
     final requestBody = _requestBuilder.buildObjectDetectionRequest(
@@ -943,25 +994,51 @@ Focus on creating a clean, professional result that matches the editing intent.
       imageBytes: imageBytes,
     );
 
-    log('🔍 Making object detection request to Gemini 2.0...');
-    log('🔧 Model: $modelName');
+    SecureLogger.log(
+      '🔍 Making object detection request to Gemini 2.0...',
+      operation: 'OBJECT_DETECTION',
+      context: {
+        'model': modelName,
+        'imageSize': imageBytes.length,
+        'promptLength': prompt.length,
+      },
+    );
 
-    final response = await _httpClient
-        .post(
-          Uri.parse('$_baseUrl/$modelName:generateContent?key=$apiKey'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(requestBody),
-        )
-        .timeout(_remoteConfig.requestTimeout);
+    final url = '$_baseUrl/$modelName:generateContent?key=$apiKey';
 
-    try {
-      return GeminiResponseHandler.handleTextResponse(response);
-    } catch (e) {
-      if (e is Exception) {
-        return _handleResponseError(e, 'object detection');
-      }
-      rethrow;
-    }
+    // Execute with circuit breaker and rate limiting
+    return await CircuitBreakerService.geminiAI.execute(() async {
+      return await RateLimitingService.instance.executeWithRateLimit(
+        'gemini_object_detection',
+        () async {
+          SecurityAuditService.logApiRequest(
+            operation: 'OBJECT_DETECTION',
+            endpoint: url,
+            method: 'POST',
+            metadata: {
+              'modelName': modelName,
+              'requestSize': jsonEncode(requestBody).length,
+            },
+          );
+
+          final response = await SecureRequestHandler.makeSecureRequest(
+            endpoint: url,
+            body: requestBody,
+            operation: 'OBJECT_DETECTION',
+            timeout: _remoteConfig.requestTimeout,
+          );
+
+          try {
+            return GeminiResponseHandler.handleTextResponse(response);
+          } catch (e) {
+            if (e is Exception) {
+              return _handleResponseError(e, 'object detection');
+            }
+            rethrow;
+          }
+        },
+      );
+    });
   }
 
   /// Parse object detection response from Gemini API
