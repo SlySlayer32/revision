@@ -27,9 +27,9 @@ class GeminiAIService implements AIService {
     FirebaseAIRemoteConfigService? remoteConfigService,
     http.Client? httpClient,
     GeminiRequestValidator? requestValidator,
-  })  : _remoteConfig = remoteConfigService ?? FirebaseAIRemoteConfigService(),
-        _httpClient = httpClient ?? http.Client(),
-        _requestValidator = requestValidator ?? GeminiRequestValidator() {
+  }) : _remoteConfig = remoteConfigService ?? FirebaseAIRemoteConfigService(),
+       _httpClient = httpClient ?? http.Client(),
+       _requestValidator = requestValidator ?? GeminiRequestValidator() {
     log('🏗️ Creating GeminiAIService instance...');
     // _requestBuilder is now initialized in _initializeService
   }
@@ -63,7 +63,8 @@ class GeminiAIService implements AIService {
         log('❌ Gemini API key validation failed');
         log('🔧 Available debug info: ${EnvConfig.getDebugInfo()}');
         throw StateError(
-            'Gemini API key not configured. Please add GEMINI_API_KEY to your .env file or pass it via --dart-define=GEMINI_API_KEY=your_key');
+          'Gemini API key not configured. Please add GEMINI_API_KEY to your .env file or pass it via --dart-define=GEMINI_API_KEY=your_key',
+        );
       }
 
       log('✅ Gemini API key found (length: ${apiKey.length})');
@@ -74,7 +75,9 @@ class GeminiAIService implements AIService {
         await _remoteConfig.initialize();
         log('✅ Remote Config initialized successfully');
       } catch (e) {
-        log('⚠️ Remote Config initialization failed, continuing with defaults: $e');
+        log(
+          '⚠️ Remote Config initialization failed, continuing with defaults: $e',
+        );
         // Continue with defaults - the service should handle this gracefully
       }
 
@@ -175,6 +178,7 @@ class GeminiAIService implements AIService {
     required String prompt,
     required Uint8List imageBytes,
     String? model,
+    String? imageName,
   }) async {
     // Validate request parameters using extracted validator
     final validationResult = _requestValidator.validateMultimodalRequest(
@@ -189,15 +193,14 @@ class GeminiAIService implements AIService {
 
     final apiKey = EnvConfig.geminiApiKey!;
     final modelName = model ?? _remoteConfig.geminiModel;
+    final mimeType =
+        imageName != null ? GeminiRequestBuilder.getMimeType(imageName) : null;
 
     final requestBody = _requestBuilder.buildMultimodalRequest(
       prompt: prompt,
       imageBytes: imageBytes,
       model: modelName,
-    );
-
-    log('📡 Making multimodal Gemini API request...');
-    log('🔧 Model: $modelName');
+      mimeType: mimeType,
     log('📷 Image size: ${imageBytes.length} bytes');
 
     final response = await _httpClient
@@ -249,7 +252,8 @@ class GeminiAIService implements AIService {
       log('❌ Image generation API error: ${response.statusCode}');
       log('📝 Response: ${response.body}');
       throw Exception(
-          'Gemini API error: ${response.statusCode} - ${response.body}');
+        'Gemini API error: ${response.statusCode} - ${response.body}',
+      );
     }
   }
 
@@ -259,29 +263,30 @@ class GeminiAIService implements AIService {
 
     return _errorHandler
         .executeWithRetry<String>(
-      () => _makeTextOnlyRequest(prompt: prompt),
-      'processTextPrompt',
-    )
+          () => _makeTextOnlyRequest(prompt: prompt),
+          'processTextPrompt',
+        )
         .catchError((e) {
-      log('❌ processTextPrompt failed after all retries: $e');
-      return 'Sorry, I encountered an error processing your request. Please try again.';
-    });
+          log('❌ processTextPrompt failed after all retries: $e');
+          return 'Sorry, I encountered an error processing your request. Please try again.';
+        });
   }
 
   @override
   Future<String> processImagePrompt(Uint8List imageData, String prompt) async {
     await waitForInitialization();
 
-    return _errorHandler.executeWithRetry<String>(
-      () async {
-        // Validate image size using constants
-        if (imageData.length > GeminiConstants.maxImageSizeBytes) {
-          throw Exception(
-            'Image too large: ${imageData.length ~/ (1024 * 1024)}MB',
-          );
-        }
+    return _errorHandler
+        .executeWithRetry<String>(() async {
+          // Validate image size using constants
+          if (imageData.length > GeminiConstants.maxImageSizeBytes) {
+            throw Exception(
+              'Image too large: ${imageData.length ~/ (1024 * 1024)}MB',
+            );
+          }
 
-        final fullPrompt = '''
+          final fullPrompt =
+              '''
 Analyze this image and provide editing instructions based on: $prompt
 
 Focus on:
@@ -293,15 +298,14 @@ Focus on:
 Provide clear, actionable editing steps.
 ''';
 
-        return _makeMultimodalRequest(
-          prompt: fullPrompt,
-          imageBytes: imageData,
-        );
-      },
-      'processImagePrompt',
-    ).catchError((e) {
-      log('❌ processImagePrompt failed after all retries: $e');
-      return '''
+          return _makeMultimodalRequest(
+            prompt: fullPrompt,
+            imageBytes: imageData,
+          );
+        }, 'processImagePrompt')
+        .catchError((e) {
+          log('❌ processImagePrompt failed after all retries: $e');
+          return '''
 I apologize, but I'm currently unable to analyze this image due to a technical issue.
 
 For object removal, I generally recommend:
@@ -312,16 +316,16 @@ For object removal, I generally recommend:
 
 Please try again or contact support if the issue persists.
 ''';
-    });
+        });
   }
 
   @override
   Future<String> generateImageDescription(Uint8List imageData) async {
     await waitForInitialization();
 
-    return _errorHandler.executeWithRetry<String>(
-      () async {
-        const prompt = '''
+    return _errorHandler
+        .executeWithRetry<String>(() async {
+          const prompt = '''
 Describe this image in detail for photo editing purposes.
 
 Include:
@@ -334,25 +338,21 @@ Include:
 Keep the description clear and technical.
 ''';
 
-        return _makeMultimodalRequest(
-          prompt: prompt,
-          imageBytes: imageData,
-        );
-      },
-      'generateImageDescription',
-    ).catchError((e) {
-      log('❌ generateImageDescription failed after all retries: $e');
-      return 'Unable to analyze image at this time.';
-    });
+          return _makeMultimodalRequest(prompt: prompt, imageBytes: imageData);
+        }, 'generateImageDescription')
+        .catchError((e) {
+          log('❌ generateImageDescription failed after all retries: $e');
+          return 'Unable to analyze image at this time.';
+        });
   }
 
   @override
   Future<List<String>> suggestImageEdits(Uint8List imageData) async {
     await waitForInitialization();
 
-    return _errorHandler.executeWithRetry<List<String>>(
-      () async {
-        const prompt = '''
+    return _errorHandler
+        .executeWithRetry<List<String>>(() async {
+          const prompt = '''
 Analyze this image and provide 5 specific editing suggestions to improve it.
 
 Focus on:
@@ -365,36 +365,37 @@ Focus on:
 Provide each suggestion as a clear, actionable sentence.
 ''';
 
-        final response = await _makeMultimodalRequest(
-          prompt: prompt,
-          imageBytes: imageData,
-        );
+          final response = await _makeMultimodalRequest(
+            prompt: prompt,
+            imageBytes: imageData,
+          );
 
-        // Parse response into suggestions
-        final suggestions = response
-            .split('\n')
-            .where((line) => line.trim().isNotEmpty)
-            .map((line) => line.replaceAll(RegExp(r'^\d+\.?\s*'), '').trim())
-            .where((suggestion) => suggestion.isNotEmpty)
-            .take(5)
-            .toList();
+          // Parse response into suggestions
+          final suggestions = response
+              .split('\n')
+              .where((line) => line.trim().isNotEmpty)
+              .map((line) => line.replaceAll(RegExp(r'^\d+\.?\s*'), '').trim())
+              .where((suggestion) => suggestion.isNotEmpty)
+              .take(5)
+              .toList();
 
-        return suggestions.isNotEmpty ? suggestions : _getFallbackSuggestions();
-      },
-      'suggestImageEdits',
-    ).catchError((e) {
-      log('❌ suggestImageEdits failed after all retries: $e');
-      return _getFallbackSuggestions();
-    });
+          return suggestions.isNotEmpty
+              ? suggestions
+              : _getFallbackSuggestions();
+        }, 'suggestImageEdits')
+        .catchError((e) {
+          log('❌ suggestImageEdits failed after all retries: $e');
+          return _getFallbackSuggestions();
+        });
   }
 
   @override
   Future<bool> checkContentSafety(Uint8List imageData) async {
     await waitForInitialization();
 
-    return _errorHandler.executeWithRetry<bool>(
-      () async {
-        const prompt = '''
+    return _errorHandler
+        .executeWithRetry<bool>(() async {
+          const prompt = '''
 Analyze this image for content safety. Is this image appropriate for a photo editing application?
 
 Consider:
@@ -405,20 +406,19 @@ Consider:
 Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a brief reason.
 ''';
 
-        final response = await _makeMultimodalRequest(
-          prompt: prompt,
-          imageBytes: imageData,
-        );
+          final response = await _makeMultimodalRequest(
+            prompt: prompt,
+            imageBytes: imageData,
+          );
 
-        final responseUpper = response.toUpperCase();
-        return responseUpper.contains('SAFE') &&
-            !responseUpper.contains('UNSAFE');
-      },
-      'checkContentSafety',
-    ).catchError((e) {
-      log('❌ checkContentSafety failed after all retries: $e');
-      return true; // Default to safe on error
-    });
+          final responseUpper = response.toUpperCase();
+          return responseUpper.contains('SAFE') &&
+              !responseUpper.contains('UNSAFE');
+        }, 'checkContentSafety')
+        .catchError((e) {
+          log('❌ checkContentSafety failed after all retries: $e');
+          return true; // Default to safe on error
+        });
   }
 
   @override
@@ -428,14 +428,17 @@ Respond with "SAFE" if appropriate, "UNSAFE" if not appropriate, followed by a b
   }) async {
     await waitForInitialization();
 
-    return _errorHandler.executeWithRetry<String>(
-      () async {
-        final markerDescriptions = markers
-            .map((marker) =>
-                'Marker at (${marker['x']}, ${marker['y']}): ${marker['description'] ?? 'Object to edit'}')
-            .join('\n');
+    return _errorHandler
+        .executeWithRetry<String>(() async {
+          final markerDescriptions = markers
+              .map(
+                (marker) =>
+                    'Marker at (${marker['x']}, ${marker['y']}): ${marker['description'] ?? 'Object to edit'}',
+              )
+              .join('\n');
 
-        final prompt = '''
+          final prompt =
+              '''
 Generate a detailed editing prompt for this image based on the user's markers:
 
 $markerDescriptions
@@ -450,16 +453,12 @@ Create a comprehensive editing instruction that includes:
 Provide a clear, actionable editing prompt.
 ''';
 
-        return _makeMultimodalRequest(
-          prompt: prompt,
-          imageBytes: imageBytes,
-        );
-      },
-      'generateEditingPrompt',
-    ).catchError((e) {
-      log('❌ generateEditingPrompt failed after all retries: $e');
-      return 'Remove marked objects and blend the background seamlessly.';
-    });
+          return _makeMultimodalRequest(prompt: prompt, imageBytes: imageBytes);
+        }, 'generateEditingPrompt')
+        .catchError((e) {
+          log('❌ generateEditingPrompt failed after all retries: $e');
+          return 'Remove marked objects and blend the background seamlessly.';
+        });
   }
 
   @override
@@ -469,35 +468,35 @@ Provide a clear, actionable editing prompt.
   }) async {
     await waitForInitialization();
 
-    return _errorHandler.executeWithRetry<Uint8List>(
-      () async {
-        log('🤖 Processing image with AI using prompt: $editingPrompt');
+    return _errorHandler
+        .executeWithRetry<Uint8List>(() async {
+          log('🤖 Processing image with AI using prompt: $editingPrompt');
 
-        final prompt = '''
+          final prompt =
+              '''
 Generate a new image based on this editing request: $editingPrompt
 
 Create a high-quality image that represents the desired result after the editing operation.
 Focus on creating a clean, professional result that matches the editing intent.
 ''';
 
-        final generatedImage = await _makeImageGenerationRequest(
-          prompt: prompt,
-          inputImage: imageBytes,
-        );
+          final generatedImage = await _makeImageGenerationRequest(
+            prompt: prompt,
+            inputImage: imageBytes,
+          );
 
-        if (generatedImage != null) {
-          log('✅ AI image generation completed successfully');
-          return generatedImage;
-        } else {
-          log('⚠️ No image generated, returning original');
-          return imageBytes;
-        }
-      },
-      'processImageWithAI',
-    ).catchError((e) {
-      log('❌ processImageWithAI failed after all retries: $e');
-      return imageBytes; // Return original image on error
-    });
+          if (generatedImage != null) {
+            log('✅ AI image generation completed successfully');
+            return generatedImage;
+          } else {
+            log('⚠️ No image generated, returning original');
+            return imageBytes;
+          }
+        }, 'processImageWithAI')
+        .catchError((e) {
+          log('❌ processImageWithAI failed after all retries: $e');
+          return imageBytes; // Return original image on error
+        });
   }
 
   /// Refresh Remote Config and update parameters
@@ -563,106 +562,115 @@ Focus on creating a clean, professional result that matches the editing intent.
   }) async {
     await waitForInitialization();
 
-    return _errorHandler.executeWithRetry<SegmentationResult>(
-      () async {
-        final stopwatch = Stopwatch()..start();
+    return _errorHandler
+        .executeWithRetry<SegmentationResult>(() async {
+          final stopwatch = Stopwatch()..start();
 
-        // Enhanced validation using production-grade validator
-        final validationResult = _requestValidator.validateSegmentationRequest(
-          prompt: 'segmentation_request', // Placeholder for validation
-          imageBytes: imageBytes,
-          targetObjects: targetObjects,
-          confidenceThreshold: confidenceThreshold,
-        );
+          // Enhanced validation using production-grade validator
+          final validationResult = _requestValidator
+              .validateSegmentationRequest(
+                prompt: 'segmentation_request', // Placeholder for validation
+                imageBytes: imageBytes,
+                targetObjects: targetObjects,
+                confidenceThreshold: confidenceThreshold,
+              );
 
-        if (!validationResult.isValid) {
-          throw ArgumentError(
-              validationResult.errorMessage ?? 'Invalid segmentation request');
-        }
+          if (!validationResult.isValid) {
+            throw ArgumentError(
+              validationResult.errorMessage ?? 'Invalid segmentation request',
+            );
+          }
 
-        // Create the enhanced segmentation prompt using the builder
-        final prompt = GeminiRequestBuilder.buildSegmentationPrompt(
-          targetObjects: targetObjects,
-        );
+          // Create the enhanced segmentation prompt using the builder
+          final prompt = GeminiRequestBuilder.buildSegmentationPrompt(
+            targetObjects: targetObjects,
+          );
 
-        log('🎯 Starting enhanced segmentation with Gemini 2.5');
-        log('📏 Image size: ${(imageBytes.length / 1024 / 1024).toStringAsFixed(2)}MB');
-        log('🎯 Target objects: ${targetObjects ?? "all prominent objects"}');
-        log('📊 Confidence threshold: $confidenceThreshold');
+          log('🎯 Starting enhanced segmentation with Gemini 2.5');
+          log(
+            '📏 Image size: ${(imageBytes.length / 1024 / 1024).toStringAsFixed(2)}MB',
+          );
+          log('🎯 Target objects: ${targetObjects ?? "all prominent objects"}');
+          log('📊 Confidence threshold: $confidenceThreshold');
 
-        final response = await _makeSegmentationRequest(
-          prompt: prompt,
-          imageBytes: imageBytes,
-        );
+          final response = await _makeSegmentationRequest(
+            prompt: prompt,
+            imageBytes: imageBytes,
+          );
 
-        stopwatch.stop();
+          stopwatch.stop();
 
-        // Parse the segmentation response with enhanced error handling
-        final segmentationData = _parseSegmentationResponse(response);
+          // Parse the segmentation response with enhanced error handling
+          final segmentationData = _parseSegmentationResponse(response);
 
-        // Check for parsing errors in response
-        if (segmentationData.containsKey('error')) {
-          log('⚠️ Segmentation parsing issue: ${segmentationData['error']}');
-          // Continue with what we have, but log the issue
-        }
+          // Check for parsing errors in response
+          if (segmentationData.containsKey('error')) {
+            log('⚠️ Segmentation parsing issue: ${segmentationData['error']}');
+            // Continue with what we have, but log the issue
+          }
 
-        // Get image dimensions (placeholder - in practice you'd decode the image)
-        // For now, assume common dimensions from constants
-        const imageWidth = GeminiConstants.defaultImageWidth;
-        const imageHeight = GeminiConstants.defaultImageHeight;
+          // Get image dimensions (placeholder - in practice you'd decode the image)
+          // For now, assume common dimensions from constants
+          const imageWidth = GeminiConstants.defaultImageWidth;
+          const imageHeight = GeminiConstants.defaultImageHeight;
 
-        final result = SegmentationResult.fromJson(
-          segmentationData,
-          imageWidth,
-          imageHeight,
-          stopwatch.elapsedMilliseconds,
-        );
+          final result = SegmentationResult.fromJson(
+            segmentationData,
+            imageWidth,
+            imageHeight,
+            stopwatch.elapsedMilliseconds,
+          );
 
-        // Filter masks by confidence threshold
-        final filteredMasks = result.masks
-            .where((mask) => mask.confidence >= confidenceThreshold)
-            .toList();
+          // Filter masks by confidence threshold
+          final filteredMasks = result.masks
+              .where((mask) => mask.confidence >= confidenceThreshold)
+              .toList();
 
-        final finalResult = filteredMasks.length != result.masks.length
-            ? SegmentationResult(
-                masks: filteredMasks,
-                processingTimeMs: result.processingTimeMs,
-                imageWidth: result.imageWidth,
-                imageHeight: result.imageHeight,
-                modelVersion: result.modelVersion,
-                confidence: filteredMasks.isNotEmpty
-                    ? filteredMasks
-                            .map((m) => m.confidence)
-                            .reduce((a, b) => a + b) /
-                        filteredMasks.length
-                    : 0.0,
-              )
-            : result;
+          final finalResult = filteredMasks.length != result.masks.length
+              ? SegmentationResult(
+                  masks: filteredMasks,
+                  processingTimeMs: result.processingTimeMs,
+                  imageWidth: result.imageWidth,
+                  imageHeight: result.imageHeight,
+                  modelVersion: result.modelVersion,
+                  confidence: filteredMasks.isNotEmpty
+                      ? filteredMasks
+                                .map((m) => m.confidence)
+                                .reduce((a, b) => a + b) /
+                            filteredMasks.length
+                      : 0.0,
+                )
+              : result;
 
-        log('✅ Generated ${finalResult.masks.length} segmentation masks (filtered from ${result.masks.length})');
-        log('📊 Average confidence: ${finalResult.stats.averageConfidence.toStringAsFixed(2)}');
-        log('⏱️ Processing time: ${finalResult.processingTimeMs}ms');
-        log('🎯 Confidence threshold applied: $confidenceThreshold');
+          log(
+            '✅ Generated ${finalResult.masks.length} segmentation masks (filtered from ${result.masks.length})',
+          );
+          log(
+            '📊 Average confidence: ${finalResult.stats.averageConfidence.toStringAsFixed(2)}',
+          );
+          log('⏱️ Processing time: ${finalResult.processingTimeMs}ms');
+          log('🎯 Confidence threshold applied: $confidenceThreshold');
 
-        if (finalResult.masks.isEmpty) {
-          log('⚠️ No masks met confidence threshold ${confidenceThreshold}. Consider lowering threshold.');
-        }
+          if (finalResult.masks.isEmpty) {
+            log(
+              '⚠️ No masks met confidence threshold ${confidenceThreshold}. Consider lowering threshold.',
+            );
+          }
 
-        return finalResult;
-      },
-      'generateSegmentationMasks',
-    ).catchError((e) {
-      log('❌ generateSegmentationMasks failed after all retries: $e');
-      // Return empty result with error context for production debugging
-      return const SegmentationResult(
-        masks: [],
-        processingTimeMs: 0,
-        imageWidth: GeminiConstants.defaultImageWidth,
-        imageHeight: GeminiConstants.defaultImageHeight,
-        confidence: 0.0,
-        modelVersion: 'gemini-2.5-flash-error',
-      );
-    });
+          return finalResult;
+        }, 'generateSegmentationMasks')
+        .catchError((e) {
+          log('❌ generateSegmentationMasks failed after all retries: $e');
+          // Return empty result with error context for production debugging
+          return const SegmentationResult(
+            masks: [],
+            processingTimeMs: 0,
+            imageWidth: GeminiConstants.defaultImageWidth,
+            imageHeight: GeminiConstants.defaultImageHeight,
+            confidence: 0.0,
+            modelVersion: 'gemini-2.5-flash-error',
+          );
+        });
   }
 
   /// Make a segmentation request to Gemini 2.5 with optimized config
@@ -671,19 +679,25 @@ Focus on creating a clean, professional result that matches the editing intent.
     required Uint8List imageBytes,
   }) async {
     final apiKey = EnvConfig.geminiApiKey;
-    
+
     // Enhanced API key validation
     if (apiKey == null || apiKey.isEmpty) {
-      throw Exception('Gemini API key is not configured. Please check your environment variables.');
+      throw Exception(
+        'Gemini API key is not configured. Please check your environment variables.',
+      );
     }
-    
+
     if (apiKey.length < 30) {
-      throw Exception('Invalid Gemini API key format - too short (${apiKey.length} chars). Expected at least 30 characters.');
+      throw Exception(
+        'Invalid Gemini API key format - too short (${apiKey.length} chars). Expected at least 30 characters.',
+      );
     }
-    
+
     // Check for common API key issues
     if (!apiKey.startsWith('AIza')) {
-      log('⚠️ API key does not start with expected prefix. Key prefix: ${apiKey.substring(0, 4)}');
+      log(
+        '⚠️ API key does not start with expected prefix. Key prefix: ${apiKey.substring(0, 4)}',
+      );
     }
 
     const modelName = GeminiConstants.gemini2_5FlashModel;
@@ -695,11 +709,15 @@ Focus on creating a clean, professional result that matches the editing intent.
 
     log('🎭 Making segmentation request to Gemini 2.5...');
     log('🔧 Model: $modelName');
-    log('📷 Image size: ${imageBytes.length} bytes (${(imageBytes.length / 1024 / 1024).toStringAsFixed(2)} MB)');
+    log(
+      '📷 Image size: ${imageBytes.length} bytes (${(imageBytes.length / 1024 / 1024).toStringAsFixed(2)} MB)',
+    );
     log('📝 Prompt length: ${prompt.length} characters');
     log('🔍 Request structure: ${requestBody.keys.toList()}');
     log('🔑 API key prefix: ${apiKey.substring(0, 10)}...');
-    log('📋 Request content parts: ${(requestBody['contents'] as List).first['parts'].length}');
+    log(
+      '📋 Request content parts: ${(requestBody['contents'] as List).first['parts'].length}',
+    );
 
     final url = '$_baseUrl/$modelName:generateContent?key=$apiKey';
     log('🌐 Request URL: ${url.replaceAll(apiKey, 'API_KEY_HIDDEN')}');
@@ -718,7 +736,7 @@ Focus on creating a clean, professional result that matches the editing intent.
 
       log('📥 Response status: ${response.statusCode}');
       log('📄 Response length: ${response.body.length} characters');
-      
+
       // Show more of the response for debugging
       if (response.body.length <= 1000) {
         log('📋 Full response: ${response.body}');
@@ -751,29 +769,28 @@ Focus on creating a clean, professional result that matches the editing intent.
   }) async {
     await waitForInitialization();
 
-    return _errorHandler.executeWithRetry<List<Map<String, dynamic>>>(
-      () async {
-        final prompt = targetObjects != null && targetObjects.isNotEmpty
-            ? 'Detect the $targetObjects in the image. The box_2d should be [ymin, xmin, ymax, xmax] normalized to 0-1000.'
-            : 'Detect all of the prominent items in the image. The box_2d should be [ymin, xmin, ymax, xmax] normalized to 0-1000.';
+    return _errorHandler
+        .executeWithRetry<List<Map<String, dynamic>>>(() async {
+          final prompt = targetObjects != null && targetObjects.isNotEmpty
+              ? 'Detect the $targetObjects in the image. The box_2d should be [ymin, xmin, ymax, xmax] normalized to 0-1000.'
+              : 'Detect all of the prominent items in the image. The box_2d should be [ymin, xmin, ymax, xmax] normalized to 0-1000.';
 
-        final response = await _makeObjectDetectionRequest(
-          prompt: prompt,
-          imageBytes: imageBytes,
-        );
+          final response = await _makeObjectDetectionRequest(
+            prompt: prompt,
+            imageBytes: imageBytes,
+          );
 
-        // Parse the object detection response
-        final detectionData = _parseObjectDetectionResponse(response);
+          // Parse the object detection response
+          final detectionData = _parseObjectDetectionResponse(response);
 
-        log('✅ Detected ${detectionData.length} objects with bounding boxes');
+          log('✅ Detected ${detectionData.length} objects with bounding boxes');
 
-        return detectionData;
-      },
-      'detectObjectsWithBoundingBoxes',
-    ).catchError((e) {
-      log('❌ detectObjectsWithBoundingBoxes failed after all retries: $e');
-      return <Map<String, dynamic>>[];
-    });
+          return detectionData;
+        }, 'detectObjectsWithBoundingBoxes')
+        .catchError((e) {
+          log('❌ detectObjectsWithBoundingBoxes failed after all retries: $e');
+          return <Map<String, dynamic>>[];
+        });
   }
 
   /// Make an object detection request to Gemini 2.0+
