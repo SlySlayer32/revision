@@ -34,6 +34,7 @@ class ProcessImageWithGeminiUseCase {
   /// and generated image, or [AIProcessingException] on failure.
   Future<Result<GeminiPipelineResult>> call(
     Uint8List imageData, {
+    required String imageName,
     List<Map<String, dynamic>> markedAreas = const [],
   }) async {
     try {
@@ -45,11 +46,10 @@ class ProcessImageWithGeminiUseCase {
       }
 
       // Step 2: Execute processing
-      return await _executeProcessing(imageData, markedAreas);
+      return await _executeProcessing(imageData, markedAreas, imageName);
     } catch (e, stackTrace) {
       return _handleError(e, stackTrace, imageData, markedAreas);
     }
-  }
 
   /// Validates all inputs for processing
   ///
@@ -73,7 +73,8 @@ class ProcessImageWithGeminiUseCase {
           !area.containsKey('height')) {
         return Failure(
           MarkedAreaValidationException(
-              'Marked area $i missing required coordinates'),
+            'Marked area $i missing required coordinates',
+          ),
         );
       }
     }
