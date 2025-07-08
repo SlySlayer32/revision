@@ -106,7 +106,7 @@ class AiProcessingView extends StatelessWidget {
                   icon: const Icon(Icons.clear),
                   onPressed: state.strokes.isNotEmpty
                       ? () =>
-                            context.read<ImageEditorCubit>().clearAnnotations()
+                          context.read<ImageEditorCubit>().clearAnnotations()
                       : null,
                 );
               },
@@ -128,13 +128,13 @@ class AiProcessingView extends StatelessWidget {
                           return GestureDetector(
                             onPanStart: (details) {
                               context.read<ImageEditorCubit>().startDrawing(
-                                details.localPosition,
-                              );
+                                    details.localPosition,
+                                  );
                             },
                             onPanUpdate: (details) {
                               context.read<ImageEditorCubit>().drawing(
-                                details.localPosition,
-                              );
+                                    details.localPosition,
+                                  );
                             },
                             onPanEnd: (_) {
                               context.read<ImageEditorCubit>().endDrawing();
@@ -173,7 +173,7 @@ class AiProcessingView extends StatelessWidget {
                                       annotations: editorState.strokes,
                                     )
                                   : null);
-                          
+
                           // Only show processing controls if we have image data
                           if (currentAnnotatedImage == null) {
                             return const Center(
@@ -183,7 +183,7 @@ class AiProcessingView extends StatelessWidget {
                               ),
                             );
                           }
-                          
+
                           return ProcessingControls(
                             selectedImage: image,
                             annotatedImage: currentAnnotatedImage,
