@@ -579,6 +579,8 @@ class AiProcessingView extends StatelessWidget {
           flex: 1,
           child: Column(
             children: [
+              _buildGeminiApiInfoWidget(context),
+              const SizedBox(height: 16),
               AISegmentationWidget(
                 selectedImage: image,
                 key: ValueKey('segmentation_${image.name}'),
