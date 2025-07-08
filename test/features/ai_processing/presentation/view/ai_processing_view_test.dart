@@ -47,7 +47,7 @@ void main() {
 
       // Set up default mock states
       when(() => mockGeminiPipelineCubit.state)
-          .thenReturn(const GeminiPipelineInitial());
+          .thenReturn(const GeminiPipelineState());
       when(() => mockImageEditorCubit.state)
           .thenReturn(const ImageEditorInitial());
     });
