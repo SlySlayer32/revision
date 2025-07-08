@@ -114,3 +114,10 @@ app.*.map.json
 !.idea/runConfigurations/
 .aider*
 .env
+
+# Temporary files and downloads
+flutter/
+flutter.tar.xz
+*.tmp
+*.temp
+test_results*.txt
