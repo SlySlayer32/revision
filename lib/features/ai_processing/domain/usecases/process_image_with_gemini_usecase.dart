@@ -50,6 +50,7 @@ class ProcessImageWithGeminiUseCase {
     } catch (e, stackTrace) {
       return _handleError(e, stackTrace, imageData, markedAreas);
     }
+  }
 
   /// Validates all inputs for processing
   ///
@@ -88,6 +89,7 @@ class ProcessImageWithGeminiUseCase {
   Future<Result<GeminiPipelineResult>> _executeProcessing(
     Uint8List imageData,
     List<Map<String, dynamic>> markedAreas,
+    String imageName,
   ) async {
     // Generate appropriate prompt based on marked areas
     final prompt = _generatePrompt(markedAreas);
@@ -97,8 +99,13 @@ class ProcessImageWithGeminiUseCase {
         ? await _geminiPipelineService.processImageWithMarkedObjects(
             imageData: imageData,
             markedAreas: markedAreas,
+            imageName: imageName,
           )
-        : await _geminiPipelineService.processImage(imageData, prompt);
+        : await _geminiPipelineService.processImage(
+            imageData,
+            prompt,
+            imageName,
+          );
 
     return Success(result);
   }
