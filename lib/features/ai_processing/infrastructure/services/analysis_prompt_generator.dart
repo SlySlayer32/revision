@@ -13,8 +13,10 @@ class AnalysisPromptGenerator {
   /// Analyzes annotation data to provide context-specific instructions.
   static String generateSystemPrompt(List<AnnotationStroke> strokes) {
     final strokeCount = strokes.length;
-    final totalPoints =
-        strokes.fold<int>(0, (sum, stroke) => sum + stroke.points.length);
+    final totalPoints = strokes.fold<int>(
+      0,
+      (sum, stroke) => sum + stroke.points.length,
+    );
     final avgPointsPerStroke = (totalPoints / strokeCount).round();
 
     return '''
@@ -57,9 +59,11 @@ Format your response as a direct prompt ready for an AI image editing model.
       final density = _calculateStrokeDensity(stroke);
       final coverage = _estimateCoverageArea(stroke);
 
-      analysis.writeln('- Stroke ${i + 1}: ${stroke.points.length} points, '
-          '${density.toStringAsFixed(1)} density, '
-          '${coverage.toStringAsFixed(0)}px² estimated coverage');
+      analysis.writeln(
+        '- Stroke ${i + 1}: ${stroke.points.length} points, '
+        '${density.toStringAsFixed(1)} density, '
+        '${coverage.toStringAsFixed(0)}px² estimated coverage',
+      );
     }
 
     return analysis.toString().trim();

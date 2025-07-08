@@ -24,9 +24,7 @@ class SignUpPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => getIt<SignupBloc>(),
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Sign Up'),
-        ),
+        appBar: AppBar(title: const Text('Sign Up')),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
@@ -35,18 +33,12 @@ class SignUpPage extends StatelessWidget {
               children: [
                 const Text(
                   'Create Account',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Please fill in the form to continue',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 32),
                 const SignUpForm(),

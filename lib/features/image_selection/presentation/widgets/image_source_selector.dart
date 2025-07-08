@@ -6,10 +6,7 @@ import 'package:revision/features/image_selection/domain/entities/image_source.d
 /// This widget provides buttons for users to choose between
 /// gallery and camera for image selection.
 class ImageSourceSelector extends StatelessWidget {
-  const ImageSourceSelector({
-    required this.onSourceSelected,
-    super.key,
-  });
+  const ImageSourceSelector({required this.onSourceSelected, super.key});
 
   final void Function(ImageSource source) onSourceSelected;
 
@@ -86,9 +83,7 @@ class _SourceOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(
-            color: Theme.of(context).colorScheme.outline,
-          ),
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -110,15 +105,12 @@ class _SourceOption extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+                  Text(title, style: Theme.of(context).textTheme.titleMedium),
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),

@@ -18,10 +18,7 @@ enum LoginStatus {
 /// State representing the current login status
 class LoginState extends Equatable {
   /// Creates a new [LoginState]
-  const LoginState({
-    this.status = LoginStatus.initial,
-    this.errorMessage,
-  });
+  const LoginState({this.status = LoginStatus.initial, this.errorMessage});
 
   /// The current status of login
   final LoginStatus status;
@@ -30,10 +27,7 @@ class LoginState extends Equatable {
   final String? errorMessage;
 
   /// Creates a copy of the current state with updated values
-  LoginState copyWith({
-    LoginStatus? status,
-    String? errorMessage,
-  }) {
+  LoginState copyWith({LoginStatus? status, String? errorMessage}) {
     return LoginState(
       status: status ?? this.status,
       errorMessage: errorMessage ?? this.errorMessage,

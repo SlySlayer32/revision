@@ -28,7 +28,9 @@ class AIErrorHandler {
     }
 
     if (_containsHttpStatus(
-            errorString, AIProcessingConstants.httpUnauthorized) ||
+          errorString,
+          AIProcessingConstants.httpUnauthorized,
+        ) ||
         errorString.contains('authentication') ||
         errorString.contains('unauthorized')) {
       return const APIAuthenticationException(
@@ -126,16 +128,20 @@ class AIErrorHandler {
 
   /// Gets recommended retry delay for retryable exceptions
   static Duration getRetryDelay(
-      AIProcessingException exception, int attemptNumber) {
+    AIProcessingException exception,
+    int attemptNumber,
+  ) {
     if (!isRetryableException(exception)) {
       return Duration.zero;
     }
 
     // Exponential backoff with jitter
-    final baseDelay =
-        Duration(seconds: 2 << attemptNumber); // 2, 4, 8, 16 seconds
-    final jitter =
-        Duration(milliseconds: (baseDelay.inMilliseconds * 0.1).round());
+    final baseDelay = Duration(
+      seconds: 2 << attemptNumber,
+    ); // 2, 4, 8, 16 seconds
+    final jitter = Duration(
+      milliseconds: (baseDelay.inMilliseconds * 0.1).round(),
+    );
 
     return baseDelay + jitter;
   }

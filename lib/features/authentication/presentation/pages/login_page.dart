@@ -24,9 +24,7 @@ class LoginPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => getIt<LoginBloc>(),
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Log In'),
-        ),
+        appBar: AppBar(title: const Text('Log In')),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
@@ -35,18 +33,12 @@ class LoginPage extends StatelessWidget {
               children: [
                 const Text(
                   'Welcome Back!',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Please sign in to continue',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 32),
                 const LoginForm(),

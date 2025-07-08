@@ -42,8 +42,10 @@ class ProcessImageWithGeminiUseCaseImproved {
       // Step 1: Validate all inputs
       final validationResult = _validateInputs(imageData, markedAreas);
       if (validationResult.isFailure) {
-        return Failure<GeminiPipelineResult>(validationResult.exceptionOrNull ??
-            const GeminiPipelineException('Validation failed'));
+        return Failure<GeminiPipelineResult>(
+          validationResult.exceptionOrNull ??
+              const GeminiPipelineException('Validation failed'),
+        );
       }
 
       // Step 2: Execute the AI processing pipeline
@@ -86,13 +88,15 @@ class ProcessImageWithGeminiUseCaseImproved {
     if (markedAreas.isNotEmpty) {
       // Convert MarkedArea objects to Map format for the service
       final markedAreaMaps = markedAreas
-          .map((area) => {
-                'x': area.x,
-                'y': area.y,
-                'width': area.width,
-                'height': area.height,
-                'description': area.description ?? 'unmarked area',
-              })
+          .map(
+            (area) => {
+              'x': area.x,
+              'y': area.y,
+              'width': area.width,
+              'height': area.height,
+              'description': area.description ?? 'unmarked area',
+            },
+          )
           .toList();
 
       // Use marked object removal for specific areas

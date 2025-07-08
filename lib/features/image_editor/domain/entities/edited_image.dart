@@ -30,17 +30,17 @@ class EditedImage extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        originalImageData,
-        originalPath,
-        markers,
-        processedImageData,
-        processedPath,
-        createdAt,
-        modifiedAt,
-        processingStatus,
-        aiPrompt,
-      ];
+    id,
+    originalImageData,
+    originalPath,
+    markers,
+    processedImageData,
+    processedPath,
+    createdAt,
+    modifiedAt,
+    processingStatus,
+    aiPrompt,
+  ];
 
   EditedImage copyWith({
     String? id,
@@ -69,13 +69,7 @@ class EditedImage extends Equatable {
   }
 }
 
-enum ProcessingStatus {
-  pending,
-  processing,
-  completed,
-  failed,
-  cancelled,
-}
+enum ProcessingStatus { pending, processing, completed, failed, cancelled }
 
 /// Simple marker for MVP - can be expanded later
 class ImageMarker extends Equatable {
@@ -97,7 +91,4 @@ class ImageMarker extends Equatable {
   List<Object?> get props => [id, x, y, type, label];
 }
 
-enum MarkerType {
-  userDefined,
-  aiDetected,
-}
+enum MarkerType { userDefined, aiDetected }

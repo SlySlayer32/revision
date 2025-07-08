@@ -23,8 +23,9 @@ class AnalysisFallbackHandler {
     final strokeCount = annotatedImage.annotations.length;
 
     // Generate fallback prompt using local logic
-    final fallbackPrompt =
-        AnalysisPromptGenerator.generateFallbackPrompt(strokeCount);
+    final fallbackPrompt = AnalysisPromptGenerator.generateFallbackPrompt(
+      strokeCount,
+    );
 
     return ProcessingResult(
       processedImageData: annotatedImage.imageBytes,

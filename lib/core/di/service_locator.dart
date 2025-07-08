@@ -46,7 +46,8 @@ void setupServiceLocator() {
     // Reset service locator for hot reload safety
     if (getIt.isRegistered<AuthRepository>()) {
       debugPrint(
-          'setupServiceLocator: Dependencies already registered, resetting...');
+        'setupServiceLocator: Dependencies already registered, resetting...',
+      );
       getIt.reset();
     }
 
@@ -75,28 +76,27 @@ void _registerCoreServices() {
     ..registerLazySingleton(() => ErrorHandlerService.instance);
 
   debugPrint(
-      '_registerCoreServices: Registering FirebaseAIRemoteConfigService...');
+    '_registerCoreServices: Registering FirebaseAIRemoteConfigService...',
+  );
   getIt.registerLazySingleton<FirebaseAIRemoteConfigService>(
     FirebaseAIRemoteConfigService.new,
   );
 
   debugPrint('_registerCoreServices: Registering GeminiAIService...');
-  getIt.registerLazySingleton<GeminiAIService>(
-    () {
-      try {
-        debugPrint(
-            '_registerCoreServices: Creating GeminiAIService instance...');
-        final remoteConfigService = getIt<FirebaseAIRemoteConfigService>();
-        debugPrint(
-            '_registerCoreServices: Got FirebaseAIRemoteConfigService, creating GeminiAIService...');
-        return GeminiAIService(remoteConfigService: remoteConfigService);
-      } catch (e, stackTrace) {
-        debugPrint('❌ Error creating GeminiAIService: $e');
-        debugPrint('❌ Stack trace: $stackTrace');
-        rethrow;
-      }
-    },
-  );
+  getIt.registerLazySingleton<GeminiAIService>(() {
+    try {
+      debugPrint('_registerCoreServices: Creating GeminiAIService instance...');
+      final remoteConfigService = getIt<FirebaseAIRemoteConfigService>();
+      debugPrint(
+        '_registerCoreServices: Got FirebaseAIRemoteConfigService, creating GeminiAIService...',
+      );
+      return GeminiAIService(remoteConfigService: remoteConfigService);
+    } catch (e, stackTrace) {
+      debugPrint('❌ Error creating GeminiAIService: $e');
+      debugPrint('❌ Stack trace: $stackTrace');
+      rethrow;
+    }
+  });
 
   debugPrint('_registerCoreServices: Core services registration completed');
 }
@@ -106,17 +106,15 @@ void _registerDataSources() {
   if (!getIt.isRegistered<FirebaseAuthDataSource>()) {
     getIt
       // Data Sources
-      ..registerLazySingleton<FirebaseAuthDataSource>(
-        () {
-          try {
-            return FirebaseAuthDataSourceImpl();
-          } catch (e) {
-            debugPrint('Error while creating FirebaseAuthDataSource: $e');
-            debugPrint('Stack trace: ${StackTrace.current}');
-            rethrow;
-          }
-        },
-      );
+      ..registerLazySingleton<FirebaseAuthDataSource>(() {
+        try {
+          return FirebaseAuthDataSourceImpl();
+        } catch (e) {
+          debugPrint('Error while creating FirebaseAuthDataSource: $e');
+          debugPrint('Stack trace: ${StackTrace.current}');
+          rethrow;
+        }
+      });
   }
 
   getIt
@@ -131,75 +129,66 @@ void _registerRepositories() {
   if (!getIt.isRegistered<AuthRepository>()) {
     getIt
       // Repositories
-      ..registerLazySingleton<AuthRepository>(
-        () {
-          try {
-            return FirebaseAuthenticationRepository(
-              firebaseAuthDataSource: getIt<FirebaseAuthDataSource>(),
-            );
-          } catch (e) {
-            debugPrint('Error while creating AuthRepository: $e');
-            debugPrint('Stack trace: ${StackTrace.current}');
-            rethrow;
-          }
-        },
-      );
+      ..registerLazySingleton<AuthRepository>(() {
+        try {
+          return FirebaseAuthenticationRepository(
+            firebaseAuthDataSource: getIt<FirebaseAuthDataSource>(),
+          );
+        } catch (e) {
+          debugPrint('Error while creating AuthRepository: $e');
+          debugPrint('Stack trace: ${StackTrace.current}');
+          rethrow;
+        }
+      });
   }
 
-  getIt
-    ..registerLazySingleton<image_selection.ImageRepository>(
-      () => ImageSelectionRepositoryImpl(getIt<ImagePickerDataSource>()),
-    );
+  getIt..registerLazySingleton<image_selection.ImageRepository>(
+    () => ImageSelectionRepositoryImpl(getIt<ImagePickerDataSource>()),
+  );
 }
 
 void _registerUseCases() {
   getIt
     // Use Cases
-    ..registerLazySingleton<SignInUseCase>(
-      () {
-        try {
-          return SignInUseCase(getIt<AuthRepository>());
-        } catch (e) {
-          debugPrint('Error while creating SignInUseCase: $e');
-          debugPrint('Stack trace: ${StackTrace.current}');
-          rethrow;
-        }
-      },
-    )
+    ..registerLazySingleton<SignInUseCase>(() {
+      try {
+        return SignInUseCase(getIt<AuthRepository>());
+      } catch (e) {
+        debugPrint('Error while creating SignInUseCase: $e');
+        debugPrint('Stack trace: ${StackTrace.current}');
+        rethrow;
+      }
+    })
     ..registerLazySingleton<SignInWithGoogleUseCase>(
       () => SignInWithGoogleUseCase(getIt<AuthRepository>()),
     )
     ..registerLazySingleton<SignUpUseCase>(
       () => SignUpUseCase(getIt<AuthRepository>()),
     )
-    ..registerLazySingleton<SignOutUseCase>(
-      () {
-        try {
-          return SignOutUseCase(getIt<AuthRepository>());
-        } catch (e) {
-          debugPrint('Error while creating SignOutUseCase: $e');
-          debugPrint('Stack trace: ${StackTrace.current}');
-          rethrow;
-        }
-      },
-    )
+    ..registerLazySingleton<SignOutUseCase>(() {
+      try {
+        return SignOutUseCase(getIt<AuthRepository>());
+      } catch (e) {
+        debugPrint('Error while creating SignOutUseCase: $e');
+        debugPrint('Stack trace: ${StackTrace.current}');
+        rethrow;
+      }
+    })
     ..registerLazySingleton<SendPasswordResetEmailUseCase>(
       () => SendPasswordResetEmailUseCase(getIt<AuthRepository>()),
     )
     ..registerLazySingleton<GetCurrentUserUseCase>(
       () => GetCurrentUserUseCase(getIt<AuthRepository>()),
     )
-    ..registerLazySingleton<GetAuthStateChangesUseCase>(
-      () {
-        try {
-          return GetAuthStateChangesUseCase(getIt<AuthRepository>());
-        } catch (e) {
-          debugPrint('Error while creating GetAuthStateChangesUseCase: $e');
-          debugPrint('Stack trace: ${StackTrace.current}');
-          rethrow;
-        }
-      },
-    )
+    ..registerLazySingleton<GetAuthStateChangesUseCase>(() {
+      try {
+        return GetAuthStateChangesUseCase(getIt<AuthRepository>());
+      } catch (e) {
+        debugPrint('Error while creating GetAuthStateChangesUseCase: $e');
+        debugPrint('Stack trace: ${StackTrace.current}');
+        rethrow;
+      }
+    })
     ..registerLazySingleton<SelectImageUseCase>(
       () => SelectImageUseCase(getIt<image_selection.ImageRepository>()),
     )
@@ -214,33 +203,27 @@ void _registerUseCases() {
 void _registerServices() {
   getIt
     ..registerLazySingleton<ImageSaveService>(ImageSaveService.new)
-    ..registerLazySingleton<AIResultSaveService>(
-      AIResultSaveService.new,
-    )
+    ..registerLazySingleton<AIResultSaveService>(AIResultSaveService.new)
     ..registerLazySingleton<GeminiPipelineService>(
-      () => GeminiPipelineService(
-        geminiAIService: getIt<GeminiAIService>(),
-      ),
+      () => GeminiPipelineService(geminiAIService: getIt<GeminiAIService>()),
     );
 }
 
 void _registerBlocs() {
   getIt
     // BLoCs and Cubits
-    ..registerFactory<AuthenticationBloc>(
-      () {
-        try {
-          return AuthenticationBloc(
-            getAuthStateChanges: getIt<GetAuthStateChangesUseCase>(),
-            signOut: getIt<SignOutUseCase>(),
-          );
-        } catch (e) {
-          debugPrint('Error while creating AuthenticationBloc: $e');
-          debugPrint('Stack trace: ${StackTrace.current}');
-          rethrow;
-        }
-      },
-    )
+    ..registerFactory<AuthenticationBloc>(() {
+      try {
+        return AuthenticationBloc(
+          getAuthStateChanges: getIt<GetAuthStateChangesUseCase>(),
+          signOut: getIt<SignOutUseCase>(),
+        );
+      } catch (e) {
+        debugPrint('Error while creating AuthenticationBloc: $e');
+        debugPrint('Stack trace: ${StackTrace.current}');
+        rethrow;
+      }
+    })
     ..registerFactory<LoginBloc>(
       () => LoginBloc(
         signIn: getIt<SignInUseCase>(),
@@ -254,9 +237,7 @@ void _registerBlocs() {
     ..registerFactory<ImageSelectionCubit>(
       () => ImageSelectionCubit(getIt<SelectImageUseCase>()),
     )
-    ..registerFactory<ImageEditorCubit>(
-      () => ImageEditorCubit(),
-    )
+    ..registerFactory<ImageEditorCubit>(() => ImageEditorCubit())
     ..registerFactory<GeminiPipelineCubit>(
       () => GeminiPipelineCubit(getIt<ProcessImageWithGeminiUseCase>()),
     );

@@ -33,9 +33,6 @@ extension EitherX<L, R> on Either<L, R> {
 
   /// Transforms a Left value into a new Either
   Either<T, R> flatMapLeft<T>(Either<T, R> Function(L left) f) {
-    return fold(
-      (l) => f(l),
-      right,
-    );
+    return fold((l) => f(l), right);
   }
 }

@@ -35,18 +35,12 @@ class _ProcessingResultDisplayState extends State<ProcessingResultDisplay> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                'Original',
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
+              Text('Original', style: Theme.of(context).textTheme.labelMedium),
               Switch(
                 value: !_showOriginal,
                 onChanged: (value) => setState(() => _showOriginal = !value),
               ),
-              Text(
-                'Processed',
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
+              Text('Processed', style: Theme.of(context).textTheme.labelMedium),
             ],
           ),
         ),
@@ -56,10 +50,9 @@ class _ProcessingResultDisplayState extends State<ProcessingResultDisplay> {
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: Theme.of(context)
-                    .colorScheme
-                    .outline
-                    .withValues(alpha: 0.5),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.5),
               ),
               borderRadius: BorderRadius.circular(8),
             ),
@@ -109,13 +102,13 @@ class _ProcessingResultDisplayState extends State<ProcessingResultDisplay> {
                 _buildErrorPlaceholder(),
           )
         : File(path).existsSync()
-            ? Image.file(
-                File(path),
-                fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) =>
-                    _buildErrorPlaceholder(),
-              )
-            : _buildErrorPlaceholder();
+        ? Image.file(
+            File(path),
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) =>
+                _buildErrorPlaceholder(),
+          )
+        : _buildErrorPlaceholder();
   }
 
   Widget _buildProcessedImage() {
@@ -175,16 +168,13 @@ class _ProcessingResultDisplayState extends State<ProcessingResultDisplay> {
             width: 100,
             child: Text(
               '$label:',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
             ),
           ),
           Expanded(
-            child: Text(
-              value,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            child: Text(value, style: Theme.of(context).textTheme.bodySmall),
           ),
         ],
       ),
@@ -207,8 +197,8 @@ class _ProcessingResultDisplayState extends State<ProcessingResultDisplay> {
             Text(
               'Unable to load image',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onErrorContainer,
-                  ),
+                color: Theme.of(context).colorScheme.onErrorContainer,
+              ),
             ),
           ],
         ),
@@ -225,7 +215,8 @@ class _ProcessingResultDisplayState extends State<ProcessingResultDisplay> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text(
-                  'Cannot save to gallery. Please check permissions and storage space.'),
+                'Cannot save to gallery. Please check permissions and storage space.',
+              ),
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );

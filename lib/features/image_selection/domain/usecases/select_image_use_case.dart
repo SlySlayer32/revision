@@ -50,17 +50,13 @@ class SelectImageUseCase {
       case ImageSource.camera:
         final isAvailable = await _repository.isCameraAvailable();
         if (!isAvailable) {
-          return Failure<void>(
-            Exception(_Strings.cameraUnavailableMessage),
-          );
+          return Failure<void>(Exception(_Strings.cameraUnavailableMessage));
         }
         break;
       case ImageSource.gallery:
         final isAvailable = await _repository.isGalleryAvailable();
         if (!isAvailable) {
-          return Failure<void>(
-            Exception(_Strings.galleryUnavailableMessage),
-          );
+          return Failure<void>(Exception(_Strings.galleryUnavailableMessage));
         }
         break;
     }

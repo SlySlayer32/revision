@@ -47,7 +47,8 @@ class EnhancedLogger {
     }
 
     info(
-        'Logger configured: level=${minLevel?.name}, console=$enableConsole, file=$enableFile');
+      'Logger configured: level=${minLevel?.name}, console=$enableConsole, file=$enableFile',
+    );
   }
 
   /// Debug level logging
@@ -142,8 +143,11 @@ class EnhancedLogger {
     );
 
     if (_enableMonitoringIntegration) {
-      ErrorMonitoringService()
-          .reportSuccess(operation, responseTime, context: context);
+      ErrorMonitoringService().reportSuccess(
+        operation,
+        responseTime,
+        context: context,
+      );
     }
   }
 
@@ -171,11 +175,7 @@ class EnhancedLogger {
     warning(
       '🔄 AI Retry: $operation (attempt $attempt/$maxAttempts) - $error',
       operation: operation,
-      context: {
-        'attempt': attempt,
-        'max_attempts': maxAttempts,
-        'retry': true,
-      },
+      context: {'attempt': attempt, 'max_attempts': maxAttempts, 'retry': true},
     );
   }
 
@@ -199,9 +199,7 @@ class EnhancedLogger {
     info(
       '🟢 Circuit Breaker RESET: $operation',
       operation: operation,
-      context: {
-        'circuit_breaker': 'reset',
-      },
+      context: {'circuit_breaker': 'reset'},
     );
   }
 
@@ -215,12 +213,7 @@ class EnhancedLogger {
     debug(
       '📊 Performance: $metric = $value${unit ?? ''}',
       operation: 'PERFORMANCE',
-      context: {
-        'metric': metric,
-        'value': value,
-        'unit': unit,
-        ...?context,
-      },
+      context: {'metric': metric, 'value': value, 'unit': unit, ...?context},
     );
   }
 
@@ -266,8 +259,9 @@ class EnhancedLogger {
 
   /// Clear old logs
   void clearOldLogs({Duration? olderThan}) {
-    final cutoff =
-        DateTime.now().subtract(olderThan ?? const Duration(hours: 24));
+    final cutoff = DateTime.now().subtract(
+      olderThan ?? const Duration(hours: 24),
+    );
     _logBuffer.removeWhere((log) => log.timestamp.isBefore(cutoff));
     info('🧹 Cleared logs older than ${olderThan?.inHours ?? 24} hours');
   }
@@ -314,8 +308,10 @@ class EnhancedLogger {
 
   void _outputToConsole(LogEntry entry) {
     final emoji = _getLevelEmoji(entry.level);
-    final timestamp =
-        entry.timestamp.toString().substring(11, 23); // HH:mm:ss.mmm
+    final timestamp = entry.timestamp.toString().substring(
+      11,
+      23,
+    ); // HH:mm:ss.mmm
 
     var output = '$_logPrefix $emoji [$timestamp] ${entry.message}';
 
@@ -339,12 +335,14 @@ class EnhancedLogger {
         break;
       case LogLevel.error:
       case LogLevel.critical:
-        dev.log(output,
-            level: 1000,
-            error: entry.error,
-            stackTrace: entry.stackTrace != null
-                ? StackTrace.fromString(entry.stackTrace!)
-                : null);
+        dev.log(
+          output,
+          level: 1000,
+          error: entry.error,
+          stackTrace: entry.stackTrace != null
+              ? StackTrace.fromString(entry.stackTrace!)
+              : null,
+        );
         break;
     }
   }

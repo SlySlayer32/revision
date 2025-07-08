@@ -147,7 +147,8 @@ class _DefaultErrorFallback extends StatelessWidget {
   }
 
   void _copyErrorToClipboard(BuildContext context) {
-    final errorText = '''
+    final errorText =
+        '''
 Error: ${errorDetails.exception}
 Library: ${errorDetails.library}
 Context: ${errorDetails.context}
@@ -263,7 +264,8 @@ class AIErrorWidget extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
-                          'Error reported. Thank you for helping us improve!'),
+                        'Error reported. Thank you for helping us improve!',
+                      ),
                       backgroundColor: Colors.green,
                     ),
                   );
@@ -365,19 +367,14 @@ class _SafeAsyncWidgetState<T> extends State<SafeAsyncWidget<T>> {
           widget.onError?.call(snapshot.error);
 
           return widget.errorBuilder?.call(context, snapshot.error) ??
-              AIErrorWidget(
-                error: snapshot.error,
-                onRetry: _retry,
-              );
+              AIErrorWidget(error: snapshot.error, onRetry: _retry);
         }
 
         if (snapshot.hasData) {
           return widget.builder(context, snapshot.data as T);
         }
 
-        return const Center(
-          child: Text('No data available'),
-        );
+        return const Center(child: Text('No data available'));
       },
     );
   }

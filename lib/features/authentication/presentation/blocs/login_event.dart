@@ -12,10 +12,7 @@ sealed class LoginEvent extends Equatable {
 /// Event triggered when user requests to log in
 final class LoginRequested extends LoginEvent {
   /// Creates a new [LoginRequested] event
-  const LoginRequested({
-    required this.email,
-    required this.password,
-  });
+  const LoginRequested({required this.email, required this.password});
 
   /// The email address to log in with
   final String email;

@@ -78,7 +78,8 @@ class ErrorMonitoringService {
 
     // Calculate average response time
     final times = _responseTimeHistory[operation]!;
-    final avgMs = times.map((t) => t.inMilliseconds).reduce((a, b) => a + b) /
+    final avgMs =
+        times.map((t) => t.inMilliseconds).reduce((a, b) => a + b) /
         times.length;
     _averageResponseTimes[operation] = Duration(milliseconds: avgMs.round());
 
@@ -94,8 +95,9 @@ class ErrorMonitoringService {
     final last24h = now.subtract(const Duration(hours: 24));
 
     // Filter recent errors
-    final recentErrors =
-        _errorHistory.where((e) => e.timestamp.isAfter(last24h)).toList();
+    final recentErrors = _errorHistory
+        .where((e) => e.timestamp.isAfter(last24h))
+        .toList();
 
     // Group errors by type
     final errorsByType = <String, List<ErrorReport>>{};
@@ -109,21 +111,25 @@ class ErrorMonitoringService {
         'isHealthy': _isHealthy,
         'lastHealthCheck': _lastHealthCheck.toIso8601String(),
         'totalErrors24h': recentErrors.length,
-        'criticalErrors24h':
-            recentErrors.where((e) => _isCriticalError(e.error)).length,
+        'criticalErrors24h': recentErrors
+            .where((e) => _isCriticalError(e.error))
+            .length,
       },
       'errorCounts': Map<String, dynamic>.from(_errorCounts),
-      'lastErrorTimes':
-          _lastErrorTimes.map((k, v) => MapEntry(k, v.toIso8601String())),
-      'averageResponseTimes': _averageResponseTimes
-          .map((k, v) => MapEntry(k, '${v.inMilliseconds}ms')),
+      'lastErrorTimes': _lastErrorTimes.map(
+        (k, v) => MapEntry(k, v.toIso8601String()),
+      ),
+      'averageResponseTimes': _averageResponseTimes.map(
+        (k, v) => MapEntry(k, '${v.inMilliseconds}ms'),
+      ),
       'successRates': Map<String, dynamic>.from(_successRates),
-      'errorsByOperation': errorsByType.map((k, v) => MapEntry(k, {
-            'count': v.length,
-            'lastError':
-                v.isNotEmpty ? v.last.timestamp.toIso8601String() : null,
-            'commonErrors': _getCommonErrors(v),
-          })),
+      'errorsByOperation': errorsByType.map(
+        (k, v) => MapEntry(k, {
+          'count': v.length,
+          'lastError': v.isNotEmpty ? v.last.timestamp.toIso8601String() : null,
+          'commonErrors': _getCommonErrors(v),
+        }),
+      ),
       'performanceMetrics': _getPerformanceMetrics(),
       'circuitBreakerStatus': _getCircuitBreakerStatus(),
     };
@@ -142,10 +148,12 @@ class ErrorMonitoringService {
     final last24h = now.subtract(const Duration(hours: 24));
     final last1h = now.subtract(const Duration(hours: 1));
 
-    final errors24h =
-        _errorHistory.where((e) => e.timestamp.isAfter(last24h)).length;
-    final errors1h =
-        _errorHistory.where((e) => e.timestamp.isAfter(last1h)).length;
+    final errors24h = _errorHistory
+        .where((e) => e.timestamp.isAfter(last24h))
+        .length;
+    final errors1h = _errorHistory
+        .where((e) => e.timestamp.isAfter(last1h))
+        .length;
 
     return {
       'trend': errors1h > (errors24h / 24) * 2 ? 'increasing' : 'stable',
@@ -162,8 +170,9 @@ class ErrorMonitoringService {
     final now = DateTime.now();
     final last1h = now.subtract(const Duration(hours: 1));
 
-    final recentErrors =
-        _errorHistory.where((e) => e.timestamp.isAfter(last1h)).length;
+    final recentErrors = _errorHistory
+        .where((e) => e.timestamp.isAfter(last1h))
+        .length;
 
     // Enter maintenance if more than 10 errors in last hour
     return recentErrors > 10;
@@ -187,16 +196,19 @@ class ErrorMonitoringService {
 
   /// Clear old error data
   void clearOldErrors({Duration? olderThan}) {
-    final cutoff =
-        DateTime.now().subtract(olderThan ?? const Duration(days: 7));
+    final cutoff = DateTime.now().subtract(
+      olderThan ?? const Duration(days: 7),
+    );
     _errorHistory.removeWhere((e) => e.timestamp.isBefore(cutoff));
 
     // Reset counters for operations that haven't had errors recently
     final activeOperations = _errorHistory.map((e) => e.operation).toSet();
-    _errorCounts
-        .removeWhere((operation, _) => !activeOperations.contains(operation));
-    _lastErrorTimes
-        .removeWhere((operation, _) => !activeOperations.contains(operation));
+    _errorCounts.removeWhere(
+      (operation, _) => !activeOperations.contains(operation),
+    );
+    _lastErrorTimes.removeWhere(
+      (operation, _) => !activeOperations.contains(operation),
+    );
 
     log('🧹 Cleared error data older than ${olderThan?.inDays ?? 7} days');
   }
@@ -207,8 +219,9 @@ class ErrorMonitoringService {
     final now = DateTime.now();
     final last5min = now.subtract(const Duration(minutes: 5));
 
-    final recentErrors =
-        _errorHistory.where((e) => e.timestamp.isAfter(last5min)).length;
+    final recentErrors = _errorHistory
+        .where((e) => e.timestamp.isAfter(last5min))
+        .length;
 
     _isHealthy =
         recentErrors < 5; // Unhealthy if more than 5 errors in 5 minutes

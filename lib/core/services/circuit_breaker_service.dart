@@ -11,13 +11,13 @@ class CircuitBreakerService {
 
   /// Get or create circuit breaker for Firebase AI Logic
   static CircuitBreaker get firebaseAI => _breakers.putIfAbsent(
-        'firebase_ai',
-        () => CircuitBreaker(
-          failureThreshold: 5,
-          recoveryTimeout: const Duration(minutes: 2),
-          onStateChange: (state) => _logStateChange('firebase_ai', state),
-        ),
-      );
+    'firebase_ai',
+    () => CircuitBreaker(
+      failureThreshold: 5,
+      recoveryTimeout: const Duration(minutes: 2),
+      onStateChange: (state) => _logStateChange('firebase_ai', state),
+    ),
+  );
 
   /// Execute operation with circuit breaker protection
   static Future<T> executeWithBreaker<T>(

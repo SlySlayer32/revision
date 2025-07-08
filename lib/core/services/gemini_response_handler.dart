@@ -41,31 +41,42 @@ class GeminiResponseHandler {
       case GeminiConstants.httpOk:
         // Before returning success, check if the response body contains an error
         try {
-          final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+          final responseData =
+              jsonDecode(response.body) as Map<String, dynamic>;
           if (responseData.containsKey('error')) {
             final error = responseData['error'] as Map<String, dynamic>;
             final errorMessage = error['message'] ?? 'Unknown API error';
             final errorCode = error['code'] ?? response.statusCode;
             log('❌ Gemini API returned error in 200 response: $errorMessage');
-            
+
             // Check for specific error types
             if (errorMessage.contains('API key')) {
-              throw Exception('Gemini API key error ($errorCode): $errorMessage. '
-                  'Check that your GEMINI_API_KEY is valid and has proper permissions.');
-            } else if (errorMessage.contains('quota') || errorMessage.contains('limit')) {
-              throw Exception('Gemini API quota exceeded ($errorCode): $errorMessage. '
-                  'Check your usage limits and billing settings.');
-            } else if (errorMessage.contains('permission') || errorMessage.contains('access')) {
-              throw Exception('Gemini API permission error ($errorCode): $errorMessage. '
-                  'Check that your API key has access to the required models.');
+              throw Exception(
+                'Gemini API key error ($errorCode): $errorMessage. '
+                'Check that your GEMINI_API_KEY is valid and has proper permissions.',
+              );
+            } else if (errorMessage.contains('quota') ||
+                errorMessage.contains('limit')) {
+              throw Exception(
+                'Gemini API quota exceeded ($errorCode): $errorMessage. '
+                'Check your usage limits and billing settings.',
+              );
+            } else if (errorMessage.contains('permission') ||
+                errorMessage.contains('access')) {
+              throw Exception(
+                'Gemini API permission error ($errorCode): $errorMessage. '
+                'Check that your API key has access to the required models.',
+              );
             }
-            
+
             throw Exception('Gemini API error ($errorCode): $errorMessage');
           }
-          
+
           // Additional check for empty or malformed responses
           if (!responseData.containsKey(GeminiConstants.candidatesKey)) {
-            log('⚠️ Response missing candidates field - may indicate API issue');
+            log(
+              '⚠️ Response missing candidates field - may indicate API issue',
+            );
             log('📝 Response structure: ${responseData.keys.toList()}');
           }
         } catch (parseError) {
@@ -94,14 +105,16 @@ class GeminiResponseHandler {
         }
 
         throw Exception(
-            'Gemini API bad request (400): Check your request format and API key');
+          'Gemini API bad request (400): Check your request format and API key',
+        );
 
       case GeminiConstants.httpUnauthorized:
         throw Exception('Gemini API unauthorized (401): Invalid API key');
 
       case GeminiConstants.httpForbidden:
         throw Exception(
-            'Gemini API forbidden (403): API key may be restricted or quota exceeded');
+          'Gemini API forbidden (403): API key may be restricted or quota exceeded',
+        );
 
       case GeminiConstants.httpTooManyRequests:
         throw Exception('Gemini API rate limited (429): Too many requests');
@@ -110,7 +123,8 @@ class GeminiResponseHandler {
         log('❌ Gemini API error: ${response.statusCode}');
         log('📝 Response: ${response.body}');
         throw Exception(
-            'Gemini API error: ${response.statusCode} - ${response.body}');
+          'Gemini API error: ${response.statusCode} - ${response.body}',
+        );
     }
   }
 
@@ -167,36 +181,44 @@ class GeminiResponseHandler {
       if (content.keys.length == 1 && content.containsKey('role')) {
         log('⚠️ Response contains only role field - likely an error response');
         log('📋 Full response data for debugging: ${data.toString()}');
-        
+
         // Check if there's an error field in the main response
         if (data.containsKey('error')) {
           final error = data['error'];
           throw Exception('Gemini API error: ${error.toString()}');
         }
-        
+
         // Check if there's a 'blocked' or 'finishReason' indicating filtering
         if (candidate.containsKey('finishReason')) {
           final finishReason = candidate['finishReason'];
           if (finishReason == 'SAFETY' || finishReason == 'RECITATION') {
-            throw Exception('Content was blocked by Gemini safety filters. Reason: $finishReason');
+            throw Exception(
+              'Content was blocked by Gemini safety filters. Reason: $finishReason',
+            );
           } else if (finishReason == 'MAX_TOKENS') {
-            throw Exception('Response was truncated due to maximum token limit');
+            throw Exception(
+              'Response was truncated due to maximum token limit',
+            );
           } else if (finishReason == 'OTHER') {
             throw Exception('Content generation stopped for other reasons');
           }
         }
-        
+
         // This might be an authentication or quota issue
-        throw Exception('Invalid Gemini API response - only role field present. '
-            'This typically indicates an authentication issue, quota exceeded, '
-            'malformed request, or content filtering. '
-            'Full response: ${data.toString().length > 1000 ? data.toString().substring(0, 1000) + "..." : data.toString()}');
+        throw Exception(
+          'Invalid Gemini API response - only role field present. '
+          'This typically indicates an authentication issue, quota exceeded, '
+          'malformed request, or content filtering. '
+          'Full response: ${data.toString().length > 1000 ? data.toString().substring(0, 1000) + "..." : data.toString()}',
+        );
       }
 
       // If still no parts, this is likely an API structure change
-      throw Exception('No content parts in Gemini API response. '
-          'Content structure: ${content.keys.toList()}. '
-          'This may indicate an API version change or malformed response.');
+      throw Exception(
+        'No content parts in Gemini API response. '
+        'Content structure: ${content.keys.toList()}. '
+        'This may indicate an API version change or malformed response.',
+      );
     }
 
     final parts = content[GeminiConstants.partsKey] as List;
@@ -206,8 +228,10 @@ class GeminiResponseHandler {
     if (parts.isEmpty) {
       log('❌ Parts array is empty');
       log('📝 Full response: ${data.toString()}');
-      throw Exception('Content parts array is empty in Gemini API response. '
-          'This may indicate content filtering or API issues.');
+      throw Exception(
+        'Content parts array is empty in Gemini API response. '
+        'This may indicate content filtering or API issues.',
+      );
     }
 
     for (int i = 0; i < parts.length; i++) {
@@ -216,15 +240,21 @@ class GeminiResponseHandler {
     }
 
     final textParts = parts
-        .where((part) =>
-            (part as Map<String, dynamic>)[GeminiConstants.textKey] != null)
-        .map((part) =>
-            (part as Map<String, dynamic>)[GeminiConstants.textKey] as String)
+        .where(
+          (part) =>
+              (part as Map<String, dynamic>)[GeminiConstants.textKey] != null,
+        )
+        .map(
+          (part) =>
+              (part as Map<String, dynamic>)[GeminiConstants.textKey] as String,
+        )
         .where((text) => text.trim().isNotEmpty);
 
     if (textParts.isEmpty) {
       log('❌ No text parts found after filtering');
-      log('📝 Available part types: ${parts.map((p) => (p as Map<String, dynamic>).keys.toList()).toList()}');
+      log(
+        '📝 Available part types: ${parts.map((p) => (p as Map<String, dynamic>).keys.toList()).toList()}',
+      );
 
       // Try to extract alternative content types
       for (final part in parts) {
@@ -232,16 +262,21 @@ class GeminiResponseHandler {
         if (partMap.containsKey('functionCall') ||
             partMap.containsKey('functionResponse') ||
             partMap.containsKey('executableCode')) {
-          log('⚠️ Response contains non-text content types that are not yet supported');
+          log(
+            '⚠️ Response contains non-text content types that are not yet supported',
+          );
           throw Exception(
-              'Response contains non-text content (function calls, code execution, etc.) '
-              'that cannot be processed as text. Available keys: ${partMap.keys.toList()}');
+            'Response contains non-text content (function calls, code execution, etc.) '
+            'that cannot be processed as text. Available keys: ${partMap.keys.toList()}',
+          );
         }
       }
 
-      throw Exception('No valid text content in Gemini API response. '
-          'Found ${parts.length} parts but none contained text. '
-          'Part types: ${parts.map((p) => (p as Map<String, dynamic>).keys.toList()).toList()}');
+      throw Exception(
+        'No valid text content in Gemini API response. '
+        'Found ${parts.length} parts but none contained text. '
+        'Part types: ${parts.map((p) => (p as Map<String, dynamic>).keys.toList()).toList()}',
+      );
     }
 
     final result = textParts.first.trim();
@@ -263,7 +298,9 @@ class GeminiResponseHandler {
     final candidate = candidates[0] as Map<String, dynamic>;
 
     log('👤 Image candidate keys: ${candidate.keys.toList()}');
-    log('🏁 Image finish reason: ${candidate[GeminiConstants.finishReasonKey]}');
+    log(
+      '🏁 Image finish reason: ${candidate[GeminiConstants.finishReasonKey]}',
+    );
 
     // Check for content filtering or safety issues
     if (candidate[GeminiConstants.finishReasonKey] ==
@@ -302,14 +339,16 @@ class GeminiResponseHandler {
         log('📎 Inline data keys: ${inlineData.keys.toList()}');
 
         if (inlineData[GeminiConstants.mimeTypeKey] != null &&
-            inlineData[GeminiConstants.mimeTypeKey]
-                .toString()
-                .startsWith('image/') &&
+            inlineData[GeminiConstants.mimeTypeKey].toString().startsWith(
+              'image/',
+            ) &&
             inlineData[GeminiConstants.dataKey] != null) {
           try {
             final base64Data = inlineData[GeminiConstants.dataKey] as String;
             final imageBytes = base64Decode(base64Data);
-            log('🖼️ Successfully extracted generated image (${imageBytes.length} bytes)');
+            log(
+              '🖼️ Successfully extracted generated image (${imageBytes.length} bytes)',
+            );
             log('🎨 MIME type: ${inlineData[GeminiConstants.mimeTypeKey]}');
             return Uint8List.fromList(imageBytes);
           } catch (e) {
@@ -324,7 +363,9 @@ class GeminiResponseHandler {
       }
     }
 
-    log('⚠️ No image data found in generation response after checking all parts');
+    log(
+      '⚠️ No image data found in generation response after checking all parts',
+    );
     return null;
   }
 
@@ -336,8 +377,9 @@ class GeminiResponseHandler {
       return null;
     }
 
-    final candidate = (data[GeminiConstants.candidatesKey] as List)[0]
-        as Map<String, dynamic>;
+    final candidate =
+        (data[GeminiConstants.candidatesKey] as List)[0]
+            as Map<String, dynamic>;
     if (candidate[GeminiConstants.contentKey] == null ||
         candidate[GeminiConstants.contentKey][GeminiConstants.partsKey] ==
             null) {
@@ -357,10 +399,13 @@ class GeminiResponseHandler {
               .startsWith('image/') &&
           part[GeminiConstants.inlineDataKey][GeminiConstants.dataKey] !=
               null) {
-        final base64Data = part[GeminiConstants.inlineDataKey]
-            [GeminiConstants.dataKey] as String;
+        final base64Data =
+            part[GeminiConstants.inlineDataKey][GeminiConstants.dataKey]
+                as String;
         final imageBytes = base64Decode(base64Data);
-        log('🖼️ Successfully extracted generated image (${imageBytes.length} bytes)');
+        log(
+          '🖼️ Successfully extracted generated image (${imageBytes.length} bytes)',
+        );
         return Uint8List.fromList(imageBytes);
       }
     }
@@ -393,7 +438,9 @@ class GeminiResponseHandler {
       // Additional cleanup for common response patterns
       cleanedResponse = cleanedResponse
           .replaceAll(
-              RegExp(r'^```[a-z]*\n?'), '') // Remove opening code blocks
+            RegExp(r'^```[a-z]*\n?'),
+            '',
+          ) // Remove opening code blocks
           .replaceAll(RegExp(r'\n?```$'), '') // Remove closing code blocks
           .trim();
 
@@ -407,7 +454,9 @@ class GeminiResponseHandler {
 
       if (jsonData is List) {
         // If it's a list of masks, wrap it in a container
-        log('✅ Parsed segmentation response as list (${jsonData.length} items)');
+        log(
+          '✅ Parsed segmentation response as list (${jsonData.length} items)',
+        );
         return {'masks': jsonData};
       } else if (jsonData is Map<String, dynamic>) {
         log('✅ Parsed segmentation response as map');
@@ -420,12 +469,14 @@ class GeminiResponseHandler {
         log('⚠️ Unexpected JSON structure in segmentation response');
         return {
           'masks': [],
-          'error': 'Unexpected response format: ${jsonData.runtimeType}'
+          'error': 'Unexpected response format: ${jsonData.runtimeType}',
         };
       }
     } catch (e) {
       log('❌ Failed to parse segmentation response: $e');
-      log('📝 Raw response (first 500 chars): ${response.length > 500 ? response.substring(0, 500) + "..." : response}');
+      log(
+        '📝 Raw response (first 500 chars): ${response.length > 500 ? response.substring(0, 500) + "..." : response}',
+      );
 
       // Try to extract any JSON-like content as fallback
       try {
@@ -447,14 +498,16 @@ class GeminiResponseHandler {
         'originalResponse': response.length > 1000
             ? response.substring(0, 1000) + '...[truncated]'
             : response,
-        'errorType': 'json_parse_error'
+        'errorType': 'json_parse_error',
       };
     }
   }
 
   /// Parses suggestions from text response
-  static List<String> parseSuggestions(String response,
-      {int maxSuggestions = 5}) {
+  static List<String> parseSuggestions(
+    String response, {
+    int maxSuggestions = 5,
+  }) {
     final suggestions = response
         .split('\n')
         .where((line) => line.trim().isNotEmpty)
@@ -477,14 +530,17 @@ class GeminiResponseHandler {
   /// Parses marker descriptions for editing prompts
   static String parseMarkerDescriptions(List<Map<String, dynamic>> markers) {
     return markers
-        .map((marker) =>
-            'Marker at (${marker['x']}, ${marker['y']}): ${marker['description'] ?? 'Object to edit'}')
+        .map(
+          (marker) =>
+              'Marker at (${marker['x']}, ${marker['y']}): ${marker['description'] ?? 'Object to edit'}',
+        )
         .join('\n');
   }
 
   /// Parse object detection response from Gemini API
   static List<Map<String, dynamic>> parseObjectDetectionResponse(
-      String response) {
+    String response,
+  ) {
     try {
       // Clean up the response to extract JSON
       String cleanedResponse = response.trim();
@@ -510,7 +566,8 @@ class GeminiResponseHandler {
         return List<Map<String, dynamic>>.from(jsonData['objects']);
       } else {
         throw const FormatException(
-            'Unexpected JSON structure for object detection');
+          'Unexpected JSON structure for object detection',
+        );
       }
     } catch (e) {
       log('❌ Failed to parse object detection response: $e');

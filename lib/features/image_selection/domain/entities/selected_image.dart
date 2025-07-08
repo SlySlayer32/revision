@@ -16,8 +16,10 @@ class SelectedImage extends Equatable {
     required this.name,
     required this.sizeInBytes,
     required this.source,
-  }) : assert(path != null || bytes != null,
-            'Either path or bytes must be provided');
+  }) : assert(
+         path != null || bytes != null,
+         'Either path or bytes must be provided',
+       );
 
   /// The file path of the selected image (mobile only)
   final String? path;

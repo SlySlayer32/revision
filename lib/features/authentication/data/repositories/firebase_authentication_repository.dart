@@ -11,8 +11,8 @@ class FirebaseAuthenticationRepository implements AuthRepository {
   FirebaseAuthenticationRepository({
     FirebaseAuthDataSource? firebaseAuthDataSource,
     ExceptionHandlerService? exceptionHandler,
-  })  : _dataSource = firebaseAuthDataSource ?? FirebaseAuthDataSourceImpl(),
-        _exceptionHandler = exceptionHandler ?? ExceptionHandlerService();
+  }) : _dataSource = firebaseAuthDataSource ?? FirebaseAuthDataSourceImpl(),
+       _exceptionHandler = exceptionHandler ?? ExceptionHandlerService();
 
   final FirebaseAuthDataSource _dataSource;
   final ExceptionHandlerService _exceptionHandler;
@@ -26,10 +26,7 @@ class FirebaseAuthenticationRepository implements AuthRepository {
     required String password,
   }) async {
     try {
-      final user = await _dataSource.signIn(
-        email: email,
-        password: password,
-      );
+      final user = await _dataSource.signIn(email: email, password: password);
       return Right(user);
     } catch (e) {
       final failure = _exceptionHandler.handleAuthException(
@@ -62,10 +59,7 @@ class FirebaseAuthenticationRepository implements AuthRepository {
     String? displayName,
   }) async {
     try {
-      final user = await _dataSource.signUp(
-        email: email,
-        password: password,
-      );
+      final user = await _dataSource.signUp(email: email, password: password);
       return Right(user);
     } catch (e) {
       final failure = _exceptionHandler.handleAuthException(
@@ -87,10 +81,7 @@ class FirebaseAuthenticationRepository implements AuthRepository {
       await _dataSource.signOut();
       return const Right(null);
     } catch (e) {
-      final failure = _exceptionHandler.handleAuthException(
-        'signOut',
-        e,
-      );
+      final failure = _exceptionHandler.handleAuthException('signOut', e);
       return Left(failure);
     }
   }
@@ -170,10 +161,7 @@ class FirebaseAuthenticationRepository implements AuthRepository {
       await _dataSource.deleteAccount();
       return const Right(null);
     } catch (e) {
-      final failure = _exceptionHandler.handleAuthException(
-        'deleteAccount',
-        e,
-      );
+      final failure = _exceptionHandler.handleAuthException('deleteAccount', e);
       return Left(failure);
     }
   }
@@ -201,10 +189,7 @@ class FirebaseAuthenticationRepository implements AuthRepository {
       final idToken = await _dataSource.getIdToken();
       return Right(idToken);
     } catch (e) {
-      final failure = _exceptionHandler.handleAuthException(
-        'getIdToken',
-        e,
-      );
+      final failure = _exceptionHandler.handleAuthException('getIdToken', e);
       return Left(failure);
     }
   }

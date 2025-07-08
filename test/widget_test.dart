@@ -12,11 +12,7 @@ void main() {
   testWidgets('Basic Flutter app structure', (WidgetTester tester) async {
     // Test a simple MaterialApp instead of the full app
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: Text('Test App'),
-        ),
-      ),
+      const MaterialApp(home: Scaffold(body: Text('Test App'))),
     );
 
     // Verify basic Flutter structure

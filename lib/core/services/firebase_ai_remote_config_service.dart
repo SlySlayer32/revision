@@ -62,10 +62,12 @@ class FirebaseAIRemoteConfigService {
         final remoteConfig = FirebaseRemoteConfig.instance;
 
         // Set config settings
-        await remoteConfig.setConfigSettings(RemoteConfigSettings(
-          fetchTimeout: const Duration(minutes: 1),
-          minimumFetchInterval: const Duration(hours: 1), // Cache for 1 hour
-        ));
+        await remoteConfig.setConfigSettings(
+          RemoteConfigSettings(
+            fetchTimeout: const Duration(minutes: 1),
+            minimumFetchInterval: const Duration(hours: 1), // Cache for 1 hour
+          ),
+        );
 
         // Set default values
         await remoteConfig.setDefaults(_defaultValues);
@@ -80,7 +82,9 @@ class FirebaseAIRemoteConfigService {
         _useDefaultsOnly = false;
       } catch (e) {
         log('❌ Firebase not initialized when accessing Remote Config: $e');
-        log('🔄 Using default values only (Firebase Remote Config unavailable)');
+        log(
+          '🔄 Using default values only (Firebase Remote Config unavailable)',
+        );
         _remoteConfig = null;
         _useDefaultsOnly = true;
       }

@@ -15,11 +15,9 @@ class ImagenEditingService {
   final String _projectId;
   final String _accessToken;
 
-  ImagenEditingService({
-    required String projectId,
-    required String accessToken,
-  })  : _projectId = projectId,
-        _accessToken = accessToken;
+  ImagenEditingService({required String projectId, required String accessToken})
+    : _projectId = projectId,
+      _accessToken = accessToken;
 
   /// Edit an image using mask-free editing with Imagen 3
   /// This uses the latest Imagen 3 capability model for real image editing
@@ -42,10 +40,8 @@ class ImagenEditingService {
         'instances': [
           {
             'prompt': editingPrompt,
-            'image': {
-              'bytesBase64Encoded': base64Image,
-            },
-          }
+            'image': {'bytesBase64Encoded': base64Image},
+          },
         ],
         'parameters': {
           'sampleCount': sampleCount,
@@ -53,11 +49,12 @@ class ImagenEditingService {
           if (negativePrompt != null) 'negativePrompt': negativePrompt,
           'safetySetting': 'block_medium_and_above',
           'personGeneration': 'allow_adult',
-        }
+        },
       };
 
       // Make the API call
-      final url = '$_baseUrl/v1/projects/$_projectId/locations/$_location/'
+      final url =
+          '$_baseUrl/v1/projects/$_projectId/locations/$_location/'
           'publishers/google/models/${FirebaseAIConstants.imagenEditModel}:predict';
 
       final response = await http
@@ -89,13 +86,18 @@ class ImagenEditingService {
           throw Exception('No predictions returned from Imagen API');
         }
       } else {
-        log('❌ ImagenEditingService: API error ${response.statusCode}: ${response.body}');
+        log(
+          '❌ ImagenEditingService: API error ${response.statusCode}: ${response.body}',
+        );
         throw Exception(
-            'Imagen API error: ${response.statusCode} - ${response.body}');
+          'Imagen API error: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e, stackTrace) {
-      log('❌ ImagenEditingService: Image editing failed: $e',
-          stackTrace: stackTrace);
+      log(
+        '❌ ImagenEditingService: Image editing failed: $e',
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }
@@ -113,9 +115,7 @@ class ImagenEditingService {
 
       final requestBody = {
         'instances': [
-          {
-            'prompt': prompt,
-          }
+          {'prompt': prompt},
         ],
         'parameters': {
           'sampleCount': sampleCount,
@@ -124,10 +124,11 @@ class ImagenEditingService {
           'safetySetting': 'block_medium_and_above',
           'personGeneration': 'allow_adult',
           'enhancePrompt': true, // Use prompt enhancement
-        }
+        },
       };
 
-      final url = '$_baseUrl/v1/projects/$_projectId/locations/$_location/'
+      final url =
+          '$_baseUrl/v1/projects/$_projectId/locations/$_location/'
           'publishers/google/models/${FirebaseAIConstants.imagenGenerateModel}:predict';
 
       final response = await http
@@ -150,19 +151,26 @@ class ImagenEditingService {
           final imageBase64 = firstPrediction['bytesBase64Encoded'] as String;
           final imageBytes = base64Decode(imageBase64);
 
-          log('✅ ImagenEditingService: Image generation completed successfully');
+          log(
+            '✅ ImagenEditingService: Image generation completed successfully',
+          );
           return imageBytes;
         } else {
           throw Exception('No predictions returned from Imagen API');
         }
       } else {
-        log('❌ ImagenEditingService: API error ${response.statusCode}: ${response.body}');
+        log(
+          '❌ ImagenEditingService: API error ${response.statusCode}: ${response.body}',
+        );
         throw Exception(
-            'Imagen API error: ${response.statusCode} - ${response.body}');
+          'Imagen API error: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e, stackTrace) {
-      log('❌ ImagenEditingService: Image generation failed: $e',
-          stackTrace: stackTrace);
+      log(
+        '❌ ImagenEditingService: Image generation failed: $e',
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }
@@ -181,21 +189,18 @@ class ImagenEditingService {
         'instances': [
           {
             'prompt': '', // Empty prompt for upscaling
-            'image': {
-              'bytesBase64Encoded': base64Image,
-            },
-          }
+            'image': {'bytesBase64Encoded': base64Image},
+          },
         ],
         'parameters': {
           'sampleCount': 1,
           'mode': 'upscale',
-          'upscaleConfig': {
-            'upscaleFactor': upscaleFactor,
-          }
-        }
+          'upscaleConfig': {'upscaleFactor': upscaleFactor},
+        },
       };
 
-      final url = '$_baseUrl/v1/projects/$_projectId/locations/$_location/'
+      final url =
+          '$_baseUrl/v1/projects/$_projectId/locations/$_location/'
           'publishers/google/models/${FirebaseAIConstants.imagenModel}:predict';
 
       final response = await http
@@ -225,13 +230,18 @@ class ImagenEditingService {
           throw Exception('No predictions returned from Imagen API');
         }
       } else {
-        log('❌ ImagenEditingService: API error ${response.statusCode}: ${response.body}');
+        log(
+          '❌ ImagenEditingService: API error ${response.statusCode}: ${response.body}',
+        );
         throw Exception(
-            'Imagen API error: ${response.statusCode} - ${response.body}');
+          'Imagen API error: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e, stackTrace) {
-      log('❌ ImagenEditingService: Image upscaling failed: $e',
-          stackTrace: stackTrace);
+      log(
+        '❌ ImagenEditingService: Image upscaling failed: $e',
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }

@@ -24,23 +24,20 @@ class PromptTemplate extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        systemPrompt,
-        userPromptTemplate,
-        processingType,
-        qualityInstructions,
-        examples,
-        constraints,
-      ];
+    id,
+    name,
+    systemPrompt,
+    userPromptTemplate,
+    processingType,
+    qualityInstructions,
+    examples,
+    constraints,
+  ];
 }
 
 /// Result of prompt validation
 class ValidationResult extends Equatable {
-  const ValidationResult({
-    required this.isValid,
-    this.issues = const [],
-  });
+  const ValidationResult({required this.isValid, this.issues = const []});
 
   final bool isValid;
   final List<ValidationIssue> issues;
@@ -65,8 +62,4 @@ class ValidationIssue extends Equatable {
   List<Object?> get props => [type, message, suggestion];
 }
 
-enum ValidationIssueType {
-  error,
-  warning,
-  info,
-}
+enum ValidationIssueType { error, warning, info }

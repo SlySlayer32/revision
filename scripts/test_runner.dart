@@ -100,11 +100,9 @@ class TestRunner {
     }
 
     print('✅ Unit tests passed (${_formatDuration(stopwatch.elapsed)})');
-    print('   ${_countTestFiles([
-          'test/features/*/domain/',
-          'test/features/*/presentation/blocs/',
-          'test/core/',
-        ])} test files executed\n');
+    print(
+      '   ${_countTestFiles(['test/features/*/domain/', 'test/features/*/presentation/blocs/', 'test/core/'])} test files executed\n',
+    );
   }
 
   /// Run integration tests with Firebase emulators
@@ -146,9 +144,9 @@ class TestRunner {
       print(
         '✅ Integration tests passed (${_formatDuration(stopwatch.elapsed)})',
       );
-      print('   ${_countTestFiles([
-            'test/integration/',
-          ])} integration test files executed\n');
+      print(
+        '   ${_countTestFiles(['test/integration/'])} integration test files executed\n',
+      );
     } finally {
       // Always stop emulators
       emulatorProcess?.kill();
@@ -180,11 +178,9 @@ class TestRunner {
     }
 
     print('✅ Widget tests passed (${_formatDuration(stopwatch.elapsed)})');
-    print('   ${_countTestFiles([
-          'test/features/*/presentation/pages/',
-          'test/features/*/presentation/widgets/',
-          'test/app/',
-        ])} widget test files executed\n');
+    print(
+      '   ${_countTestFiles(['test/features/*/presentation/pages/', 'test/features/*/presentation/widgets/', 'test/app/'])} widget test files executed\n',
+    );
   }
 
   /// Generate coverage report
@@ -233,11 +229,10 @@ class TestRunner {
   /// Start Firebase emulators
   Future<Process?> _startEmulators() async {
     try {
-      final process = await Process.start(
-        'firebase',
-        ['emulators:start', '--only=auth'],
-        mode: ProcessStartMode.detached,
-      );
+      final process = await Process.start('firebase', [
+        'emulators:start',
+        '--only=auth',
+      ], mode: ProcessStartMode.detached);
       return process;
     } catch (e) {
       print('⚠️  Failed to start emulators: $e');
@@ -296,7 +291,8 @@ class TestRunner {
               if (entity is Directory) {
                 final potentialPath = '${entity.path}$subPath';
                 final targetDir = Directory(
-                    potentialPath.replaceAll('//', '/')); // Normalize path
+                  potentialPath.replaceAll('//', '/'),
+                ); // Normalize path
                 if (targetDir.existsSync()) {
                   count += targetDir
                       .listSync(recursive: true)

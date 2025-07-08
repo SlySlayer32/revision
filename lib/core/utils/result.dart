@@ -31,15 +31,15 @@ sealed class Result<T> {
 
   /// Returns the value if this is a [Success], otherwise returns null
   T? get valueOrNull => switch (this) {
-        Success<T>(data: final value) => value,
-        Failure<T>() => null,
-      };
+    Success<T>(data: final value) => value,
+    Failure<T>() => null,
+  };
 
   /// Returns the exception if this is a [Failure], otherwise returns null
   Exception? get exceptionOrNull => switch (this) {
-        Success<T>() => null,
-        Failure<T>(exception: final exception) => exception,
-      };
+    Success<T>() => null,
+    Failure<T>(exception: final exception) => exception,
+  };
 
   /// Returns true if this is a [Success], otherwise returns false
   bool get isSuccess => this is Success<T>;
@@ -59,8 +59,9 @@ sealed class Result<T> {
   Result<T> mapError(Exception Function(Exception exception) transform) {
     return switch (this) {
       Success<T>() => this,
-      Failure<T>(exception: final exception) =>
-        Failure<T>(transform(exception)),
+      Failure<T>(exception: final exception) => Failure<T>(
+        transform(exception),
+      ),
     };
   }
 

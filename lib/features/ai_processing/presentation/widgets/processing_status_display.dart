@@ -13,8 +13,10 @@ class ProcessingStatusDisplay extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Status: ${state.status.name}',
-                style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Status: ${state.status.name}',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
             if (state.status == GeminiPipelineStatus.processing) ...[
               const LinearProgressIndicator(),
@@ -24,8 +26,10 @@ class ProcessingStatusDisplay extends StatelessWidget {
                   child: Text(state.progressMessage!),
                 ),
             ] else if (state.status == GeminiPipelineStatus.error)
-              Text(state.errorMessage ?? 'An unknown error occurred.',
-                  style: const TextStyle(color: Colors.red)),
+              Text(
+                state.errorMessage ?? 'An unknown error occurred.',
+                style: const TextStyle(color: Colors.red),
+              ),
           ],
         );
       },

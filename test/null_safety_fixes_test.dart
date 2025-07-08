@@ -22,16 +22,22 @@ void main() {
     test('RouteNames display names should be generated correctly', () {
       expect(RouteNames.getDisplayName('/login'), equals('Login'));
       expect(RouteNames.getDisplayName('/dashboard'), equals('Dashboard'));
-      expect(RouteNames.getDisplayName('/image-selection'),
-          equals('Image Selection'));
       expect(
-          RouteNames.getDisplayName('/unknown-route'), equals('unknown route'));
+        RouteNames.getDisplayName('/image-selection'),
+        equals('Image Selection'),
+      );
+      expect(
+        RouteNames.getDisplayName('/unknown-route'),
+        equals('unknown route'),
+      );
     });
 
     test('NullSafetyUtils should handle null strings correctly', () {
       expect(NullSafetyUtils.safeString(null), equals(''));
-      expect(NullSafetyUtils.safeString(null, fallback: 'default'),
-          equals('default'));
+      expect(
+        NullSafetyUtils.safeString(null, fallback: 'default'),
+        equals('default'),
+      );
       expect(NullSafetyUtils.safeString('test'), equals('test'));
     });
 
@@ -56,7 +62,9 @@ void main() {
       expect(NullSafetyUtils.safeList<int>([1, 2, 3]), equals([1, 2, 3]));
 
       expect(
-          NullSafetyUtils.safeMap<String, int>(null), equals(<String, int>{}));
+        NullSafetyUtils.safeMap<String, int>(null),
+        equals(<String, int>{}),
+      );
       expect(NullSafetyUtils.safeMap<String, int>({'a': 1}), equals({'a': 1}));
     });
 
@@ -73,7 +81,9 @@ void main() {
       expect(NullSafetyUtils.isCollectionNullOrEmpty<String>(null), isTrue);
       expect(NullSafetyUtils.isCollectionNullOrEmpty<String>([]), isTrue);
       expect(
-          NullSafetyUtils.isCollectionNullOrEmpty<String>(['test']), isFalse);
+        NullSafetyUtils.isCollectionNullOrEmpty<String>(['test']),
+        isFalse,
+      );
     });
 
     test('NullSafetyUtils should handle parsing correctly', () {
@@ -86,22 +96,30 @@ void main() {
       expect(NullSafetyUtils.parseDouble(null), equals(0.0));
       expect(NullSafetyUtils.parseDouble('invalid'), equals(0.0));
       expect(
-          NullSafetyUtils.parseDouble('invalid', fallback: -1.0), equals(-1.0));
+        NullSafetyUtils.parseDouble('invalid', fallback: -1.0),
+        equals(-1.0),
+      );
     });
 
     test('NullSafetyUtils should find first non-null value', () {
       expect(
-          NullSafetyUtils.firstNonNull([null, null, 'found']), equals('found'));
-      expect(NullSafetyUtils.firstNonNull([null, 'first', 'second']),
-          equals('first'));
+        NullSafetyUtils.firstNonNull([null, null, 'found']),
+        equals('found'),
+      );
+      expect(
+        NullSafetyUtils.firstNonNull([null, 'first', 'second']),
+        equals('first'),
+      );
       expect(NullSafetyUtils.firstNonNull([null, null, null]), isNull);
     });
 
     test('NullSafetyUtils should format values for display', () {
       expect(NullSafetyUtils.formatForDisplay(null), equals('N/A'));
       expect(NullSafetyUtils.formatForDisplay(123), equals('123'));
-      expect(NullSafetyUtils.formatForDisplay(null, nullDisplay: 'None'),
-          equals('None'));
+      expect(
+        NullSafetyUtils.formatForDisplay(null, nullDisplay: 'None'),
+        equals('None'),
+      );
       expect(
         NullSafetyUtils.formatForDisplay(
           'test',
@@ -114,15 +132,21 @@ void main() {
     test('NullSafetyUtils should safely convert to string', () {
       expect(NullSafetyUtils.safeToString(null), equals(''));
       expect(NullSafetyUtils.safeToString(123), equals('123'));
-      expect(NullSafetyUtils.safeToString(null, fallback: 'default'),
-          equals('default'));
+      expect(
+        NullSafetyUtils.safeToString(null, fallback: 'default'),
+        equals('default'),
+      );
     });
 
     test('NullSafetyUtils should require non-null values', () {
-      expect(() => NullSafetyUtils.requireNonNull(null, message: 'Test error'),
-          throwsArgumentError);
-      expect(NullSafetyUtils.requireNonNull('value', message: 'Test error'),
-          equals('value'));
+      expect(
+        () => NullSafetyUtils.requireNonNull(null, message: 'Test error'),
+        throwsArgumentError,
+      );
+      expect(
+        NullSafetyUtils.requireNonNull('value', message: 'Test error'),
+        equals('value'),
+      );
     });
   });
 }

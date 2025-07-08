@@ -17,7 +17,8 @@ Future<void> main() async {
   } catch (e) {
     dev.log('Driver: Firebase initialization failed: $e');
     dev.log(
-        'Driver: Ensure Firebase emulators are running (firebase emulators:start --only auth).');
+      'Driver: Ensure Firebase emulators are running (firebase emulators:start --only auth).',
+    );
     // Optionally, rethrow or exit if Firebase initialization is critical for all tests.
     // For now, we'll let individual tests handle failures if they depend on Firebase.
   }

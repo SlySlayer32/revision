@@ -16,7 +16,7 @@ import 'package:revision/features/image_editing/domain/entities/annotated_image.
 /// execution, and fallback handling.
 class AiAnalysisService {
   AiAnalysisService({http.Client? httpClient})
-      : _analysisExecutor = AnalysisExecutor(httpClient: httpClient);
+    : _analysisExecutor = AnalysisExecutor(httpClient: httpClient);
 
   final AnalysisExecutor _analysisExecutor;
 
@@ -36,23 +36,32 @@ class AiAnalysisService {
     final stopwatch = Stopwatch()..start();
 
     try {
-      log('🔄 Starting AI analysis of annotated image with ${annotatedImage.annotations.length} strokes');
+      log(
+        '🔄 Starting AI analysis of annotated image with ${annotatedImage.annotations.length} strokes',
+      );
 
       // Step 1: Validate inputs using dedicated validator
-      final validationResult =
-          await AnalysisInputValidator.validate(annotatedImage);
+      final validationResult = await AnalysisInputValidator.validate(
+        annotatedImage,
+      );
       if (validationResult.isFailure) {
         return _handleValidationFailure(
-            validationResult, annotatedImage, stopwatch.elapsed);
+          validationResult,
+          annotatedImage,
+          stopwatch.elapsed,
+        );
       }
 
       // Step 2: Generate prompt using dedicated generator
       final prompt = AnalysisPromptGenerator.generateSystemPrompt(
-          annotatedImage.annotations);
+        annotatedImage.annotations,
+      );
 
       // Step 3: Execute analysis using dedicated executor
-      final executionResult =
-          await _analysisExecutor.execute(annotatedImage, prompt);
+      final executionResult = await _analysisExecutor.execute(
+        annotatedImage,
+        prompt,
+      );
 
       if (executionResult.isSuccess) {
         return executionResult.valueOrNull!;

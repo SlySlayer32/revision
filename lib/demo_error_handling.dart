@@ -35,7 +35,9 @@ Future<void> _testFallbackService(Uint8List imageData) async {
   try {
     // Test various operations
     await fallbackService.processImagePrompt(
-        imageData, 'remove the person from background');
+      imageData,
+      'remove the person from background',
+    );
     log('✅ Fallback processImagePrompt: Working');
 
     await fallbackService.generateImageDescription(imageData);
@@ -47,7 +49,7 @@ Future<void> _testFallbackService(Uint8List imageData) async {
     await fallbackService.generateEditingPrompt(
       imageBytes: imageData,
       markers: [
-        {'x': 100, 'y': 200}
+        {'x': 100, 'y': 200},
       ],
     );
     log('✅ Fallback generateEditingPrompt: Working');
@@ -130,13 +132,17 @@ Future<void> _testGeminiService(Uint8List imageData) async {
 
     // Test with a simple operation that might trigger the parsing error
     final result = await geminiService.processImagePrompt(
-        imageData, 'describe this image');
+      imageData,
+      'describe this image',
+    );
 
     log('✅ GeminiAIService working: ${result.substring(0, 50)}...');
   } catch (e) {
     if (e.toString().contains('role: model') ||
         e.toString().contains('Unhandled format')) {
-      log('🎯 GeminiAIService: Detected known parsing error - Error handler will manage this');
+      log(
+        '🎯 GeminiAIService: Detected known parsing error - Error handler will manage this',
+      );
     } else {
       log('⚠️ GeminiAIService: Different error - $e');
     }

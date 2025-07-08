@@ -109,7 +109,8 @@ class LoggingService {
     String? requestId,
     Map<String, dynamic>? data,
   }) {
-    final message = 'API $method $endpoint'
+    final message =
+        'API $method $endpoint'
         '${statusCode != null ? ' - $statusCode' : ''}'
         '${duration != null ? ' (${duration.inMilliseconds}ms)' : ''}';
 
@@ -130,10 +131,7 @@ class LoggingService {
   }
 
   /// Logs user actions for analytics
-  void userAction(
-    String action, {
-    Map<String, dynamic>? data,
-  }) {
+  void userAction(String action, {Map<String, dynamic>? data}) {
     info('User Action: $action', data: data);
   }
 
@@ -184,8 +182,9 @@ class LoggingService {
     final logMessage = '[$timestamp] [$level] $message';
 
     // Add data if provided
-    final fullMessage =
-        data != null ? '$logMessage - Data: ${data.toString()}' : logMessage;
+    final fullMessage = data != null
+        ? '$logMessage - Data: ${data.toString()}'
+        : logMessage;
 
     // Use dart:developer log for better debugging
     dev.log(
@@ -228,7 +227,9 @@ class LoggingService {
 
   /// Builds information array for Crashlytics
   List<dynamic> _buildCrashlyticsInfo(
-      String message, Map<String, dynamic>? data) {
+    String message,
+    Map<String, dynamic>? data,
+  ) {
     final info = <dynamic>[message];
     if (data != null) {
       info.addAll(data.entries.map((e) => '${e.key}: ${e.value}'));

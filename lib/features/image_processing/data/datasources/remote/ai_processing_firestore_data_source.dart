@@ -15,19 +15,19 @@ abstract class AIProcessingFirestoreDataSource {
 
 class AIProcessingFirestoreDataSourceImpl
     implements AIProcessingFirestoreDataSource {
-  AIProcessingFirestoreDataSourceImpl({
-    required FirebaseFirestore firestore,
-  }) : _firestore = firestore;
+  AIProcessingFirestoreDataSourceImpl({required FirebaseFirestore firestore})
+    : _firestore = firestore;
 
   final FirebaseFirestore _firestore;
 
   CollectionReference<Map<String, dynamic>> _getUserProcessingCollection(
-          String userId) =>
-      _firestore.collection('users').doc(userId).collection('ai_processing');
+    String userId,
+  ) => _firestore.collection('users').doc(userId).collection('ai_processing');
 
   @override
   Future<AIProcessingJobModel> createProcessingJob(
-      AIProcessingJobModel job) async {
+    AIProcessingJobModel job,
+  ) async {
     try {
       final docRef = _getUserProcessingCollection(job.userId).doc();
       final jobWithId = AIProcessingJobModel(
@@ -56,7 +56,9 @@ class AIProcessingFirestoreDataSourceImpl
 
   @override
   Future<AIProcessingJobModel> getProcessingJob(
-      String userId, String jobId) async {
+    String userId,
+    String jobId,
+  ) async {
     try {
       final doc = await _getUserProcessingCollection(userId).doc(jobId).get();
 
@@ -74,11 +76,12 @@ class AIProcessingFirestoreDataSourceImpl
 
   @override
   Future<List<AIProcessingJobModel>> getUserProcessingJobs(
-      String userId) async {
+    String userId,
+  ) async {
     try {
-      final querySnapshot = await _getUserProcessingCollection(userId)
-          .orderBy('createdAt', descending: true)
-          .get();
+      final querySnapshot = await _getUserProcessingCollection(
+        userId,
+      ).orderBy('createdAt', descending: true).get();
 
       return querySnapshot.docs
           .map((doc) => AIProcessingJobModel.fromFirestore(doc))
@@ -93,9 +96,9 @@ class AIProcessingFirestoreDataSourceImpl
   @override
   Future<void> updateProcessingJob(AIProcessingJobModel job) async {
     try {
-      await _getUserProcessingCollection(job.userId)
-          .doc(job.id)
-          .update(job.toFirestore());
+      await _getUserProcessingCollection(
+        job.userId,
+      ).doc(job.id).update(job.toFirestore());
     } on FirebaseException catch (e) {
       throw ServerException('Failed to update processing job: ${e.message}');
     } catch (e) {
@@ -117,10 +120,9 @@ class AIProcessingFirestoreDataSourceImpl
   @override
   Stream<AIProcessingJobModel> watchProcessingJob(String userId, String jobId) {
     try {
-      return _getUserProcessingCollection(userId)
-          .doc(jobId)
-          .snapshots()
-          .map((doc) {
+      return _getUserProcessingCollection(userId).doc(jobId).snapshots().map((
+        doc,
+      ) {
         if (!doc.exists || doc.data() == null) {
           throw const CacheException('Processing job not found');
         }
@@ -136,17 +138,17 @@ class AIProcessingFirestoreDataSourceImpl
   @override
   Stream<List<AIProcessingJobModel>> watchUserProcessingJobs(String userId) {
     try {
-      return _getUserProcessingCollection(userId)
-          .orderBy('createdAt', descending: true)
-          .snapshots()
-          .map((querySnapshot) {
+      return _getUserProcessingCollection(
+        userId,
+      ).orderBy('createdAt', descending: true).snapshots().map((querySnapshot) {
         return querySnapshot.docs
             .map((doc) => AIProcessingJobModel.fromFirestore(doc))
             .toList();
       });
     } on FirebaseException catch (e) {
       throw ServerException(
-          'Failed to watch user processing jobs: ${e.message}');
+        'Failed to watch user processing jobs: ${e.message}',
+      );
     } catch (e) {
       throw ServerException('Failed to watch user processing jobs: $e');
     }

@@ -44,7 +44,8 @@ class UserModel extends User {
       displayName: firebaseUser.displayName,
       photoUrl: firebaseUser.photoURL,
       isEmailVerified: firebaseUser.emailVerified,
-      createdAt: firebaseUser.metadata.creationTime?.toIso8601String() ??
+      createdAt:
+          firebaseUser.metadata.creationTime?.toIso8601String() ??
           DateTime.now().toIso8601String(),
       customClaims: const {}, // Default to empty map
     );
@@ -61,7 +62,8 @@ class UserModel extends User {
       displayName: firebaseUser.displayName,
       photoUrl: firebaseUser.photoURL,
       isEmailVerified: firebaseUser.emailVerified,
-      createdAt: firebaseUser.metadata.creationTime?.toIso8601String() ??
+      createdAt:
+          firebaseUser.metadata.creationTime?.toIso8601String() ??
           DateTime.now().toIso8601String(),
       customClaims: customClaims,
     );

@@ -18,21 +18,21 @@ class AuthenticationBloc
   AuthenticationBloc({
     required GetAuthStateChangesUseCase getAuthStateChanges,
     required SignOutUseCase signOut,
-  })  : _getAuthStateChanges = getAuthStateChanges,
-        _signOut = signOut,
-        super(const AuthenticationState.unknown()) {
+  }) : _getAuthStateChanges = getAuthStateChanges,
+       _signOut = signOut,
+       super(const AuthenticationState.unknown()) {
     debugPrint(
-        'AuthenticationBloc: Initializing and subscribing to auth state changes');
+      'AuthenticationBloc: Initializing and subscribing to auth state changes',
+    );
     on<AuthenticationStatusChanged>(_onAuthenticationStatusChanged);
     on<AuthenticationLogoutRequested>(_onAuthenticationLogoutRequested);
 
-    _authStateSubscription = _getAuthStateChanges().listen(
-      (user) {
-        debugPrint(
-            'AuthenticationBloc: Auth state changed, user = \\${user?.email ?? "null"}');
-        add(AuthenticationStatusChanged(user));
-      },
-    );
+    _authStateSubscription = _getAuthStateChanges().listen((user) {
+      debugPrint(
+        'AuthenticationBloc: Auth state changed, user = \\${user?.email ?? "null"}',
+      );
+      add(AuthenticationStatusChanged(user));
+    });
   }
 
   final GetAuthStateChangesUseCase _getAuthStateChanges;

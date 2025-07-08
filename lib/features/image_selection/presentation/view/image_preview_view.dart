@@ -31,23 +31,16 @@ class ImagePreviewView extends StatelessWidget {
     return BlocProvider(
       create: (_) => ImagePreviewCubit()..loadImage(file: file, bytes: bytes),
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-          centerTitle: true,
-        ),
+        appBar: AppBar(title: Text(title), centerTitle: true),
         body: BlocBuilder<ImagePreviewCubit, ImagePreviewState>(
           builder: (context, state) {
             if (state is ImagePreviewLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             }
             if (state is ImagePreviewLoaded) {
               final imageBytes = state.bytes;
               if (imageBytes == null) {
-                return const Center(
-                  child: Text('No image data to display'),
-                );
+                return const Center(child: Text('No image data to display'));
               }
               return Center(
                 child: InteractiveViewer(
@@ -74,11 +67,10 @@ class ImagePreviewView extends StatelessWidget {
                     const SizedBox(height: 16),
                     Text(
                       'Error loading image',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
+                      style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
-                              color: Theme.of(context).colorScheme.error),
+                            color: Theme.of(context).colorScheme.error,
+                          ),
                     ),
                     const SizedBox(height: 8),
                     Padding(
@@ -100,9 +92,7 @@ class ImagePreviewView extends StatelessWidget {
               );
             }
             // Initial or fallback state
-            return const Center(
-              child: Text('Preparing to load image...'),
-            );
+            return const Center(child: Text('Preparing to load image...'));
           },
         ),
       ),

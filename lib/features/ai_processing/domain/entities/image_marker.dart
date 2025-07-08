@@ -35,14 +35,14 @@ class ImageMarker extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        label,
-        markerType,
-        boundingBox,
-        segmentationMask,
-        confidence,
-        coordinates,
-      ];
+    id,
+    label,
+    markerType,
+    boundingBox,
+    segmentationMask,
+    confidence,
+    coordinates,
+  ];
 
   /// Factory constructor for user-defined point markers
   factory ImageMarker.userPoint({
@@ -146,8 +146,10 @@ class ImageMarker extends Equatable {
 
       case MarkerType.aiDetection:
         if (boundingBox == null) return false;
-        final absoluteBox =
-            boundingBox!.toAbsoluteCoordinates(imageWidth, imageHeight);
+        final absoluteBox = boundingBox!.toAbsoluteCoordinates(
+          imageWidth,
+          imageHeight,
+        );
         return x >= absoluteBox.x0 &&
             x <= absoluteBox.x1 &&
             y >= absoluteBox.y0 &&
@@ -155,8 +157,12 @@ class ImageMarker extends Equatable {
 
       case MarkerType.aiSegmentation:
         if (segmentationMask == null) return false;
-        return segmentationMask!
-            .containsPoint(x.round(), y.round(), imageWidth, imageHeight);
+        return segmentationMask!.containsPoint(
+          x.round(),
+          y.round(),
+          imageWidth,
+          imageHeight,
+        );
     }
   }
 

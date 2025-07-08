@@ -30,8 +30,9 @@ class SystemHealthMonitor {
   bool isSystemHealthy(List<ErrorEvent> recentErrors, bool hasActiveAlerts) {
     if (hasActiveAlerts) return false;
 
-    final criticalErrors =
-        recentErrors.where((e) => e.severity == ErrorSeverity.critical).length;
+    final criticalErrors = recentErrors
+        .where((e) => e.severity == ErrorSeverity.critical)
+        .length;
 
     return criticalErrors == 0 &&
         recentErrors.length <
@@ -40,10 +41,12 @@ class SystemHealthMonitor {
 
   /// Detect cascading failure patterns
   CascadingFailureAnalysis analyzeCascadingFailures(
-      List<ErrorEvent> recentErrors) {
+    List<ErrorEvent> recentErrors,
+  ) {
     final uniqueErrorTypes = recentErrors.map((e) => e.errorKey).toSet();
 
-    final isCascadingFailure = uniqueErrorTypes.length >=
+    final isCascadingFailure =
+        uniqueErrorTypes.length >=
             ErrorMonitoringConstants.cascadingFailureMinErrorTypes &&
         recentErrors.length >=
             ErrorMonitoringConstants.cascadingFailureMinErrors;
@@ -75,11 +78,13 @@ class SystemHealthMonitor {
       errorsByType[error.errorKey] = (errorsByType[error.errorKey] ?? 0) + 1;
     }
 
-    final dominantCategory =
-        errorsByCategory.entries.reduce((a, b) => a.value > b.value ? a : b);
+    final dominantCategory = errorsByCategory.entries.reduce(
+      (a, b) => a.value > b.value ? a : b,
+    );
 
-    final dominantSeverity =
-        errorsBySeverity.entries.reduce((a, b) => a.value > b.value ? a : b);
+    final dominantSeverity = errorsBySeverity.entries.reduce(
+      (a, b) => a.value > b.value ? a : b,
+    );
 
     return ErrorPatternAnalysis(
       totalErrors: errors.length,
@@ -137,7 +142,8 @@ class SystemHealthMonitor {
   }
 
   Map<ErrorCategory, double> _calculateErrorDistribution(
-      List<ErrorEvent> errors) {
+    List<ErrorEvent> errors,
+  ) {
     if (errors.isEmpty) return {};
 
     final distribution = <ErrorCategory, int>{};

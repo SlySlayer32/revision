@@ -1,6 +1,7 @@
 # Linguistic Prompt Engineering: Best Practices for AI Instructions
 
 ## Table of Contents
+
 1. [Core Principles](#core-principles)
 2. [Linguistic Structure Guidelines](#linguistic-structure-guidelines)
 3. [Instruction Types and Contexts](#instruction-types-and-contexts)
@@ -12,18 +13,21 @@
 ## Core Principles
 
 ### 1. Clarity and Specificity
+
 - **Short, Self-Contained Statements**: Each instruction should be a single, simple statement
 - **Avoid External References**: Don't reference external resources like style guides or documentation
 - **Be Specific, Not Vague**: Use concrete language rather than abstract concepts
 - **Unambiguous Language**: Ensure instructions have only one interpretation
 
 ### 2. Structural Organization
+
 - **Use Markdown Structure**: Organize with headers, lists, and clear sections
 - **Separate Instructions**: Use whitespace and formatting to separate distinct instructions
 - **Logical Grouping**: Group related instructions together
 - **Hierarchical Organization**: Use header levels to show instruction priority
 
 ### 3. Cognitive Alignment
+
 - **Human-Readable Format**: Instructions should make sense to both AI and humans
 - **Natural Language Patterns**: Use familiar sentence structures and vocabulary
 - **Context-Aware Phrasing**: Consider how instructions relate to the development workflow
@@ -33,6 +37,7 @@
 ### Effective Instruction Patterns
 
 #### ✅ DO: Use Imperative Voice
+
 ```markdown
 Use TypeScript for all new components.
 Add comprehensive JSDoc comments to all functions.
@@ -40,6 +45,7 @@ Follow the BLoC pattern for state management.
 ```
 
 #### ✅ DO: Be Positively Directive
+
 ```markdown
 When creating forms, use react-hook-form with TypeScript validation.
 For API calls, implement proper error handling with try-catch blocks.
@@ -47,6 +53,7 @@ Include unit tests for all business logic functions.
 ```
 
 #### ❌ DON'T: Use Negative Instructions
+
 ```markdown
 Don't use any as a TypeScript type.
 Avoid creating components without proper documentation.
@@ -54,6 +61,7 @@ Never skip error handling.
 ```
 
 #### ✅ DO: Provide Context and Purpose
+
 ```markdown
 When implementing authentication:
 - Use JWT tokens for session management
@@ -69,6 +77,7 @@ For Firebase integration:
 ### Language Patterns That Work
 
 #### Specificity Over Generality
+
 ```markdown
 # ✅ Specific and Actionable
 Use double quotes for TypeScript string literals.
@@ -82,6 +91,7 @@ Organize code files appropriately.
 ```
 
 #### Clear Technical Requirements
+
 ```markdown
 # ✅ Clear Technical Instructions
 For Flutter BLoC implementations:
@@ -98,6 +108,7 @@ For API integration:
 ## Instruction Types and Contexts
 
 ### 1. Code Generation Instructions
+
 Focus on specific patterns, conventions, and requirements:
 
 ```markdown
@@ -117,6 +128,7 @@ For state management:
 ```
 
 ### 2. Project Structure Instructions
+
 Define clear organizational patterns:
 
 ```markdown
@@ -130,6 +142,7 @@ Follow feature-first directory structure:
 ```
 
 ### 3. Testing and Quality Instructions
+
 Specify testing requirements and patterns:
 
 ```markdown
@@ -201,12 +214,15 @@ For every new feature:
 ## Common Pitfalls
 
 ### 1. Overly Complex Instructions
+
 ❌ **Don't**: Write instructions that require multiple interpretation steps
+
 ```markdown
 Implement comprehensive error handling throughout the application following industry best practices and ensuring user experience remains optimal across all error scenarios while maintaining proper logging and monitoring capabilities.
 ```
 
 ✅ **Do**: Break down into specific, actionable instructions
+
 ```markdown
 For error handling:
 - Wrap async operations in try-catch blocks
@@ -216,7 +232,9 @@ For error handling:
 ```
 
 ### 2. External Dependencies
+
 ❌ **Don't**: Reference external resources
+
 ```markdown
 Follow the React style guide at reactjs.org/docs/
 Use the TypeScript patterns from the official handbook
@@ -224,6 +242,7 @@ Implement testing according to the Jest documentation
 ```
 
 ✅ **Do**: Include the specific requirements directly
+
 ```markdown
 React component conventions:
 - Use PascalCase for component names
@@ -232,7 +251,9 @@ React component conventions:
 ```
 
 ### 3. Subjective Style Requirements
+
 ❌ **Don't**: Use vague style preferences
+
 ```markdown
 Write clean, readable code with proper formatting
 Use intuitive naming conventions
@@ -240,6 +261,7 @@ Follow modern JavaScript practices
 ```
 
 ✅ **Do**: Specify concrete requirements
+
 ```markdown
 Naming conventions:
 - Use camelCase for variables and functions
@@ -251,6 +273,7 @@ Naming conventions:
 ## Advanced Techniques
 
 ### 1. Contextual Instructions
+
 Use file patterns to apply specific instructions:
 
 ```markdown
@@ -270,6 +293,7 @@ For API service files:
 ```
 
 ### 2. Conditional Logic
+
 Provide branching instructions for different scenarios:
 
 ```markdown
@@ -287,6 +311,7 @@ When working with data:
 ```
 
 ### 3. Progressive Enhancement
+
 Layer instructions from basic to advanced:
 
 ```markdown

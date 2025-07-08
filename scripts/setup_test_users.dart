@@ -36,11 +36,10 @@ Future<void> main() async {
     } else {
       // Start emulators
       print('🚀 Starting Firebase emulators...');
-      await Process.start(
-        'firebase',
-        ['emulators:start', '--only=auth,ui'],
-        mode: ProcessStartMode.detached,
-      );
+      await Process.start('firebase', [
+        'emulators:start',
+        '--only=auth,ui',
+      ], mode: ProcessStartMode.detached);
       // Wait for emulators to start
       await Future<void>.delayed(const Duration(seconds: 8));
     }
@@ -147,9 +146,7 @@ Future<void> _createTestUsersViaAPI() async {
 Future<bool> _checkEmulatorHealth() async {
   try {
     final client = HttpClient();
-    final request = await client.getUrl(
-      Uri.parse('http://localhost:9099/'),
-    );
+    final request = await client.getUrl(Uri.parse('http://localhost:9099/'));
     request.headers.add('Accept', 'application/json');
     final response = await request.close();
     client.close();

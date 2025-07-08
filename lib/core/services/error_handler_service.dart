@@ -230,10 +230,7 @@ class ErrorHandlerService {
   /// Shows info snackbar
   void _showInfoSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 3),
-      ),
+      SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
     );
   }
 
@@ -315,11 +312,7 @@ class ErrorHandlerService {
 }
 
 /// Error category for determining user feedback type
-enum ErrorCategory {
-  info,
-  warning,
-  critical,
-}
+enum ErrorCategory { info, warning, critical }
 
 /// Error information for structured error handling
 class ErrorInfo {

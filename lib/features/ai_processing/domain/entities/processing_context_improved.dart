@@ -33,27 +33,25 @@ class ProcessingContext extends Equatable {
   /// Factory constructor for quick image enhancement
   factory ProcessingContext.quickEnhance({
     List<ImageMarker> markers = const [],
-  }) =>
-      ProcessingContext(
-        processingType: ProcessingType.enhance,
-        qualityLevel: QualityLevel.standard,
-        performancePriority: PerformancePriority.speed,
-        markers: markers,
-      );
+  }) => ProcessingContext(
+    processingType: ProcessingType.enhance,
+    qualityLevel: QualityLevel.standard,
+    performancePriority: PerformancePriority.speed,
+    markers: markers,
+  );
 
   /// Factory constructor for professional quality editing
   factory ProcessingContext.professionalEdit({
     required ProcessingType type,
     List<ImageMarker> markers = const [],
     String? customInstructions,
-  }) =>
-      ProcessingContext(
-        processingType: type,
-        qualityLevel: QualityLevel.professional,
-        performancePriority: PerformancePriority.quality,
-        markers: markers,
-        customInstructions: customInstructions,
-      );
+  }) => ProcessingContext(
+    processingType: type,
+    qualityLevel: QualityLevel.professional,
+    performancePriority: PerformancePriority.quality,
+    markers: markers,
+    customInstructions: customInstructions,
+  );
 
   /// Factory constructor for artistic transformations
   factory ProcessingContext.artisticTransform({
@@ -61,14 +59,13 @@ class ProcessingContext extends Equatable {
     QualityLevel quality = QualityLevel.high,
     List<ImageMarker> markers = const [],
     String? customInstructions,
-  }) =>
-      ProcessingContext(
-        processingType: type,
-        qualityLevel: quality,
-        performancePriority: PerformancePriority.balanced,
-        markers: markers,
-        customInstructions: customInstructions,
-      );
+  }) => ProcessingContext(
+    processingType: type,
+    qualityLevel: quality,
+    performancePriority: PerformancePriority.balanced,
+    markers: markers,
+    customInstructions: customInstructions,
+  );
 
   final ProcessingType processingType;
   final QualityLevel qualityLevel;
@@ -131,7 +128,10 @@ class ProcessingContext extends Equatable {
     }
 
     return _isValidCombination(
-        processingType, qualityLevel, performancePriority);
+      processingType,
+      qualityLevel,
+      performancePriority,
+    );
   }
 
   /// Returns estimated processing time in seconds based on configuration
@@ -167,15 +167,15 @@ class ProcessingContext extends Equatable {
 
   @override
   List<Object?> get props => [
-        processingType,
-        qualityLevel,
-        performancePriority,
-        markers,
-        customInstructions,
-        targetFormat,
-        promptSystemInstructions,
-        editSystemInstructions,
-      ];
+    processingType,
+    qualityLevel,
+    performancePriority,
+    markers,
+    customInstructions,
+    targetFormat,
+    promptSystemInstructions,
+    editSystemInstructions,
+  ];
 
   @override
   String toString() {

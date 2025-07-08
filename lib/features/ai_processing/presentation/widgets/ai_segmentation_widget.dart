@@ -9,10 +9,7 @@ import 'package:revision/features/image_selection/domain/entities/selected_image
 /// AI segmentation, following the spatial understanding approach from
 /// the Gemini Cookbook.
 class AISegmentationWidget extends StatefulWidget {
-  const AISegmentationWidget({
-    required this.selectedImage,
-    super.key,
-  });
+  const AISegmentationWidget({required this.selectedImage, super.key});
 
   final SelectedImage selectedImage;
 
@@ -42,10 +39,7 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
           children: [
             const Text(
               'AI Object Segmentation',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text(
@@ -104,9 +98,11 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.auto_awesome),
-                label: Text(_isSegmenting
-                    ? 'Detecting Objects...'
-                    : 'Start AI Segmentation'),
+                label: Text(
+                  _isSegmenting
+                      ? 'Detecting Objects...'
+                      : 'Start AI Segmentation',
+                ),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
@@ -117,10 +113,7 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
             // Help text
             const Text(
               'AI will analyze your image and create precise masks for object removal or editing.',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
         ),
@@ -155,7 +148,8 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
         result.when(
           success: (segmentationResult) {
             _showSuccessMessage(
-                'Successfully detected ${segmentationResult.masks.length} objects!');
+              'Successfully detected ${segmentationResult.masks.length} objects!',
+            );
             // TODO: Navigate to mask editing interface or display results
           },
           failure: (error) {
@@ -177,10 +171,7 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
   void _showErrorMessage(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
       );
     }
   }
@@ -188,10 +179,7 @@ class _AISegmentationWidgetState extends State<AISegmentationWidget> {
   void _showSuccessMessage(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.green,
-        ),
+        SnackBar(content: Text(message), backgroundColor: Colors.green),
       );
     }
   }

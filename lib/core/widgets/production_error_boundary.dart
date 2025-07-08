@@ -15,7 +15,7 @@ class ProductionErrorBoundary extends StatefulWidget {
   final Widget child;
   final void Function(Object error, StackTrace stackTrace)? onError;
   final Widget Function(Object error, StackTrace stackTrace)?
-      errorWidgetBuilder;
+  errorWidgetBuilder;
   final bool Function(Object error)? shouldReportError;
 
   @override
@@ -95,8 +95,9 @@ class _ProductionErrorBoundaryState extends State<ProductionErrorBoundary> {
 
   Widget _buildDefaultErrorWidget() {
     final isRecoverable = _error != null && _isUserRecoverable(_error!);
-    final errorCategory =
-        _error != null ? _categorizeError(_error!) : 'unknown';
+    final errorCategory = _error != null
+        ? _categorizeError(_error!)
+        : 'unknown';
 
     return Scaffold(
       appBar: AppBar(
@@ -117,9 +118,9 @@ class _ProductionErrorBoundaryState extends State<ProductionErrorBoundary> {
             const SizedBox(height: 24),
             Text(
               _getErrorTitle(errorCategory),
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -135,8 +136,10 @@ class _ProductionErrorBoundaryState extends State<ProductionErrorBoundary> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue[600],
                   foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
                 ),
                 child: const Text('Try Again'),
               ),
@@ -145,8 +148,9 @@ class _ProductionErrorBoundaryState extends State<ProductionErrorBoundary> {
             TextButton(
               onPressed: () {
                 // Navigate to home or safe screen
-                Navigator.of(context)
-                    .pushNamedAndRemoveUntil('/', (route) => false);
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil('/', (route) => false);
               },
               child: const Text('Go to Home'),
             ),
@@ -156,9 +160,9 @@ class _ProductionErrorBoundaryState extends State<ProductionErrorBoundary> {
               const SizedBox(height: 16),
               Text(
                 'Error ID: ${DateTime.now().millisecondsSinceEpoch}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
               ),
             ],
           ],
@@ -243,10 +247,7 @@ class _ProductionErrorBoundaryState extends State<ProductionErrorBoundary> {
 
 /// Convenient wrapper for wrapping routes with error boundary
 class ErrorBoundaryWrapper extends StatelessWidget {
-  const ErrorBoundaryWrapper({
-    required this.child,
-    super.key,
-  });
+  const ErrorBoundaryWrapper({required this.child, super.key});
 
   final Widget child;
 
@@ -255,8 +256,11 @@ class ErrorBoundaryWrapper extends StatelessWidget {
     return ProductionErrorBoundary(
       onError: (error, stackTrace) {
         // Global error reporting logic
-        logger.error('Global Error Handler: $error',
-            error: error, stackTrace: stackTrace);
+        logger.error(
+          'Global Error Handler: $error',
+          error: error,
+          stackTrace: stackTrace,
+        );
       },
       shouldReportError: (error) {
         // Don't report certain types of errors to reduce noise

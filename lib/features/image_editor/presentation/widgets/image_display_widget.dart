@@ -5,10 +5,7 @@ import 'package:revision/features/image_selection/domain/entities/selected_image
 
 /// Simple widget to display a selected image for MVP
 class ImageDisplayWidget extends StatelessWidget {
-  const ImageDisplayWidget({
-    required this.selectedImage,
-    super.key,
-  });
+  const ImageDisplayWidget({required this.selectedImage, super.key});
 
   final SelectedImage selectedImage;
 
@@ -19,9 +16,7 @@ class ImageDisplayWidget extends StatelessWidget {
       height: 300,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline,
-        ),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),

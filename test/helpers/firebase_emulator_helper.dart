@@ -67,11 +67,8 @@ class FirebaseEmulatorHelper {
     String? displayName,
   }) async {
     try {
-      final userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
 
       if (displayName != null && userCredential.user != null) {
         await userCredential.user!.updateDisplayName(displayName);
@@ -91,11 +88,8 @@ class FirebaseEmulatorHelper {
     required String password,
   }) async {
     try {
-      final userCredential =
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      final userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
 
       debugPrint('Test user signed in: $email');
       return userCredential.user;

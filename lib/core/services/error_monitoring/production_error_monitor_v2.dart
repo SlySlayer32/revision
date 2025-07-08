@@ -13,18 +13,19 @@ class ProductionErrorMonitorV2 {
   ProductionErrorMonitorV2._({
     required ErrorMonitoringConfig config,
     required EnhancedLogger logger,
-  })  : _config = config,
-        _logger = logger,
-        _classifier = const ErrorClassifier(),
-        _alertManager = ErrorAlertManager(logger: logger),
-        _healthMonitor = const SystemHealthMonitor();
+  }) : _config = config,
+       _logger = logger,
+       _classifier = const ErrorClassifier(),
+       _alertManager = ErrorAlertManager(logger: logger),
+       _healthMonitor = const SystemHealthMonitor();
 
   static ProductionErrorMonitorV2? _instance;
 
   static ProductionErrorMonitorV2 get instance {
     if (_instance == null) {
       throw StateError(
-          'ProductionErrorMonitorV2 not initialized. Call initialize() first.');
+        'ProductionErrorMonitorV2 not initialized. Call initialize() first.',
+      );
     }
     return _instance!;
   }
@@ -264,11 +265,13 @@ class ProductionErrorMonitorV2 {
 
     return sorted
         .take(_config.maxFrequentErrorsToShow)
-        .map((entry) => {
-              'error_key': entry.key,
-              'count': entry.value,
-              'last_occurrence': _lastErrorTimes[entry.key]?.toIso8601String(),
-            })
+        .map(
+          (entry) => {
+            'error_key': entry.key,
+            'count': entry.value,
+            'last_occurrence': _lastErrorTimes[entry.key]?.toIso8601String(),
+          },
+        )
         .toList();
   }
 }
@@ -310,8 +313,11 @@ class ErrorStatistics {
 
 /// Extension for easy error recording
 extension ErrorRecordingV2 on Object {
-  void recordError(String context,
-      {StackTrace? stackTrace, Map<String, dynamic>? metadata}) {
+  void recordError(
+    String context, {
+    StackTrace? stackTrace,
+    Map<String, dynamic>? metadata,
+  }) {
     ProductionErrorMonitorV2.instance.recordError(
       error: this,
       stackTrace: stackTrace ?? StackTrace.current,

@@ -30,8 +30,8 @@ class HomePage extends StatelessWidget {
             icon: const Icon(Icons.logout),
             onPressed: () {
               context.read<AuthenticationBloc>().add(
-                    const AuthenticationLogoutRequested(),
-                  );
+                const AuthenticationLogoutRequested(),
+              );
             },
           ),
         ],
@@ -81,7 +81,8 @@ class HomePage extends StatelessWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
-                              'REST API integration ready! Add your GEMINI_API_KEY to .env file'),
+                            'REST API integration ready! Add your GEMINI_API_KEY to .env file',
+                          ),
                           duration: Duration(seconds: 3),
                         ),
                       );

@@ -102,17 +102,15 @@ class LaunchConfigVerificationPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-                'Firebase AI Configured: ${EnvConfig.isFirebaseAIConfigured ? 'Yes' : 'No'}'),
+              'Firebase AI Configured: ${EnvConfig.isFirebaseAIConfigured ? 'Yes' : 'No'}',
+            ),
             const Text('API keys are managed by Firebase Console'),
             if (EnvConfig.isFirebaseAIConfigured) ...[
               const Text('✅ Firebase AI Logic is properly configured'),
               const SizedBox(height: 4),
               const Text(
                 'Using Firebase-managed API keys (recommended)',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.green,
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.green),
               ),
             ],
           ],
@@ -203,7 +201,9 @@ class LaunchConfigVerificationPage extends StatelessWidget {
                   Text(
                     '✅ Web Configuration Fixed!',
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.green),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
                   ),
                   SizedBox(height: 4),
                   Text('• Removed deprecated --web-renderer flag'),

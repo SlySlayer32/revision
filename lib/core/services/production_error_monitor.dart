@@ -82,8 +82,9 @@ class ProductionErrorMonitor {
 
   void _detectCascadingFailures() {
     final recentErrors = _getRecentErrors(const Duration(minutes: 2));
-    final uniqueErrorTypes =
-        recentErrors.map((e) => _getErrorKey(e.error)).toSet();
+    final uniqueErrorTypes = recentErrors
+        .map((e) => _getErrorKey(e.error))
+        .toSet();
 
     if (uniqueErrorTypes.length >= 3 && recentErrors.length >= 8) {
       logger.error(
@@ -149,7 +150,8 @@ class ProductionErrorMonitor {
     if (error is CircuitBreakerOpenException) return 'circuit_breaker';
     if (error is StorageException) return 'storage';
     if (error is FirebaseInitializationException ||
-        error is FirebaseAIException) return 'firebase';
+        error is FirebaseAIException)
+      return 'firebase';
     return 'unknown';
   }
 
@@ -208,11 +210,13 @@ class ProductionErrorMonitor {
 
     return sorted
         .take(5)
-        .map((entry) => {
-              'error_key': entry.key,
-              'count': entry.value,
-              'last_occurrence': _lastErrorTimes[entry.key]?.toIso8601String(),
-            })
+        .map(
+          (entry) => {
+            'error_key': entry.key,
+            'count': entry.value,
+            'last_occurrence': _lastErrorTimes[entry.key]?.toIso8601String(),
+          },
+        )
         .toList();
   }
 
@@ -234,10 +238,11 @@ class ProductionErrorMonitor {
     if (recentErrors.isEmpty) return 100;
 
     final maxErrors = 20;
-    final score = ((maxErrors - recentErrors.length.clamp(0, maxErrors)) /
-            maxErrors *
-            100)
-        .round();
+    final score =
+        ((maxErrors - recentErrors.length.clamp(0, maxErrors)) /
+                maxErrors *
+                100)
+            .round();
     return score.clamp(0, 100);
   }
 
@@ -278,8 +283,11 @@ class ErrorEvent {
 
 /// Extension to easily record errors
 extension ErrorRecording on Object {
-  void recordError(String context,
-      {StackTrace? stackTrace, Map<String, dynamic>? metadata}) {
+  void recordError(
+    String context, {
+    StackTrace? stackTrace,
+    Map<String, dynamic>? metadata,
+  }) {
     ProductionErrorMonitor.instance.recordError(
       error: this,
       stackTrace: stackTrace ?? StackTrace.current,

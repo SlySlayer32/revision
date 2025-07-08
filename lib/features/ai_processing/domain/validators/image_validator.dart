@@ -50,7 +50,9 @@ class ImageValidator {
       final message = AIProcessingConstants.tooManyMarkedAreasTemplate
           .replaceAll('{count}', markedAreas.length.toString())
           .replaceAll(
-              '{max}', AIProcessingConstants.maxMarkedAreasCount.toString());
+            '{max}',
+            AIProcessingConstants.maxMarkedAreasCount.toString(),
+          );
 
       return Failure(MarkedAreaValidationException(message));
     }

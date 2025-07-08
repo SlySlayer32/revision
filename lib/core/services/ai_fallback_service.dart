@@ -16,8 +16,10 @@ class AIFallbackService implements AIService {
       throw const ValidationException('Text prompt cannot be empty');
     }
 
-    logger.warning('Using fallback for processTextPrompt',
-        operation: 'FALLBACK');
+    logger.warning(
+      'Using fallback for processTextPrompt',
+      operation: 'FALLBACK',
+    );
 
     // Analyze the prompt to provide contextual response
     final analysis = _analyzePrompt(prompt);
@@ -49,8 +51,10 @@ Please try again in a moment when our AI service is fully available.
       throw const ValidationException('Image prompt cannot be empty');
     }
 
-    logger.warning('Using fallback for processImagePrompt',
-        operation: 'FALLBACK');
+    logger.warning(
+      'Using fallback for processImagePrompt',
+      operation: 'FALLBACK',
+    );
 
     // Analyze the prompt to provide contextual response
     final analysis = _analyzePrompt(prompt);
@@ -84,8 +88,10 @@ Please try again in a moment, or use these guidelines with your preferred editin
       throw const ValidationException('Image data cannot be empty');
     }
 
-    logger.warning('Using fallback for generateImageDescription',
-        operation: 'FALLBACK');
+    logger.warning(
+      'Using fallback for generateImageDescription',
+      operation: 'FALLBACK',
+    );
 
     // Basic image analysis based on file size and common patterns
     final sizeDescription = _getImageSizeDescription(imageData.length);
@@ -115,8 +121,10 @@ For detailed analysis, please try again when our AI service is fully available.
       throw const ValidationException('Image data cannot be empty');
     }
 
-    logger.warning('Using fallback for suggestImageEdits',
-        operation: 'FALLBACK');
+    logger.warning(
+      'Using fallback for suggestImageEdits',
+      operation: 'FALLBACK',
+    );
 
     return [
       'Enhance overall brightness and exposure for better visibility',
@@ -134,8 +142,10 @@ For detailed analysis, please try again when our AI service is fully available.
       throw const ValidationException('Image data cannot be empty');
     }
 
-    logger.warning('Using fallback for checkContentSafety - defaulting to safe',
-        operation: 'FALLBACK');
+    logger.warning(
+      'Using fallback for checkContentSafety - defaulting to safe',
+      operation: 'FALLBACK',
+    );
 
     // Default to safe when we can't analyze
     // In a production app, you might want to be more conservative
@@ -152,8 +162,10 @@ For detailed analysis, please try again when our AI service is fully available.
       throw const ValidationException('Image data cannot be empty');
     }
 
-    logger.warning('Using fallback for generateEditingPrompt',
-        operation: 'FALLBACK');
+    logger.warning(
+      'Using fallback for generateEditingPrompt',
+      operation: 'FALLBACK',
+    );
 
     if (markers.isEmpty) {
       return 'Enhance this image by improving overall quality, adjusting lighting, and optimizing composition for a more professional appearance.';
@@ -194,8 +206,10 @@ Remove $markerCount marked object${markerCount > 1 ? 's' : ''} at coordinates: $
       throw const ValidationException('Editing prompt cannot be empty');
     }
 
-    logger.warning('Using fallback for processImageWithAI - returning original',
-        operation: 'FALLBACK');
+    logger.warning(
+      'Using fallback for processImageWithAI - returning original',
+      operation: 'FALLBACK',
+    );
 
     // When AI processing fails, return the original image
     // In a real production app, you might want to apply basic automated enhancements
@@ -294,12 +308,21 @@ class AIServiceSelector {
         logger.info('Using fallback service for $operationName');
         final result = await operation(fallbackService);
         _logFallbackUsage(
-            operationName, primaryError, secondaryError, startTime);
+          operationName,
+          primaryError,
+          secondaryError,
+          startTime,
+        );
         return result;
       } catch (e3) {
         final fallbackError = e3 is Exception ? e3 : Exception(e3.toString());
-        _logCompleteFailure(operationName, primaryError, secondaryError,
-            fallbackError, startTime);
+        _logCompleteFailure(
+          operationName,
+          primaryError,
+          secondaryError,
+          fallbackError,
+          startTime,
+        );
         rethrow;
       }
     }
@@ -307,15 +330,23 @@ class AIServiceSelector {
 
   /// Log successful operation metrics
   void _logSuccessMetrics(
-      String operationName, String serviceType, DateTime startTime) {
+    String operationName,
+    String serviceType,
+    DateTime startTime,
+  ) {
     final duration = DateTime.now().difference(startTime);
     logger.info(
-        '✅ $operationName completed via $serviceType service in ${duration.inMilliseconds}ms');
+      '✅ $operationName completed via $serviceType service in ${duration.inMilliseconds}ms',
+    );
   }
 
   /// Log fallback service usage with context
-  void _logFallbackUsage(String operationName, Exception? primaryError,
-      Exception? secondaryError, DateTime startTime) {
+  void _logFallbackUsage(
+    String operationName,
+    Exception? primaryError,
+    Exception? secondaryError,
+    DateTime startTime,
+  ) {
     final duration = DateTime.now().difference(startTime);
     logger.warning(
       '⚠️ $operationName using FALLBACK after ${duration.inMilliseconds}ms. '
@@ -326,8 +357,13 @@ class AIServiceSelector {
   }
 
   /// Log complete service failure
-  void _logCompleteFailure(String operationName, Exception? primaryError,
-      Exception? secondaryError, Exception fallbackError, DateTime startTime) {
+  void _logCompleteFailure(
+    String operationName,
+    Exception? primaryError,
+    Exception? secondaryError,
+    Exception fallbackError,
+    DateTime startTime,
+  ) {
     final duration = DateTime.now().difference(startTime);
     logger.error(
       '🚨 COMPLETE FAILURE for $operationName after ${duration.inMilliseconds}ms. '

@@ -8,8 +8,10 @@ enum Environment {
 
   /// Get the current environment based on build configuration
   static Environment get current {
-    const env =
-        String.fromEnvironment('ENVIRONMENT', defaultValue: 'development');
+    const env = String.fromEnvironment(
+      'ENVIRONMENT',
+      defaultValue: 'development',
+    );
     switch (env.toLowerCase()) {
       case 'production':
         return Environment.production;

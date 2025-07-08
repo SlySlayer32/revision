@@ -18,7 +18,7 @@ class ProcessingControls extends StatefulWidget {
   final SelectedImage selectedImage;
   final AnnotatedImage? annotatedImage;
   final void Function(String prompt, ProcessingContext context)
-      onStartProcessing;
+  onStartProcessing;
 
   @override
   State<ProcessingControls> createState() => _ProcessingControlsState();
@@ -182,10 +182,7 @@ class _ProcessingControlsState extends State<ProcessingControls> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.labelMedium,
-        ),
+        Text(label, style: Theme.of(context).textTheme.labelMedium),
         const SizedBox(height: 4),
         DropdownButtonFormField<T>(
           value: value,

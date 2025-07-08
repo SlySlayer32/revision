@@ -54,7 +54,8 @@ class GeminiSpatialService {
 
       if (kDebugMode) {
         debugPrint(
-            '🔍 Object Location: Searching for ${objectTypes.join(', ')}');
+          '🔍 Object Location: Searching for ${objectTypes.join(', ')}',
+        );
       }
 
       final response = await _callGeminiSpatialAPI(
@@ -86,7 +87,8 @@ class GeminiSpatialService {
 
       if (kDebugMode) {
         debugPrint(
-            '🔍 Relationship Analysis: Analyzing relationships between ${objects.join(', ')}');
+          '🔍 Relationship Analysis: Analyzing relationships between ${objects.join(', ')}',
+        );
       }
 
       final response = await _callGeminiSpatialAPI(
@@ -110,7 +112,9 @@ class GeminiSpatialService {
 
   /// Builds spatial analysis prompt based on Gemini cookbook patterns
   String _buildSpatialPrompt(
-      String query, List<SpatialPoint>? referencePoints) {
+    String query,
+    List<SpatialPoint>? referencePoints,
+  ) {
     final buffer = StringBuffer();
 
     buffer.writeln('Analyze the spatial relationships in this image.');
@@ -118,9 +122,11 @@ class GeminiSpatialService {
     buffer.writeln();
     buffer.writeln('Please provide:');
     buffer.writeln(
-        '1. Object locations using coordinates (x, y as percentages of image dimensions)');
+      '1. Object locations using coordinates (x, y as percentages of image dimensions)',
+    );
     buffer.writeln(
-        '2. Spatial relationships (above, below, left, right, inside, outside)');
+      '2. Spatial relationships (above, below, left, right, inside, outside)',
+    );
     buffer.writeln('3. Relative distances and positioning');
     buffer.writeln('4. Any spatial context relevant to the query');
 
@@ -130,13 +136,15 @@ class GeminiSpatialService {
       for (int i = 0; i < referencePoints.length; i++) {
         final point = referencePoints[i];
         buffer.writeln(
-            'Point ${i + 1}: (${point.x}, ${point.y}) - ${point.label ?? 'Unknown'}');
+          'Point ${i + 1}: (${point.x}, ${point.y}) - ${point.label ?? 'Unknown'}',
+        );
       }
     }
 
     buffer.writeln();
-    buffer
-        .writeln('Format your response as JSON with the following structure:');
+    buffer.writeln(
+      'Format your response as JSON with the following structure:',
+    );
     buffer.writeln('''{
   "objects": [
     {
@@ -187,7 +195,8 @@ class GeminiSpatialService {
     final buffer = StringBuffer();
 
     buffer.writeln(
-        'Analyze the spatial relationships between these objects in the image:');
+      'Analyze the spatial relationships between these objects in the image:',
+    );
     for (final object in objects) {
       buffer.writeln('- $object');
     }
@@ -195,7 +204,8 @@ class GeminiSpatialService {
     buffer.writeln();
     buffer.writeln('Describe how each object relates spatially to the others.');
     buffer.writeln(
-        'Include relative positions, distances, and any containment relationships.');
+      'Include relative positions, distances, and any containment relationships.',
+    );
 
     return buffer.toString();
   }
@@ -230,7 +240,7 @@ class GeminiSpatialService {
               'location': {'x': 0.5, 'y': 0.3},
               'bounds': {'left': 0.4, 'top': 0.2, 'right': 0.6, 'bottom': 0.4},
               'confidence': 0.95,
-            }
+            },
           ],
           'relationships': [
             {
@@ -238,7 +248,7 @@ class GeminiSpatialService {
               'object2': 'object_b',
               'relationship': 'above',
               'distance': 'close',
-            }
+            },
           ],
           'summary': 'Spatial analysis completed successfully',
         };

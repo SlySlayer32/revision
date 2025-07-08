@@ -1,7 +1,2 @@
 /// Processing status enum
-enum ProcessingStatus {
-  pending,
-  processing,
-  completed,
-  failed,
-}
+enum ProcessingStatus { pending, processing, completed, failed }

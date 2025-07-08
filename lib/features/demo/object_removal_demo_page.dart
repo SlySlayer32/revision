@@ -102,9 +102,8 @@ class ObjectRemovalDemoPage extends StatelessWidget {
                     child: Text(
                       'Tip: Works best with clear objects like people, cars, or unwanted items',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
@@ -142,10 +141,7 @@ class ObjectRemovalDemoPage extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              description,
-              style: const TextStyle(fontSize: 14),
-            ),
+            child: Text(description, style: const TextStyle(fontSize: 14)),
           ),
         ],
       ),
@@ -154,9 +150,7 @@ class ObjectRemovalDemoPage extends StatelessWidget {
 
   void _navigateToImageSelection(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (context) => const ImageSelectionPage(),
-      ),
+      MaterialPageRoute<void>(builder: (context) => const ImageSelectionPage()),
     );
   }
 }

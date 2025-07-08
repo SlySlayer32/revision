@@ -62,10 +62,7 @@ class RouteFactory {
       pageBuilder: (context, animation, secondaryAnimation) => page,
       transitionDuration: duration,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return FadeTransition(
-          opacity: animation,
-          child: child,
-        );
+        return FadeTransition(opacity: animation, child: child);
       },
     );
   }
@@ -93,12 +90,11 @@ class RouteFactory {
       pageBuilder: (context, animation, secondaryAnimation) => page,
       transitionDuration: duration,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final tween = Tween(begin: beginOffset, end: Offset.zero)
-            .chain(CurveTween(curve: Curves.ease));
-        return SlideTransition(
-          position: animation.drive(tween),
-          child: child,
-        );
+        final tween = Tween(
+          begin: beginOffset,
+          end: Offset.zero,
+        ).chain(CurveTween(curve: Curves.ease));
+        return SlideTransition(position: animation.drive(tween), child: child);
       },
     );
   }
@@ -112,7 +108,8 @@ class RouteFactory {
       Animation<double> animation,
       Animation<double> secondaryAnimation,
       Widget child,
-    ) transitionsBuilder,
+    )
+    transitionsBuilder,
     RouteSettings? settings,
     Duration duration = const Duration(milliseconds: 300),
     Map<String, dynamic>? arguments,
@@ -145,7 +142,8 @@ class RouteFactory {
 
     if (kDebugMode && arguments != null) {
       debugPrint(
-          '⚠️ Route arguments type mismatch. Expected: $T, Got: ${arguments.runtimeType}');
+        '⚠️ Route arguments type mismatch. Expected: $T, Got: ${arguments.runtimeType}',
+      );
     }
 
     return null;

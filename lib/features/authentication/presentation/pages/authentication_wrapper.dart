@@ -18,21 +18,23 @@ class AuthenticationWrapper extends StatelessWidget {
       builder: (context, state) {
         debugPrint('AuthenticationWrapper: Auth status = ${state.status}');
         debugPrint(
-            'AuthenticationWrapper: User = ${state.user?.email ?? "null"}');
+          'AuthenticationWrapper: User = ${state.user?.email ?? "null"}',
+        );
 
         try {
           return AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: switch (state.status) {
-              AuthenticationStatus.authenticated => state.user != null
-                  ? const DashboardPage()
-                  : const Center(
-                      child: Text('Authentication error: User is null'),
-                    ),
+              AuthenticationStatus.authenticated =>
+                state.user != null
+                    ? const DashboardPage()
+                    : const Center(
+                        child: Text('Authentication error: User is null'),
+                      ),
               AuthenticationStatus.unauthenticated => const WelcomePage(),
               AuthenticationStatus.unknown => const Center(
-                  child: CircularProgressIndicator(),
-                ),
+                child: CircularProgressIndicator(),
+              ),
             },
           );
         } catch (e, stackTrace) {
@@ -55,8 +57,8 @@ class AuthenticationWrapper extends StatelessWidget {
                     onPressed: () {
                       // Trigger state refresh
                       context.read<AuthenticationBloc>().add(
-                            const AuthenticationLogoutRequested(),
-                          );
+                        const AuthenticationLogoutRequested(),
+                      );
                     },
                     child: const Text('Retry'),
                   ),

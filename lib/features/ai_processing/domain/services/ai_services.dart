@@ -18,7 +18,8 @@ abstract class PromptEngineeringService {
   });
 
   Future<List<PromptTemplate>> getTemplatesForContext(
-      ProcessingContext context);
+    ProcessingContext context,
+  );
 
   Future<String> optimizePromptForModel({
     required String prompt,
@@ -65,10 +66,7 @@ class ImageAnalysis {
 
 // Import the ValidationResult class
 class ValidationResult {
-  const ValidationResult({
-    required this.isValid,
-    this.issues = const [],
-  });
+  const ValidationResult({required this.isValid, this.issues = const []});
 
   final bool isValid;
   final List<ValidationIssue> issues;
@@ -86,8 +84,4 @@ class ValidationIssue {
   final String? suggestion;
 }
 
-enum ValidationIssueType {
-  error,
-  warning,
-  info,
-}
+enum ValidationIssueType { error, warning, info }

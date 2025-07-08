@@ -160,11 +160,7 @@ class ExceptionHandlerService {
     Map<String, dynamic>? context,
   }) {
     // Log the exception with context
-    log(
-      'Exception in $operation',
-      error: exception,
-      name: 'ExceptionHandler',
-    );
+    log('Exception in $operation', error: exception, name: 'ExceptionHandler');
 
     // Log additional context if provided
     if (context != null) {

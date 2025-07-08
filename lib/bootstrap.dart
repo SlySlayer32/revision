@@ -65,13 +65,17 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
         debugPrint('❌ CRITICAL: Bootstrap failed: $e');
         debugPrint('❌ Stack trace: $stackTrace');
         // Optionally, show an error screen
-        runApp(ErrorWidget.withDetails(
-            message: 'App failed to initialize: $e'));
+        runApp(
+          ErrorWidget.withDetails(message: 'App failed to initialize: $e'),
+        );
       }
     },
     (error, stackTrace) {
-      log('❌ Uncaught error in bootstrap: $error',
-          stackTrace: stackTrace, name: 'bootstrap_zone');
+      log(
+        '❌ Uncaught error in bootstrap: $error',
+        stackTrace: stackTrace,
+        name: 'bootstrap_zone',
+      );
     },
   );
 }
@@ -85,7 +89,8 @@ Future<void> _loadEnvironmentVariables() async {
     // Verify critical environment variables are loaded
     final geminiApiKey = dotenv.env['GEMINI_API_KEY'];
     debugPrint(
-        'bootstrap: GEMINI_API_KEY ${geminiApiKey != null && geminiApiKey.isNotEmpty ? "found" : "missing"}');
+      'bootstrap: GEMINI_API_KEY ${geminiApiKey != null && geminiApiKey.isNotEmpty ? "found" : "missing"}',
+    );
 
     if (geminiApiKey == null || geminiApiKey.isEmpty) {
       debugPrint('⚠️ GEMINI_API_KEY not found in environment variables');
@@ -93,7 +98,8 @@ Future<void> _loadEnvironmentVariables() async {
     }
   } catch (e) {
     debugPrint(
-        'bootstrap: Environment variables load failed or already loaded: $e');
+      'bootstrap: Environment variables load failed or already loaded: $e',
+    );
     debugPrint('⚠️ Will attempt to use dart-define fallbacks');
   }
 }
@@ -102,7 +108,8 @@ Future<void> _initializeFirebase() async {
   try {
     debugPrint('_initializeFirebase: Starting Firebase initialization...');
     debugPrint(
-        '_initializeFirebase: Environment is ${EnvironmentDetector.environmentString}');
+      '_initializeFirebase: Environment is ${EnvironmentDetector.environmentString}',
+    );
 
     // Log Firebase configuration debug info
     final firebaseDebugInfo = DefaultFirebaseOptions.getDebugInfo();
@@ -111,7 +118,8 @@ Future<void> _initializeFirebase() async {
     // Check if Firebase is already initialized to prevent duplicate app error
     if (Firebase.apps.isEmpty) {
       debugPrint(
-          'bootstrap: Firebase not initialized, calling initializeApp...');
+        'bootstrap: Firebase not initialized, calling initializeApp...',
+      );
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
@@ -128,11 +136,13 @@ Future<void> _initializeFirebase() async {
     // Configure emulators for development environment
     if (EnvironmentDetector.isDevelopment) {
       debugPrint(
-          '_initializeFirebase: Configuring emulators for development...');
+        '_initializeFirebase: Configuring emulators for development...',
+      );
       await _configureEmulators();
     } else {
       debugPrint(
-          '_initializeFirebase: Skipping emulator configuration for ${EnvironmentDetector.environmentString}');
+        '_initializeFirebase: Skipping emulator configuration for ${EnvironmentDetector.environmentString}',
+      );
     }
 
     // Initialize Firebase Remote Config after service locator is ready
@@ -141,21 +151,25 @@ Future<void> _initializeFirebase() async {
       final remoteConfigService = getIt<FirebaseAIRemoteConfigService>();
       await remoteConfigService.initialize();
       debugPrint(
-          '_initializeFirebase: Firebase Remote Config initialization completed');
+        '_initializeFirebase: Firebase Remote Config initialization completed',
+      );
     } catch (e) {
       debugPrint('⚠️ Firebase Remote Config initialization failed: $e');
     }
 
     // Initialize Firebase AI Logic after Firebase is initialized
     debugPrint(
-        '_initializeFirebase: Starting Firebase AI Logic initialization...');
+      '_initializeFirebase: Starting Firebase AI Logic initialization...',
+    );
     await _initializeFirebaseAI();
     debugPrint(
-        '_initializeFirebase: Firebase AI Logic initialization completed');
+      '_initializeFirebase: Firebase AI Logic initialization completed',
+    );
 
     // Initialize GeminiAI Service after Firebase AI is ready
     debugPrint(
-        '_initializeFirebase: Starting GeminiAI Service initialization...');
+      '_initializeFirebase: Starting GeminiAI Service initialization...',
+    );
     try {
       // Verify the service is registered before trying to get it
       if (!getIt.isRegistered<GeminiAIService>()) {
@@ -166,14 +180,16 @@ Future<void> _initializeFirebase() async {
       debugPrint('✅ GeminiAIService is registered, getting instance...');
       final geminiService = getIt<GeminiAIService>();
       debugPrint(
-          '✅ GeminiAIService instance obtained, waiting for initialization...');
+        '✅ GeminiAIService instance obtained, waiting for initialization...',
+      );
 
       // Add a small delay to ensure all Firebase services are ready
       await Future.delayed(const Duration(milliseconds: 500));
 
       await geminiService.waitForInitialization();
       debugPrint(
-          '_initializeFirebase: GeminiAI Service initialization completed');
+        '_initializeFirebase: GeminiAI Service initialization completed',
+      );
     } catch (e, stackTrace) {
       debugPrint('⚠️ GeminiAI Service initialization failed: $e');
       debugPrint('⚠️ Stack trace: $stackTrace');
@@ -190,14 +206,17 @@ Future<void> _initializeFirebase() async {
         rethrow;
       } else {
         debugPrint(
-            '⚠️ Continuing in development mode despite GeminiAI Service error');
+          '⚠️ Continuing in development mode despite GeminiAI Service error',
+        );
         debugPrint('⚠️ Some AI features may not work correctly');
       }
     }
 
     // Firebase AI is ready for use by services
 
-    log('✅ Firebase setup completed for ${EnvironmentDetector.environmentString} environment');
+    log(
+      '✅ Firebase setup completed for ${EnvironmentDetector.environmentString} environment',
+    );
   } catch (e, stackTrace) {
     debugPrint('❌ Firebase initialization failed: $e');
     debugPrint('❌ Stack trace: $stackTrace');
@@ -275,19 +294,24 @@ String _getPlatformSpecificEmulatorHost() {
 Future<void> _initializeFirebaseAI() async {
   try {
     debugPrint(
-        '_initializeFirebaseAI: Starting Firebase AI Logic (Google AI) initialization...');
+      '_initializeFirebaseAI: Starting Firebase AI Logic (Google AI) initialization...',
+    );
 
     // Firebase AI Logic uses API keys managed by Firebase Console
     // No explicit API key initialization needed - handled by Firebase Console
     debugPrint(
-        '_initializeFirebaseAI: Using Firebase Console managed API keys');
+      '_initializeFirebaseAI: Using Firebase Console managed API keys',
+    );
 
     // Firebase AI Logic is automatically available when Firebase is initialized
     // Models are created on-demand by GeminiAIService
     debugPrint(
-        '_initializeFirebaseAI: Firebase AI Logic models will be initialized by GeminiAIService');
+      '_initializeFirebaseAI: Firebase AI Logic models will be initialized by GeminiAIService',
+    );
 
-    log('✅ Firebase AI Logic (Google AI) initialization completed successfully');
+    log(
+      '✅ Firebase AI Logic (Google AI) initialization completed successfully',
+    );
   } catch (e, stackTrace) {
     log(
       '❌ Firebase AI Logic initialization failed: $e',
@@ -298,7 +322,8 @@ Future<void> _initializeFirebaseAI() async {
       rethrow;
     } else {
       debugPrint(
-          '⚠️ Continuing in development mode despite Firebase AI Logic error');
+        '⚠️ Continuing in development mode despite Firebase AI Logic error',
+      );
     }
   }
 }

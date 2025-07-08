@@ -25,8 +25,9 @@ class GoogleCloudAuthService {
       // Check if we have a valid cached token
       if (_cachedAccessToken != null &&
           _tokenExpiry != null &&
-          DateTime.now()
-              .isBefore(_tokenExpiry!.subtract(const Duration(minutes: 5)))) {
+          DateTime.now().isBefore(
+            _tokenExpiry!.subtract(const Duration(minutes: 5)),
+          )) {
         return _cachedAccessToken!;
       }
 
@@ -44,8 +45,10 @@ class GoogleCloudAuthService {
       log('✅ GoogleCloudAuthService: Access token obtained');
       return developmentToken;
     } catch (e, stackTrace) {
-      log('❌ GoogleCloudAuthService: Failed to get access token: $e',
-          stackTrace: stackTrace);
+      log(
+        '❌ GoogleCloudAuthService: Failed to get access token: $e',
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }
@@ -60,7 +63,7 @@ class GoogleCloudAuthService {
       'iat': DateTime.now().millisecondsSinceEpoch ~/ 1000,
       'exp':
           DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch ~/
-              1000,
+          1000,
       'project_id': getProjectId(),
       'scope': 'https://www.googleapis.com/auth/cloud-platform',
       'development_mode': true,
@@ -106,8 +109,9 @@ class ServiceAccountAuthService {
       // Check if we have a valid cached token
       if (_cachedAccessToken != null &&
           _tokenExpiry != null &&
-          DateTime.now()
-              .isBefore(_tokenExpiry!.subtract(const Duration(minutes: 5)))) {
+          DateTime.now().isBefore(
+            _tokenExpiry!.subtract(const Duration(minutes: 5)),
+          )) {
         return _cachedAccessToken!;
       }
 
@@ -134,10 +138,7 @@ class ServiceAccountAuthService {
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     final exp = now + 3600; // 1 hour
 
-    final header = {
-      'alg': 'RS256',
-      'typ': 'JWT',
-    };
+    final header = {'alg': 'RS256', 'typ': 'JWT'};
 
     final payload = {
       'iss': serviceAccountKey['client_email'],
@@ -172,11 +173,14 @@ class ServiceAccountAuthService {
         return data['access_token'] as String;
       } else {
         throw Exception(
-            'Failed to get access token: ${response.statusCode} ${response.body}');
+          'Failed to get access token: ${response.statusCode} ${response.body}',
+        );
       }
     } catch (e) {
       // For MVP development, return a mock token since we don't have proper JWT signing
-      log('⚠️ ServiceAccountAuthService: Using development token (JWT signing not implemented)');
+      log(
+        '⚠️ ServiceAccountAuthService: Using development token (JWT signing not implemented)',
+      );
       return 'service_account_dev_token_${DateTime.now().millisecondsSinceEpoch}';
     }
   }

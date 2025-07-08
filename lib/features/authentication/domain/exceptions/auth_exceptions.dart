@@ -8,53 +8,53 @@ class AuthenticationException extends AppException {
 // Specific authentication exceptions
 class InvalidCredentialsException extends AuthenticationException {
   const InvalidCredentialsException()
-      : super('Invalid email or password', 'invalid-credentials');
+    : super('Invalid email or password', 'invalid-credentials');
 }
 
 class UserNotFoundException extends AuthenticationException {
   const UserNotFoundException()
-      : super('No user found with this email', 'user-not-found');
+    : super('No user found with this email', 'user-not-found');
 }
 
 class EmailAlreadyInUseException extends AuthenticationException {
   const EmailAlreadyInUseException()
-      : super('Email is already in use', 'email-already-in-use');
+    : super('Email is already in use', 'email-already-in-use');
 }
 
 class WeakPasswordException extends AuthenticationException {
   const WeakPasswordException()
-      : super('Password is too weak', 'weak-password');
+    : super('Password is too weak', 'weak-password');
 }
 
 class NetworkAuthException extends AuthenticationException {
   const NetworkAuthException()
-      : super('Network connection failed', 'network-request-failed');
+    : super('Network connection failed', 'network-request-failed');
 }
 
 class TooManyRequestsException extends AuthenticationException {
   const TooManyRequestsException()
-      : super('Too many requests. Try again later', 'too-many-requests');
+    : super('Too many requests. Try again later', 'too-many-requests');
 }
 
 class AccountDisabledException extends AuthenticationException {
   const AccountDisabledException()
-      : super('User account has been disabled', 'user-disabled');
+    : super('User account has been disabled', 'user-disabled');
 }
 
 class EmailNotVerifiedException extends AuthenticationException {
   const EmailNotVerifiedException()
-      : super('Email address is not verified', 'email-not-verified');
+    : super('Email address is not verified', 'email-not-verified');
 }
 
 class ReauthenticationRequiredException extends AuthenticationException {
   const ReauthenticationRequiredException()
-      : super('Recent authentication required', 'requires-recent-login');
+    : super('Recent authentication required', 'requires-recent-login');
 }
 
 class ProviderAlreadyLinkedException extends AuthenticationException {
   const ProviderAlreadyLinkedException()
-      : super(
-          'Account is already linked to another provider',
-          'provider-already-linked',
-        );
+    : super(
+        'Account is already linked to another provider',
+        'provider-already-linked',
+      );
 }

@@ -17,11 +17,11 @@ class SignupState extends Equatable {
 
   /// Creates a [SignupState] with success status
   const SignupState.success(User user)
-      : this._(status: SignupStatus.success, user: user);
+    : this._(status: SignupStatus.success, user: user);
 
   /// Creates a [SignupState] with failure status
   const SignupState.failure(String message)
-      : this._(status: SignupStatus.failure, errorMessage: message);
+    : this._(status: SignupStatus.failure, errorMessage: message);
 
   /// The current status of signup
   final SignupStatus status;

@@ -44,9 +44,7 @@ class ValidationService {
     // Additional domain validation
     final domain = email.split('@').last;
     if (domain.isEmpty || domain.length < 3) {
-      return const Failure(
-        ValidationException('Invalid email domain'),
-      );
+      return const Failure(ValidationException('Invalid email domain'));
     }
 
     return const Success(null);
@@ -63,9 +61,7 @@ class ValidationService {
   /// Returns [Success] if valid, [Failure] with specific requirements if invalid
   Result<void> validatePassword(String password) {
     if (password.isEmpty) {
-      return const Failure(
-        ValidationException('Password cannot be empty'),
-      );
+      return const Failure(ValidationException('Password cannot be empty'));
     }
 
     if (password.length < AppConstants.minPasswordLength) {
@@ -169,9 +165,7 @@ class ValidationService {
   /// Returns [Success] if valid, [Failure] with validation error if invalid
   Result<void> validateUsername(String username) {
     if (username.isEmpty) {
-      return const Failure(
-        ValidationException('Username cannot be empty'),
-      );
+      return const Failure(ValidationException('Username cannot be empty'));
     }
 
     if (!AppConstants.isValidUsername(username)) {
@@ -187,7 +181,8 @@ class ValidationService {
     if (_isReservedUsername(username)) {
       return const Failure(
         ValidationException(
-            'This username is reserved. Please choose another.'),
+          'This username is reserved. Please choose another.',
+        ),
       );
     }
 
@@ -280,7 +275,8 @@ class ValidationService {
         data[4] == 0x0D &&
         data[5] == 0x0A &&
         data[6] == 0x1A &&
-        data[7] == 0x0A) return true;
+        data[7] == 0x0A)
+      return true;
 
     // WebP: RIFF...WEBP
     if (data.length >= 12 &&
@@ -291,7 +287,8 @@ class ValidationService {
         data[8] == 0x57 &&
         data[9] == 0x45 &&
         data[10] == 0x42 &&
-        data[11] == 0x50) return true;
+        data[11] == 0x50)
+      return true;
 
     // GIF: GIF87a or GIF89a
     if (data.length >= 6 &&
@@ -300,7 +297,8 @@ class ValidationService {
         data[2] == 0x46 &&
         data[3] == 0x38 &&
         (data[4] == 0x37 || data[4] == 0x39) &&
-        data[5] == 0x61) return true;
+        data[5] == 0x61)
+      return true;
 
     return false;
   }
@@ -308,9 +306,7 @@ class ValidationService {
   /// Validates image filename
   Result<void> _validateImageFilename(String filename) {
     if (filename.isEmpty) {
-      return const Failure(
-        ValidationException('Filename cannot be empty'),
-      );
+      return const Failure(ValidationException('Filename cannot be empty'));
     }
 
     final extension = filename.toLowerCase().split('.').last;
@@ -352,9 +348,7 @@ class ValidationService {
     String fieldName = 'Text',
   }) {
     if (text.isEmpty && minLength > 0) {
-      return Failure(
-        ValidationException('$fieldName cannot be empty'),
-      );
+      return Failure(ValidationException('$fieldName cannot be empty'));
     }
 
     if (text.length < minLength) {
@@ -367,9 +361,7 @@ class ValidationService {
 
     if (text.length > maxLength) {
       return Failure(
-        ValidationException(
-          '$fieldName cannot exceed $maxLength characters',
-        ),
+        ValidationException('$fieldName cannot exceed $maxLength characters'),
       );
     }
 

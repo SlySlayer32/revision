@@ -5,17 +5,14 @@ import 'package:revision/core/constants/gemini_constants.dart';
 
 /// Validation result for API requests
 class ValidationResult {
-  const ValidationResult._({
-    required this.isValid,
-    this.errorMessage,
-  });
+  const ValidationResult._({required this.isValid, this.errorMessage});
 
   /// Creates a successful validation result
   const ValidationResult.success() : this._(isValid: true);
 
   /// Creates a failed validation result with error message
   const ValidationResult.failure(String errorMessage)
-      : this._(isValid: false, errorMessage: errorMessage);
+    : this._(isValid: false, errorMessage: errorMessage);
 
   /// Whether the validation passed
   final bool isValid;
@@ -62,12 +59,14 @@ class GeminiRequestValidator {
   ValidationResult validateApiKey(String? apiKey) {
     if (apiKey == null || apiKey.isEmpty) {
       return const ValidationResult.failure(
-          GeminiConstants.apiKeyNotConfiguredError);
+        GeminiConstants.apiKeyNotConfiguredError,
+      );
     }
 
     if (apiKey.length < GeminiConstants.minApiKeyLength) {
       return const ValidationResult.failure(
-          GeminiConstants.invalidApiKeyFormatError);
+        GeminiConstants.invalidApiKeyFormatError,
+      );
     }
 
     return const ValidationResult.success();
@@ -110,7 +109,8 @@ class GeminiRequestValidator {
     for (final marker in markers) {
       if (!marker.containsKey('x') || !marker.containsKey('y')) {
         return const ValidationResult.failure(
-            'Markers must contain x and y coordinates');
+          'Markers must contain x and y coordinates',
+        );
       }
 
       final x = marker['x'];
@@ -118,12 +118,14 @@ class GeminiRequestValidator {
 
       if (x is! num || y is! num) {
         return const ValidationResult.failure(
-            'Marker coordinates must be numbers');
+          'Marker coordinates must be numbers',
+        );
       }
 
       if (x < 0 || y < 0) {
         return const ValidationResult.failure(
-            'Marker coordinates must be positive');
+          'Marker coordinates must be positive',
+        );
       }
     }
 
@@ -141,10 +143,12 @@ class GeminiRequestValidator {
 
   /// Validates confidence threshold for segmentation
   static ValidationResult validateConfidenceThreshold(
-      double confidenceThreshold) {
+    double confidenceThreshold,
+  ) {
     if (confidenceThreshold < 0.0 || confidenceThreshold > 1.0) {
       return const ValidationResult.failure(
-          'Confidence threshold must be between 0.0 and 1.0');
+        'Confidence threshold must be between 0.0 and 1.0',
+      );
     }
 
     return const ValidationResult.success();
@@ -155,11 +159,7 @@ class GeminiRequestValidator {
     required String prompt,
     String? model,
   }) {
-    return validateApiRequest(
-      prompt: prompt,
-      imageBytes: null,
-      model: model,
-    );
+    return validateApiRequest(prompt: prompt, imageBytes: null, model: model);
   }
 
   /// Validates a multimodal request
@@ -195,7 +195,8 @@ class GeminiRequestValidator {
     // Validate confidence threshold
     if (confidenceThreshold < 0.0 || confidenceThreshold > 1.0) {
       return const ValidationResult.failure(
-          'Confidence threshold must be between 0.0 and 1.0');
+        'Confidence threshold must be between 0.0 and 1.0',
+      );
     }
 
     // Validate target objects format
@@ -203,13 +204,15 @@ class GeminiRequestValidator {
       final trimmedTargets = targetObjects.trim();
       if (trimmedTargets.length > 200) {
         return const ValidationResult.failure(
-            'Target objects description is too long (max 200 characters)');
+          'Target objects description is too long (max 200 characters)',
+        );
       }
 
       // Check for potentially problematic characters
       if (trimmedTargets.contains(RegExp(r'[<>{}"\[\]\\]'))) {
         return const ValidationResult.failure(
-            'Target objects contains invalid characters');
+          'Target objects contains invalid characters',
+        );
       }
     }
 
@@ -217,14 +220,16 @@ class GeminiRequestValidator {
     if (imageBytes.length > 15 * 1024 * 1024) {
       // 15MB max for segmentation
       return const ValidationResult.failure(
-          'Image too large for segmentation (max 15MB recommended)');
+        'Image too large for segmentation (max 15MB recommended)',
+      );
     }
 
     // Check for minimum image size
     if (imageBytes.length < 1024) {
       // 1KB minimum
       return const ValidationResult.failure(
-          'Image too small for reliable segmentation');
+        'Image too small for reliable segmentation',
+      );
     }
 
     return const ValidationResult.success();

@@ -1,13 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_result.dart';
 
-enum GeminiPipelineStatus {
-  initial,
-  processing,
-  success,
-  error,
-  cancelled,
-}
+enum GeminiPipelineStatus { initial, processing, success, error, cancelled }
 
 class GeminiPipelineState extends Equatable {
   const GeminiPipelineState({
@@ -37,6 +31,10 @@ class GeminiPipelineState extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [status, processingResult, errorMessage, progressMessage];
+  List<Object?> get props => [
+    status,
+    processingResult,
+    errorMessage,
+    progressMessage,
+  ];
 }

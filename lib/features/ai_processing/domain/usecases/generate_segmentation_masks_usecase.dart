@@ -68,7 +68,8 @@ class GenerateSegmentationMasksUseCase {
     if (confidenceThreshold < 0.0 || confidenceThreshold > 1.0) {
       return const Failure(
         ImageValidationException(
-            'Confidence threshold must be between 0.0 and 1.0'),
+          'Confidence threshold must be between 0.0 and 1.0',
+        ),
       );
     }
 
@@ -114,7 +115,7 @@ class GenerateSegmentationMasksUseCase {
         modelVersion: result.modelVersion,
         confidence: filteredMasks.isNotEmpty
             ? filteredMasks.map((m) => m.confidence).reduce((a, b) => a + b) /
-                filteredMasks.length
+                  filteredMasks.length
             : 0.0,
       );
 
@@ -189,7 +190,8 @@ class DetectObjectsWithBoundingBoxesUseCase {
       final validationResult = ImageValidator.validateImageData(imageData);
       if (validationResult.isFailure) {
         return Failure<List<Map<String, dynamic>>>(
-            validationResult.exceptionOrNull!);
+          validationResult.exceptionOrNull!,
+        );
       }
 
       // Step 2: Execute object detection

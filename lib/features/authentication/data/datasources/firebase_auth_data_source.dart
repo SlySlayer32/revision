@@ -14,16 +14,10 @@ abstract class FirebaseAuthDataSource {
   Stream<User?> get authStateChanges;
 
   /// Sign up with email and password
-  Future<User> signUp({
-    required String email,
-    required String password,
-  });
+  Future<User> signUp({required String email, required String password});
 
   /// Sign in with email and password
-  Future<User> signIn({
-    required String email,
-    required String password,
-  });
+  Future<User> signIn({required String email, required String password});
 
   /// Sign in with Google
   Future<User> signInWithGoogle();
@@ -47,18 +41,13 @@ abstract class FirebaseAuthDataSource {
   Future<void> sendEmailVerification();
 
   /// Update user profile information
-  Future<User> updateUserProfile({
-    String? displayName,
-    String? photoUrl,
-  });
+  Future<User> updateUserProfile({String? displayName, String? photoUrl});
 
   /// Delete the current user account
   Future<void> deleteAccount();
 
   /// Reauthenticate user with password
-  Future<void> reauthenticateWithPassword({
-    required String password,
-  });
+  Future<void> reauthenticateWithPassword({required String password});
 
   /// Get Firebase ID token for API authentication
   Future<String> getIdToken();
@@ -70,8 +59,8 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   FirebaseAuthDataSourceImpl({
     firebase_auth.FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
-  })  : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn();
+  }) : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
+       _googleSignIn = googleSignIn ?? GoogleSignIn();
 
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
@@ -100,16 +89,15 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   }
 
   @override
-  Future<User> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<User> signIn({required String email, required String password}) async {
     return await PerformanceService.instance.timeAsync(
       'auth_sign_in',
       () async {
         try {
-          LoggingService.instance
-              .info('User sign in attempt', data: {'email': email});
+          LoggingService.instance.info(
+            'User sign in attempt',
+            data: {'email': email},
+          );
 
           final userCredential = await _firebaseAuth.signInWithEmailAndPassword(
             email: email,
@@ -121,8 +109,10 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           }
 
           final user = await _createUserWithClaims(userCredential.user!);
-          LoggingService.instance
-              .info('User sign in successful', data: {'userId': user.id});
+          LoggingService.instance.info(
+            'User sign in successful',
+            data: {'userId': user.id},
+          );
 
           return user;
         } on firebase_auth.FirebaseAuthException catch (e) {
@@ -145,10 +135,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   }
 
   @override
-  Future<User> signUp({
-    required String email,
-    required String password,
-  }) async {
+  Future<User> signUp({required String email, required String password}) async {
     try {
       final userCredential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
@@ -189,12 +176,11 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       );
 
       // Sign in to Firebase with the Google credential
-      final userCredential =
-          await _firebaseAuth.signInWithCredential(credential);
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        credential,
+      );
       if (userCredential.user == null) {
-        throw const UnexpectedAuthException(
-          'Failed to sign in with Google',
-        );
+        throw const UnexpectedAuthException('Failed to sign in with Google');
       }
 
       return await _createUserWithClaims(userCredential.user!);
@@ -210,10 +196,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   @override
   Future<void> signOut() async {
     try {
-      await Future.wait([
-        _firebaseAuth.signOut(),
-        _googleSignIn.signOut(),
-      ]);
+      await Future.wait([_firebaseAuth.signOut(), _googleSignIn.signOut()]);
     } catch (e) {
       log('Sign out error', error: e);
       throw UnexpectedAuthException(e.toString());
@@ -244,7 +227,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       await user.sendEmailVerification();
       log('Email verification sent to: ${user.email}');
     } on firebase_auth.FirebaseAuthException catch (e) {
-      log('Firebase Auth error sending email verification: ${e.code} - ${e.message}');
+      log(
+        'Firebase Auth error sending email verification: ${e.code} - ${e.message}',
+      );
       throw _mapFirebaseAuthExceptionToDomainException(e);
     } catch (e) {
       log('Unexpected error sending email verification: $e');
@@ -307,9 +292,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   }
 
   @override
-  Future<void> reauthenticateWithPassword({
-    required String password,
-  }) async {
+  Future<void> reauthenticateWithPassword({required String password}) async {
     try {
       final user = _firebaseAuth.currentUser;
       if (user == null) {

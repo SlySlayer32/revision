@@ -34,8 +34,9 @@ void main() {
       test('should successfully get ID token', () async {
         // Arrange
         const expectedToken = 'test-id-token-12345';
-        when(() => mockAuthDataSource.getIdToken())
-            .thenAnswer((_) async => expectedToken);
+        when(
+          () => mockAuthDataSource.getIdToken(),
+        ).thenAnswer((_) async => expectedToken);
 
         final repository = FirebaseAuthenticationRepository(
           firebaseAuthDataSource: mockAuthDataSource,
@@ -68,8 +69,9 @@ void main() {
           processingTimeMs: 100,
         );
 
-        when(() => mockGeminiService.processImage(imageBytes, prompt))
-            .thenAnswer((_) async => expectedResult);
+        when(
+          () => mockGeminiService.processImage(imageBytes, prompt),
+        ).thenAnswer((_) async => expectedResult);
 
         // Act
         final result = await mockGeminiService.processImage(imageBytes, prompt);
@@ -78,8 +80,9 @@ void main() {
         expect(result.originalImage, imageBytes);
         expect(result.analysisPrompt, prompt);
         expect(result.markedAreas, isEmpty);
-        verify(() => mockGeminiService.processImage(imageBytes, prompt))
-            .called(1);
+        verify(
+          () => mockGeminiService.processImage(imageBytes, prompt),
+        ).called(1);
       });
 
       test('should process image with marked objects', () async {
@@ -91,8 +94,8 @@ void main() {
             'y': 20.0,
             'width': 30.0,
             'height': 40.0,
-            'description': 'test object'
-          }
+            'description': 'test object',
+          },
         ];
         final expectedResult = GeminiPipelineResult(
           originalImage: imageBytes,
@@ -102,10 +105,12 @@ void main() {
           processingTimeMs: 150,
         );
 
-        when(() => mockGeminiService.processImageWithMarkedObjects(
-              imageData: imageBytes,
-              markedAreas: markedAreas,
-            )).thenAnswer((_) async => expectedResult);
+        when(
+          () => mockGeminiService.processImageWithMarkedObjects(
+            imageData: imageBytes,
+            markedAreas: markedAreas,
+          ),
+        ).thenAnswer((_) async => expectedResult);
 
         // Act
         final result = await mockGeminiService.processImageWithMarkedObjects(
@@ -116,10 +121,12 @@ void main() {
         // Assert
         expect(result.originalImage, imageBytes);
         expect(result.markedAreas, ['test object']);
-        verify(() => mockGeminiService.processImageWithMarkedObjects(
-              imageData: imageBytes,
-              markedAreas: markedAreas,
-            )).called(1);
+        verify(
+          () => mockGeminiService.processImageWithMarkedObjects(
+            imageData: imageBytes,
+            markedAreas: markedAreas,
+          ),
+        ).called(1);
       });
     });
 
@@ -145,13 +152,16 @@ void main() {
           processingTimeMs: 200,
         );
 
-        when(() => mockGeminiService.processImageWithMarkedObjects(
-              imageData: any(named: 'imageData'),
-              markedAreas: any(named: 'markedAreas'),
-            )).thenAnswer((_) async => expectedResult);
+        when(
+          () => mockGeminiService.processImageWithMarkedObjects(
+            imageData: any(named: 'imageData'),
+            markedAreas: any(named: 'markedAreas'),
+          ),
+        ).thenAnswer((_) async => expectedResult);
 
-        final useCase =
-            ProcessImageWithGeminiUseCaseImproved(mockGeminiService);
+        final useCase = ProcessImageWithGeminiUseCaseImproved(
+          mockGeminiService,
+        );
 
         // Act
         final result = await useCase.call(imageBytes, markedAreas: markedAreas);
@@ -180,13 +190,16 @@ void main() {
           processingTimeMs: 150,
         );
 
-        when(() => mockGeminiService.processImage(
-              any(),
-              'Process and enhance this image for better quality and appearance',
-            )).thenAnswer((_) async => expectedResult);
+        when(
+          () => mockGeminiService.processImage(
+            any(),
+            'Process and enhance this image for better quality and appearance',
+          ),
+        ).thenAnswer((_) async => expectedResult);
 
-        final useCase =
-            ProcessImageWithGeminiUseCaseImproved(mockGeminiService);
+        final useCase = ProcessImageWithGeminiUseCaseImproved(
+          mockGeminiService,
+        );
 
         // Act
         final result = await useCase.call(imageBytes, markedAreas: markedAreas);

@@ -22,6 +22,7 @@ class ProcessingException extends ImageEditorException {
 abstract class ImageEditorRepository {
   Future<Either<ImageEditorException, EditedImage>> loadImage(String path);
   Future<Either<ImageEditorException, EditedImage>> saveImage(
-      EditedImage image);
+    EditedImage image,
+  );
   Future<Either<ImageEditorException, void>> deleteImage(String id);
 }

@@ -11,30 +11,42 @@ void main() {
           {
             GeminiConstants.contentKey: {
               // Missing 'parts' key
-              'other_data': 'some_value'
+              'other_data': 'some_value',
             },
-            GeminiConstants.finishReasonKey: 'STOP'
-          }
-        ]
+            GeminiConstants.finishReasonKey: 'STOP',
+          },
+        ],
       };
 
       expect(
-
-          () => GeminiResponseHandlerTesting.handleTextResponse(
-              _createMockResponse(malformedResponse)),
-          throwsA(isA<Exception>().having((e) => e.toString(), 'error message',
-              contains('No content parts in Gemini API response'))));
+        () => GeminiResponseHandlerTesting.handleTextResponse(
+          _createMockResponse(malformedResponse),
+        ),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'error message',
+            contains('No content parts in Gemini API response'),
+          ),
+        ),
+      );
     });
 
     test('should handle response with empty candidates array', () {
       final emptyResponse = {GeminiConstants.candidatesKey: []};
 
       expect(
-
-          () => GeminiResponseHandlerTesting.handleTextResponse(
-              _createMockResponse(emptyResponse)),
-          throwsA(isA<Exception>().having((e) => e.toString(), 'error message',
-              contains('No candidates in Gemini API response'))));
+        () => GeminiResponseHandlerTesting.handleTextResponse(
+          _createMockResponse(emptyResponse),
+        ),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'error message',
+            contains('No candidates in Gemini API response'),
+          ),
+        ),
+      );
     });
 
     test('should handle response with direct text in content', () {
@@ -43,17 +55,17 @@ void main() {
         GeminiConstants.candidatesKey: [
           {
             GeminiConstants.contentKey: {
-              GeminiConstants.textKey: 'Direct text response'
+              GeminiConstants.textKey: 'Direct text response',
               // No 'parts' key, but text directly in content
             },
-            GeminiConstants.finishReasonKey: 'STOP'
-          }
-        ]
+            GeminiConstants.finishReasonKey: 'STOP',
+          },
+        ],
       };
 
-
       final result = GeminiResponseHandlerTesting.handleTextResponse(
-          _createMockResponse(directTextResponse));
+        _createMockResponse(directTextResponse),
+      );
       expect(result, equals('Direct text response'));
     });
 
@@ -62,17 +74,23 @@ void main() {
         GeminiConstants.candidatesKey: [
           {
             GeminiConstants.contentKey: {GeminiConstants.partsKey: []},
-            GeminiConstants.finishReasonKey: GeminiConstants.safetyFinishReason
-          }
-        ]
+            GeminiConstants.finishReasonKey: GeminiConstants.safetyFinishReason,
+          },
+        ],
       };
 
       expect(
-
-          () => GeminiResponseHandlerTesting.handleTextResponse(
-              _createMockResponse(filteredResponse)),
-          throwsA(isA<Exception>().having((e) => e.toString(), 'error message',
-              contains('Content was filtered by Gemini safety filters'))));
+        () => GeminiResponseHandlerTesting.handleTextResponse(
+          _createMockResponse(filteredResponse),
+        ),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'error message',
+            contains('Content was filtered by Gemini safety filters'),
+          ),
+        ),
+      );
     });
 
     test('should handle empty parts array with helpful error message', () {
@@ -80,19 +98,25 @@ void main() {
         GeminiConstants.candidatesKey: [
           {
             GeminiConstants.contentKey: {
-              GeminiConstants.partsKey: [] // Empty parts array
+              GeminiConstants.partsKey: [], // Empty parts array
             },
-            GeminiConstants.finishReasonKey: 'STOP'
-          }
-        ]
+            GeminiConstants.finishReasonKey: 'STOP',
+          },
+        ],
       };
 
       expect(
-
-          () => GeminiResponseHandlerTesting.handleTextResponse(
-              _createMockResponse(emptyPartsResponse)),
-          throwsA(isA<Exception>().having((e) => e.toString(), 'error message',
-              contains('Content parts array is empty'))));
+        () => GeminiResponseHandlerTesting.handleTextResponse(
+          _createMockResponse(emptyPartsResponse),
+        ),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'error message',
+            contains('Content parts array is empty'),
+          ),
+        ),
+      );
     });
 
     test('should handle parts with non-text content types', () {
@@ -102,21 +126,27 @@ void main() {
             GeminiConstants.contentKey: {
               GeminiConstants.partsKey: [
                 {
-                  'functionCall': {'name': 'some_function', 'args': {}}
-                }
-              ]
+                  'functionCall': {'name': 'some_function', 'args': {}},
+                },
+              ],
             },
-            GeminiConstants.finishReasonKey: 'STOP'
-          }
-        ]
+            GeminiConstants.finishReasonKey: 'STOP',
+          },
+        ],
       };
 
       expect(
-
-          () => GeminiResponseHandlerTesting.handleTextResponse(
-              _createMockResponse(nonTextPartsResponse)),
-          throwsA(isA<Exception>().having((e) => e.toString(), 'error message',
-              contains('non-text content'))));
+        () => GeminiResponseHandlerTesting.handleTextResponse(
+          _createMockResponse(nonTextPartsResponse),
+        ),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'error message',
+            contains('non-text content'),
+          ),
+        ),
+      );
     });
   });
 }
@@ -132,7 +162,7 @@ class MockHttpResponse {
   final String body;
 
   MockHttpResponse(this.statusCode, Map<String, dynamic> data)
-      : body = _jsonEncode(data);
+    : body = _jsonEncode(data);
 
   static String _jsonEncode(Map<String, dynamic> data) {
     // Simple JSON encoding for test data
@@ -176,7 +206,8 @@ extension GeminiResponseHandlerTesting on GeminiResponseHandler {
           return 'Direct text response';
         }
         throw Exception(
-            'No content parts in Gemini API response. Content structure: [other_data]. This may indicate an API version change or malformed response.');
+          'No content parts in Gemini API response. Content structure: [other_data]. This may indicate an API version change or malformed response.',
+        );
       }
 
       if (bodyLower.contains('finishreasonkey: safety')) {
@@ -185,12 +216,14 @@ extension GeminiResponseHandlerTesting on GeminiResponseHandler {
 
       if (bodyLower.contains('partskey: []')) {
         throw Exception(
-            'Content parts array is empty in Gemini API response. This may indicate content filtering or API issues.');
+          'Content parts array is empty in Gemini API response. This may indicate content filtering or API issues.',
+        );
       }
 
       if (bodyLower.contains('functioncall')) {
         throw Exception(
-            'Response contains non-text content (function calls, code execution, etc.) that cannot be processed as text. Available keys: [functionCall]');
+          'Response contains non-text content (function calls, code execution, etc.) that cannot be processed as text. Available keys: [functionCall]',
+        );
       }
 
       return 'Mock response processed successfully';

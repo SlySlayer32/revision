@@ -19,8 +19,8 @@ class ImageSaveService {
       if (Platform.isAndroid) {
         final permission = await Permission.storage.request();
         if (!permission.isGranted) {
-          final mediaLibraryPermission =
-              await Permission.mediaLibrary.request();
+          final mediaLibraryPermission = await Permission.mediaLibrary
+              .request();
           if (!mediaLibraryPermission.isGranted) {
             return null;
           }
@@ -88,9 +88,11 @@ class ImageSaveService {
       final files = await localDir.list().toList();
       return files
           .whereType<File>()
-          .where((file) =>
-              file.path.toLowerCase().endsWith('.jpg') ||
-              file.path.toLowerCase().endsWith('.png'))
+          .where(
+            (file) =>
+                file.path.toLowerCase().endsWith('.jpg') ||
+                file.path.toLowerCase().endsWith('.png'),
+          )
           .toList();
     } catch (e) {
       return [];
@@ -160,13 +162,17 @@ class ImageSaveService {
   }
 
   static Future<bool> _saveImageWeb(
-      Uint8List imageBytes, String fileName) async {
+    Uint8List imageBytes,
+    String fileName,
+  ) async {
     // Web saving is handled by the browser, this is a placeholder
     return true;
   }
 
   static Future<bool> _saveImageMobile(
-      Uint8List imageBytes, String fileName) async {
+    Uint8List imageBytes,
+    String fileName,
+  ) async {
     final status = await Permission.storage.request();
     if (status.isGranted) {
       final result = await ImageGallerySaver.saveImage(
@@ -181,7 +187,9 @@ class ImageSaveService {
   }
 
   static Future<bool> _saveImageDesktop(
-      Uint8List imageBytes, String fileName) async {
+    Uint8List imageBytes,
+    String fileName,
+  ) async {
     final directory = await getApplicationDocumentsDirectory();
     final path = '${directory.path}/$fileName';
     final file = File(path);

@@ -22,7 +22,9 @@ abstract class FirestoreUserDataSource {
 
   /// Update user preferences
   Future<void> updateUserPreferences(
-      String userId, Map<String, dynamic> preferences);
+    String userId,
+    Map<String, dynamic> preferences,
+  );
 
   /// Get user by email
   Future<UserModel?> getUserByEmail(String email);
@@ -33,9 +35,8 @@ abstract class FirestoreUserDataSource {
 
 /// Firestore implementation of user data source
 class FirestoreUserDataSourceImpl implements FirestoreUserDataSource {
-  FirestoreUserDataSourceImpl({
-    required FirebaseFirestore firestore,
-  }) : _firestore = firestore;
+  FirestoreUserDataSourceImpl({required FirebaseFirestore firestore})
+    : _firestore = firestore;
 
   final FirebaseFirestore _firestore;
 
@@ -119,7 +120,9 @@ class FirestoreUserDataSourceImpl implements FirestoreUserDataSource {
 
   @override
   Future<void> updateUserPreferences(
-      String userId, Map<String, dynamic> preferences) async {
+    String userId,
+    Map<String, dynamic> preferences,
+  ) async {
     try {
       log('Updating user preferences for user: $userId');
 
@@ -130,7 +133,9 @@ class FirestoreUserDataSourceImpl implements FirestoreUserDataSource {
 
       log('✅ User preferences updated successfully');
     } on FirebaseException catch (e) {
-      log('❌ Firebase error updating user preferences: ${e.code} - ${e.message}');
+      log(
+        '❌ Firebase error updating user preferences: ${e.code} - ${e.message}',
+      );
       throw ServerException(e.message ?? 'Failed to update user preferences');
     } catch (e) {
       log('❌ Unexpected error updating user preferences: $e');
@@ -176,9 +181,12 @@ class FirestoreUserDataSourceImpl implements FirestoreUserDataSource {
       log('User profile exists: $exists');
       return exists;
     } on FirebaseException catch (e) {
-      log('❌ Firebase error checking user profile existence: ${e.code} - ${e.message}');
+      log(
+        '❌ Firebase error checking user profile existence: ${e.code} - ${e.message}',
+      );
       throw ServerException(
-          e.message ?? 'Failed to check user profile existence');
+        e.message ?? 'Failed to check user profile existence',
+      );
     } catch (e) {
       log('❌ Unexpected error checking user profile existence: $e');
       throw const ServerException('Failed to check user profile existence');

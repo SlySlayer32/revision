@@ -17,17 +17,12 @@ class ImageSelectionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Select Image'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Select Image'), centerTitle: true),
       body: BlocBuilder<ImageSelectionCubit, ImageSelectionState>(
         builder: (context, state) {
           return Column(
             children: [
-              Expanded(
-                child: _buildContent(context, state),
-              ),
+              Expanded(child: _buildContent(context, state)),
               if (state is! ImageSelectionSuccess) _buildSelectButton(context),
             ],
           );
@@ -100,8 +95,8 @@ class ImageSelectionView extends StatelessWidget {
             Text(
               'Error',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
+                color: Theme.of(context).colorScheme.error,
+              ),
             ),
             const SizedBox(height: 8),
             Padding(
@@ -110,8 +105,8 @@ class ImageSelectionView extends StatelessWidget {
                 state.message,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onErrorContainer,
-                    ),
+                  color: Theme.of(context).colorScheme.onErrorContainer,
+                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -131,25 +126,16 @@ class ImageSelectionView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.image_outlined,
-            size: 64,
-            color: Colors.grey,
-          ),
+          Icon(Icons.image_outlined, size: 64, color: Colors.grey),
           SizedBox(height: 16),
           Text(
             'No image selected',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey,
-            ),
+            style: TextStyle(fontSize: 18, color: Colors.grey),
           ),
           SizedBox(height: 8),
           Text(
             'Tap the button below to select an image',
-            style: TextStyle(
-              color: Colors.grey,
-            ),
+            style: TextStyle(color: Colors.grey),
           ),
         ],
       ),

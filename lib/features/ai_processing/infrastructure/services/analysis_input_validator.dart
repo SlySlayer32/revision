@@ -20,38 +20,47 @@ class AnalysisInputValidator {
       // Validate image data exists
       if (imageData.isEmpty) {
         return const Failure(
-            AnalysisValidationException('Image data cannot be empty'));
+          AnalysisValidationException('Image data cannot be empty'),
+        );
       }
 
       // Validate image size constraints
       if (imageData.length > AnalysisServiceConfig.maxImageSizeBytes) {
-        return Failure(AnalysisValidationException(
-          'Image size ${imageData.length} bytes exceeds maximum ${AnalysisServiceConfig.maxImageSizeBytes} bytes',
-        ));
+        return Failure(
+          AnalysisValidationException(
+            'Image size ${imageData.length} bytes exceeds maximum ${AnalysisServiceConfig.maxImageSizeBytes} bytes',
+          ),
+        );
       }
 
       // Validate annotations exist
       if (annotatedImage.annotations.isEmpty) {
-        return const Failure(AnalysisValidationException(
-          'No annotation strokes found. Please mark objects to remove.',
-        ));
+        return const Failure(
+          AnalysisValidationException(
+            'No annotation strokes found. Please mark objects to remove.',
+          ),
+        );
       }
 
       // Validate annotation data quality
-      final totalPoints = annotatedImage.annotations
-          .fold<int>(0, (sum, stroke) => sum + stroke.points.length);
+      final totalPoints = annotatedImage.annotations.fold<int>(
+        0,
+        (sum, stroke) => sum + stroke.points.length,
+      );
 
       if (totalPoints < 3) {
-        return const Failure(AnalysisValidationException(
-          'Insufficient annotation data. Please provide more detailed markings.',
-        ));
+        return const Failure(
+          AnalysisValidationException(
+            'Insufficient annotation data. Please provide more detailed markings.',
+          ),
+        );
       }
 
       return const Success(null);
     } catch (e) {
-      return Failure(AnalysisValidationException(
-        'Validation failed: ${e.toString()}',
-      ));
+      return Failure(
+        AnalysisValidationException('Validation failed: ${e.toString()}'),
+      );
     }
   }
 }

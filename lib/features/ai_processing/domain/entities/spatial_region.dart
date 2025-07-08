@@ -147,10 +147,12 @@ class SpatialRegion {
     return SpatialRegion(
       id: json['id'] as String,
       name: json['name'] as String,
-      centerPoint:
-          SpatialPoint.fromJson(json['centerPoint'] as Map<String, dynamic>),
+      centerPoint: SpatialPoint.fromJson(
+        json['centerPoint'] as Map<String, dynamic>,
+      ),
       boundingBox: SpatialBoundingBox.fromJson(
-          json['boundingBox'] as Map<String, dynamic>),
+        json['boundingBox'] as Map<String, dynamic>,
+      ),
       confidence: (json['confidence'] as num).toDouble(),
       description: json['description'] as String?,
       objectType: json['objectType'] as String?,
@@ -266,12 +268,7 @@ class SpatialBoundingBox {
 
   /// Converts to JSON representation
   Map<String, dynamic> toJson() {
-    return {
-      'left': left,
-      'top': top,
-      'right': right,
-      'bottom': bottom,
-    };
+    return {'left': left, 'top': top, 'right': right, 'bottom': bottom};
   }
 
   /// Creates from JSON representation

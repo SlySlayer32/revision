@@ -25,7 +25,8 @@ class SafeNavigation {
       if (arguments == null) {
         if (kDebugMode) {
           debugPrint(
-              '⚠️ SafeNavigation: No arguments found for route ${settings.name}');
+            '⚠️ SafeNavigation: No arguments found for route ${settings.name}',
+          );
         }
         return null;
       }
@@ -34,7 +35,8 @@ class SafeNavigation {
       if (arguments is T) {
         if (kDebugMode) {
           debugPrint(
-              '✅ SafeNavigation: Successfully extracted arguments of type $T');
+            '✅ SafeNavigation: Successfully extracted arguments of type $T',
+          );
         }
         return arguments as T;
       }
@@ -75,7 +77,8 @@ class SafeNavigation {
       } catch (e) {
         if (kDebugMode) {
           debugPrint(
-              '⚠️ SafeNavigation: Failed to convert Map to Map<String, dynamic>: $e');
+            '⚠️ SafeNavigation: Failed to convert Map to Map<String, dynamic>: $e',
+          );
         }
       }
     }
@@ -138,8 +141,11 @@ class SafeNavigation {
           debugPrint('⚠️ SafeNavigation: Invalid route name: $routeName');
         }
         // Navigate to error page or home instead
-        return pushNamed<T>(context, RouteNames.error,
-            arguments: {'error': 'Invalid route: $routeName'});
+        return pushNamed<T>(
+          context,
+          RouteNames.error,
+          arguments: {'error': 'Invalid route: $routeName'},
+        );
       }
 
       if (kDebugMode) {
@@ -149,10 +155,9 @@ class SafeNavigation {
         }
       }
 
-      return await Navigator.of(context).pushNamed<T>(
-        routeName,
-        arguments: arguments,
-      );
+      return await Navigator.of(
+        context,
+      ).pushNamed<T>(routeName, arguments: arguments);
     } catch (e, stackTrace) {
       if (kDebugMode) {
         debugPrint('❌ SafeNavigation: Navigation error: $e');
@@ -168,7 +173,8 @@ class SafeNavigation {
       } catch (fallbackError) {
         if (kDebugMode) {
           debugPrint(
-              '❌ SafeNavigation: Fallback navigation also failed: $fallbackError');
+            '❌ SafeNavigation: Fallback navigation also failed: $fallbackError',
+          );
         }
         return null;
       }
@@ -210,10 +216,9 @@ class SafeNavigation {
         debugPrint('🔗 SafeNavigation: Replacing with route: $routeName');
       }
 
-      return await Navigator.of(context).pushReplacement<T, TO>(
-        newRoute,
-        result: result,
-      );
+      return await Navigator.of(
+        context,
+      ).pushReplacement<T, TO>(newRoute, result: result);
     } catch (e, stackTrace) {
       if (kDebugMode) {
         debugPrint('❌ SafeNavigation: Push replacement error: $e');
@@ -290,9 +295,7 @@ class SafeNavigation {
         arguments: {'error': error},
       ),
       builder: (_) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Navigation Error'),
-        ),
+        appBar: AppBar(title: const Text('Navigation Error')),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

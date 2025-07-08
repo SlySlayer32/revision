@@ -24,9 +24,7 @@ class SelectedImageDisplay extends StatelessWidget {
         children: [
           // Image display
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(12),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Container(
               constraints: const BoxConstraints(
                 maxHeight: 400, // Prevent excessive height
@@ -42,14 +40,14 @@ class SelectedImageDisplay extends StatelessWidget {
                       },
                     )
                   : selectedImage.file != null
-                      ? Image.file(
-                          selectedImage.file!,
-                          fit: BoxFit.contain, // Changed from cover to contain
-                          errorBuilder: (context, error, stackTrace) {
-                            return _buildErrorWidget(context);
-                          },
-                        )
-                      : _buildErrorWidget(context),
+                  ? Image.file(
+                      selectedImage.file!,
+                      fit: BoxFit.contain, // Changed from cover to contain
+                      errorBuilder: (context, error, stackTrace) {
+                        return _buildErrorWidget(context);
+                      },
+                    )
+                  : _buildErrorWidget(context),
             ),
           ),
 
@@ -90,8 +88,9 @@ class SelectedImageDisplay extends StatelessWidget {
                 const SizedBox(height: 4),
 
                 _DetailRow(
-                  icon:
-                      selectedImage.isValid ? Icons.check_circle : Icons.error,
+                  icon: selectedImage.isValid
+                      ? Icons.check_circle
+                      : Icons.error,
                   label: 'Status',
                   value: selectedImage.isValid ? 'Valid' : 'Invalid',
                   valueColor: selectedImage.isValid
@@ -114,10 +113,7 @@ class SelectedImageDisplay extends StatelessWidget {
 
   Widget _buildErrorWidget(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(
-        maxHeight: 400,
-        minHeight: 200,
-      ),
+      constraints: const BoxConstraints(maxHeight: 400, minHeight: 200),
       color: Theme.of(context).colorScheme.errorContainer,
       child: Center(
         child: Column(
@@ -132,8 +128,8 @@ class SelectedImageDisplay extends StatelessWidget {
             Text(
               'Error loading image',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onErrorContainer,
-                  ),
+                color: Theme.of(context).colorScheme.onErrorContainer,
+              ),
             ),
           ],
         ),
@@ -168,15 +164,15 @@ class _DetailRow extends StatelessWidget {
         Text(
           '$label: ',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         Text(
           value,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: valueColor ?? Theme.of(context).colorScheme.onSurface,
-                fontWeight: FontWeight.w500,
-              ),
+            color: valueColor ?? Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );

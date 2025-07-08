@@ -14,12 +14,15 @@ class FirebaseAIConstants {
       'imagen-3.0-generate-002'; // Legacy - not used
 
   // Request limits and timeouts - Enhanced for error resilience
-  static const Duration requestTimeout =
-      Duration(seconds: 45); // Increased for stability
-  static const Duration quickTimeout =
-      Duration(seconds: 15); // For quick operations
-  static const Duration longTimeout =
-      Duration(seconds: 90); // For image generation
+  static const Duration requestTimeout = Duration(
+    seconds: 45,
+  ); // Increased for stability
+  static const Duration quickTimeout = Duration(
+    seconds: 15,
+  ); // For quick operations
+  static const Duration longTimeout = Duration(
+    seconds: 90,
+  ); // For image generation
   static const int maxImageSizeMB = 20; // Firebase AI Logic supports up to 20MB
   static const int maxRetries = 3; // Increased for better reliability
 
@@ -35,7 +38,7 @@ class FirebaseAIConstants {
   static const List<String> supportedMimeTypes = [
     'image/png',
     'image/jpeg',
-    'image/webp'
+    'image/webp',
   ];
 
   // Generation config for consistent results

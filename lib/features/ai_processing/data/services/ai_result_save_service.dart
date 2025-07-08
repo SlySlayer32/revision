@@ -14,14 +14,16 @@ class AIResultSaveService {
 
   /// Saves the AI processing result (generated image) to device gallery
   Future<Result<String>> saveResultToGallery(
-      GeminiPipelineResult result) async {
+    GeminiPipelineResult result,
+  ) async {
     try {
       // Check and request permissions
       final permissionGranted = await _requestPermissions();
       if (!permissionGranted) {
         return Failure(
           Exception(
-              'Storage permission denied. Please grant permission to save images.'),
+            'Storage permission denied. Please grant permission to save images.',
+          ),
         );
       }
 
@@ -48,7 +50,8 @@ class AIResultSaveService {
       } else {
         return Failure(
           Exception(
-              'Failed to save image to gallery: ${saveResult['errorMessage'] ?? 'Unknown error'}'),
+            'Failed to save image to gallery: ${saveResult['errorMessage'] ?? 'Unknown error'}',
+          ),
         );
       }
     } catch (e) {
@@ -58,13 +61,15 @@ class AIResultSaveService {
 
   /// Saves both original and processed images with metadata
   Future<Result<String>> saveResultWithComparison(
-      GeminiPipelineResult result) async {
+    GeminiPipelineResult result,
+  ) async {
     try {
       final permissionGranted = await _requestPermissions();
       if (!permissionGranted) {
         return Failure(
           Exception(
-              'Storage permission denied. Please grant permission to save images.'),
+            'Storage permission denied. Please grant permission to save images.',
+          ),
         );
       }
 
@@ -96,7 +101,8 @@ class AIResultSaveService {
       await _saveMetadata(result, timestamp);
 
       return const Success(
-          'AI processing results saved with comparison images');
+        'AI processing results saved with comparison images',
+      );
     } catch (e) {
       return Failure(Exception('Failed to save AI result with comparison: $e'));
     }
@@ -197,7 +203,8 @@ class AIResultSaveService {
       final tempDir = await getTemporaryDirectory();
       final metadataFile = File('${tempDir.path}/ai_metadata_$timestamp.txt');
 
-      final metadata = '''
+      final metadata =
+          '''
 AI Processing Result Metadata
 ============================
 Timestamp: ${DateTime.now().toIso8601String()}

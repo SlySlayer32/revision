@@ -1,11 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 /// Environment types for the application
-enum AppEnvironment {
-  development,
-  staging,
-  production,
-}
+enum AppEnvironment { development, staging, production }
 
 /// Detects the current environment at runtime and compile-time
 class EnvironmentDetector {
@@ -119,8 +115,10 @@ class EnvironmentDetector {
   static Map<String, dynamic> getDebugInfo() {
     return {
       'currentEnvironment': currentEnvironment,
-      'compileTimeEnv':
-          const String.fromEnvironment('ENVIRONMENT', defaultValue: 'not_set'),
+      'compileTimeEnv': const String.fromEnvironment(
+        'ENVIRONMENT',
+        defaultValue: 'not_set',
+      ),
       'isWeb': kIsWeb,
       'isDebugMode': kDebugMode,
       'isReleaseMode': kReleaseMode,

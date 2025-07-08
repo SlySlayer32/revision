@@ -44,8 +44,14 @@ class SegmentationMask extends Equatable {
   final Uint8List? maskData;
 
   @override
-  List<Object?> get props =>
-      [boundingBox, label, confidence, polygon, areaPercentage, maskData];
+  List<Object?> get props => [
+    boundingBox,
+    label,
+    confidence,
+    polygon,
+    areaPercentage,
+    maskData,
+  ];
 
   /// Factory constructor from Gemini API JSON response with production-grade error handling
   factory SegmentationMask.fromJson(Map<String, dynamic> json) {
@@ -58,7 +64,8 @@ class SegmentationMask extends Equatable {
       final box2d = json['box_2d'] as List<dynamic>?;
       if (box2d == null || box2d.length != 4) {
         throw const FormatException(
-            'Invalid box_2d format: expected [y0, x0, y1, x1]');
+          'Invalid box_2d format: expected [y0, x0, y1, x1]',
+        );
       }
 
       // Parse polygon coordinates if available
@@ -150,7 +157,7 @@ class SegmentationMask extends Equatable {
         boundingBox.y0,
         boundingBox.x0,
         boundingBox.y1,
-        boundingBox.x1
+        boundingBox.x1,
       ],
       'label': label,
       'confidence': confidence,
@@ -204,10 +211,12 @@ class SegmentationMask extends Equatable {
 
     // Convert normalized polygon coordinates to absolute
     final absolutePolygon = polygon
-        .map((point) => [
-              (point[0] / 1000) * imageWidth,
-              (point[1] / 1000) * imageHeight,
-            ])
+        .map(
+          (point) => [
+            (point[0] / 1000) * imageWidth,
+            (point[1] / 1000) * imageHeight,
+          ],
+        )
         .toList();
 
     bool inside = false;

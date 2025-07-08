@@ -47,7 +47,9 @@ class SecurityUtils {
   static String sanitizeInput(String input) {
     return input
         .replaceAll(
-            RegExp(r'<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>'), '')
+          RegExp(r'<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>'),
+          '',
+        )
         .replaceAll(RegExp(r'javascript:', caseSensitive: false), '')
         .replaceAll(RegExp(r'on\w+\s*='), '')
         .trim();
@@ -135,8 +137,9 @@ class SecurityUtils {
   static bool isSafeFileUpload(String filename, List<int> bytes) {
     // Check file extension
     final allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-    final extension =
-        filename.toLowerCase().substring(filename.lastIndexOf('.'));
+    final extension = filename.toLowerCase().substring(
+      filename.lastIndexOf('.'),
+    );
 
     if (!allowedExtensions.contains(extension)) {
       return false;
@@ -158,7 +161,8 @@ class SecurityUtils {
       if (header[0] == 0x89 &&
           header[1] == 0x50 &&
           header[2] == 0x4E &&
-          header[3] == 0x47) return true;
+          header[3] == 0x47)
+        return true;
 
       // GIF magic numbers
       if (header[0] == 0x47 && header[1] == 0x49 && header[2] == 0x46)
@@ -168,19 +172,26 @@ class SecurityUtils {
       if (header[0] == 0x52 &&
           header[1] == 0x49 &&
           header[2] == 0x46 &&
-          header[3] == 0x46) return true;
+          header[3] == 0x46)
+        return true;
     }
 
     return false;
   }
 
   /// Rate limiting helper
-  static bool isRateLimited(String identifier,
-      {int maxRequests = 10, Duration window = const Duration(minutes: 1)}) {
+  static bool isRateLimited(
+    String identifier, {
+    int maxRequests = 10,
+    Duration window = const Duration(minutes: 1),
+  }) {
     // This is a simple in-memory rate limiter
     // In production, you might want to use Redis or similar
-    return _SimpleRateLimiter.instance
-        .isLimited(identifier, maxRequests, window);
+    return _SimpleRateLimiter.instance.isLimited(
+      identifier,
+      maxRequests,
+      window,
+    );
   }
 
   /// Validates API request headers for security
@@ -205,11 +216,7 @@ class SecurityUtils {
 }
 
 /// Password strength enumeration
-enum PasswordStrength {
-  weak,
-  medium,
-  strong,
-}
+enum PasswordStrength { weak, medium, strong }
 
 /// Simple in-memory rate limiter
 class _SimpleRateLimiter {
@@ -239,7 +246,8 @@ class _SimpleRateLimiter {
     final now = DateTime.now();
     _requests.removeWhere((key, requests) {
       requests.removeWhere(
-          (time) => now.difference(time) > const Duration(hours: 1));
+        (time) => now.difference(time) > const Duration(hours: 1),
+      );
       return requests.isEmpty;
     });
   }

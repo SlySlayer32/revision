@@ -63,25 +63,29 @@ class PerformanceMonitoringService {
       stopwatch.stop();
 
       _recordOperationTime(operationName, stopwatch.elapsed);
-      _recordMetric(PerformanceMetric(
-        name: operationName,
-        type: MetricType.operationTime,
-        value: stopwatch.elapsedMilliseconds.toDouble(),
-        timestamp: DateTime.now(),
-      ));
+      _recordMetric(
+        PerformanceMetric(
+          name: operationName,
+          type: MetricType.operationTime,
+          value: stopwatch.elapsedMilliseconds.toDouble(),
+          timestamp: DateTime.now(),
+        ),
+      );
 
       return result;
     } catch (e) {
       stopwatch.stop();
 
       _recordOperationTime(operationName, stopwatch.elapsed);
-      _recordMetric(PerformanceMetric(
-        name: '${operationName}_error',
-        type: MetricType.error,
-        value: stopwatch.elapsedMilliseconds.toDouble(),
-        timestamp: DateTime.now(),
-        metadata: {'error': e.toString()},
-      ));
+      _recordMetric(
+        PerformanceMetric(
+          name: '${operationName}_error',
+          type: MetricType.error,
+          value: stopwatch.elapsedMilliseconds.toDouble(),
+          timestamp: DateTime.now(),
+          metadata: {'error': e.toString()},
+        ),
+      );
 
       rethrow;
     }
@@ -147,12 +151,14 @@ class PerformanceMonitoringService {
     // Note: In a real implementation, you would use platform-specific
     // methods to get actual memory usage. This is a simplified version.
 
-    _recordMetric(PerformanceMetric(
-      name: 'memory_check',
-      type: MetricType.memoryUsage,
-      value: 0, // Placeholder - would get actual memory usage
-      timestamp: DateTime.now(),
-    ));
+    _recordMetric(
+      PerformanceMetric(
+        name: 'memory_check',
+        type: MetricType.memoryUsage,
+        value: 0, // Placeholder - would get actual memory usage
+        timestamp: DateTime.now(),
+      ),
+    );
   }
 
   /// Gets performance statistics for an operation
@@ -168,8 +174,8 @@ class PerformanceMonitoringService {
 
     final median = durations.length % 2 == 0
         ? (durations[durations.length ~/ 2 - 1] +
-                durations[durations.length ~/ 2]) /
-            2.0
+                  durations[durations.length ~/ 2]) /
+              2.0
         : durations[durations.length ~/ 2].toDouble();
 
     final p95Index = ((durations.length - 1) * 0.95).round();
@@ -338,13 +344,7 @@ class PerformanceMetric {
 }
 
 /// Types of performance metrics
-enum MetricType {
-  operationTime,
-  memoryUsage,
-  networkLatency,
-  error,
-  custom,
-}
+enum MetricType { operationTime, memoryUsage, networkLatency, error, custom }
 
 /// Performance statistics for an operation
 class PerformanceStats {

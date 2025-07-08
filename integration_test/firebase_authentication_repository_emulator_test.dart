@@ -232,8 +232,9 @@ void main() {
         );
 
         // Act
-        final result =
-            await repository.sendPasswordResetEmail(email: testEmail);
+        final result = await repository.sendPasswordResetEmail(
+          email: testEmail,
+        );
 
         // Assert
         expect(result.isRight(), isTrue);

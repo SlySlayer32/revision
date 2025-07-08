@@ -24,14 +24,14 @@ class ProcessingResult extends Equatable {
 
   @override
   List<Object?> get props => [
-        processedImageData,
-        originalPrompt,
-        enhancedPrompt,
-        processingTime,
-        jobId,
-        imageAnalysis,
-        metadata,
-      ];
+    processedImageData,
+    originalPrompt,
+    enhancedPrompt,
+    processingTime,
+    jobId,
+    imageAnalysis,
+    metadata,
+  ];
 }
 
 /// Represents the analysis of an image for AI processing
@@ -56,14 +56,14 @@ class ImageAnalysis extends Equatable {
 
   @override
   List<Object?> get props => [
-        width,
-        height,
-        format,
-        fileSize,
-        dominantColors,
-        detectedObjects,
-        qualityScore,
-      ];
+    width,
+    height,
+    format,
+    fileSize,
+    dominantColors,
+    detectedObjects,
+    qualityScore,
+  ];
 }
 
 /// Represents progress during AI processing
@@ -81,12 +81,7 @@ class ProcessingProgress extends Equatable {
   final Duration? estimatedTimeRemaining;
 
   @override
-  List<Object?> get props => [
-        stage,
-        progress,
-        message,
-        estimatedTimeRemaining,
-      ];
+  List<Object?> get props => [stage, progress, message, estimatedTimeRemaining];
 }
 
 enum ProcessingStage {

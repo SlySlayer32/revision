@@ -11,12 +11,7 @@ enum AIProcessingType {
 }
 
 /// AI processing status
-enum AIProcessingStatus {
-  pending,
-  processing,
-  completed,
-  failed,
-}
+enum AIProcessingStatus { pending, processing, completed, failed }
 
 /// AI processing job entity
 class AIProcessingJob extends Equatable {
@@ -80,17 +75,17 @@ class AIProcessingJob extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        userId,
-        imageId,
-        type,
-        status,
-        prompt,
-        createdAt,
-        updatedAt,
-        result,
-        error,
-        metadata,
-        processingTimeMs,
-      ];
+    id,
+    userId,
+    imageId,
+    type,
+    status,
+    prompt,
+    createdAt,
+    updatedAt,
+    result,
+    error,
+    metadata,
+    processingTimeMs,
+  ];
 }

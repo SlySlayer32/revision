@@ -32,11 +32,11 @@ class _LoginFormState extends State<LoginForm> {
     FocusScope.of(context).unfocus();
 
     context.read<LoginBloc>().add(
-          LoginRequested(
-            email: _emailController.text,
-            password: _passwordController.text,
-          ),
-        );
+      LoginRequested(
+        email: _emailController.text,
+        password: _passwordController.text,
+      ),
+    );
   }
 
   void _onGoogleLoginPressed() {
@@ -46,17 +46,15 @@ class _LoginFormState extends State<LoginForm> {
   void _onForgotPasswordPressed() {
     if (_emailController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your email address first'),
-        ),
+        const SnackBar(content: Text('Please enter your email address first')),
       );
       _emailFocusNode.requestFocus();
       return;
     }
 
     context.read<LoginBloc>().add(
-          ForgotPasswordRequested(email: _emailController.text),
-        );
+      ForgotPasswordRequested(email: _emailController.text),
+    );
   }
 
   @override
@@ -72,9 +70,9 @@ class _LoginFormState extends State<LoginForm> {
 
           // Show success message if this was a password reset
           if (state.errorMessage?.contains('Password reset') ?? false) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage!)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
           }
         }
 

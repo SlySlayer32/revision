@@ -7,9 +7,7 @@ import 'error_monitoring_constants.dart';
 
 /// Manages error alerting and notification logic
 class ErrorAlertManager {
-  ErrorAlertManager({
-    required EnhancedLogger logger,
-  }) : _logger = logger;
+  ErrorAlertManager({required EnhancedLogger logger}) : _logger = logger;
 
   final EnhancedLogger _logger;
   final Map<AlertType, DateTime> _lastAlertTimes = {};

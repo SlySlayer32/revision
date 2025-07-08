@@ -14,9 +14,6 @@ class GetCustomClaimsUseCase {
   /// This method extracts claims from the current user entity
   Future<Either<Failure, Map<String, dynamic>>> call() async {
     final result = await _authRepository.getCurrentUser();
-    return result.fold(
-      Left.new,
-      (user) => Right(user?.customClaims ?? {}),
-    );
+    return result.fold(Left.new, (user) => Right(user?.customClaims ?? {}));
   }
 }

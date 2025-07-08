@@ -16,7 +16,7 @@ class ProcessingControlsController extends ChangeNotifier {
   });
 
   final void Function(String prompt, ProcessingContext context)
-      onStartProcessing;
+  onStartProcessing;
   final AnnotatedImage? annotatedImage;
 
   final promptController = TextEditingController();
@@ -90,8 +90,9 @@ class ProcessingControlsController extends ChangeNotifier {
   ///
   /// Automatically adjusts processing type when markers change
   void updateTypeForMarkers(List<ImageMarker> markers) {
-    final recommendedType =
-        ProcessingContextBuilder.getRecommendedType(markers);
+    final recommendedType = ProcessingContextBuilder.getRecommendedType(
+      markers,
+    );
     if (_selectedType != recommendedType) {
       selectedType = recommendedType;
     }
@@ -153,8 +154,8 @@ class ProcessingControlsController extends ChangeNotifier {
   }
 
   void startProcessing() {
-    final List<ImageMarker> markers = annotatedImage != null &&
-            annotatedImage!.hasAnnotations
+    final List<ImageMarker> markers =
+        annotatedImage != null && annotatedImage!.hasAnnotations
         ? AnnotationConverter.annotationsToMarkers(annotatedImage!.annotations)
         : <ImageMarker>[];
 

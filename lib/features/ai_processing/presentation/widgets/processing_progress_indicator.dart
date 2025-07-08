@@ -4,10 +4,7 @@ import 'package:revision/features/ai_processing/utils/duration_formatter.dart';
 
 /// Widget for displaying AI processing progress with visual feedback.
 class ProcessingProgressIndicator extends StatelessWidget {
-  const ProcessingProgressIndicator({
-    required this.progress,
-    super.key,
-  });
+  const ProcessingProgressIndicator({required this.progress, super.key});
 
   final ProcessingProgress progress;
   // Design constants
@@ -46,10 +43,9 @@ class ProcessingProgressIndicator extends StatelessWidget {
                 CircularProgressIndicator(
                   value: clampedProgress,
                   strokeWidth: _progressStrokeWidth,
-                  backgroundColor: Theme.of(context)
-                      .colorScheme
-                      .outline
-                      .withValues(alpha: _stageOpacity),
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: _stageOpacity),
                   valueColor: AlwaysStoppedAnimation<Color>(
                     _getStageColor(context, progress.stage),
                   ),
@@ -59,10 +55,8 @@ class ProcessingProgressIndicator extends StatelessWidget {
                   children: [
                     Text(
                       '${(clampedProgress * 100).toInt()}%',
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       _getStageLabel(progress.stage),
@@ -97,8 +91,8 @@ class ProcessingProgressIndicator extends StatelessWidget {
               child: Text(
                 'Time remaining: ${DurationFormatter.formatTimeRemaining(progress.estimatedTimeRemaining!)}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
         ],
@@ -168,10 +162,9 @@ class _StageIndicator extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: isActive
                       ? _getStageColor(context, stage)
-                      : Theme.of(context)
-                          .colorScheme
-                          .outline
-                          .withValues(alpha: _opacity),
+                      : Theme.of(
+                          context,
+                        ).colorScheme.outline.withValues(alpha: _opacity),
                 ),
               ),
               if (index < stages.length - 1) ...[
@@ -179,14 +172,16 @@ class _StageIndicator extends StatelessWidget {
                   width: _connectorWidth,
                   height: _connectorHeight,
                   color: isActive
-                      ? _getStageColor(context, stage)
-                          .withValues(alpha: _connectorOpacity)
-                      : Theme.of(context)
-                          .colorScheme
-                          .outline
-                          .withValues(alpha: _opacity),
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: _connectorMargin),
+                      ? _getStageColor(
+                          context,
+                          stage,
+                        ).withValues(alpha: _connectorOpacity)
+                      : Theme.of(
+                          context,
+                        ).colorScheme.outline.withValues(alpha: _opacity),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: _connectorMargin,
+                  ),
                 ),
               ],
             ],

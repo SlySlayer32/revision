@@ -62,19 +62,19 @@ class AIProcessingJob extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        userId,
-        imageId,
-        type,
-        status,
-        prompt,
-        createdAt,
-        updatedAt,
-        result,
-        errorMessage,
-        processingTimeMs,
-        metadata,
-      ];
+    id,
+    userId,
+    imageId,
+    type,
+    status,
+    prompt,
+    createdAt,
+    updatedAt,
+    result,
+    errorMessage,
+    processingTimeMs,
+    metadata,
+  ];
 }
 
 enum AIProcessingType {
@@ -85,9 +85,4 @@ enum AIProcessingType {
   imageGeneration,
 }
 
-enum AIProcessingStatus {
-  pending,
-  processing,
-  completed,
-  failed,
-}
+enum AIProcessingStatus { pending, processing, completed, failed }

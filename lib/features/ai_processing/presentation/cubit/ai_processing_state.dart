@@ -17,10 +17,7 @@ class AiProcessingInitial extends AiProcessingState {
 
 /// State when AI processing is in progress
 class AiProcessingInProgress extends AiProcessingState {
-  const AiProcessingInProgress({
-    required this.progress,
-    this.canCancel = true,
-  });
+  const AiProcessingInProgress({required this.progress, this.canCancel = true});
 
   final ProcessingProgress progress;
   final bool canCancel;
@@ -61,9 +58,7 @@ class AiProcessingError extends AiProcessingState {
 
 /// State when AI processing has been cancelled
 class AiProcessingCancelled extends AiProcessingState {
-  const AiProcessingCancelled({
-    this.originalImage,
-  });
+  const AiProcessingCancelled({this.originalImage});
 
   final SelectedImage? originalImage;
 

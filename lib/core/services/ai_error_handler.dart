@@ -16,15 +16,17 @@ class AIErrorHandler {
     int? maxDelayMs,
     int? circuitBreakerThreshold,
     int? circuitBreakerTimeoutMs,
-  })  : maxRetries = maxRetries ?? FirebaseAIConstants.maxRetries,
-        baseDelayMs =
-            baseDelayMs ?? FirebaseAIConstants.retryBaseDelay.inMilliseconds,
-        maxDelayMs =
-            maxDelayMs ?? FirebaseAIConstants.retryMaxDelay.inMilliseconds,
-        circuitBreakerThreshold = circuitBreakerThreshold ??
-            FirebaseAIConstants.circuitBreakerThreshold,
-        circuitBreakerTimeoutMs = circuitBreakerTimeoutMs ??
-            FirebaseAIConstants.circuitBreakerTimeout.inMilliseconds;
+  }) : maxRetries = maxRetries ?? FirebaseAIConstants.maxRetries,
+       baseDelayMs =
+           baseDelayMs ?? FirebaseAIConstants.retryBaseDelay.inMilliseconds,
+       maxDelayMs =
+           maxDelayMs ?? FirebaseAIConstants.retryMaxDelay.inMilliseconds,
+       circuitBreakerThreshold =
+           circuitBreakerThreshold ??
+           FirebaseAIConstants.circuitBreakerThreshold,
+       circuitBreakerTimeoutMs =
+           circuitBreakerTimeoutMs ??
+           FirebaseAIConstants.circuitBreakerTimeout.inMilliseconds;
 
   final int maxRetries;
   final int baseDelayMs;
@@ -84,8 +86,10 @@ class AIErrorHandler {
           logger.aiRetry(operationName, attempt + 1, maxRetries, e);
           await Future.delayed(delay);
         } else {
-          logger.error('All retries exhausted for $operationName',
-              operation: operationName);
+          logger.error(
+            'All retries exhausted for $operationName',
+            operation: operationName,
+          );
         }
       }
     }
@@ -136,10 +140,7 @@ class AIErrorHandler {
   /// Calculate exponential backoff delay with jitter
   Duration _calculateDelay(int attempt) {
     final exponentialDelay = math
-        .min(
-          baseDelayMs * math.pow(2, attempt),
-          maxDelayMs,
-        )
+        .min(baseDelayMs * math.pow(2, attempt), maxDelayMs)
         .toInt();
 
     // Add jitter (±25% randomness)
@@ -194,7 +195,8 @@ class AIErrorHandler {
           ? math.max(
               0,
               circuitBreakerTimeoutMs -
-                  DateTime.now().difference(_lastFailureTime!).inMilliseconds)
+                  DateTime.now().difference(_lastFailureTime!).inMilliseconds,
+            )
           : 0,
     };
   }
@@ -222,7 +224,7 @@ class AICircuitBreakerException extends AIException {
 
 class AIMaxRetriesExceededException extends AIException {
   const AIMaxRetriesExceededException(String message, Exception? cause)
-      : super(message, cause);
+    : super(message, cause);
 }
 
 class AIResponseValidationException extends AIException {

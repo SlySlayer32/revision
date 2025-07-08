@@ -21,14 +21,14 @@ class User extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        email,
-        displayName,
-        photoUrl,
-        isEmailVerified,
-        createdAt,
-        customClaims,
-      ];
+    id,
+    email,
+    displayName,
+    photoUrl,
+    isEmailVerified,
+    createdAt,
+    customClaims,
+  ];
 
   /// Validates email format using regex
   bool get hasValidEmail {

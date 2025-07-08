@@ -43,8 +43,9 @@ class App extends StatelessWidget {
           child: MaterialApp(
             title: 'Revision',
             theme: ThemeData(
-              colorScheme:
-                  ColorScheme.fromSeed(seedColor: const Color(0xFF13B9FF)),
+              colorScheme: ColorScheme.fromSeed(
+                seedColor: const Color(0xFF13B9FF),
+              ),
               appBarTheme: AppBarTheme(
                 backgroundColor: Theme.of(context).colorScheme.inversePrimary,
               ),

@@ -17,7 +17,8 @@ void main() {
       expect(directApiKey, startsWith('AIza'));
 
       print(
-          '✅ Direct dotenv access: API key found (${directApiKey?.length} chars)');
+        '✅ Direct dotenv access: API key found (${directApiKey?.length} chars)',
+      );
     });
 
     test('should access GEMINI_API_KEY through EnvConfig', () {
@@ -28,7 +29,8 @@ void main() {
       expect(configApiKey, startsWith('AIza'));
 
       print(
-          '✅ EnvConfig access: API key found (${configApiKey?.length} chars)');
+        '✅ EnvConfig access: API key found (${configApiKey?.length} chars)',
+      );
     });
 
     test('should report Gemini API as configured', () {
@@ -37,7 +39,8 @@ void main() {
       expect(isConfigured, isTrue);
 
       print(
-          '✅ Configuration check: ${isConfigured ? "CONFIGURED" : "NOT CONFIGURED"}');
+        '✅ Configuration check: ${isConfigured ? "CONFIGURED" : "NOT CONFIGURED"}',
+      );
     });
 
     test('should provide debug information', () {

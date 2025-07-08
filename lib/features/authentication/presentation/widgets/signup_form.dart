@@ -38,12 +38,12 @@ class _SignUpFormState extends State<SignUpForm> {
     FocusScope.of(context).unfocus();
 
     context.read<SignupBloc>().add(
-          SignupRequested(
-            email: _emailController.text,
-            password: _passwordController.text,
-            confirmPassword: _confirmPasswordController.text,
-          ),
-        );
+      SignupRequested(
+        email: _emailController.text,
+        password: _passwordController.text,
+        confirmPassword: _confirmPasswordController.text,
+      ),
+    );
   }
 
   @override

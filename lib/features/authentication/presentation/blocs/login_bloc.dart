@@ -17,10 +17,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     required SignInUseCase signIn,
     required SignInWithGoogleUseCase signInWithGoogle,
     required SendPasswordResetEmailUseCase sendPasswordResetEmail,
-  })  : _signIn = signIn,
-        _signInWithGoogle = signInWithGoogle,
-        _sendPasswordResetEmail = sendPasswordResetEmail,
-        super(const LoginState()) {
+  }) : _signIn = signIn,
+       _signInWithGoogle = signInWithGoogle,
+       _sendPasswordResetEmail = sendPasswordResetEmail,
+       super(const LoginState()) {
     on<LoginRequested>(_onLoginRequested);
     on<LoginWithGoogleRequested>(_onLoginWithGoogleRequested);
     on<ForgotPasswordRequested>(_onForgotPasswordRequested);
@@ -37,23 +37,17 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       emit(state.copyWith(status: LoginStatus.loading));
 
       final result = await _signIn(
-        SignInParams(
-          email: event.email,
-          password: event.password,
-        ),
+        SignInParams(email: event.email, password: event.password),
       );
-      result.fold(
-        (failure) {
-          log('Login error', error: failure);
-          emit(
-            state.copyWith(
-              status: LoginStatus.failure,
-              errorMessage: failure.message,
-            ),
-          );
-        },
-        (user) => emit(state.copyWith(status: LoginStatus.success)),
-      );
+      result.fold((failure) {
+        log('Login error', error: failure);
+        emit(
+          state.copyWith(
+            status: LoginStatus.failure,
+            errorMessage: failure.message,
+          ),
+        );
+      }, (user) => emit(state.copyWith(status: LoginStatus.success)));
     } catch (e) {
       log('Unexpected login error', error: e);
       emit(
@@ -73,18 +67,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       emit(state.copyWith(status: LoginStatus.loading));
 
       final result = await _signInWithGoogle();
-      result.fold(
-        (failure) {
-          log('Google login error', error: failure);
-          emit(
-            state.copyWith(
-              status: LoginStatus.failure,
-              errorMessage: failure.message,
-            ),
-          );
-        },
-        (user) => emit(state.copyWith(status: LoginStatus.success)),
-      );
+      result.fold((failure) {
+        log('Google login error', error: failure);
+        emit(
+          state.copyWith(
+            status: LoginStatus.failure,
+            errorMessage: failure.message,
+          ),
+        );
+      }, (user) => emit(state.copyWith(status: LoginStatus.success)));
     } catch (e) {
       log('Unexpected Google login error', error: e);
       emit(

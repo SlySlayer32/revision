@@ -29,8 +29,10 @@ class ImageSelectionRepositoryImpl implements ImageRepository {
         );
       }
 
-      final selectedImage =
-          await _createSelectedImage(xFile, ImageSource.gallery);
+      final selectedImage = await _createSelectedImage(
+        xFile,
+        ImageSource.gallery,
+      );
       return Success(selectedImage);
     } catch (e) {
       return Failure(_mapException(e));
@@ -47,8 +49,10 @@ class ImageSelectionRepositoryImpl implements ImageRepository {
         );
       }
 
-      final selectedImage =
-          await _createSelectedImage(xFile, ImageSource.camera);
+      final selectedImage = await _createSelectedImage(
+        xFile,
+        ImageSource.camera,
+      );
       return Success(selectedImage);
     } catch (e) {
       return Failure(_mapException(e));
@@ -57,7 +61,9 @@ class ImageSelectionRepositoryImpl implements ImageRepository {
 
   /// Creates a platform-appropriate SelectedImage from XFile
   Future<SelectedImage> _createSelectedImage(
-      picker.XFile xFile, ImageSource source) async {
+    picker.XFile xFile,
+    ImageSource source,
+  ) async {
     final fileName = xFile.name;
     final sizeInBytes = await xFile.length();
 
@@ -154,7 +160,8 @@ class ImageSelectionRepositoryImpl implements ImageRepository {
     if (message.contains('No image selected') ||
         message.contains('User cancelled')) {
       return const ImageSelectionException.cancelled(
-          'Image selection was cancelled');
+        'Image selection was cancelled',
+      );
     }
 
     if (message.contains('permission') || message.contains('denied')) {

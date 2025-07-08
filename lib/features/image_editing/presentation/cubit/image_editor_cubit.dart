@@ -25,7 +25,7 @@ class ImageEditorCubit extends Cubit<ImageEditorState> {
       );
       final updatedStrokes = [
         ...currentStrokes.sublist(0, currentStrokes.length - 1),
-        currentStroke
+        currentStroke,
       ];
       emit(ImageEditorDrawing(strokes: updatedStrokes));
     }

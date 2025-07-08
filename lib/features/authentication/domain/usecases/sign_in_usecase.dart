@@ -32,10 +32,7 @@ class SignInUseCase implements UseCase<User, SignInParams> {
 }
 
 class SignInParams extends Equatable {
-  const SignInParams({
-    required this.email,
-    required this.password,
-  });
+  const SignInParams({required this.email, required this.password});
 
   final String email;
   final String password;

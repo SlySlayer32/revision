@@ -31,27 +31,27 @@ sealed class ImageSelectionException extends Equatable implements Exception {
 
 final class PermissionDeniedException extends ImageSelectionException {
   const PermissionDeniedException(String message)
-      : super(message, 'permission_denied');
+    : super(message, 'permission_denied');
 }
 
 final class FileNotFoundException extends ImageSelectionException {
   const FileNotFoundException(String message)
-      : super(message, 'file_not_found');
+    : super(message, 'file_not_found');
 }
 
 final class FileTooLargeException extends ImageSelectionException {
   const FileTooLargeException(String message)
-      : super(message, 'file_too_large');
+    : super(message, 'file_too_large');
 }
 
 final class InvalidFormatException extends ImageSelectionException {
   const InvalidFormatException(String message)
-      : super(message, 'invalid_format');
+    : super(message, 'invalid_format');
 }
 
 final class CameraUnavailableException extends ImageSelectionException {
   const CameraUnavailableException(String message)
-      : super(message, 'camera_unavailable');
+    : super(message, 'camera_unavailable');
 }
 
 final class CancelledException extends ImageSelectionException {

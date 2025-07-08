@@ -3,7 +3,8 @@ import 'package:revision/features/image_editing/domain/entities/annotation_strok
 
 class AnnotationConverter {
   static List<Map<String, dynamic>> toListOfMaps(
-      List<AnnotationStroke> annotations) {
+    List<AnnotationStroke> annotations,
+  ) {
     return annotations.map((stroke) {
       return {
         'points': stroke.points.map((point) {
@@ -16,7 +17,9 @@ class AnnotationConverter {
   }
 
   static String generatePromptFromAnnotations(
-      List<AnnotationStroke> annotations, String userPrompt) {
+    List<AnnotationStroke> annotations,
+    String userPrompt,
+  ) {
     if (annotations.isEmpty) {
       return userPrompt;
     }
@@ -30,14 +33,16 @@ class AnnotationConverter {
       final colorName =
           '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
       promptParts.add(
-          '  - Area ${i + 1}: A stroke with color $colorName and width ${stroke.strokeWidth.toStringAsFixed(2)}');
+        '  - Area ${i + 1}: A stroke with color $colorName and width ${stroke.strokeWidth.toStringAsFixed(2)}',
+      );
     }
 
     return promptParts.join('\n');
   }
 
   static List<ImageMarker> annotationsToMarkers(
-      List<AnnotationStroke> annotations) {
+    List<AnnotationStroke> annotations,
+  ) {
     return annotations.asMap().entries.map((entry) {
       final index = entry.key;
       final stroke = entry.value;

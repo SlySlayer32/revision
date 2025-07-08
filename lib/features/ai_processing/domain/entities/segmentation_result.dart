@@ -35,13 +35,13 @@ class SegmentationResult extends Equatable {
 
   @override
   List<Object?> get props => [
-        masks,
-        processingTimeMs,
-        imageWidth,
-        imageHeight,
-        modelVersion,
-        confidence,
-      ];
+    masks,
+    processingTimeMs,
+    imageWidth,
+    imageHeight,
+    modelVersion,
+    confidence,
+  ];
 
   /// Factory constructor from Gemini API JSON response
   factory SegmentationResult.fromJson(
@@ -52,8 +52,10 @@ class SegmentationResult extends Equatable {
   ) {
     final masksJson = json['masks'] as List<dynamic>? ?? [];
     final masks = masksJson
-        .map((maskJson) =>
-            SegmentationMask.fromJson(maskJson as Map<String, dynamic>))
+        .map(
+          (maskJson) =>
+              SegmentationMask.fromJson(maskJson as Map<String, dynamic>),
+        )
         .toList();
 
     return SegmentationResult(
@@ -62,10 +64,11 @@ class SegmentationResult extends Equatable {
       imageWidth: imageWidth,
       imageHeight: imageHeight,
       modelVersion: json['modelVersion'] as String? ?? 'gemini-2.5-flash',
-      confidence: (json['confidence'] as num?)?.toDouble() ??
+      confidence:
+          (json['confidence'] as num?)?.toDouble() ??
           (masks.isNotEmpty
               ? masks.map((m) => m.confidence).reduce((a, b) => a + b) /
-                  masks.length
+                    masks.length
               : 0.0),
     );
   }
@@ -100,8 +103,9 @@ class SegmentationResult extends Equatable {
   SegmentationMask? getLargestMask() {
     if (masks.isEmpty) return null;
 
-    return masks
-        .reduce((a, b) => a.boundingBox.area > b.boundingBox.area ? a : b);
+    return masks.reduce(
+      (a, b) => a.boundingBox.area > b.boundingBox.area ? a : b,
+    );
   }
 
   /// Get masks above a confidence threshold
@@ -123,8 +127,9 @@ class SegmentationResult extends Equatable {
     final uniqueLabels = masks.map((m) => m.label).toSet().toList();
     final avgConfidence =
         masks.map((m) => m.confidence).reduce((a, b) => a + b) / masks.length;
-    final totalArea =
-        masks.map((m) => m.boundingBox.area).reduce((a, b) => a + b);
+    final totalArea = masks
+        .map((m) => m.boundingBox.area)
+        .reduce((a, b) => a + b);
 
     return SegmentationStats(
       totalMasks: masks.length,
@@ -157,8 +162,12 @@ class SegmentationStats extends Equatable {
   final double totalArea;
 
   @override
-  List<Object?> get props =>
-      [totalMasks, averageConfidence, uniqueLabels, totalArea];
+  List<Object?> get props => [
+    totalMasks,
+    averageConfidence,
+    uniqueLabels,
+    totalArea,
+  ];
 
   @override
   String toString() {

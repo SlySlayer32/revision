@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -9,7 +8,7 @@ import 'package:revision/core/config/env_config.dart';
 void main() {
   testWidgets('Gemini API connectivity test', (WidgetTester tester) async {
     // Load environment variables
-    await dotenv.load(fileName: ".env.development");
+    await dotenv.load(fileName: '.env.development');
 
     log('🧪 Testing Gemini API connectivity...');
 
@@ -38,14 +37,11 @@ Future<void> testBasicTextRequest(String apiKey) async {
     'contents': [
       {
         'parts': [
-          {'text': 'Hello, respond with a simple greeting.'}
-        ]
-      }
+          {'text': 'Hello, respond with a simple greeting.'},
+        ],
+      },
     ],
-    'generationConfig': {
-      'temperature': 0.1,
-      'maxOutputTokens': 100,
-    }
+    'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 100},
   };
 
   try {
@@ -58,13 +54,21 @@ Future<void> testBasicTextRequest(String apiKey) async {
     log('📥 Text request status: ${response.statusCode}');
     log('📄 Text response length: ${response.body.length}');
 
-    expect(response.statusCode, 200, reason: 'Text request should be successful');
+    expect(
+      response.statusCode,
+      200,
+      reason: 'Text request should be successful',
+    );
 
     final data = jsonDecode(response.body);
     log('✅ Basic text request successful');
     log('📋 Response structure: ${data.keys.toList()}');
 
-    expect(data.containsKey('candidates'), isTrue, reason: 'Response should contain candidates');
+    expect(
+      data.containsKey('candidates'),
+      isTrue,
+      reason: 'Response should contain candidates',
+    );
   } catch (e) {
     fail('Text request failed with error: $e');
   }
@@ -89,15 +93,12 @@ Future<void> testSimpleImageRequest(String apiKey) async {
             'inline_data': {
               'mime_type': 'image/jpeg',
               'data': dummyImageBase64,
-            }
-          }
-        ]
-      }
+            },
+          },
+        ],
+      },
     ],
-    'generationConfig': {
-      'temperature': 0.1,
-      'maxOutputTokens': 100,
-    }
+    'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 100},
   };
 
   try {
@@ -110,7 +111,11 @@ Future<void> testSimpleImageRequest(String apiKey) async {
     log('📥 Image request status: ${response.statusCode}');
     log('📄 Image response length: ${response.body.length}');
 
-    expect(response.statusCode, 200, reason: 'Image request should be successful');
+    expect(
+      response.statusCode,
+      200,
+      reason: 'Image request should be successful',
+    );
 
     final data = jsonDecode(response.body);
     log('✅ Image request successful');

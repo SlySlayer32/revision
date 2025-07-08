@@ -19,7 +19,8 @@ class NullSafetyUtils {
 
     if (logWhenNull && context != null) {
       debugPrint(
-          '⚠️ Null value detected in: $context. Using fallback: $fallback');
+        '⚠️ Null value detected in: $context. Using fallback: $fallback',
+      );
     }
 
     return fallback;
@@ -35,11 +36,7 @@ class NullSafetyUtils {
   }
 
   /// Safely gets an int with zero fallback
-  static int safeInt(
-    int? value, {
-    int fallback = 0,
-    String? context,
-  }) {
+  static int safeInt(int? value, {int fallback = 0, String? context}) {
     return safeGet(value, fallback, context: context);
   }
 
@@ -53,11 +50,7 @@ class NullSafetyUtils {
   }
 
   /// Safely gets a bool with false fallback
-  static bool safeBool(
-    bool? value, {
-    bool fallback = false,
-    String? context,
-  }) {
+  static bool safeBool(bool? value, {bool fallback = false, String? context}) {
     return safeGet(value, fallback, context: context);
   }
 
@@ -97,7 +90,8 @@ class NullSafetyUtils {
     } catch (e) {
       if (logErrors) {
         debugPrint(
-            '❌ Error executing function${context != null ? ' in $context' : ''}: $e');
+          '❌ Error executing function${context != null ? ' in $context' : ''}: $e',
+        );
       }
       return null;
     }
@@ -121,7 +115,8 @@ class NullSafetyUtils {
     } catch (e) {
       if (logErrors) {
         debugPrint(
-            '❌ Error executing async function${context != null ? ' in $context' : ''}: $e');
+          '❌ Error executing async function${context != null ? ' in $context' : ''}: $e',
+        );
       }
       return null;
     }
@@ -173,11 +168,7 @@ class NullSafetyUtils {
   }
 
   /// Safely parses a string to int with fallback
-  static int parseInt(
-    String? value, {
-    int fallback = 0,
-    String? context,
-  }) {
+  static int parseInt(String? value, {int fallback = 0, String? context}) {
     if (isStringNullOrEmpty(value)) {
       if (kDebugMode && context != null) {
         debugPrint('⚠️ Null/empty string in parseInt: $context');
@@ -190,7 +181,8 @@ class NullSafetyUtils {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            '❌ Error parsing int${context != null ? ' in $context' : ''}: $e');
+          '❌ Error parsing int${context != null ? ' in $context' : ''}: $e',
+        );
       }
       return fallback;
     }
@@ -214,7 +206,8 @@ class NullSafetyUtils {
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
-            '❌ Error parsing double${context != null ? ' in $context' : ''}: $e');
+          '❌ Error parsing double${context != null ? ' in $context' : ''}: $e',
+        );
       }
       return fallback;
     }
@@ -231,10 +224,7 @@ class NullSafetyUtils {
   }
 
   /// Creates a safe callback that handles null function references
-  static VoidCallback? safeCallback(
-    VoidCallback? callback, {
-    String? context,
-  }) {
+  static VoidCallback? safeCallback(VoidCallback? callback, {String? context}) {
     if (callback == null) return null;
 
     return () {
@@ -243,7 +233,8 @@ class NullSafetyUtils {
       } catch (e) {
         if (kDebugMode) {
           debugPrint(
-              '❌ Error in callback${context != null ? ' ($context)' : ''}: $e');
+            '❌ Error in callback${context != null ? ' ($context)' : ''}: $e',
+          );
         }
       }
     };
@@ -262,7 +253,8 @@ class NullSafetyUtils {
       } catch (e) {
         if (kDebugMode) {
           debugPrint(
-              '❌ Error in value callback${context != null ? ' ($context)' : ''}: $e');
+            '❌ Error in value callback${context != null ? ' ($context)' : ''}: $e',
+          );
         }
       }
     };

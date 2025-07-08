@@ -29,19 +29,13 @@ class WelcomePage extends StatelessWidget {
               const Spacer(),
               const Text(
                 'Welcome to Revision',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               const Text(
                 'AI-powered image editing that seamlessly removes trees from gardens and changes wall colors - making it look like it was never edited',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const Spacer(),
               ElevatedButton(

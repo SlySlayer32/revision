@@ -51,8 +51,8 @@ class _DashboardViewState extends State<DashboardView> {
             onSelected: (value) {
               if (value == 'logout') {
                 context.read<AuthenticationBloc>().add(
-                      const AuthenticationLogoutRequested(),
-                    );
+                  const AuthenticationLogoutRequested(),
+                );
               } else if (value == 'profile') {
                 _showComingSoonDialog(context);
               }
@@ -110,10 +110,7 @@ class _DashboardViewState extends State<DashboardView> {
             // Status Cards
             const Text(
               'System Status',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             const Row(
@@ -170,10 +167,7 @@ class _DashboardViewState extends State<DashboardView> {
             // Available Tools
             const Text(
               'Available Tools',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             GridView.count(
@@ -237,11 +231,7 @@ class _DashboardViewState extends State<DashboardView> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                color: color,
-                size: 32,
-              ),
+              Icon(icon, color: color, size: 32),
               const SizedBox(height: 8),
               Text(
                 title,

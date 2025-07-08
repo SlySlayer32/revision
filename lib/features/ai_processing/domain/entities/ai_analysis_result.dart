@@ -34,13 +34,13 @@ class AiAnalysisResult extends Equatable {
 
   @override
   List<Object?> get props => [
-        identifiedObjects,
-        editingPrompt,
-        confidence,
-        processingTimeMs,
-        technicalNotes,
-        safetyAssessment,
-      ];
+    identifiedObjects,
+    editingPrompt,
+    confidence,
+    processingTimeMs,
+    technicalNotes,
+    safetyAssessment,
+  ];
 
   /// Returns a formatted summary of identified objects
   String get objectsSummary {
@@ -50,8 +50,10 @@ class AiAnalysisResult extends Equatable {
       return '${identifiedObjects.first} and ${identifiedObjects.last}';
     }
     final lastObject = identifiedObjects.last;
-    final otherObjects =
-        identifiedObjects.sublist(0, identifiedObjects.length - 1);
+    final otherObjects = identifiedObjects.sublist(
+      0,
+      identifiedObjects.length - 1,
+    );
     return '${otherObjects.join(', ')} and $lastObject';
   }
 

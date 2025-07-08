@@ -16,11 +16,9 @@ import 'package:revision/features/image_editing/domain/entities/annotation_strok
 /// Handles the actual communication with AI services and response processing
 /// following Single Responsibility Principle.
 class AnalysisExecutor {
-  AnalysisExecutor({
-    http.Client? httpClient,
-    AuthRepository? authRepository,
-  })  : _httpClient = httpClient ?? http.Client(),
-        _authRepository = authRepository;
+  AnalysisExecutor({http.Client? httpClient, AuthRepository? authRepository})
+    : _httpClient = httpClient ?? http.Client(),
+      _authRepository = authRepository;
 
   final http.Client _httpClient;
   final AuthRepository? _authRepository;
@@ -36,7 +34,9 @@ class AnalysisExecutor {
     final stopwatch = Stopwatch()..start();
 
     try {
-      log('🔄 Starting AI analysis execution with ${annotatedImage.annotations.length} strokes');
+      log(
+        '🔄 Starting AI analysis execution with ${annotatedImage.annotations.length} strokes',
+      );
 
       // Create multipart request for AI service
       final request = await _createAnalysisRequest(
@@ -53,7 +53,9 @@ class AnalysisExecutor {
 
       stopwatch.stop();
 
-      log('✅ AI analysis execution completed in ${stopwatch.elapsedMilliseconds}ms');
+      log(
+        '✅ AI analysis execution completed in ${stopwatch.elapsedMilliseconds}ms',
+      );
 
       final result = ProcessingResult(
         processedImageData: annotatedImage.imageBytes,
@@ -78,9 +80,9 @@ class AnalysisExecutor {
         return Failure(e);
       }
 
-      return Failure(AnalysisNetworkException(
-        'Analysis execution failed: ${e.toString()}',
-      ));
+      return Failure(
+        AnalysisNetworkException('Analysis execution failed: ${e.toString()}'),
+      );
     }
   }
 
@@ -131,20 +133,24 @@ class AnalysisExecutor {
   /// Converts annotation strokes to JSON format for API
   List<Map<String, dynamic>> _strokesToJson(List<AnnotationStroke> strokes) {
     return strokes
-        .map((stroke) => {
-              'stroke_id': stroke.hashCode.toString(),
-              'points': stroke.points
-                  .map((point) => {
-                        'x': point.dx,
-                        'y': point.dy,
-                        'pressure':
-                            1.0, // Default pressure since Offset doesn't have pressure
-                      })
-                  .toList(),
-              'color': stroke.color.value,
-              'width': stroke.strokeWidth,
-              'point_count': stroke.points.length,
-            })
+        .map(
+          (stroke) => {
+            'stroke_id': stroke.hashCode.toString(),
+            'points': stroke.points
+                .map(
+                  (point) => {
+                    'x': point.dx,
+                    'y': point.dy,
+                    'pressure':
+                        1.0, // Default pressure since Offset doesn't have pressure
+                  },
+                )
+                .toList(),
+            'color': stroke.color.value,
+            'width': stroke.strokeWidth,
+            'point_count': stroke.points.length,
+          },
+        )
         .toList();
   }
 
@@ -154,14 +160,19 @@ class AnalysisExecutor {
   ) async {
     Exception? lastException;
 
-    for (int attempt = 0;
-        attempt <= AnalysisServiceConfig.maxRetries;
-        attempt++) {
+    for (
+      int attempt = 0;
+      attempt <= AnalysisServiceConfig.maxRetries;
+      attempt++
+    ) {
       try {
-        log('🔄 Sending AI analysis request (attempt ${attempt + 1}/${AnalysisServiceConfig.maxRetries + 1})');
+        log(
+          '🔄 Sending AI analysis request (attempt ${attempt + 1}/${AnalysisServiceConfig.maxRetries + 1})',
+        );
 
-        final response =
-            await request.send().timeout(AnalysisServiceConfig.requestTimeout);
+        final response = await request.send().timeout(
+          AnalysisServiceConfig.requestTimeout,
+        );
 
         if (response.statusCode == 200) {
           log('✅ AI analysis request successful');

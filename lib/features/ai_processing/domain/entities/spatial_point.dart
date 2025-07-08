@@ -55,8 +55,9 @@ class SpatialPoint {
 
   @override
   String toString() {
-    final confidenceStr =
-        confidence != null ? ' (${confidence!.toStringAsFixed(2)})' : '';
+    final confidenceStr = confidence != null
+        ? ' (${confidence!.toStringAsFixed(2)})'
+        : '';
     final labelStr = label != null ? ' "$label"' : '';
     return 'SpatialPoint(${x.toStringAsFixed(3)}, ${y.toStringAsFixed(3)})$labelStr$confidenceStr';
   }

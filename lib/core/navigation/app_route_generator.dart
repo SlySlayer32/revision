@@ -26,7 +26,8 @@ class AppRouteGenerator {
     debugPrint('🔗 AppRouteGenerator: Generating route: $routeName');
     if (arguments != null) {
       debugPrint(
-          '🔗 AppRouteGenerator: Arguments: ${NavigationArguments.debugSummary(arguments)}');
+        '🔗 AppRouteGenerator: Arguments: ${NavigationArguments.debugSummary(arguments)}',
+      );
     }
 
     try {
@@ -35,50 +36,29 @@ class AppRouteGenerator {
         case RouteNames.home:
           return _createRoute(
             const AuthenticationWrapper(),
-            RouteSettings(
-              name: RouteNames.root,
-              arguments: settings.arguments,
-            ),
+            RouteSettings(name: RouteNames.root, arguments: settings.arguments),
           );
 
         case RouteNames.welcome:
-          return _createRoute(
-            const WelcomePage(),
-            settings,
-          );
+          return _createRoute(const WelcomePage(), settings);
 
         case RouteNames.login:
-          return _createRoute(
-            const LoginPage(),
-            settings,
-          );
+          return _createRoute(const LoginPage(), settings);
 
         case RouteNames.signup:
-          return _createRoute(
-            const SignUpPage(),
-            settings,
-          );
+          return _createRoute(const SignUpPage(), settings);
 
         case RouteNames.dashboard:
-          return _createRoute(
-            const DashboardPage(),
-            settings,
-          );
+          return _createRoute(const DashboardPage(), settings);
 
         case RouteNames.imageSelection:
-          return _createRoute(
-            const ImageSelectionPage(),
-            settings,
-          );
+          return _createRoute(const ImageSelectionPage(), settings);
 
         case RouteNames.aiProcessing:
           return _generateAiProcessingRoute(settings);
 
         case RouteNames.objectRemovalDemo:
-          return _createRoute(
-            const ObjectRemovalDemoPage(),
-            settings,
-          );
+          return _createRoute(const ObjectRemovalDemoPage(), settings);
 
         case RouteNames.error:
           return _generateErrorRoute(settings);
@@ -101,24 +81,26 @@ class AppRouteGenerator {
     Widget page,
     RouteSettings settings,
   ) {
-    return MaterialPageRoute<T>(
-      builder: (_) => page,
-      settings: settings,
-    );
+    return MaterialPageRoute<T>(builder: (_) => page, settings: settings);
   }
 
   /// Generates AI processing route with argument validation
   static Route<dynamic> _generateAiProcessingRoute(RouteSettings settings) {
     final args = NavigationArguments.toSafeMap(settings.arguments);
 
-    final selectedImage =
-        NavigationArguments.extractValue(args, 'selectedImage');
-    final annotatedImage =
-        NavigationArguments.extractValue(args, 'annotatedImage');
+    final selectedImage = NavigationArguments.extractValue(
+      args,
+      'selectedImage',
+    );
+    final annotatedImage = NavigationArguments.extractValue(
+      args,
+      'annotatedImage',
+    );
 
     if (selectedImage == null) {
       debugPrint(
-          '⚠️ AppRouteGenerator: AI processing route missing selectedImage');
+        '⚠️ AppRouteGenerator: AI processing route missing selectedImage',
+      );
       return SafeNavigation.createErrorRoute(
         'AI Processing requires a selected image.\nPlease select an image first.',
       );
@@ -157,9 +139,7 @@ class AppRouteGenerator {
         arguments: {'requestedRoute': routeName},
       ),
       builder: (_) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Page Not Found'),
-        ),
+        appBar: AppBar(title: const Text('Page Not Found')),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -175,10 +155,9 @@ class AppRouteGenerator {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.of(_).pushNamedAndRemoveUntil(
-                    RouteNames.root,
-                    (route) => false,
-                  );
+                  Navigator.of(
+                    _,
+                  ).pushNamedAndRemoveUntil(RouteNames.root, (route) => false);
                 },
                 child: const Text('Go Home'),
               ),

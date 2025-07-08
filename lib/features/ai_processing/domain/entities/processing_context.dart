@@ -17,10 +17,10 @@ class ProcessingContext extends Equatable {
     this.promptSystemInstructions,
     this.editSystemInstructions,
   }) : assert(
-          processingType != ProcessingType.custom ||
-              (customInstructions != null && customInstructions.length >= 10),
-          'Custom processing type requires detailed instructions (min 10 characters)',
-        );
+         processingType != ProcessingType.custom ||
+             (customInstructions != null && customInstructions.length >= 10),
+         'Custom processing type requires detailed instructions (min 10 characters)',
+       );
 
   /// Factory constructor for quick enhancement processing
   factory ProcessingContext.quickEnhance() {
@@ -82,9 +82,7 @@ class ProcessingContext extends Equatable {
   }
 
   /// Factory constructor for object detection
-  factory ProcessingContext.objectDetection({
-    String? targetObjects,
-  }) {
+  factory ProcessingContext.objectDetection({String? targetObjects}) {
     return ProcessingContext(
       processingType: ProcessingType.objectDetection,
       qualityLevel: QualityLevel.standard,
@@ -197,15 +195,15 @@ class ProcessingContext extends Equatable {
 
   @override
   List<Object?> get props => [
-        processingType,
-        qualityLevel,
-        performancePriority,
-        markers,
-        customInstructions,
-        targetFormat,
-        promptSystemInstructions,
-        editSystemInstructions,
-      ];
+    processingType,
+    qualityLevel,
+    performancePriority,
+    markers,
+    customInstructions,
+    targetFormat,
+    promptSystemInstructions,
+    editSystemInstructions,
+  ];
   ProcessingContext copyWith({
     ProcessingType? processingType,
     QualityLevel? qualityLevel,

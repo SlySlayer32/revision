@@ -64,10 +64,7 @@ class PerformanceService {
   }
 
   /// Times a synchronous operation
-  T timeSync<T>(
-    String operationName,
-    T Function() operation,
-  ) {
+  T timeSync<T>(String operationName, T Function() operation) {
     startTimer(operationName);
     try {
       final result = operation();

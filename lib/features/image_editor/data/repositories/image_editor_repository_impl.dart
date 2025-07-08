@@ -10,7 +10,8 @@ class ImageEditorRepositoryImpl implements ImageEditorRepository {
 
   @override
   Future<Either<ImageEditorException, EditedImage>> loadImage(
-      String path) async {
+    String path,
+  ) async {
     try {
       final file = File(path);
       if (!await file.exists()) {
@@ -35,7 +36,8 @@ class ImageEditorRepositoryImpl implements ImageEditorRepository {
 
   @override
   Future<Either<ImageEditorException, EditedImage>> saveImage(
-      EditedImage image) async {
+    EditedImage image,
+  ) async {
     try {
       // For MVP, we'll just return the image as-is
       // In full implementation, this would save to local storage

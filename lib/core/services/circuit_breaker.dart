@@ -4,11 +4,7 @@ import 'package:revision/core/constants/app_constants.dart';
 import 'package:revision/core/error/exceptions.dart';
 
 /// Circuit breaker states following VGV patterns
-enum CircuitBreakerState {
-  closed,
-  open,
-  halfOpen,
-}
+enum CircuitBreakerState { closed, open, halfOpen }
 
 /// Circuit breaker for resilient service calls
 class CircuitBreaker {

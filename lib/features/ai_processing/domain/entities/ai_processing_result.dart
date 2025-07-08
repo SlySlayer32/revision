@@ -23,12 +23,12 @@ class AiProcessingResult extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        originalImagePath,
-        processedImagePath,
-        status,
-        processingTimeMs,
-        prompt,
-        timestamp,
-      ];
+    id,
+    originalImagePath,
+    processedImagePath,
+    status,
+    processingTimeMs,
+    prompt,
+    timestamp,
+  ];
 }

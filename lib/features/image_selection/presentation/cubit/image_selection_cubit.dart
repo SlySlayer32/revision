@@ -9,7 +9,7 @@ import 'package:revision/features/image_selection/presentation/cubit/image_selec
 /// gallery or camera, updating the UI state accordingly.
 class ImageSelectionCubit extends Cubit<ImageSelectionState> {
   ImageSelectionCubit(this._selectImageUseCase)
-      : super(const ImageSelectionInitial());
+    : super(const ImageSelectionInitial());
 
   final SelectImageUseCase _selectImageUseCase;
 

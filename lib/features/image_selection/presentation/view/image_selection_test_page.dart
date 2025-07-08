@@ -12,9 +12,7 @@ class ImageSelectionTestPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => ImageSelectionCubit(
         SelectImageUseCase(
-          ImageSelectionRepositoryImpl(
-            ImagePickerDataSource(ImagePicker()),
-          ),
+          ImageSelectionRepositoryImpl(ImagePickerDataSource(ImagePicker())),
         ),
       ),
       child: const ImageSelectionView(),

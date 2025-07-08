@@ -50,16 +50,16 @@ class UserProfile extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        email,
-        displayName,
-        photoUrl,
-        createdAt,
-        lastLoginAt,
-        preferences,
-        subscription,
-        usageStats,
-      ];
+    id,
+    email,
+    displayName,
+    photoUrl,
+    createdAt,
+    lastLoginAt,
+    preferences,
+    subscription,
+    usageStats,
+  ];
 }
 
 class UserPreferences extends Equatable {
@@ -95,12 +95,12 @@ class UserPreferences extends Equatable {
 
   @override
   List<Object?> get props => [
-        theme,
-        language,
-        autoSave,
-        qualityPreference,
-        notifications,
-      ];
+    theme,
+    language,
+    autoSave,
+    qualityPreference,
+    notifications,
+  ];
 }
 
 class UserSubscription extends Equatable {
@@ -135,13 +135,7 @@ class UserSubscription extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
-        plan,
-        status,
-        startDate,
-        endDate,
-        features,
-      ];
+  List<Object?> get props => [plan, status, startDate, endDate, features];
 }
 
 class UserUsageStats extends Equatable {
@@ -173,9 +167,9 @@ class UserUsageStats extends Equatable {
 
   @override
   List<Object?> get props => [
-        imagesProcessed,
-        aiOperationsUsed,
-        storageUsedMb,
-        lastActivityAt,
-      ];
+    imagesProcessed,
+    aiOperationsUsed,
+    storageUsedMb,
+    lastActivityAt,
+  ];
 }

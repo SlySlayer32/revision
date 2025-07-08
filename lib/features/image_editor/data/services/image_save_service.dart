@@ -21,7 +21,8 @@ class ImageSaveService {
       if (!permissionGranted) {
         return Failure(
           Exception(
-              'Storage permission denied. Please grant permission to save images.'),
+            'Storage permission denied. Please grant permission to save images.',
+          ),
         );
       }
 
@@ -49,7 +50,8 @@ class ImageSaveService {
       } else {
         return Failure(
           Exception(
-              'Failed to save image to gallery: ${result['errorMessage'] ?? 'Unknown error'}'),
+            'Failed to save image to gallery: ${result['errorMessage'] ?? 'Unknown error'}',
+          ),
         );
       }
     } catch (e) {

@@ -13,9 +13,8 @@ abstract class UserProfileFirestoreDataSource {
 
 class UserProfileFirestoreDataSourceImpl
     implements UserProfileFirestoreDataSource {
-  UserProfileFirestoreDataSourceImpl({
-    required FirebaseFirestore firestore,
-  }) : _firestore = firestore;
+  UserProfileFirestoreDataSourceImpl({required FirebaseFirestore firestore})
+    : _firestore = firestore;
 
   final FirebaseFirestore _firestore;
 
