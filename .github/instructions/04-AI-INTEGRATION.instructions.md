@@ -1,5 +1,5 @@
 ---
-applyTo: 'a'
+applyTo: 'ai'
 ---
 # Gemini API Integration Instructions for Copilot
 
