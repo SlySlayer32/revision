@@ -53,6 +53,17 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
       return;
     }
 
+    // Validate security question if enabled
+    if (event.securityQuestion != null && (event.securityAnswer == null || event.securityAnswer!.isEmpty)) {
+      emit(const SignupState.failure('Please provide an answer to your security question'));
+      return;
+    }
+
+    if (event.securityAnswer != null && event.securityAnswer!.length < 3) {
+      emit(const SignupState.failure('Security answer must be at least 3 characters'));
+      return;
+    }
+
     emit(const SignupState.loading());
 
     final result = await _signUp(email: event.email, password: event.password);

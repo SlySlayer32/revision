@@ -20,6 +20,8 @@ final class SignupRequested extends SignupEvent {
     required this.acceptedPrivacy,
     required this.isAdult,
     this.phoneNumber,
+    this.securityQuestion,
+    this.securityAnswer,
   });
 
   /// The email address
@@ -43,6 +45,12 @@ final class SignupRequested extends SignupEvent {
   /// Optional phone number for verification
   final String? phoneNumber;
 
+  /// Optional security question
+  final String? securityQuestion;
+
+  /// Optional security answer
+  final String? securityAnswer;
+
   @override
   List<Object?> get props => [
     email,
@@ -52,5 +60,7 @@ final class SignupRequested extends SignupEvent {
     acceptedPrivacy,
     isAdult,
     phoneNumber,
+    securityQuestion,
+    securityAnswer,
   ];
 }

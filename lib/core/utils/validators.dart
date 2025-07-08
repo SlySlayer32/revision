@@ -87,4 +87,28 @@ class Validators {
     }
     return null;
   }
+
+  /// Validates security question selection
+  static String? validateSecurityQuestion(String? question, bool isRequired) {
+    if (isRequired && (question == null || question.isEmpty)) {
+      return 'Please select a security question';
+    }
+    return null;
+  }
+
+  /// Validates security answer
+  static String? validateSecurityAnswer(String? answer, bool isRequired) {
+    if (isRequired) {
+      if (answer == null || answer.isEmpty) {
+        return 'Please provide an answer to your security question';
+      }
+      if (answer.length < 3) {
+        return 'Security answer must be at least 3 characters';
+      }
+      if (answer.length > 100) {
+        return 'Security answer cannot exceed 100 characters';
+      }
+    }
+    return null;
+  }
 }
