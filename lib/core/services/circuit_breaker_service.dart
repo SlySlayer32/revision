@@ -19,6 +19,16 @@ class CircuitBreakerService {
     ),
   );
 
+  /// Get or create circuit breaker for Gemini AI service
+  static CircuitBreaker get geminiAI => _breakers.putIfAbsent(
+    'gemini_ai',
+    () => CircuitBreaker(
+      failureThreshold: 3,
+      recoveryTimeout: const Duration(minutes: 1),
+      onStateChange: (state) => _logStateChange('gemini_ai', state),
+    ),
+  );
+
   /// Execute operation with circuit breaker protection
   static Future<T> executeWithBreaker<T>(
     String service,
