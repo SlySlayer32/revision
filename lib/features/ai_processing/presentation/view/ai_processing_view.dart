@@ -602,6 +602,8 @@ class AiProcessingView extends StatelessWidget {
         const SizedBox(height: 16),
         const ProcessingStatusDisplay(),
         const SizedBox(height: 16),
+        _buildGeminiApiInfoWidget(context),
+        const SizedBox(height: 16),
         AISegmentationWidget(
           selectedImage: image,
           key: ValueKey('segmentation_${image.name}'),
