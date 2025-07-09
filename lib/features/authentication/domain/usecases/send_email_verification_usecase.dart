@@ -123,19 +123,32 @@ class SendEmailVerificationUseCase {
   /// Validates that a user is currently authenticated
   Future<Result<void>> _validateUserAuthentication() async {
     try {
-      final currentUser = await _repository.getCurrentUser();
-      if (currentUser == null) {
-        final errorMessage = 'No user is currently signed in';
-        developer.log(
-          errorMessage,
-          name: 'SendEmailVerificationUseCase',
-          level: 900, // Warning level
-        );
-        return Failure<void>(Exception(errorMessage));
-      }
-      return Success<void>(null);
+      final either = await _repository.getCurrentUser();
+      return either.fold(
+        (failure) {
+          final errorMessage = 'Failed to validate user authentication: ${failure.message}';
+          developer.log(
+            errorMessage,
+            name: 'SendEmailVerificationUseCase',
+            level: 900, // Warning level
+          );
+          return Failure<void>(Exception(errorMessage));
+        },
+        (user) {
+          if (user == null) {
+            final errorMessage = 'No user is currently signed in';
+            developer.log(
+              errorMessage,
+              name: 'SendEmailVerificationUseCase',
+              level: 900, // Warning level
+            );
+            return Failure<void>(Exception(errorMessage));
+          }
+          return Success<void>(null);
+        },
+      );
     } catch (e) {
-      final errorMessage = 'Failed to validate user authentication: e.toString()}';
+      final errorMessage = 'Failed to validate user authentication: ${e.toString()}';
       developer.log(
         errorMessage,
         name: 'SendEmailVerificationUseCase',
@@ -166,20 +179,41 @@ class SendEmailVerificationUseCase {
   /// Checks if the user's email is already verified
   Future<Result<void>> _checkEmailVerificationStatus() async {
     try {
-      final isEmailVerified = await _repository.isEmailVerified();
-      if (isEmailVerified) {
-        final errorMessage = 'Email is already verified';
-        developer.log(
-          errorMessage,
-          name: 'SendEmailVerificationUseCase',
-          level: 800, // Info level
-        );
-        return Failure<void>(Exception(errorMessage));
-      }
-      return Success<void>(null);
+      final either = await _repository.getCurrentUser();
+      return either.fold(
+        (failure) {
+          // If we can't check verification status, we'll proceed anyway
+          developer.log(
+            'Could not verify email verification status, proceeding anyway: ${failure.message}',
+            name: 'SendEmailVerificationUseCase',
+            level: 900, // Warning level
+          );
+          return Success<void>(null);
+        },
+        (user) {
+          if (user == null) {
+            // If we can't check verification status, we'll proceed anyway
+            developer.log(
+              'Could not verify email verification status, proceeding anyway: user is null',
+              name: 'SendEmailVerificationUseCase',
+              level: 900, // Warning level
+            );
+            return Success<void>(null);
+          }
+          if (user.isEmailVerified) {
+            final errorMessage = 'Email is already verified';
+            developer.log(
+              errorMessage,
+              name: 'SendEmailVerificationUseCase',
+              level: 800, // Info level
+            );
+            return Failure<void>(Exception(errorMessage));
+          }
+          return Success<void>(null);
+        },
+      );
     } catch (e) {
       // If we can't check verification status, we'll proceed anyway
-      // This prevents blocking the user if the check fails
       developer.log(
         'Could not verify email verification status, proceeding anyway: ${e.toString()}',
         name: 'SendEmailVerificationUseCase',
