@@ -148,7 +148,7 @@ void main() {
             description: 'unwanted object',
           ),
         ];
-        const imageName = 'test_image.png';
+        // const imageName = 'test_image.png';
 
         final expectedResult = GeminiPipelineResult(
           originalImage: imageBytes,
