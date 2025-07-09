@@ -171,7 +171,7 @@ void main() {
         );
 
         // Act
-        final result = await useCase.call(imageBytes, markedAreas: markedAreas, imageName: imageName);
+        final result = await useCase.call(imageBytes, markedAreas: markedAreas);
 
         // Assert
         expect(result.isSuccess, true);
@@ -211,7 +211,7 @@ void main() {
         );
 
         // Act
-        final result = await useCase.call(imageBytes, markedAreas: markedAreas, imageName: imageName);
+        final result = await useCase.call(imageBytes, markedAreas: markedAreas);
 
         // Assert
         expect(result.isSuccess, true);
