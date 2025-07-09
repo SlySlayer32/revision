@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:revision/features/ai_processing/domain/entities/processing_context.dart';
+import 'dart:typed_data';
 import 'package:revision/features/ai_processing/domain/entities/processing_result.dart' hide ProcessingProgress;
 import 'package:revision/features/ai_processing/domain/entities/enhanced_processing_progress.dart';
 import 'package:revision/features/ai_processing/domain/entities/cancellation_token.dart';
@@ -328,6 +329,4 @@ Original error: ${exception.toString()}''';
     _stopProgressTracking();
     return super.close();
   }
-}
-
 }
