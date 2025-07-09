@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:revision/core/utils/security_utils.dart';
+import 'package:revision/core/utils/auth_security_utils.dart';
 import 'package:revision/features/authentication/domain/usecases/send_password_reset_email_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_in_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_in_with_google_usecase.dart';
@@ -13,26 +13,23 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 part 'login_event.dart';
 part 'login_state.dart';
 
-/// BLoC responsible for handling login events and states
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  /// Creates a new [LoginBloc]
   LoginBloc({
     required SignInUseCase signIn,
     required SignInWithGoogleUseCase signInWithGoogle,
     required SendPasswordResetEmailUseCase sendPasswordResetEmail,
-  }) : _signIn = signIn,
-       _signInWithGoogle = signInWithGoogle,
-       _sendPasswordResetEmail = sendPasswordResetEmail,
-       _localAuth = LocalAuthentication(),
-       _secureStorage = const FlutterSecureStorage(),
-       super(const LoginState()) {
+  })  : _signIn = signIn,
+        _signInWithGoogle = signInWithGoogle,
+        _sendPasswordResetEmail = sendPasswordResetEmail,
+        _localAuth = LocalAuthentication(),
+        _secureStorage = const FlutterSecureStorage(),
+        super(const LoginState()) {
     on<LoginRequested>(_onLoginRequested);
     on<LoginWithGoogleRequested>(_onLoginWithGoogleRequested);
     on<ForgotPasswordRequested>(_onForgotPasswordRequested);
     on<BiometricLoginRequested>(_onBiometricLoginRequested);
     on<PasswordStrengthChecked>(_onPasswordStrengthChecked);
-    
-    // Initialize biometric availability
+
     _initializeBiometricAvailability();
   }
 
@@ -42,18 +39,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final LocalAuthentication _localAuth;
   final FlutterSecureStorage _secureStorage;
 
-  // Constants for security limits
+  // Advanced Security Constants
   static const int _maxFailedAttempts = 5;
   static const int _maxRateLimitAttempts = 10;
   static const Duration _rateLimitWindow = Duration(minutes: 15);
   static const Duration _lockoutDuration = Duration(minutes: 30);
 
-  /// Initialize biometric availability
+  // Biometric
   Future<void> _initializeBiometricAvailability() async {
     try {
       final bool isAvailable = await _localAuth.canCheckBiometrics;
       final bool isDeviceSupported = await _localAuth.isDeviceSupported();
-      
+
       if (isAvailable && isDeviceSupported) {
         final List<BiometricType> availableBiometrics = await _localAuth.getAvailableBiometrics();
         if (availableBiometrics.isNotEmpty) {
@@ -64,12 +61,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       log('Error checking biometric availability: $e');
     }
   }
+
+  // LOGIN
   Future<void> _onLoginRequested(
     LoginRequested event,
     Emitter<LoginState> emit,
   ) async {
     try {
-      // Check if account is locked
+      // Advanced: Check account lock
       if (await _isAccountLocked(event.email)) {
         emit(state.copyWith(
           status: LoginStatus.accountLocked,
@@ -78,12 +77,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         return;
       }
 
-      // Check rate limiting
-      if (SecurityUtils.isRateLimited(
-        event.email,
-        maxRequests: _maxRateLimitAttempts,
-        window: _rateLimitWindow,
-      )) {
+      // Advanced: Rate limiting for brute-force protection
+      if (await _isRateLimited(event.email)) {
         emit(state.copyWith(
           status: LoginStatus.rateLimited,
           errorMessage: 'Too many login attempts. Please try again later.',
@@ -92,36 +87,24 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         return;
       }
 
-      // Sanitize inputs
-      final sanitizedEmail = SecurityUtils.sanitizeInput(event.email);
-      final sanitizedPassword = SecurityUtils.sanitizeInput(event.password);
-
-      // Validate email format
-      if (!SecurityUtils.isValidEmail(sanitizedEmail)) {
-        emit(state.copyWith(
-          status: LoginStatus.failure,
-          errorMessage: 'Please enter a valid email address.',
-        ));
-        return;
-      }
-
       emit(state.copyWith(status: LoginStatus.loading));
 
-      final result = await _signIn(
-        SignInParams(email: sanitizedEmail, password: sanitizedPassword),
+      final result = await AuthSecurityUtils.withAuthTimeout(
+        _signIn(SignInParams(email: event.email, password: event.password)),
+        'login',
       );
-      
-      result.fold(
+
+      await result.fold(
         (failure) async {
-          log('Login error', error: failure);
-          
-          // Increment failed attempts
-          final newFailedAttempts = state.failedAttempts + 1;
+          AuthSecurityUtils.logAuthError('Login failed', failure);
+
+          // Advanced: Increment failed attempts
+          final newFailedAttempts = await _incrementFailedAttempts(event.email);
           final shouldShowCaptcha = newFailedAttempts >= 3;
-          
-          // Check if account should be locked
+
+          // Advanced: Lock account if needed
           if (newFailedAttempts >= _maxFailedAttempts) {
-            await _lockAccount(sanitizedEmail);
+            await _lockAccount(event.email);
             emit(state.copyWith(
               status: LoginStatus.accountLocked,
               errorMessage: 'Account locked due to too many failed attempts.',
@@ -137,14 +120,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           }
         },
         (user) async {
-          // Reset failed attempts on successful login
-          await _clearFailedAttempts(sanitizedEmail);
-          
-          // Save login state if remember me is enabled
+          AuthSecurityUtils.logAuthEvent('Login successful', user: user);
+          // Advanced: Reset failed attempts on success
+          await _clearFailedAttempts(event.email);
+
+          // Save login state if rememberMe is enabled
           if (state.rememberMe) {
-            await _saveLoginState(sanitizedEmail);
+            await _saveLoginState(event.email, event.password);
           }
-          
+
           emit(state.copyWith(
             status: LoginStatus.success,
             failedAttempts: 0,
@@ -154,56 +138,84 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         },
       );
     } catch (e) {
-      log('Unexpected login error', error: e);
-      emit(state.copyWith(
-        status: LoginStatus.failure,
-        errorMessage: 'An unexpected error occurred',
-      ));
+      AuthSecurityUtils.logAuthError('Login error', e);
+      final errorCategory = AuthSecurityUtils.categorizeAuthError(e);
+      emit(
+        state.copyWith(
+          status: LoginStatus.failure,
+          errorMessage: errorCategory.userMessage,
+        ),
+      );
     }
   }
 
+  // GOOGLE LOGIN
   Future<void> _onLoginWithGoogleRequested(
     LoginWithGoogleRequested event,
     Emitter<LoginState> emit,
   ) async {
     try {
       emit(state.copyWith(status: LoginStatus.loading));
-
-      final result = await _signInWithGoogle();
+      final result = await AuthSecurityUtils.withAuthTimeout(
+        _signInWithGoogle(),
+        'google_login',
+      );
       result.fold((failure) {
-        log('Google login error', error: failure);
+        AuthSecurityUtils.logAuthError('Google login failed', failure);
         emit(
           state.copyWith(
             status: LoginStatus.failure,
             errorMessage: failure.message,
           ),
         );
-      }, (user) => emit(state.copyWith(status: LoginStatus.success)));
+      }, (user) {
+        AuthSecurityUtils.logAuthEvent('Google login successful', user: user);
+        emit(state.copyWith(status: LoginStatus.success));
+      });
     } catch (e) {
-      log('Unexpected Google login error', error: e);
+      AuthSecurityUtils.logAuthError('Google login error', e);
+      final errorCategory = AuthSecurityUtils.categorizeAuthError(e);
       emit(
         state.copyWith(
           status: LoginStatus.failure,
-          errorMessage: 'An unexpected error occurred',
+          errorMessage: errorCategory.userMessage,
         ),
       );
     }
   }
 
+  // PASSWORD RESET
   Future<void> _onForgotPasswordRequested(
     ForgotPasswordRequested event,
     Emitter<LoginState> emit,
   ) async {
     try {
+      // Advanced: Rate limiting for password reset
+      if (await _isRateLimited('password_reset_${event.email}')) {
+        AuthSecurityUtils.logAuthError(
+          'Password reset rate limited',
+          Exception('Rate limit exceeded'),
+          data: {'email': event.email},
+        );
+        emit(
+          state.copyWith(
+            status: LoginStatus.failure,
+            errorMessage: 'Too many password reset attempts. Please try again later.',
+          ),
+        );
+        return;
+      }
+
       emit(state.copyWith(status: LoginStatus.loading));
 
-      // Sanitize email input
-      final sanitizedEmail = SecurityUtils.sanitizeInput(event.email);
+      final result = await AuthSecurityUtils.withAuthTimeout(
+        _sendPasswordResetEmail(event.email),
+        'password_reset',
+      );
 
-      final result = await _sendPasswordResetEmail(sanitizedEmail);
       result.fold(
         (failure) {
-          log('Password reset error', error: failure);
+          AuthSecurityUtils.logAuthError('Password reset failed', failure);
           emit(
             state.copyWith(
               status: LoginStatus.failure,
@@ -212,6 +224,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           );
         },
         (_) {
+          AuthSecurityUtils.logAuthEvent('Password reset sent');
           emit(
             state.copyWith(
               status: LoginStatus.success,
@@ -221,17 +234,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         },
       );
     } catch (e) {
-      log('Unexpected password reset error', error: e);
+      AuthSecurityUtils.logAuthError('Password reset error', e);
+      final errorCategory = AuthSecurityUtils.categorizeAuthError(e);
       emit(
         state.copyWith(
           status: LoginStatus.failure,
-          errorMessage: 'An unexpected error occurred',
+          errorMessage: errorCategory.userMessage,
         ),
       );
     }
   }
 
-  /// Handle biometric login request
+  // BIOMETRIC LOGIN
   Future<void> _onBiometricLoginRequested(
     BiometricLoginRequested event,
     Emitter<LoginState> emit,
@@ -253,20 +267,20 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         final storedPassword = await _secureStorage.read(key: 'stored_password');
 
         if (storedEmail != null && storedPassword != null) {
-          // Use stored credentials for login
-          final result = await _signIn(
-            SignInParams(email: storedEmail, password: storedPassword),
+          final result = await AuthSecurityUtils.withAuthTimeout(
+            _signIn(SignInParams(email: storedEmail, password: storedPassword)),
+            'biometric_login',
           );
-          
           result.fold(
             (failure) {
-              log('Biometric login error', error: failure);
+              AuthSecurityUtils.logAuthError('Biometric login failed', failure);
               emit(state.copyWith(
                 status: LoginStatus.failure,
                 errorMessage: failure.message,
               ));
             },
             (user) {
+              AuthSecurityUtils.logAuthEvent('Biometric login successful', user: user);
               emit(state.copyWith(status: LoginStatus.success));
             },
           );
@@ -283,7 +297,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         ));
       }
     } catch (e) {
-      log('Biometric authentication error', error: e);
+      AuthSecurityUtils.logAuthError('Biometric authentication error', e);
       emit(state.copyWith(
         status: LoginStatus.failure,
         errorMessage: 'Biometric authentication error',
@@ -291,16 +305,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     }
   }
 
-  /// Handle password strength check
+  // PASSWORD STRENGTH CHECK
   Future<void> _onPasswordStrengthChecked(
     PasswordStrengthChecked event,
     Emitter<LoginState> emit,
   ) async {
-    final strength = SecurityUtils.validatePasswordStrength(event.password);
+    final strength = AuthSecurityUtils.validatePasswordStrength(event.password);
     emit(state.copyWith(passwordStrength: strength));
   }
 
-  /// Helper methods for security features
+  // ==== ADVANCED SECURITY METHODS ====
+
+  /// Check if account is currently locked
   Future<bool> _isAccountLocked(String email) async {
     final lockTimestamp = await _secureStorage.read(key: 'account_lock_$email');
     if (lockTimestamp != null) {
@@ -311,18 +327,57 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     return false;
   }
 
+  /// Lock the account
   Future<void> _lockAccount(String email) async {
     final lockTimestamp = DateTime.now().millisecondsSinceEpoch.toString();
     await _secureStorage.write(key: 'account_lock_$email', value: lockTimestamp);
   }
 
+  /// Increment and get failed login attempts
+  Future<int> _incrementFailedAttempts(String email) async {
+    final attemptsString = await _secureStorage.read(key: 'failed_attempts_$email');
+    int attempts = attemptsString != null ? int.tryParse(attemptsString) ?? 0 : 0;
+    attempts++;
+    await _secureStorage.write(key: 'failed_attempts_$email', value: attempts.toString());
+    return attempts;
+  }
+
+  /// Clear failed attempts and unlock account
   Future<void> _clearFailedAttempts(String email) async {
     await _secureStorage.delete(key: 'failed_attempts_$email');
     await _secureStorage.delete(key: 'account_lock_$email');
   }
 
-  Future<void> _saveLoginState(String email) async {
+  /// Save login state (with password, for biometrics)
+  Future<void> _saveLoginState(String email, String password) async {
     await _secureStorage.write(key: 'stored_email', value: email);
+    await _secureStorage.write(key: 'stored_password', value: password);
     await _secureStorage.write(key: 'remember_me', value: 'true');
+  }
+
+  /// Rate limiting using secure storage time window
+  Future<bool> _isRateLimited(String key) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final windowKey = 'rate_limit_window_$key';
+    final countKey = 'rate_limit_count_$key';
+
+    final windowStartString = await _secureStorage.read(key: windowKey);
+    final countString = await _secureStorage.read(key: countKey);
+    int count = countString != null ? int.tryParse(countString) ?? 0 : 0;
+    int windowStart = windowStartString != null ? int.tryParse(windowStartString) ?? 0 : 0;
+
+    if (windowStart == 0 || now - windowStart > _rateLimitWindow.inMilliseconds) {
+      // Reset window
+      await _secureStorage.write(key: windowKey, value: now.toString());
+      await _secureStorage.write(key: countKey, value: '1');
+      return false;
+    } else {
+      count++;
+      await _secureStorage.write(key: countKey, value: count.toString());
+      if (count > _maxRateLimitAttempts) {
+        return true;
+      }
+      return false;
+    }
   }
 }
