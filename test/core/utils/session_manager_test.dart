@@ -44,7 +44,7 @@ void main() {
       
       sessionManager.startSession(testUser);
       
-      final beforeUpdate = sessionManager.getRemainingSessionTime();
+      // final beforeUpdate = sessionManager.getRemainingSessionTime();
       
       // Wait a bit and update activity
       Future.delayed(const Duration(milliseconds: 100), () {
