@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:revision/core/utils/auth_security_utils.dart';
 import 'package:revision/features/authentication/domain/entities/user.dart';
 import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_out_usecase.dart';
@@ -21,18 +22,27 @@ class AuthenticationBloc
   }) : _getAuthStateChanges = getAuthStateChanges,
        _signOut = signOut,
        super(const AuthenticationState.unknown()) {
-    debugPrint(
-      'AuthenticationBloc: Initializing and subscribing to auth state changes',
-    );
+    AuthSecurityUtils.logAuthEvent('BLoC initialized');
     on<AuthenticationStatusChanged>(_onAuthenticationStatusChanged);
     on<AuthenticationLogoutRequested>(_onAuthenticationLogoutRequested);
 
-    _authStateSubscription = _getAuthStateChanges().listen((user) {
-      debugPrint(
-        'AuthenticationBloc: Auth state changed, user = \\${user?.email ?? "null"}',
-      );
-      add(AuthenticationStatusChanged(user));
-    });
+    _authStateSubscription = _getAuthStateChanges().listen(
+      (user) {
+        AuthSecurityUtils.logAuthEvent(
+          'Auth state changed',
+          user: user,
+        );
+        add(AuthenticationStatusChanged(user));
+      },
+      onError: (error, stackTrace) {
+        AuthSecurityUtils.logAuthError(
+          'Auth state stream error',
+          error,
+          stackTrace: stackTrace,
+        );
+        add(AuthenticationStatusChanged(null));
+      },
+    );
   }
 
   final GetAuthStateChangesUseCase _getAuthStateChanges;
@@ -46,15 +56,22 @@ class AuthenticationBloc
     try {
       final user = event.user;
       if (user != null) {
-        debugPrint('AuthenticationBloc: User authenticated: ${user.email}');
+        AuthSecurityUtils.logAuthEvent(
+          'User authenticated',
+          user: user,
+        );
         emit(AuthenticationState.authenticated(user));
       } else {
-        debugPrint('AuthenticationBloc: User unauthenticated');
+        AuthSecurityUtils.logAuthEvent('User unauthenticated');
         emit(const AuthenticationState.unauthenticated());
       }
     } catch (e, stackTrace) {
-      debugPrint('❌ Error in _onAuthenticationStatusChanged: $e');
-      debugPrint('❌ Stack trace: $stackTrace');
+      AuthSecurityUtils.logAuthError(
+        'Authentication status change',
+        e,
+        stackTrace: stackTrace,
+        user: event.user,
+      );
       // Fallback to unauthenticated state on error
       emit(const AuthenticationState.unauthenticated());
     }
@@ -65,13 +82,20 @@ class AuthenticationBloc
     Emitter<AuthenticationState> emit,
   ) async {
     try {
-      final result = await _signOut();
+      AuthSecurityUtils.logAuthEvent('Logout requested');
+      final result = await AuthSecurityUtils.withAuthTimeout(
+        _signOut(),
+        'logout',
+      );
       result.fold(
-        (failure) => log('Error signing out', error: failure),
-        (_) => log('User signed out successfully'),
+        (failure) => AuthSecurityUtils.logAuthError(
+          'Sign out',
+          failure,
+        ),
+        (_) => AuthSecurityUtils.logAuthEvent('User signed out successfully'),
       );
     } catch (e) {
-      log('Unexpected error signing out', error: e);
+      AuthSecurityUtils.logAuthError('Logout operation', e);
     }
   }
 

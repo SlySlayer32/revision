@@ -1,14 +1,45 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:revision/core/config/env_config.dart';
 import 'package:revision/core/config/environment_detector.dart';
+import 'package:revision/core/debug/debug_info_sanitizer.dart';
 import 'package:revision/firebase_options.dart';
 
 /// A debug page to display environment detection information
+/// This page is only available in development and staging environments
 class EnvironmentDebugPage extends StatelessWidget {
   const EnvironmentDebugPage({super.key});
 
+  /// Factory method to create debug page with proper access control
+  static Widget? createIfAllowed() {
+    // Production build guard: This page should never be accessible in production
+    if (EnvironmentDetector.isProduction) {
+      return null;
+    }
+
+    // Debug mode guard: Additional protection for release builds
+    if (kReleaseMode && !kDebugMode) {
+      return null;
+    }
+
+    return const EnvironmentDebugPage();
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Production build guard: This page should never be accessible in production
+    if (EnvironmentDetector.isProduction) {
+      return _buildProductionBlockedPage();
+    }
+
+    // Debug mode guard: Additional protection for release builds
+    if (kReleaseMode && !kDebugMode) {
+      return _buildProductionBlockedPage();
+    }
+
+    // Log debug page access for audit purposes
+    _logDebugPageAccess();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Environment Debug'),
@@ -19,6 +50,8 @@ class EnvironmentDebugPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _buildSecurityWarningCard(),
+            const SizedBox(height: 16),
             _buildEnvironmentCard(),
             const SizedBox(height: 16),
             _buildConfigCard(),
@@ -41,6 +74,88 @@ class EnvironmentDebugPage extends StatelessWidget {
       case AppEnvironment.production:
         return Colors.red;
     }
+  }
+
+  /// Builds a page shown when debug access is blocked in production
+  Widget _buildProductionBlockedPage() {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Access Restricted'),
+        backgroundColor: Colors.red,
+      ),
+      body: const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.security,
+                size: 64,
+                color: Colors.red,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Debug Features Not Available',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Debug pages are not available in production builds for security reasons.',
+                style: TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Logs debug page access for audit purposes
+  void _logDebugPageAccess() {
+    DebugInfoSanitizer.logDebugPageAccess('EnvironmentDebugPage');
+  }
+
+  /// Builds a security warning card
+  Widget _buildSecurityWarningCard() {
+    return Card(
+      color: Colors.orange.withOpacity(0.1),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            const Icon(Icons.warning, color: Colors.orange),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '⚠️ Security Warning',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'This debug page contains sensitive information and is only available in non-production environments.',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildEnvironmentCard() {
@@ -73,6 +188,9 @@ class EnvironmentDebugPage extends StatelessWidget {
 
   Widget _buildConfigCard() {
     final debugInfo = EnvConfig.getDebugInfo();
+    // Sanitize sensitive information
+    final sanitizedDebugInfo = DebugInfoSanitizer.sanitizeDebugInfo(debugInfo);
+    
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -90,7 +208,7 @@ class EnvironmentDebugPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Debug Info:',
+              'Debug Info (Sanitized):',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             Container(
@@ -101,7 +219,7 @@ class EnvironmentDebugPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                debugInfo.toString(),
+                sanitizedDebugInfo.toString(),
                 style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
               ),
             ),
@@ -113,6 +231,9 @@ class EnvironmentDebugPage extends StatelessWidget {
 
   Widget _buildFirebaseCard() {
     final firebaseDebugInfo = DefaultFirebaseOptions.getDebugInfo();
+    // Sanitize sensitive Firebase information
+    final sanitizedFirebaseInfo = DebugInfoSanitizer.sanitizeFirebaseInfo(firebaseDebugInfo);
+    
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -124,13 +245,13 @@ class EnvironmentDebugPage extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text('Project ID: ${firebaseDebugInfo['projectId']}'),
-            Text('App ID: ${firebaseDebugInfo['appId']}'),
-            Text('Platform: ${firebaseDebugInfo['platform']}'),
-            Text('Is Web: ${firebaseDebugInfo['isWeb']}'),
+            Text('Project ID: ${sanitizedFirebaseInfo['projectId']}'),
+            Text('App ID: ${sanitizedFirebaseInfo['appId']}'),
+            Text('Platform: ${sanitizedFirebaseInfo['platform']}'),
+            Text('Is Web: ${sanitizedFirebaseInfo['isWeb']}'),
             const SizedBox(height: 8),
             const Text(
-              'Firebase Debug Info:',
+              'Firebase Debug Info (Sanitized):',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             Container(
@@ -141,7 +262,7 @@ class EnvironmentDebugPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                firebaseDebugInfo.toString(),
+                sanitizedFirebaseInfo.toString(),
                 style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
               ),
             ),
@@ -165,6 +286,8 @@ class EnvironmentDebugPage extends StatelessWidget {
             const SizedBox(height: 8),
             ElevatedButton(
               onPressed: () {
+                // Log the debug action for audit purposes
+                DebugInfoSanitizer.logDebugAction('Environment Detection Refresh');
                 EnvironmentDetector.refresh();
                 // Force rebuild by calling setState if this was a StatefulWidget
                 // For now, user needs to navigate away and back
@@ -181,4 +304,5 @@ class EnvironmentDebugPage extends StatelessWidget {
       ),
     );
   }
+
 }
