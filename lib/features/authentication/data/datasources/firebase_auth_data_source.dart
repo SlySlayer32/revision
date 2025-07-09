@@ -60,7 +60,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
     firebase_auth.FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
   }) : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
-       _googleSignIn = googleSignIn ?? GoogleSignIn();
+       _googleSignIn = googleSignIn ?? GoogleSignIn.instance;
 
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
@@ -159,8 +159,8 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
   @override
   Future<User> signInWithGoogle() async {
     try {
-      // Begin interactive sign-in process
-      final googleUser = await _googleSignIn.signIn();
+      // Use the new authenticate() method for Google Sign-In
+      final googleUser = await _googleSignIn.authenticate();
 
       if (googleUser == null) {
         throw const UnexpectedAuthException('Google sign in was canceled');
@@ -185,7 +185,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
 
       return await _createUserWithClaims(userCredential.user!);
     } on firebase_auth.FirebaseAuthException catch (e) {
-      log('Firebase Google sign in error: ${e.code}', error: e);
+      log('Firebase Google sign in error: [${e.code}', error: e);
       throw _mapFirebaseAuthExceptionToDomainException(e);
     } catch (e) {
       log('Unexpected Google sign in error', error: e);
