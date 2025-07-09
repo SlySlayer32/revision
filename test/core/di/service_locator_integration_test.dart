@@ -16,28 +16,23 @@ void main() {
       shutdownServiceLocator();
     });
 
-    test('should setup service locator with validation enabled', () async {
+    test('should setup service locator and initialize with validation', () async {
       // Act
-      await setupServiceLocator(enableValidation: true);
+      await setupServiceLocator();
+      await EnhancedServiceLocator.initialize(getIt: GetIt.instance);
+      final initResult = await EnhancedServiceLocator.instance.initializeWithValidation();
 
       // Assert
-      expect(GetIt.instance.isRegistered<String>(), isFalse); // No test services registered
-      
-      // Verify enhanced service locator was initialized
-      expect(EnhancedServiceLocator.instance, isNotNull);
-    });
-
-    test('should setup service locator with validation disabled', () async {
-      // Act
-      await setupServiceLocator(enableValidation: false);
-
-      // Assert - should work without enhanced features
-      expect(GetIt.instance, isNotNull);
+      expect(initResult.isSuccessful, isTrue);
+      expect(initResult.validationResult?.isValid, isTrue);
+      expect(initResult.healthReport?.isHealthy, isTrue);
     });
 
     test('should demonstrate health monitoring', () async {
       // Arrange
-      await setupServiceLocator(enableValidation: true);
+      await setupServiceLocator();
+      await EnhancedServiceLocator.initialize(getIt: GetIt.instance);
+      await EnhancedServiceLocator.instance.initializeWithValidation();
 
       // Act
       final healthReport = await EnhancedServiceLocator.instance.getSystemHealth();
@@ -50,7 +45,9 @@ void main() {
 
     test('should demonstrate service recovery', () async {
       // Arrange
-      await setupServiceLocator(enableValidation: true);
+      await setupServiceLocator();
+      await EnhancedServiceLocator.initialize(getIt: GetIt.instance);
+      await EnhancedServiceLocator.instance.initializeWithValidation();
 
       // Act - try to get a service that doesn't exist
       final service = await EnhancedServiceLocator.instance.getServiceSafely<String>();
@@ -61,7 +58,9 @@ void main() {
 
     test('should demonstrate statistics collection', () async {
       // Arrange
-      await setupServiceLocator(enableValidation: true);
+      await setupServiceLocator();
+      await EnhancedServiceLocator.initialize(getIt: GetIt.instance);
+      await EnhancedServiceLocator.instance.initializeWithValidation();
 
       // Act
       final stats = EnhancedServiceLocator.instance.getStatistics();
@@ -75,7 +74,9 @@ void main() {
 
     test('should demonstrate graceful shutdown', () async {
       // Arrange
-      await setupServiceLocator(enableValidation: true);
+      await setupServiceLocator();
+      await EnhancedServiceLocator.initialize(getIt: GetIt.instance);
+      await EnhancedServiceLocator.instance.initializeWithValidation();
 
       // Act & Assert - should not throw
       expect(() => shutdownServiceLocator(), returnsNormally);
@@ -87,7 +88,14 @@ void main() {
 class ServiceLocatorExample {
   static Future<void> demonstrateUsage() async {
     // Initialize with validation and monitoring
-    await setupServiceLocator(enableValidation: true);
+    await setupServiceLocator();
+    await EnhancedServiceLocator.initialize(getIt: GetIt.instance);
+    final initResult = await EnhancedServiceLocator.instance.initializeWithValidation();
+
+    if (!initResult.isSuccessful) {
+      print('Service locator initialization failed');
+      return;
+    }
 
     // Get a service safely with automatic recovery
     final service = await EnhancedServiceLocator.instance.getServiceSafely<String>();
