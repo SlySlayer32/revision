@@ -145,8 +145,8 @@ class ImagePreprocessingUtils {
   /// Optimizes image for memory usage
   static img.Image _optimizeImage(img.Image image) {
     // Apply subtle noise reduction and sharpening
-    var optimized = img.gaussianBlur(image, radius: 0.5);
-    optimized = img.convolution(optimized, [
+    var optimized = img.gaussianBlur(image, radius: 1);
+    optimized = img.convolution(optimized, filter: [
       0, -1, 0,
       -1, 5, -1,
       0, -1, 0
