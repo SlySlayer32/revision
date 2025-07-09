@@ -85,7 +85,7 @@ class DeepLinkingService {
         _linkController.add(deepLinkData);
         
         // Track deep link usage
-        getIt<AnalyticsService>().trackUserAction(
+        getIt<AnalyticsService>().trackAction(
           'deep_link_opened',
           parameters: {
             'link': link,
