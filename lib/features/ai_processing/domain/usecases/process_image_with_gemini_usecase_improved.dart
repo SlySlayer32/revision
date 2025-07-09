@@ -103,6 +103,7 @@ class ProcessImageWithGeminiUseCaseImproved {
       final result = await _geminiPipelineService.processImageWithMarkedObjects(
         imageData: imageData,
         markedAreas: markedAreaMaps,
+        imageName: 'image.jpg',
       );
       return Success(result);
     } else {
@@ -110,6 +111,7 @@ class ProcessImageWithGeminiUseCaseImproved {
       final result = await _geminiPipelineService.processImage(
         imageData,
         'Process and enhance this image for better quality and appearance',
+        'image.jpg',
       );
       return Success(result);
     }
