@@ -157,7 +157,7 @@ class ImageSecurityService {
   static Result<Uint8List> processImageSecurely(
     Uint8List imageData, {
     String? filename,
-    bool compressImage = true,
+    bool shouldCompressImage = true,
     bool stripExif = true,
   }) {
     // First validate the image
@@ -174,7 +174,7 @@ class ImageSecurityService {
     }
 
     // Compress image if requested
-    if (compressImage) {
+    if (shouldCompressImage) {
       processedData = compressImage(processedData);
     }
 
