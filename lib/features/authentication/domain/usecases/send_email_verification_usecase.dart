@@ -72,18 +72,26 @@ class SendEmailVerificationUseCase {
       }
 
       // Send the verification email
-      final result = _repository.sendEmailVerification();
-      
-      // Update rate limiting timestamp on successful initiation
-      _lastEmailSentTime = DateTime.now();
-      
-      developer.log(
-        'Email verification request initiated successfully',
-        name: 'SendEmailVerificationUseCase',
+      final either = await _repository.sendEmailVerification();
+      final result = either.fold(
+        (failure) {
+          developer.log(
+            'Failed to send verification email: failure.message}',
+            name: 'SendEmailVerificationUseCase',
+            level: 900,
+          );
+          return Result.failure(failure.message);
+        },
+        (_) {
+          _lastEmailSentTime = DateTime.now();
+          developer.log(
+            'Email verification request initiated successfully',
+            name: 'SendEmailVerificationUseCase',
+          );
+          return Result.success(null);
+        },
       );
-
       return result;
-
     } on TimeoutException catch (e) {
       final errorMessage = 'Request timed out while sending verification email';
       developer.log(
@@ -92,7 +100,6 @@ class SendEmailVerificationUseCase {
         error: e,
       );
       return Result.failure(errorMessage);
-
     } on FormatException catch (e) {
       final errorMessage = 'Invalid email format detected';
       developer.log(
@@ -101,9 +108,8 @@ class SendEmailVerificationUseCase {
         error: e,
       );
       return Result.failure(errorMessage);
-
     } catch (e, stackTrace) {
-      final errorMessage = 'Unexpected error occurred while sending verification email: ${e.toString()}';
+      final errorMessage = 'Unexpected error occurred while sending verification email: e.toString()}';
       developer.log(
         errorMessage,
         name: 'SendEmailVerificationUseCase',
@@ -118,20 +124,18 @@ class SendEmailVerificationUseCase {
   Future<Result<void>> _validateUserAuthentication() async {
     try {
       final currentUser = await _repository.getCurrentUser();
-      
       if (currentUser == null) {
-        const errorMessage = 'No user is currently signed in';
+        final errorMessage = 'No user is currently signed in';
         developer.log(
           errorMessage,
           name: 'SendEmailVerificationUseCase',
           level: 900, // Warning level
         );
-        return const Result.failure(errorMessage);
+        return Result.failure(errorMessage);
       }
-
-      return const Result.success(null);
+      return Result.success(null);
     } catch (e) {
-      final errorMessage = 'Failed to validate user authentication: ${e.toString()}';
+      final errorMessage = 'Failed to validate user authentication: e.toString()}';
       developer.log(
         errorMessage,
         name: 'SendEmailVerificationUseCase',
@@ -145,40 +149,34 @@ class SendEmailVerificationUseCase {
   Result<void> _checkRateLimit() {
     if (_lastEmailSentTime != null) {
       final timeSinceLastEmail = DateTime.now().difference(_lastEmailSentTime!);
-      
       if (timeSinceLastEmail < _rateLimitDuration) {
         final remainingTime = _rateLimitDuration - timeSinceLastEmail;
         final errorMessage = 'Please wait ${remainingTime.inSeconds} seconds before requesting another verification email';
-        
         developer.log(
           'Rate limit exceeded: $errorMessage',
           name: 'SendEmailVerificationUseCase',
           level: 900, // Warning level
         );
-        
         return Result.failure(errorMessage);
       }
     }
-
-    return const Result.success(null);
+    return Result.success(null);
   }
 
   /// Checks if the user's email is already verified
   Future<Result<void>> _checkEmailVerificationStatus() async {
     try {
       final isEmailVerified = await _repository.isEmailVerified();
-      
       if (isEmailVerified) {
-        const errorMessage = 'Email is already verified';
+        final errorMessage = 'Email is already verified';
         developer.log(
           errorMessage,
           name: 'SendEmailVerificationUseCase',
           level: 800, // Info level
         );
-        return const Result.failure(errorMessage);
+        return Result.failure(errorMessage);
       }
-
-      return const Result.success(null);
+      return Result.success(null);
     } catch (e) {
       // If we can't check verification status, we'll proceed anyway
       // This prevents blocking the user if the check fails
@@ -188,7 +186,7 @@ class SendEmailVerificationUseCase {
         level: 900, // Warning level
         error: e,
       );
-      return const Result.success(null);
+      return Result.success(null);
     }
   }
 
