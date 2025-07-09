@@ -7,10 +7,10 @@ import 'package:revision/core/constants/app_constants.dart';
 import 'package:revision/core/utils/security_utils.dart';
 import 'package:revision/core/utils/validators.dart';
 import 'package:revision/features/authentication/presentation/blocs/login_bloc.dart';
+import 'package:revision/features/authentication/presentation/widgets/password_strength_indicator.dart';
 
 /// Login form widget that handles user authentication
 class LoginForm extends StatefulWidget {
-  /// Creates a new [LoginForm]
   const LoginForm({super.key});
 
   @override
@@ -23,13 +23,15 @@ class _LoginFormState extends State<LoginForm> {
   final _passwordController = TextEditingController();
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
-  
-  // Password visibility toggle
-  bool _isPasswordVisible = false;
-  
-  // Debouncing timer for login attempts
-  Timer? _debounceTimer;
-  bool _isLoginDebounced = false;
+
+  bool _rememberMe = false;
+  bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(_onPasswordChanged);
+  }
 
   @override
   void dispose() {
@@ -37,40 +39,36 @@ class _LoginFormState extends State<LoginForm> {
     _passwordController.dispose();
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
-    _debounceTimer?.cancel();
     super.dispose();
+  }
+
+  void _onPasswordChanged() {
+    if (_passwordController.text.isNotEmpty) {
+      context.read<LoginBloc>().add(
+            PasswordStrengthChecked(password: _passwordController.text),
+          );
+    }
   }
 
   void _onLoginPressed() {
     if (!_formKey.currentState!.validate()) return;
-    
-    // Prevent multiple rapid login attempts
-    if (_isLoginDebounced) return;
-    
-    setState(() {
-      _isLoginDebounced = true;
-    });
-    
-    // Reset debounce after specified duration
-    _debounceTimer?.cancel();
-    _debounceTimer = Timer(
-      Duration(milliseconds: AppConstants.debounceDuration),
-      () => setState(() => _isLoginDebounced = false),
-    );
 
     // Hide keyboard
     FocusScope.of(context).unfocus();
-    
-    // Sanitize inputs before sending
+
     final sanitizedEmail = SecurityUtils.sanitizeInput(_emailController.text.trim());
     final sanitizedPassword = SecurityUtils.sanitizeInput(_passwordController.text);
 
     context.read<LoginBloc>().add(
-      LoginRequested(
-        email: sanitizedEmail,
-        password: sanitizedPassword,
-      ),
-    );
+          LoginRequested(
+            email: sanitizedEmail,
+            password: sanitizedPassword,
+          ),
+        );
+  }
+
+  void _onBiometricLoginPressed() {
+    context.read<LoginBloc>().add(const BiometricLoginRequested());
   }
 
   void _onGoogleLoginPressed() {
@@ -86,8 +84,7 @@ class _LoginFormState extends State<LoginForm> {
       _emailFocusNode.requestFocus();
       return;
     }
-    
-    // Validate email format before sending
+
     if (Validators.validateEmail(email) != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a valid email address')),
@@ -97,8 +94,8 @@ class _LoginFormState extends State<LoginForm> {
     }
 
     context.read<LoginBloc>().add(
-      ForgotPasswordRequested(email: SecurityUtils.sanitizeInput(email)),
-    );
+          ForgotPasswordRequested(email: SecurityUtils.sanitizeInput(email)),
+        );
   }
 
   @override
@@ -109,11 +106,6 @@ class _LoginFormState extends State<LoginForm> {
           previous.errorMessage != current.errorMessage,
       listener: (context, state) {
         if (state.status == LoginStatus.success) {
-          // Reset debounce timer on success
-          _debounceTimer?.cancel();
-          setState(() => _isLoginDebounced = false);
-          
-          // Pop login page and any dialogs
           Navigator.of(context).pop();
 
           // Show success message if this was a password reset
@@ -125,34 +117,29 @@ class _LoginFormState extends State<LoginForm> {
         }
 
         if (state.status == LoginStatus.failure && state.errorMessage != null) {
-          // Reset debounce timer on failure
-          _debounceTimer?.cancel();
-          setState(() => _isLoginDebounced = false);
-          
-          // Provide better error messages based on error type
           String errorMessage = state.errorMessage!;
-          
-          // Handle specific error types
+
+          // Provide user-friendly error messages
           if (errorMessage.toLowerCase().contains('network') ||
               errorMessage.toLowerCase().contains('connection')) {
             errorMessage = AppConstants.networkErrorMessage;
           } else if (errorMessage.toLowerCase().contains('invalid') ||
-                     errorMessage.toLowerCase().contains('wrong')) {
+              errorMessage.toLowerCase().contains('wrong')) {
             errorMessage = 'Invalid email or password. Please try again.';
           } else if (errorMessage.toLowerCase().contains('disabled') ||
-                     errorMessage.toLowerCase().contains('locked')) {
+              errorMessage.toLowerCase().contains('locked')) {
             errorMessage = 'Account is disabled. Please contact support.';
           } else if (errorMessage.toLowerCase().contains('timeout')) {
             errorMessage = 'Request timed out. Please try again.';
           }
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(errorMessage),
               backgroundColor: Theme.of(context).colorScheme.error,
               action: SnackBarAction(
                 label: 'Retry',
-                onPressed: () => _onLoginPressed(),
+                onPressed: _onLoginPressed,
               ),
             ),
           );
@@ -162,26 +149,24 @@ class _LoginFormState extends State<LoginForm> {
         buildWhen: (previous, current) => previous.status != current.status,
         builder: (context, state) {
           final isLoading = state.status == LoginStatus.loading;
-          final isLoginDisabled = isLoading || _isLoginDebounced;
 
           return Form(
             key: _formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Email field with improved validation and accessibility
                 TextFormField(
                   controller: _emailController,
                   focusNode: _emailFocusNode,
                   enabled: !isLoading,
-                  maxLength: 254, // RFC 5321 email length limit
+                  maxLength: 254,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   autocorrect: false,
                   enableSuggestions: false,
                   autofillHints: const [AutofillHints.email],
                   inputFormatters: [
-                    FilteringTextInputFormatter.deny(RegExp(r'\s')), // No spaces
+                    FilteringTextInputFormatter.deny(RegExp(r'\s')),
                     LengthLimitingTextInputFormatter(254),
                   ],
                   decoration: const InputDecoration(
@@ -189,25 +174,23 @@ class _LoginFormState extends State<LoginForm> {
                     hintText: 'Enter your email address',
                     prefixIcon: Icon(Icons.email_outlined),
                     border: OutlineInputBorder(),
-                    counterText: '', // Hide character counter
+                    counterText: '',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
                     }
-                    // Use proper email validation from Validators class
                     return Validators.validateEmail(value.trim());
                   },
                   onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
                 ),
                 const SizedBox(height: 16),
-                // Password field with visibility toggle and complexity requirements
                 TextFormField(
                   controller: _passwordController,
                   focusNode: _passwordFocusNode,
                   enabled: !isLoading,
-                  maxLength: 128, // Reasonable password length limit
-                  obscureText: !_isPasswordVisible,
+                  maxLength: 128,
+                  obscureText: _obscurePassword,
                   keyboardType: TextInputType.visiblePassword,
                   textInputAction: TextInputAction.done,
                   autocorrect: false,
@@ -222,19 +205,19 @@ class _LoginFormState extends State<LoginForm> {
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible
+                        _obscurePassword
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
                       ),
                       onPressed: () {
                         setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
+                          _obscurePassword = !_obscurePassword;
                         });
                       },
-                      tooltip: _isPasswordVisible ? 'Hide password' : 'Show password',
+                      tooltip: _obscurePassword ? 'Show password' : 'Hide password',
                     ),
                     border: const OutlineInputBorder(),
-                    counterText: '', // Hide character counter
+                    counterText: '',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -243,45 +226,109 @@ class _LoginFormState extends State<LoginForm> {
                     if (value.length < AppConstants.minPasswordLength) {
                       return 'Password must be at least ${AppConstants.minPasswordLength} characters';
                     }
-                    
-                    // Check password strength for additional security
                     final strength = SecurityUtils.validatePasswordStrength(value);
                     if (strength == PasswordStrength.weak) {
                       return 'Password is too weak. Use uppercase, lowercase, numbers, and symbols.';
                     }
-                    
                     return null;
                   },
                   onFieldSubmitted: (_) => _onLoginPressed(),
                 ),
-                const SizedBox(height: 24),
-                // Login button with debouncing protection
+                const SizedBox(height: 8),
+                PasswordStrengthIndicator(strength: state.passwordStrength),
+                const SizedBox(height: 16),
+                CheckboxListTile(
+                  title: const Text('Remember me'),
+                  value: _rememberMe,
+                  onChanged: isLoading
+                      ? null
+                      : (value) {
+                          setState(() {
+                            _rememberMe = value ?? false;
+                          });
+                        },
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: isLoginDisabled ? null : _onLoginPressed,
+                    onPressed: isLoading ? null : _onLoginPressed,
                     child: isLoading
                         ? const SizedBox(
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(
-                            _isLoginDebounced ? 'Please wait...' : 'Log In',
-                          ),
+                        : const Text('Log In'),
                   ),
                 ),
                 const SizedBox(height: 16),
+                if (state.biometricAvailable)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.fingerprint),
+                      label: const Text('Login with Biometrics'),
+                      onPressed: isLoading ? null : _onBiometricLoginPressed,
+                    ),
+                  ),
+                if (state.biometricAvailable) const SizedBox(height: 16),
+                if (state.isRateLimited)
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.errorContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.warning,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Too many login attempts. Please wait before trying again.',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (state.isRateLimited) const SizedBox(height: 16),
+                if (state.showCaptcha)
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Column(
+                      children: [
+                        Icon(Icons.security, size: 48),
+                        SizedBox(height: 8),
+                        Text('Please verify you are human'),
+                        Text('(CAPTCHA integration would go here)'),
+                      ],
+                    ),
+                  ),
+                if (state.showCaptcha) const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
-                      onPressed: isLoginDisabled ? null : _onGoogleLoginPressed,
+                      onPressed: isLoading ? null : _onGoogleLoginPressed,
                       child: const Text('Sign in with Google'),
                     ),
                     TextButton(
-                      onPressed: isLoginDisabled ? null : _onForgotPasswordPressed,
+                      onPressed: isLoading ? null : _onForgotPasswordPressed,
                       child: const Text('Forgot Password?'),
                     ),
                   ],

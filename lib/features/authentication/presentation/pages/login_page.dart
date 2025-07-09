@@ -13,10 +13,18 @@ class LoginPage extends StatelessWidget {
 
   /// Creates a [Route] for this page
   static Route<void> route() {
-    return app_routes.RouteFactory.createRoute<void>(
-      builder: (_) => const LoginPage(),
-      routeName: RouteNames.login,
-    );
+    try {
+      return app_routes.RouteFactory.createRoute<void>(
+        builder: (_) => const LoginPage(),
+        routeName: RouteNames.login,
+      );
+    } catch (e) {
+      // Fallback to basic MaterialPageRoute if RouteFactory fails
+      return MaterialPageRoute<void>(
+        builder: (_) => const LoginPage(),
+        settings: const RouteSettings(name: RouteNames.login),
+      );
+    }
   }
 
   @override
