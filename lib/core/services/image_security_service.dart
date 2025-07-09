@@ -253,7 +253,7 @@ class ImageSecurityService {
       const maxAspectRatio = 20.0;
       final aspectRatio = math.max(image.width / image.height, image.height / image.width);
       if (aspectRatio > maxAspectRatio) {
-        return const Failure(
+        return Failure(
           ImageSelectionException.invalidFormat(
             'Image aspect ratio too extreme: ${aspectRatio.toStringAsFixed(1)}:1',
           ),
