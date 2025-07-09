@@ -76,11 +76,11 @@ class SendEmailVerificationUseCase {
       final result = either.fold(
         (failure) {
           developer.log(
-            'Failed to send verification email: failure.message}',
+            'Failed to send verification email: ${failure.message}',
             name: 'SendEmailVerificationUseCase',
             level: 900,
           );
-          return Result.failure(failure.message);
+          return Failure<void>(Exception(failure.message));
         },
         (_) {
           _lastEmailSentTime = DateTime.now();
@@ -88,7 +88,7 @@ class SendEmailVerificationUseCase {
             'Email verification request initiated successfully',
             name: 'SendEmailVerificationUseCase',
           );
-          return Result.success(null);
+          return Success<void>(null);
         },
       );
       return result;
@@ -99,7 +99,7 @@ class SendEmailVerificationUseCase {
         name: 'SendEmailVerificationUseCase',
         error: e,
       );
-      return Result.failure(errorMessage);
+      return Failure<void>(Exception(errorMessage));
     } on FormatException catch (e) {
       final errorMessage = 'Invalid email format detected';
       developer.log(
@@ -107,7 +107,7 @@ class SendEmailVerificationUseCase {
         name: 'SendEmailVerificationUseCase',
         error: e,
       );
-      return Result.failure(errorMessage);
+      return Failure<void>(Exception(errorMessage));
     } catch (e, stackTrace) {
       final errorMessage = 'Unexpected error occurred while sending verification email: e.toString()}';
       developer.log(
@@ -116,7 +116,7 @@ class SendEmailVerificationUseCase {
         error: e,
         stackTrace: stackTrace,
       );
-      return Result.failure(errorMessage);
+      return Failure<void>(Exception(errorMessage));
     }
   }
 
@@ -131,9 +131,9 @@ class SendEmailVerificationUseCase {
           name: 'SendEmailVerificationUseCase',
           level: 900, // Warning level
         );
-        return Result.failure(errorMessage);
+        return Failure<void>(Exception(errorMessage));
       }
-      return Result.success(null);
+      return Success<void>(null);
     } catch (e) {
       final errorMessage = 'Failed to validate user authentication: e.toString()}';
       developer.log(
@@ -141,7 +141,7 @@ class SendEmailVerificationUseCase {
         name: 'SendEmailVerificationUseCase',
         error: e,
       );
-      return Result.failure(errorMessage);
+      return Failure<void>(Exception(errorMessage));
     }
   }
 
@@ -157,10 +157,10 @@ class SendEmailVerificationUseCase {
           name: 'SendEmailVerificationUseCase',
           level: 900, // Warning level
         );
-        return Result.failure(errorMessage);
+        return Failure<void>(Exception(errorMessage));
       }
     }
-    return Result.success(null);
+    return Success<void>(null);
   }
 
   /// Checks if the user's email is already verified
@@ -174,9 +174,9 @@ class SendEmailVerificationUseCase {
           name: 'SendEmailVerificationUseCase',
           level: 800, // Info level
         );
-        return Result.failure(errorMessage);
+        return Failure<void>(Exception(errorMessage));
       }
-      return Result.success(null);
+      return Success<void>(null);
     } catch (e) {
       // If we can't check verification status, we'll proceed anyway
       // This prevents blocking the user if the check fails
@@ -186,7 +186,7 @@ class SendEmailVerificationUseCase {
         level: 900, // Warning level
         error: e,
       );
-      return Result.success(null);
+      return Success<void>(null);
     }
   }
 
