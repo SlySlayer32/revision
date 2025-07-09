@@ -119,9 +119,7 @@ class ServiceRecoveryManager {
         _lastRecoveryAttempts.remove(serviceType);
         
         // Reset service failure tracking in health monitor
-        if (ServiceHealthMonitor._instance != null) {
-          ServiceHealthMonitor.instance.resetServiceFailures<T>();
-        }
+        ServiceHealthMonitor.instance.resetServiceFailures<T>();
       } else {
         _logger.warning(
           'Service recovery failed for: $serviceName',
