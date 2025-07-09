@@ -1,6 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:revision/core/navigation/route_names.dart';
+import 'package:revision/core/services/navigation_analytics_service.dart';
+import 'package:revision/core/services/deep_link_validator.dart';
+import 'package:revision/core/services/navigation_state_persistence.dart';
+import 'package:revision/core/utils/enhanced_logger.dart';
 
 /// Safe navigation utilities that prevent null value errors
 ///
@@ -9,49 +13,84 @@ import 'package:revision/core/navigation/route_names.dart';
 class SafeNavigation {
   SafeNavigation._();
 
+  static final EnhancedLogger _logger = EnhancedLogger();
+  static final NavigationAnalyticsService _analytics = NavigationAnalyticsService();
+  static final DeepLinkValidator _deepLinkValidator = DeepLinkValidator();
+  static final NavigationStatePersistence _statePersistence = NavigationStatePersistence();
+
+  /// Initialize the safe navigation system
+  static Future<void> initialize() async {
+    _logger.info('Initializing SafeNavigation system', operation: 'SAFE_NAVIGATION');
+    
+    // Configure logger for production
+    _logger.configure(
+      minLevel: kDebugMode ? LogLevel.debug : LogLevel.info,
+      enableConsole: kDebugMode,
+      enableFile: true,
+      enableMonitoring: true,
+    );
+  }
+
   /// Safely extracts arguments from route with type checking and null safety
   static T? getArguments<T>(BuildContext context) {
     try {
       final route = ModalRoute.of(context);
       if (route == null) {
-        if (kDebugMode) {
-          debugPrint('⚠️ SafeNavigation: No ModalRoute found in context');
-        }
+        _logger.warning(
+          'No ModalRoute found in context',
+          operation: 'GET_ARGUMENTS',
+        );
         return null;
       }
 
       final settings = route.settings;
       final arguments = settings.arguments;
       if (arguments == null) {
-        if (kDebugMode) {
-          debugPrint(
-            '⚠️ SafeNavigation: No arguments found for route ${settings.name}',
-          );
-        }
+        _logger.debug(
+          'No arguments found for route ${settings.name}',
+          operation: 'GET_ARGUMENTS',
+          context: {'route': settings.name},
+        );
         return null;
       }
 
       // Safe type checking and casting
       if (arguments is T) {
-        if (kDebugMode) {
-          debugPrint(
-            '✅ SafeNavigation: Successfully extracted arguments of type $T',
-          );
-        }
+        _logger.debug(
+          'Successfully extracted arguments of type $T',
+          operation: 'GET_ARGUMENTS',
+          context: {'route': settings.name, 'type': T.toString()},
+        );
         return arguments as T;
       }
 
-      if (kDebugMode) {
-        debugPrint(
-          '⚠️ SafeNavigation: Type mismatch. Expected: $T, Got: ${arguments.runtimeType}',
-        );
-      }
+      _logger.warning(
+        'Argument type mismatch',
+        operation: 'GET_ARGUMENTS',
+        context: {
+          'route': settings.name,
+          'expected_type': T.toString(),
+          'actual_type': arguments.runtimeType.toString(),
+        },
+      );
+      
+      // Track validation issue
+      _analytics.trackArgumentValidation(
+        route: settings.name ?? 'unknown',
+        argumentKey: 'root',
+        expectedType: T.toString(),
+        actualType: arguments.runtimeType.toString(),
+        isValid: false,
+      );
+      
       return null;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrint('❌ SafeNavigation: Error extracting arguments: $e');
-        debugPrint('❌ Stack trace: $stackTrace');
-      }
+      _logger.error(
+        'Error extracting arguments: $e',
+        operation: 'GET_ARGUMENTS',
+        error: e,
+        stackTrace: stackTrace,
+      );
       return null;
     }
   }
@@ -75,11 +114,11 @@ class SafeNavigation {
       try {
         return Map<String, dynamic>.from(rawArgs);
       } catch (e) {
-        if (kDebugMode) {
-          debugPrint(
-            '⚠️ SafeNavigation: Failed to convert Map to Map<String, dynamic>: $e',
-          );
-        }
+        _logger.warning(
+          'Failed to convert Map to Map<String, dynamic>: $e',
+          operation: 'GET_MAP_ARGUMENTS',
+          error: e,
+        );
       }
     }
 
@@ -96,9 +135,27 @@ class SafeNavigation {
       return value;
     }
 
-    if (kDebugMode && value != null) {
-      debugPrint(
-        '⚠️ SafeNavigation: Argument "$key" type mismatch. Expected: $T, Got: ${value.runtimeType}',
+    if (value != null) {
+      final currentRoute = getCurrentRouteName(context) ?? 'unknown';
+      
+      _logger.warning(
+        'Argument type mismatch for key "$key"',
+        operation: 'GET_ARGUMENT_VALUE',
+        context: {
+          'key': key,
+          'route': currentRoute,
+          'expected_type': T.toString(),
+          'actual_type': value.runtimeType.toString(),
+        },
+      );
+      
+      // Track validation issue
+      _analytics.trackArgumentValidation(
+        route: currentRoute,
+        argumentKey: key,
+        expectedType: T.toString(),
+        actualType: value.runtimeType.toString(),
+        isValid: false,
       );
     }
 
@@ -111,15 +168,21 @@ class SafeNavigation {
       final route = ModalRoute.of(context);
       final name = route?.settings.name;
 
-      if (kDebugMode && name != null) {
-        debugPrint('🔗 SafeNavigation: Current route: $name');
+      if (name != null) {
+        _logger.debug(
+          'Current route: $name',
+          operation: 'GET_CURRENT_ROUTE',
+          context: {'route': name},
+        );
       }
 
       return name;
     } catch (e) {
-      if (kDebugMode) {
-        debugPrint('❌ SafeNavigation: Error getting route name: $e');
-      }
+      _logger.error(
+        'Error getting route name: $e',
+        operation: 'GET_CURRENT_ROUTE',
+        error: e,
+      );
       return null;
     }
   }
@@ -135,11 +198,26 @@ class SafeNavigation {
     String routeName, {
     Object? arguments,
   }) async {
+    final fromRoute = getCurrentRouteName(context) ?? 'unknown';
+    final startTime = DateTime.now();
+    
     try {
       if (!RouteNames.isValidRoute(routeName)) {
-        if (kDebugMode) {
-          debugPrint('⚠️ SafeNavigation: Invalid route name: $routeName');
-        }
+        _logger.warning(
+          'Invalid route name: $routeName',
+          operation: 'PUSH_NAMED',
+          context: {'route': routeName, 'from_route': fromRoute},
+        );
+        
+        // Track navigation failure
+        _analytics.trackNavigationFailure(
+          fromRoute: fromRoute,
+          attemptedRoute: routeName,
+          error: 'Invalid route name',
+          arguments: arguments is Map<String, dynamic> ? arguments : null,
+          fallbackRoute: RouteNames.error,
+        );
+        
         // Navigate to error page or home instead
         return pushNamed<T>(
           context,
@@ -148,21 +226,60 @@ class SafeNavigation {
         );
       }
 
-      if (kDebugMode) {
-        debugPrint('🔗 SafeNavigation: Navigating to $routeName');
-        if (arguments != null) {
-          debugPrint('🔗 SafeNavigation: With arguments: $arguments');
-        }
-      }
+      _logger.info(
+        'Navigating to $routeName',
+        operation: 'PUSH_NAMED',
+        context: {
+          'route': routeName,
+          'from_route': fromRoute,
+          'has_arguments': arguments != null,
+        },
+      );
 
-      return await Navigator.of(
+      // Persist navigation state
+      await _statePersistence.pushRoute(
+        routeName,
+        arguments: arguments is Map<String, dynamic> ? arguments : null,
+      );
+
+      final result = await Navigator.of(
         context,
       ).pushNamed<T>(routeName, arguments: arguments);
+
+      final duration = DateTime.now().difference(startTime);
+      
+      // Track successful navigation
+      _analytics.trackNavigation(
+        fromRoute: fromRoute,
+        toRoute: routeName,
+        arguments: arguments is Map<String, dynamic> ? arguments : null,
+        duration: duration,
+      );
+
+      return result;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrint('❌ SafeNavigation: Navigation error: $e');
-        debugPrint('❌ Stack trace: $stackTrace');
-      }
+      final duration = DateTime.now().difference(startTime);
+      
+      _logger.error(
+        'Navigation error: $e',
+        operation: 'PUSH_NAMED',
+        error: e,
+        stackTrace: stackTrace,
+        context: {
+          'route': routeName,
+          'from_route': fromRoute,
+          'duration_ms': duration.inMilliseconds,
+        },
+      );
+
+      // Track navigation failure
+      _analytics.trackNavigationFailure(
+        fromRoute: fromRoute,
+        attemptedRoute: routeName,
+        error: e.toString(),
+        arguments: arguments is Map<String, dynamic> ? arguments : null,
+        fallbackRoute: RouteNames.error,
+      );
 
       // Fallback navigation to safe route
       try {
@@ -171,34 +288,150 @@ class SafeNavigation {
           arguments: {'error': 'Navigation failed: $e'},
         );
       } catch (fallbackError) {
-        if (kDebugMode) {
-          debugPrint(
-            '❌ SafeNavigation: Fallback navigation also failed: $fallbackError',
-          );
-        }
+        _logger.error(
+          'Fallback navigation also failed: $fallbackError',
+          operation: 'PUSH_NAMED_FALLBACK',
+          error: fallbackError,
+        );
         return null;
       }
     }
   }
 
+  /// Safely handles deep link navigation with validation
+  static Future<T?> handleDeepLink<T extends Object?>(
+    BuildContext context,
+    String deepLink,
+  ) async {
+    final fromRoute = getCurrentRouteName(context) ?? 'unknown';
+    
+    try {
+      // Validate the deep link
+      final validationResult = _deepLinkValidator.validateDeepLink(deepLink);
+      
+      // Track deep link attempt
+      _analytics.trackDeepLink(
+        deepLink: deepLink,
+        isValid: validationResult.isValid,
+        error: validationResult.error,
+        extractedData: validationResult.arguments,
+      );
+      
+      if (!validationResult.isValid) {
+        _logger.warning(
+          'Invalid deep link: ${validationResult.error}',
+          operation: 'HANDLE_DEEP_LINK',
+          context: {
+            'deep_link': deepLink,
+            'error': validationResult.error,
+            'from_route': fromRoute,
+          },
+        );
+        
+        // Navigate to error page
+        return pushNamed<T>(
+          context,
+          RouteNames.error,
+          arguments: {'error': 'Invalid deep link: ${validationResult.error}'},
+        );
+      }
+
+      _logger.info(
+        'Processing valid deep link',
+        operation: 'HANDLE_DEEP_LINK',
+        context: {
+          'deep_link': deepLink,
+          'target_route': validationResult.routePath,
+          'from_route': fromRoute,
+        },
+      );
+
+      // Navigate to the validated route
+      return pushNamed<T>(
+        context,
+        validationResult.routePath!,
+        arguments: validationResult.arguments,
+      );
+      
+    } catch (e, stackTrace) {
+      _logger.error(
+        'Deep link processing error: $e',
+        operation: 'HANDLE_DEEP_LINK',
+        error: e,
+        stackTrace: stackTrace,
+        context: {
+          'deep_link': deepLink,
+          'from_route': fromRoute,
+        },
+      );
+      
+      // Track the failure
+      _analytics.trackDeepLink(
+        deepLink: deepLink,
+        isValid: false,
+        error: e.toString(),
+      );
+      
+      // Navigate to error page
+      return pushNamed<T>(
+        context,
+        RouteNames.error,
+        arguments: {'error': 'Deep link processing failed: $e'},
+      );
+    }
+  }
   /// Safely pushes a route with proper error handling
   static Future<T?> push<T extends Object?>(
     BuildContext context,
     Route<T> route,
   ) async {
+    final fromRoute = getCurrentRouteName(context) ?? 'unknown';
+    final routeName = route.settings.name ?? 'unnamed';
+    
     try {
-      final routeName = route.settings.name ?? 'unnamed';
+      _logger.info(
+        'Pushing route: $routeName',
+        operation: 'PUSH_ROUTE',
+        context: {
+          'route': routeName,
+          'from_route': fromRoute,
+        },
+      );
 
-      if (kDebugMode) {
-        debugPrint('🔗 SafeNavigation: Pushing route: $routeName');
-      }
+      // Persist navigation state
+      await _statePersistence.pushRoute(routeName);
 
-      return await Navigator.of(context).push<T>(route);
+      final result = await Navigator.of(context).push<T>(route);
+      
+      // Track successful navigation
+      _analytics.trackNavigation(
+        fromRoute: fromRoute,
+        toRoute: routeName,
+        arguments: route.settings.arguments is Map<String, dynamic> 
+          ? route.settings.arguments as Map<String, dynamic>
+          : null,
+      );
+      
+      return result;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrint('❌ SafeNavigation: Push route error: $e');
-        debugPrint('❌ Stack trace: $stackTrace');
-      }
+      _logger.error(
+        'Push route error: $e',
+        operation: 'PUSH_ROUTE',
+        error: e,
+        stackTrace: stackTrace,
+        context: {
+          'route': routeName,
+          'from_route': fromRoute,
+        },
+      );
+      
+      // Track navigation failure
+      _analytics.trackNavigationFailure(
+        fromRoute: fromRoute,
+        attemptedRoute: routeName,
+        error: e.toString(),
+      );
+      
       return null;
     }
   }
@@ -209,21 +442,60 @@ class SafeNavigation {
     Route<T> newRoute, {
     TO? result,
   }) async {
+    final fromRoute = getCurrentRouteName(context) ?? 'unknown';
+    final routeName = newRoute.settings.name ?? 'unnamed';
+    
     try {
-      final routeName = newRoute.settings.name ?? 'unnamed';
+      _logger.info(
+        'Replacing with route: $routeName',
+        operation: 'PUSH_REPLACEMENT',
+        context: {
+          'route': routeName,
+          'from_route': fromRoute,
+        },
+      );
 
-      if (kDebugMode) {
-        debugPrint('🔗 SafeNavigation: Replacing with route: $routeName');
-      }
+      // Update navigation state
+      await _statePersistence.updateCurrentRoute(
+        routeName,
+        arguments: newRoute.settings.arguments is Map<String, dynamic> 
+          ? newRoute.settings.arguments as Map<String, dynamic>
+          : null,
+      );
 
-      return await Navigator.of(
+      final finalResult = await Navigator.of(
         context,
       ).pushReplacement<T, TO>(newRoute, result: result);
+      
+      // Track successful navigation
+      _analytics.trackNavigation(
+        fromRoute: fromRoute,
+        toRoute: routeName,
+        arguments: newRoute.settings.arguments is Map<String, dynamic> 
+          ? newRoute.settings.arguments as Map<String, dynamic>
+          : null,
+      );
+      
+      return finalResult;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrint('❌ SafeNavigation: Push replacement error: $e');
-        debugPrint('❌ Stack trace: $stackTrace');
-      }
+      _logger.error(
+        'Push replacement error: $e',
+        operation: 'PUSH_REPLACEMENT',
+        error: e,
+        stackTrace: stackTrace,
+        context: {
+          'route': routeName,
+          'from_route': fromRoute,
+        },
+      );
+      
+      // Track navigation failure
+      _analytics.trackNavigationFailure(
+        fromRoute: fromRoute,
+        attemptedRoute: routeName,
+        error: e.toString(),
+      );
+      
       return null;
     }
   }
@@ -233,20 +505,27 @@ class SafeNavigation {
     try {
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop<T>(result);
+        
+        // Update navigation state
+        _statePersistence.popRoute();
 
-        if (kDebugMode) {
-          debugPrint('🔗 SafeNavigation: Popped route');
-        }
+        _logger.debug(
+          'Popped route',
+          operation: 'POP_ROUTE',
+        );
       } else {
-        if (kDebugMode) {
-          debugPrint('⚠️ SafeNavigation: Cannot pop - no routes to pop');
-        }
+        _logger.warning(
+          'Cannot pop - no routes to pop',
+          operation: 'POP_ROUTE',
+        );
       }
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrint('❌ SafeNavigation: Pop error: $e');
-        debugPrint('❌ Stack trace: $stackTrace');
-      }
+      _logger.error(
+        'Pop error: $e',
+        operation: 'POP_ROUTE',
+        error: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -258,14 +537,22 @@ class SafeNavigation {
         return currentName == routeName;
       });
 
-      if (kDebugMode) {
-        debugPrint('🔗 SafeNavigation: Popped until route: $routeName');
-      }
+      // Update navigation state
+      _statePersistence.updateCurrentRoute(routeName);
+
+      _logger.debug(
+        'Popped until route: $routeName',
+        operation: 'POP_UNTIL',
+        context: {'target_route': routeName},
+      );
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrint('❌ SafeNavigation: Pop until error: $e');
-        debugPrint('❌ Stack trace: $stackTrace');
-      }
+      _logger.error(
+        'Pop until error: $e',
+        operation: 'POP_UNTIL',
+        error: e,
+        stackTrace: stackTrace,
+        context: {'target_route': routeName},
+      );
     }
   }
 
@@ -277,14 +564,77 @@ class SafeNavigation {
 
     final isValid = arguments.runtimeType == expectedType;
 
-    if (kDebugMode && !isValid) {
-      debugPrint(
-        '⚠️ SafeNavigation: Argument validation failed. '
-        'Expected: $expectedType, Got: ${arguments.runtimeType}',
+    if (!isValid) {
+      _logger.warning(
+        'Argument validation failed',
+        operation: 'VALIDATE_ARGUMENTS',
+        context: {
+          'expected_type': expectedType.toString(),
+          'actual_type': arguments.runtimeType.toString(),
+        },
       );
     }
 
     return isValid;
+  }
+
+  /// Restores navigation state after app restart
+  static Future<void> restoreNavigationState(BuildContext context) async {
+    try {
+      final savedState = await _statePersistence.loadNavigationState();
+      if (savedState != null) {
+        _logger.info(
+          'Restoring navigation state',
+          operation: 'RESTORE_STATE',
+          context: {
+            'current_route': savedState.currentRoute,
+            'stack_depth': savedState.routeStack.length,
+          },
+        );
+        
+        // Navigate to the saved route
+        await pushNamed(
+          context,
+          savedState.currentRoute,
+          arguments: savedState.arguments,
+        );
+      }
+    } catch (e, stackTrace) {
+      _logger.error(
+        'Failed to restore navigation state: $e',
+        operation: 'RESTORE_STATE',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  /// Clears navigation state (useful for logout)
+  static Future<void> clearNavigationState() async {
+    try {
+      await _statePersistence.clearNavigationState();
+      _logger.info(
+        'Navigation state cleared',
+        operation: 'CLEAR_STATE',
+      );
+    } catch (e, stackTrace) {
+      _logger.error(
+        'Failed to clear navigation state: $e',
+        operation: 'CLEAR_STATE',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    }
+  }
+
+  /// Gets navigation analytics for debugging
+  static Map<String, dynamic> getAnalytics() {
+    return _analytics.getAnalyticsSummary();
+  }
+
+  /// Gets navigation state statistics
+  static Future<Map<String, dynamic>> getStateStatistics() async {
+    return await _statePersistence.getStateStatistics();
   }
 
   /// Creates a safe error route for navigation failures
