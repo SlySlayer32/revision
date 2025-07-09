@@ -2,13 +2,17 @@ import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 // import 'package:firebase_ai/firebase_ai.dart'; // Removed - using REST API instead
+import 'package:revision/core/services/analytics_service.dart';
 import 'package:revision/core/services/circuit_breaker.dart';
 import 'package:revision/core/services/error_handler_service.dart';
+import 'package:revision/core/services/feature_flag_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/core/services/image_save_service.dart';
 import 'package:revision/core/services/logging_service.dart';
+import 'package:revision/core/services/onboarding_service.dart';
+import 'package:revision/core/services/security_notification_service.dart';
 // AI processing feature
 import 'package:revision/features/ai_processing/data/services/ai_result_save_service.dart';
 import 'package:revision/features/ai_processing/domain/usecases/generate_segmentation_masks_usecase.dart';
@@ -74,7 +78,10 @@ void _registerCoreServices() {
     // Core Services
     ..registerLazySingleton<CircuitBreaker>(CircuitBreaker.new)
     ..registerLazySingleton(() => LoggingService.instance)
-    ..registerLazySingleton(() => ErrorHandlerService.instance);
+    ..registerLazySingleton(() => ErrorHandlerService.instance)
+    ..registerLazySingleton(() => AnalyticsService())
+    ..registerLazySingleton(() => OnboardingService())
+    ..registerLazySingleton(() => SecurityNotificationService());
 
   debugPrint(
     '_registerCoreServices: Registering FirebaseAIRemoteConfigService...',
@@ -82,6 +89,14 @@ void _registerCoreServices() {
   getIt.registerLazySingleton<FirebaseAIRemoteConfigService>(
     FirebaseAIRemoteConfigService.new,
   );
+
+  debugPrint('_registerCoreServices: Registering FeatureFlagService...');
+  getIt.registerLazySingleton<FeatureFlagService>(() {
+    final service = FeatureFlagService();
+    // Initialize with remote config service
+    service.initialize(getIt<FirebaseAIRemoteConfigService>());
+    return service;
+  });
 
   debugPrint('_registerCoreServices: Registering GeminiAIService...');
   getIt.registerLazySingleton<GeminiAIService>(() {
