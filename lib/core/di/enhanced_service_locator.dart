@@ -195,7 +195,7 @@ class EnhancedServiceLocator {
   Map<String, dynamic> getStatistics() {
     return {
       'timestamp': DateTime.now().toIso8601String(),
-      'health_monitoring': ServiceHealthMonitor.instance._lastHealthResults.length,
+      'health_monitoring': ServiceHealthMonitor.instance.getFailingServices().length,
       'recovery_statistics': ServiceRecoveryManager.instance.getRecoveryStatistics(),
       'failing_services': ServiceHealthMonitor.instance.getFailingServices()
           .map((t) => t.toString()).toList(),
