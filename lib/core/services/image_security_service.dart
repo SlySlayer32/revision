@@ -191,7 +191,7 @@ class ImageSecurityService {
 
     // Check for dangerous characters
     if (filename.contains('../') || filename.contains('..\\')) {
-      return const Failure(
+      return Failure(
         ImageSelectionException.invalidFormat('Filename contains dangerous path traversal'),
       );
     }
