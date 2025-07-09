@@ -7,6 +7,7 @@ void main() {
 
     setUp(() {
       rateLimitingService = RateLimitingService.instance;
+      rateLimitingService.resetLimiter('test_operation'); // Ensure clean state
     });
 
     group('isRateLimited', () {
@@ -16,12 +17,12 @@ void main() {
 
       test('returns true when rate limit is exceeded', () {
         final limiter = rateLimitingService.getLimiter('test_operation');
-        
+
         // Simulate exceeding rate limit
         for (int i = 0; i < limiter.maxRequests; i++) {
           limiter.recordRequest();
         }
-        
+
         expect(rateLimitingService.isRateLimited('test_operation'), isTrue);
       });
     });
@@ -29,7 +30,7 @@ void main() {
     group('executeWithRateLimit', () {
       test('executes function when rate limit is not exceeded', () async {
         var executed = false;
-        
+
         await rateLimitingService.executeWithRateLimit(
           'test_operation',
           () async {
@@ -37,18 +38,18 @@ void main() {
             return 'success';
           },
         );
-        
+
         expect(executed, isTrue);
       });
 
       test('throws RateLimitExceededException when rate limit is exceeded', () async {
         final limiter = rateLimitingService.getLimiter('test_operation');
-        
+
         // Exceed rate limit
         for (int i = 0; i < limiter.maxRequests; i++) {
           limiter.recordRequest();
         }
-        
+
         expect(
           () => rateLimitingService.executeWithRateLimit(
             'test_operation',
@@ -62,17 +63,17 @@ void main() {
     group('resetLimiter', () {
       test('resets rate limiter for operation', () {
         final limiter = rateLimitingService.getLimiter('test_operation');
-        
+
         // Exceed rate limit
         for (int i = 0; i < limiter.maxRequests; i++) {
           limiter.recordRequest();
         }
-        
+
         expect(rateLimitingService.isRateLimited('test_operation'), isTrue);
-        
+
         // Reset limiter
         rateLimitingService.resetLimiter('test_operation');
-        
+
         expect(rateLimitingService.isRateLimited('test_operation'), isFalse);
       });
     });
@@ -84,7 +85,7 @@ void main() {
     setUp(() {
       rateLimiter = RateLimiter(
         maxRequests: 3,
-        window: const Duration(seconds: 1),
+        window: const Duration(milliseconds: 500),
         operation: 'test',
       );
     });
@@ -92,7 +93,7 @@ void main() {
     group('isLimited', () {
       test('returns false when under limit', () {
         expect(rateLimiter.isLimited(), isFalse);
-        
+
         rateLimiter.recordRequest();
         expect(rateLimiter.isLimited(), isFalse);
       });
@@ -101,7 +102,7 @@ void main() {
         for (int i = 0; i < rateLimiter.maxRequests; i++) {
           rateLimiter.recordRequest();
         }
-        
+
         expect(rateLimiter.isLimited(), isTrue);
       });
     });
@@ -114,9 +115,9 @@ void main() {
       test('returns duration until rate limit resets', () {
         rateLimiter.recordRequest();
         final retryAfter = rateLimiter.getRetryAfter();
-        
+
         expect(retryAfter.inMilliseconds, greaterThan(0));
-        expect(retryAfter.inMilliseconds, lessThanOrEqualTo(1000));
+        expect(retryAfter.inMilliseconds, lessThanOrEqualTo(500));
       });
     });
 
@@ -125,11 +126,11 @@ void main() {
         for (int i = 0; i < rateLimiter.maxRequests; i++) {
           rateLimiter.recordRequest();
         }
-        
+
         expect(rateLimiter.isLimited(), isTrue);
-        
+
         rateLimiter.reset();
-        
+
         expect(rateLimiter.isLimited(), isFalse);
       });
     });

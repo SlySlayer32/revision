@@ -1,9 +1,15 @@
 import 'dart:convert';
-import 'dart:developer';
-import 'dart:typed_data';
-
 import 'package:crypto/crypto.dart';
 import 'package:revision/core/config/env_config.dart';
+
+/// Exception thrown when API key security validation fails
+class SecurityException implements Exception {
+  final String message;
+  SecurityException(this.message);
+
+  @override
+  String toString() => 'SecurityException: $message';
+}
 
 /// Secure API key management service
 /// Handles API key validation, masking, and security checks
@@ -14,27 +20,23 @@ class SecureAPIKeyManager {
   static DateTime? _lastValidation;
   static const Duration _validationCacheDuration = Duration(minutes: 5);
 
-  /// Get API key with security validation
+  /// Get API key with security validation. Throws [SecurityException] if invalid.
   static String? getSecureApiKey() {
     final apiKey = EnvConfig.geminiApiKey;
-    
+
     if (apiKey == null || apiKey.isEmpty) {
       return null;
     }
 
     // Cache validation for performance
-    if (_lastValidation != null && 
+    if (_lastValidation != null &&
         DateTime.now().difference(_lastValidation!) < _validationCacheDuration) {
       return apiKey;
     }
 
     // Validate API key format
     if (!_validateApiKeyFormat(apiKey)) {
-      SecurityAuditService.logSecurityException(
-        operation: 'API_KEY_VALIDATION',
-        exception: 'SecurityException',
-        message: 'Invalid API key format detected',
-      );
+      // You may want to log or audit here (optional)
       throw SecurityException('Invalid API key format detected');
     }
 
@@ -42,89 +44,50 @@ class SecureAPIKeyManager {
     return apiKey;
   }
 
-  /// Check if API key needs refresh (placeholder for future implementation)
-  static bool needsRefresh() {
-    // In a real implementation, this would check token expiry
-    // For Gemini API keys, this is typically not needed as they don't expire
-    return false;
-  }
-
-  /// Refresh API key (placeholder for future implementation)
-  static Future<String?> refreshApiKey() async {
-    // In a real implementation, this would handle token refresh
-    // For Gemini API keys, this would typically involve getting a new key
-    // from the service account or OAuth flow
-    
-    SecurityAuditService.logAuthentication(
-      operation: 'API_KEY_REFRESH',
-      success: false,
-      reason: 'Not implemented for Gemini API keys',
-    );
-    
-    throw UnimplementedError('API key refresh not implemented for Gemini API');
-  }
-
-  /// Validate API key format without exposing the key
-  static bool _validateApiKeyFormat(String apiKey) {
-    // Check length
-    if (apiKey.length < _minKeyLength) {
-      return false;
-    }
-
-    // Check expected prefix
-    if (!apiKey.startsWith(_expectedPrefix)) {
-      return false;
-    }
-
-    // Check for common patterns that might indicate a test/fake key
-    if (apiKey.contains('test') || 
-        apiKey.contains('fake') || 
-        apiKey.contains('demo') ||
-        apiKey.contains('example')) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /// Get masked API key for logging purposes
-  static String getMaskedApiKey(String apiKey) {
-    if (apiKey.length < 8) {
-      return _maskChar * apiKey.length;
-    }
-    
-    // Show first 4 and last 4 characters
-    final prefix = apiKey.substring(0, 4);
-    final suffix = apiKey.substring(apiKey.length - 4);
-    final middleLength = apiKey.length - 8;
-    
-    return '$prefix${'*' * middleLength}$suffix';
-  }
-
-  /// Generate a secure hash of the API key for audit purposes
-  static String generateApiKeyHash(String apiKey) {
-    final bytes = utf8.encode(apiKey);
-    final digest = sha256.convert(bytes);
-    return digest.toString().substring(0, 16); // First 16 chars for brevity
-  }
-
-  /// Validate if API key is properly configured
+  /// Checks if API key is properly configured and valid.
   static bool isApiKeyConfigured() {
     final apiKey = EnvConfig.geminiApiKey;
     return apiKey != null && apiKey.isNotEmpty && _validateApiKeyFormat(apiKey);
   }
 
-  /// Get secure debug information without exposing the key
+  /// Validate API key format without exposing the key
+  static bool _validateApiKeyFormat(String apiKey) {
+    if (apiKey.length < _minKeyLength) return false;
+    if (!apiKey.startsWith(_expectedPrefix)) return false;
+    final lower = apiKey.toLowerCase();
+    if (lower.contains('test') || lower.contains('fake') || lower.contains('demo') || lower.contains('example')) {
+      return false;
+    }
+    return true;
+  }
+
+  /// Returns a masked version of the API key for logging (e.g., AIza****abcd)
+  static String getMaskedApiKey(String apiKey) {
+    if (apiKey.length < 8) {
+      return _maskChar * apiKey.length;
+    }
+    final prefix = apiKey.substring(0, 4);
+    final suffix = apiKey.substring(apiKey.length - 4);
+    final middleLength = apiKey.length - 8;
+    return '$prefix${_maskChar * middleLength}$suffix';
+  }
+
+  /// Generate a secure hash of the API key for audit purposes (SHA-256, shortened to 16 chars)
+  static String generateApiKeyHash(String apiKey) {
+    final bytes = utf8.encode(apiKey);
+    final digest = sha256.convert(bytes);
+    return digest.toString().substring(0, 16);
+  }
+
+  /// Get secure debug information without exposing the key content.
   static Map<String, dynamic> getSecureDebugInfo() {
     final apiKey = EnvConfig.geminiApiKey;
-    
     if (apiKey == null || apiKey.isEmpty) {
       return {
         'configured': false,
         'error': 'API key not found',
       };
     }
-
     return {
       'configured': true,
       'length': apiKey.length,
@@ -134,14 +97,10 @@ class SecureAPIKeyManager {
       'maskedKey': getMaskedApiKey(apiKey),
     };
   }
-}
 
-/// Exception thrown when API key security validation fails
-class SecurityException implements Exception {
-  final String message;
-  
-  SecurityException(this.message);
-  
-  @override
-  String toString() => 'SecurityException: $message';
+  /// Placeholder for API key refresh (not implemented for Gemini API)
+  static Future<String?> refreshApiKey() async {
+    // For Gemini API keys, this is typically not needed as they don't expire.
+    throw UnimplementedError('API key refresh not implemented for Gemini API');
+  }
 }

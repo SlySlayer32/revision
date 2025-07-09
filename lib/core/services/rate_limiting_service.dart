@@ -1,41 +1,80 @@
+import 'dart:collection';
 import 'dart:developer';
 
 import 'package:revision/core/services/secure_logger.dart';
 
-/// Rate limiting service for API calls
+/// Configuration for rate limiting per operation.
+class RateLimitConfig {
+  final int maxRequests;
+  final Duration window;
+
+  const RateLimitConfig({
+    required this.maxRequests,
+    required this.window,
+  });
+}
+
+/// Exception thrown when rate limit is exceeded.
+class RateLimitExceededException implements Exception {
+  final String message;
+  final String operation;
+  final Duration retryAfter;
+
+  RateLimitExceededException(
+    this.message, {
+    required this.operation,
+    required this.retryAfter,
+  });
+
+  @override
+  String toString() =>
+      'RateLimitExceededException: $message (retry after: ${retryAfter.inSeconds}s)';
+}
+
+/// Implements per-operation rate limiting with configurable windows.
 class RateLimitingService {
+  // Singleton pattern
   static final RateLimitingService _instance = RateLimitingService._internal();
   static RateLimitingService get instance => _instance;
-  
   RateLimitingService._internal();
 
+  // Stores per-operation limiters
   final Map<String, RateLimiter> _limiters = {};
 
-  /// Get or create rate limiter for a specific operation
+  /// Get or create a rate limiter for an operation
   RateLimiter getLimiter(String operation) {
-    return _limiters.putIfAbsent(operation, () {
-      final config = _getConfigForOperation(operation);
-      return RateLimiter(
-        maxRequests: config.maxRequests,
-        window: config.window,
-        operation: operation,
-      );
-    });
+    return _limiters.putIfAbsent(
+      operation,
+      () {
+        final config = _getConfigForOperation(operation);
+        return RateLimiter(
+          maxRequests: config.maxRequests,
+          window: config.window,
+          operation: operation,
+        );
+      },
+    );
   }
 
-  /// Check if operation is rate limited
+  /// Checks if the operation is currently rate limited.
   bool isRateLimited(String operation) {
     final limiter = getLimiter(operation);
     return limiter.isLimited();
   }
 
-  /// Execute operation with rate limiting
+  /// Resets the limiter for a given operation.
+  void resetLimiter(String operation) {
+    _limiters[operation]?.reset();
+  }
+
+  /// Executes [function] with rate limiting for [operation].
+  /// Throws [RateLimitExceededException] if limit reached.
   Future<T> executeWithRateLimit<T>(
     String operation,
     Future<T> Function() function,
   ) async {
     final limiter = getLimiter(operation);
-    
+
     if (limiter.isLimited()) {
       SecureLogger.logAuditEvent(
         'Rate limit exceeded',
@@ -45,7 +84,6 @@ class RateLimitingService {
           'windowMs': limiter.window.inMilliseconds,
         },
       );
-      
       throw RateLimitExceededException(
         'Rate limit exceeded for operation: $operation',
         operation: operation,
@@ -54,21 +92,15 @@ class RateLimitingService {
     }
 
     limiter.recordRequest();
-    
+
     try {
       return await function();
     } finally {
-      // Clean up old entries periodically
       limiter.cleanup();
     }
   }
 
-  /// Reset rate limiter for specific operation
-  void resetLimiter(String operation) {
-    _limiters[operation]?.reset();
-  }
-
-  /// Get rate limit configuration for operation
+  /// Returns configuration for a given operation.
   RateLimitConfig _getConfigForOperation(String operation) {
     switch (operation) {
       case 'gemini_text':
@@ -105,7 +137,7 @@ class RateLimitingService {
   }
 }
 
-/// Individual rate limiter implementation
+/// Handles rate limiting for a single operation.
 class RateLimiter {
   final int maxRequests;
   final Duration window;
@@ -118,73 +150,34 @@ class RateLimiter {
     required this.operation,
   });
 
-  /// Check if rate limit is exceeded
+  /// Returns true if rate limit is currently exceeded.
   bool isLimited() {
     _cleanupOldRequests();
     return _requestTimes.length >= maxRequests;
   }
 
-  /// Record a new request
+  /// Records a new request timestamp.
   void recordRequest() {
     _requestTimes.add(DateTime.now());
   }
 
-  /// Get time until rate limit resets
+  /// Returns the time remaining until requests are allowed again.
   Duration getRetryAfter() {
-    if (_requestTimes.isEmpty) {
-      return Duration.zero;
-    }
-    
-    final oldestRequest = _requestTimes.first;
-    final resetTime = oldestRequest.add(window);
+    if (_requestTimes.isEmpty) return Duration.zero;
+    final oldest = _requestTimes.first;
+    final resetTime = oldest.add(window);
     final now = DateTime.now();
-    
-    if (resetTime.isAfter(now)) {
-      return resetTime.difference(now);
-    }
-    
-    return Duration.zero;
+    return resetTime.isAfter(now) ? resetTime.difference(now) : Duration.zero;
   }
 
-  /// Clean up old requests outside the window
-  void cleanup() {
-    _cleanupOldRequests();
-  }
+  /// Removes old request timestamps outside the window.
+  void cleanup() => _cleanupOldRequests();
 
-  /// Reset rate limiter
-  void reset() {
-    _requestTimes.clear();
-  }
+  /// Clears all recorded requests.
+  void reset() => _requestTimes.clear();
 
   void _cleanupOldRequests() {
     final now = DateTime.now();
-    _requestTimes.removeWhere((time) => now.difference(time) > window);
+    _requestTimes.removeWhere((t) => now.difference(t) > window);
   }
-}
-
-/// Rate limit configuration
-class RateLimitConfig {
-  final int maxRequests;
-  final Duration window;
-
-  const RateLimitConfig({
-    required this.maxRequests,
-    required this.window,
-  });
-}
-
-/// Exception thrown when rate limit is exceeded
-class RateLimitExceededException implements Exception {
-  final String message;
-  final String operation;
-  final Duration retryAfter;
-
-  RateLimitExceededException(
-    this.message, {
-    required this.operation,
-    required this.retryAfter,
-  });
-
-  @override
-  String toString() => 'RateLimitExceededException: $message (retry after: ${retryAfter.inSeconds}s)';
 }

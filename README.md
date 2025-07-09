@@ -139,6 +139,30 @@ $ flutter run --flavor production --target lib/main_production.dart
 
 _\*Revision works on iOS, Android, Web, and Windows._
 
+## Security Features 🔐
+
+The Revision app implements comprehensive security measures for image processing:
+
+### Image Selection Security
+- **Multi-layered Validation**: Format, size, and malware detection
+- **EXIF Data Stripping**: Removes metadata for privacy protection
+- **Intelligent Compression**: Size-based quality optimization
+- **Path Traversal Prevention**: Secure filename validation
+- **Resource Protection**: Prevents dimension bombs and memory exhaustion
+
+### Security Testing
+Run security tests with:
+```bash
+# Run all security tests
+./scripts/run_security_tests.sh
+
+# Run specific test suites
+flutter test test/core/services/image_security_service_test.dart
+flutter test test/integration/image_selection_security_integration_test.dart
+```
+
+For detailed security documentation, see [IMAGE_SELECTION_SECURITY.md](docs/IMAGE_SELECTION_SECURITY.md).
+
 ---
 
 ## Running Tests 🧪

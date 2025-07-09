@@ -1,16 +1,14 @@
 import 'dart:convert';
-import 'dart:developer';
-
 import 'package:revision/core/services/secure_logger.dart';
 
-/// Security audit service for tracking security-sensitive operations
+/// Security audit service for tracking security-sensitive operations.
 class SecurityAuditService {
   static final SecurityAuditService _instance = SecurityAuditService._internal();
   static SecurityAuditService get instance => _instance;
-  
+
   SecurityAuditService._internal();
 
-  /// Log API key validation event
+  /// Log API key validation event.
   static void logApiKeyValidation({
     required bool success,
     String? reason,
@@ -28,7 +26,7 @@ class SecurityAuditService {
     );
   }
 
-  /// Log API request attempt
+  /// Log API request attempt.
   static void logApiRequest({
     required String operation,
     required String endpoint,
@@ -47,7 +45,7 @@ class SecurityAuditService {
     );
   }
 
-  /// Log API response received
+  /// Log API response received.
   static void logApiResponse({
     required String operation,
     required int statusCode,
@@ -68,7 +66,7 @@ class SecurityAuditService {
     );
   }
 
-  /// Log rate limiting event
+  /// Log rate limiting event.
   static void logRateLimit({
     required String operation,
     required bool blocked,
@@ -85,7 +83,7 @@ class SecurityAuditService {
     );
   }
 
-  /// Log circuit breaker event
+  /// Log circuit breaker event.
   static void logCircuitBreaker({
     required String service,
     required String state,
@@ -105,7 +103,7 @@ class SecurityAuditService {
     );
   }
 
-  /// Log security exception
+  /// Log security exception.
   static void logSecurityException({
     required String operation,
     required String exception,
@@ -125,7 +123,7 @@ class SecurityAuditService {
     );
   }
 
-  /// Log service initialization
+  /// Log service initialization.
   static void logServiceInitialization({
     required String service,
     required bool success,
@@ -145,7 +143,7 @@ class SecurityAuditService {
     );
   }
 
-  /// Log configuration change
+  /// Log configuration change.
   static void logConfigurationChange({
     required String component,
     required String property,
@@ -167,7 +165,7 @@ class SecurityAuditService {
     );
   }
 
-  /// Log authentication event
+  /// Log authentication event.
   static void logAuthentication({
     required String operation,
     required bool success,
@@ -188,7 +186,7 @@ class SecurityAuditService {
     );
   }
 
-  /// Log data processing event
+  /// Log data processing event.
   static void logDataProcessing({
     required String operation,
     required String dataType,
@@ -207,23 +205,21 @@ class SecurityAuditService {
     );
   }
 
-  /// Sanitize endpoint for logging
+  /// Sanitize endpoint for logging.
   static String _sanitizeEndpoint(String endpoint) {
     return endpoint.replaceAll(RegExp(r'[?&]key=[^&\s]+'), '?key=HIDDEN');
   }
 
-  /// Sanitize configuration value
+  /// Sanitize configuration value.
   static String _sanitizeValue(String value) {
-    // Don't log sensitive values
     if (value.contains('key') || value.contains('token') || value.contains('secret')) {
       return 'HIDDEN';
     }
     return value.length > 100 ? '${value.substring(0, 100)}...' : value;
   }
 
-  /// Hash user ID for privacy
+  /// Hash user ID for privacy.
   static String _hashUserId(String userId) {
-    // Simple hash for audit purposes
     final hash = userId.hashCode.abs().toString();
     return 'user_${hash.substring(0, 8)}';
   }

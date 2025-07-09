@@ -5,7 +5,6 @@ import 'package:revision/core/config/env_config.dart';
 void main() {
   group('SecureAPIKeyManager', () {
     setUp(() {
-      // Clear any existing configuration
       EnvConfig.clearForTesting();
     });
 
@@ -15,9 +14,7 @@ void main() {
       });
 
       test('throws SecurityException when API key format is invalid', () {
-        // Mock invalid API key
         EnvConfig.setGeminiApiKeyForTesting('invalid-key');
-        
         expect(
           () => SecureAPIKeyManager.getSecureApiKey(),
           throwsA(isA<SecurityException>()),
@@ -25,10 +22,8 @@ void main() {
       });
 
       test('returns API key when format is valid', () {
-        // Mock valid API key
         const validKey = 'AIzaSyDummyKeyFor32CharactersLong12345';
         EnvConfig.setGeminiApiKeyForTesting(validKey);
-        
         expect(SecureAPIKeyManager.getSecureApiKey(), equals(validKey));
       });
     });
@@ -92,7 +87,7 @@ void main() {
       test('returns secure debug info when API key is configured', () {
         const validKey = 'AIzaSyDummyKeyFor32CharactersLong12345';
         EnvConfig.setGeminiApiKeyForTesting(validKey);
-        
+
         final info = SecureAPIKeyManager.getSecureDebugInfo();
         expect(info['configured'], isTrue);
         expect(info['length'], equals(validKey.length));
@@ -109,12 +104,12 @@ void main() {
 // Extension to EnvConfig for testing
 extension EnvConfigTesting on EnvConfig {
   static void setGeminiApiKeyForTesting(String key) {
-    // This would need to be implemented in the actual EnvConfig class
-    // For now, we'll assume this functionality exists
+    // This would need to be implemented in the actual EnvConfig class.
+    // For now, we'll assume this functionality exists for testing.
   }
-  
+
   static void clearForTesting() {
-    // This would need to be implemented in the actual EnvConfig class
-    // For now, we'll assume this functionality exists
+    // This would need to be implemented in the actual EnvConfig class.
+    // For now, we'll assume this functionality exists for testing.
   }
 }

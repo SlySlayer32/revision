@@ -1,15 +1,19 @@
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
-// import 'package:firebase_ai/firebase_ai.dart'; // Removed - using REST API instead
+
+import 'package:revision/core/services/analytics_service.dart';
 import 'package:revision/core/services/circuit_breaker.dart';
 import 'package:revision/core/services/error_handler_service.dart';
+import 'package:revision/core/services/feature_flag_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
 import 'package:revision/core/services/gemini_ai_service.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/core/services/image_save_service.dart';
 import 'package:revision/core/services/logging_service.dart';
-// AI processing feature
+import 'package:revision/core/services/onboarding_service.dart';
+import 'package:revision/core/services/security_notification_service.dart';
+
 import 'package:revision/features/ai_processing/data/services/ai_result_save_service.dart';
 import 'package:revision/features/ai_processing/domain/usecases/generate_segmentation_masks_usecase.dart';
 import 'package:revision/features/ai_processing/domain/usecases/process_image_with_gemini_usecase.dart';
@@ -19,6 +23,7 @@ import 'package:revision/features/authentication/data/repositories/firebase_auth
 import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/get_current_user_usecase.dart';
+import 'package:revision/features/authentication/domain/usecases/send_email_verification_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/send_password_reset_email_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_in_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_in_with_google_usecase.dart';
@@ -35,20 +40,20 @@ import 'package:revision/features/image_selection/domain/repositories/image_sele
 import 'package:revision/features/image_selection/domain/usecases/select_image_use_case.dart';
 import 'package:revision/features/image_selection/presentation/cubit/image_selection_cubit.dart';
 
-/// Global service locator instance
+// Service locator instance
 final getIt = GetIt.instance;
 
-/// Set up all dependencies in the service locator
-void setupServiceLocator() {
-  debugPrint('setupServiceLocator: Starting dependency registration...');
+// Enhanced logger for diagnostics
+final _logger = LoggingService.instance;
 
+/// Set up all dependencies in the service locator.
+Future<void> setupServiceLocator() async {
+  _logger.info('Starting service locator setup');
   try {
-    // Reset service locator for hot reload safety
+    // Reset for hot reload or test safety
     if (getIt.isRegistered<AuthRepository>()) {
-      debugPrint(
-        'setupServiceLocator: Dependencies already registered, resetting...',
-      );
-      getIt.reset();
+      _logger.info('Dependencies already registered, resetting...');
+      await getIt.reset();
     }
 
     _registerCoreServices();
@@ -58,187 +63,117 @@ void setupServiceLocator() {
     _registerServices();
     _registerBlocs();
 
-    debugPrint('setupServiceLocator: All dependencies registered successfully');
+    _logger.info('Service locator setup completed successfully');
   } catch (e, stackTrace) {
-    debugPrint('❌ setupServiceLocator failed: $e');
-    debugPrint('❌ Stack trace: $stackTrace');
+    _logger.error(
+      'Service locator setup failed: $e',
+      error: e,
+      stackTrace: stackTrace,
+    );
     rethrow;
   }
 }
 
-void _registerCoreServices() {
-  debugPrint('_registerCoreServices: Registering core services...');
+/// Shutdown service locator with cleanup
+Future<void> shutdownServiceLocator() async {
+  _logger.info('Shutting down service locator...');
+  try {
+    await getIt.reset();
+    _logger.info('Service locator shutdown completed');
+  } catch (e, stackTrace) {
+    _logger.error(
+      'Error during service locator shutdown: $e',
+      error: e,
+      stackTrace: stackTrace,
+    );
+  }
+}
 
+void _registerCoreServices() {
+  _logger.info('Registering core services');
   getIt
-    // Core Services
     ..registerLazySingleton<CircuitBreaker>(CircuitBreaker.new)
     ..registerLazySingleton(() => LoggingService.instance)
-    ..registerLazySingleton(() => ErrorHandlerService.instance);
-
-  debugPrint(
-    '_registerCoreServices: Registering FirebaseAIRemoteConfigService...',
-  );
-  getIt.registerLazySingleton<FirebaseAIRemoteConfigService>(
-    FirebaseAIRemoteConfigService.new,
-  );
-
-  debugPrint('_registerCoreServices: Registering GeminiAIService...');
-  getIt.registerLazySingleton<GeminiAIService>(() {
-    try {
-      debugPrint('_registerCoreServices: Creating GeminiAIService instance...');
-      final remoteConfigService = getIt<FirebaseAIRemoteConfigService>();
-      debugPrint(
-        '_registerCoreServices: Got FirebaseAIRemoteConfigService, creating GeminiAIService...',
-      );
-      return GeminiAIService(remoteConfigService: remoteConfigService);
-    } catch (e, stackTrace) {
-      debugPrint('❌ Error creating GeminiAIService: $e');
-      debugPrint('❌ Stack trace: $stackTrace');
-      rethrow;
-    }
-  });
-
-  debugPrint('_registerCoreServices: Core services registration completed');
+    ..registerLazySingleton(() => ErrorHandlerService.instance)
+    ..registerLazySingleton(() => AnalyticsService())
+    ..registerLazySingleton(() => OnboardingService())
+    ..registerLazySingleton(() => SecurityNotificationService())
+    ..registerLazySingleton<FirebaseAIRemoteConfigService>(FirebaseAIRemoteConfigService.new)
+    ..registerLazySingleton<FeatureFlagService>(() {
+      final service = FeatureFlagService();
+      service.initialize(getIt<FirebaseAIRemoteConfigService>());
+      return service;
+    })
+    ..registerLazySingleton<GeminiAIService>(() =>
+        GeminiAIService(remoteConfigService: getIt<FirebaseAIRemoteConfigService>()));
+  _logger.info('Core services registration completed');
 }
 
 void _registerDataSources() {
-  // Skip Firebase data sources if already registered (test mode)
-  if (!getIt.isRegistered<FirebaseAuthDataSource>()) {
-    getIt
-      // Data Sources
-      ..registerLazySingleton<FirebaseAuthDataSource>(() {
-        try {
-          return FirebaseAuthDataSourceImpl();
-        } catch (e) {
-          debugPrint('Error while creating FirebaseAuthDataSource: $e');
-          debugPrint('Stack trace: ${StackTrace.current}');
-          rethrow;
-        }
-      });
-  }
-
+  _logger.info('Registering data sources');
   getIt
+    ..registerLazySingleton<FirebaseAuthDataSource>(FirebaseAuthDataSourceImpl.new)
     ..registerLazySingleton<ImagePicker>(ImagePicker.new)
     ..registerLazySingleton<ImagePickerDataSource>(
-      () => ImagePickerDataSource(getIt<ImagePicker>()),
-    );
+        () => ImagePickerDataSource(getIt<ImagePicker>()));
+  _logger.info('Data sources registration completed');
 }
 
 void _registerRepositories() {
-  // Skip Firebase repositories if already registered (test mode)
-  if (!getIt.isRegistered<AuthRepository>()) {
-    getIt
-      // Repositories
-      ..registerLazySingleton<AuthRepository>(() {
-        try {
-          return FirebaseAuthenticationRepository(
-            firebaseAuthDataSource: getIt<FirebaseAuthDataSource>(),
-          );
-        } catch (e) {
-          debugPrint('Error while creating AuthRepository: $e');
-          debugPrint('Stack trace: ${StackTrace.current}');
-          rethrow;
-        }
-      });
-  }
-
-  getIt..registerLazySingleton<image_selection.ImageRepository>(
-    () => ImageSelectionRepositoryImpl(getIt<ImagePickerDataSource>()),
-  );
+  _logger.info('Registering repositories');
+  getIt
+    ..registerLazySingleton<AuthRepository>(() =>
+        FirebaseAuthenticationRepository(firebaseAuthDataSource: getIt<FirebaseAuthDataSource>()))
+    ..registerLazySingleton<image_selection.ImageRepository>(() =>
+        ImageSelectionRepositoryImpl(getIt<ImagePickerDataSource>()));
+  _logger.info('Repositories registration completed');
 }
 
 void _registerUseCases() {
+  _logger.info('Registering use cases');
   getIt
-    // Use Cases
-    ..registerLazySingleton<SignInUseCase>(() {
-      try {
-        return SignInUseCase(getIt<AuthRepository>());
-      } catch (e) {
-        debugPrint('Error while creating SignInUseCase: $e');
-        debugPrint('Stack trace: ${StackTrace.current}');
-        rethrow;
-      }
-    })
-    ..registerLazySingleton<SignInWithGoogleUseCase>(
-      () => SignInWithGoogleUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<SignUpUseCase>(
-      () => SignUpUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<SignOutUseCase>(() {
-      try {
-        return SignOutUseCase(getIt<AuthRepository>());
-      } catch (e) {
-        debugPrint('Error while creating SignOutUseCase: $e');
-        debugPrint('Stack trace: ${StackTrace.current}');
-        rethrow;
-      }
-    })
-    ..registerLazySingleton<SendPasswordResetEmailUseCase>(
-      () => SendPasswordResetEmailUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<GetCurrentUserUseCase>(
-      () => GetCurrentUserUseCase(getIt<AuthRepository>()),
-    )
-    ..registerLazySingleton<GetAuthStateChangesUseCase>(() {
-      try {
-        return GetAuthStateChangesUseCase(getIt<AuthRepository>());
-      } catch (e) {
-        debugPrint('Error while creating GetAuthStateChangesUseCase: $e');
-        debugPrint('Stack trace: ${StackTrace.current}');
-        rethrow;
-      }
-    })
-    ..registerLazySingleton<SelectImageUseCase>(
-      () => SelectImageUseCase(getIt<image_selection.ImageRepository>()),
-    )
-    ..registerLazySingleton<ProcessImageWithGeminiUseCase>(
-      () => ProcessImageWithGeminiUseCase(getIt<GeminiPipelineService>()),
-    )
-    ..registerLazySingleton<GenerateSegmentationMasksUseCase>(
-      () => GenerateSegmentationMasksUseCase(getIt<GeminiAIService>()),
-    );
+    ..registerLazySingleton<SignInUseCase>(() => SignInUseCase(getIt<AuthRepository>()))
+    ..registerLazySingleton<SignInWithGoogleUseCase>(() => SignInWithGoogleUseCase(getIt<AuthRepository>()))
+    ..registerLazySingleton<SignUpUseCase>(() => SignUpUseCase(getIt<AuthRepository>()))
+    ..registerLazySingleton<SignOutUseCase>(() => SignOutUseCase(getIt<AuthRepository>()))
+    ..registerLazySingleton<SendPasswordResetEmailUseCase>(() => SendPasswordResetEmailUseCase(getIt<AuthRepository>()))
+    ..registerLazySingleton<SendEmailVerificationUseCase>(() => SendEmailVerificationUseCase(getIt<AuthRepository>()))
+    ..registerLazySingleton<GetCurrentUserUseCase>(() => GetCurrentUserUseCase(getIt<AuthRepository>()))
+    ..registerLazySingleton<GetAuthStateChangesUseCase>(() => GetAuthStateChangesUseCase(getIt<AuthRepository>()))
+    ..registerLazySingleton<SelectImageUseCase>(() => SelectImageUseCase(getIt<image_selection.ImageRepository>()))
+    ..registerLazySingleton<ProcessImageWithGeminiUseCase>(() => ProcessImageWithGeminiUseCase(getIt<GeminiPipelineService>()))
+    ..registerLazySingleton<GenerateSegmentationMasksUseCase>(() => GenerateSegmentationMasksUseCase(getIt<GeminiAIService>()));
+  _logger.info('Use cases registration completed');
 }
 
 void _registerServices() {
+  _logger.info('Registering additional services');
   getIt
     ..registerLazySingleton<ImageSaveService>(ImageSaveService.new)
     ..registerLazySingleton<AIResultSaveService>(AIResultSaveService.new)
     ..registerLazySingleton<GeminiPipelineService>(
-      () => GeminiPipelineService(geminiAIService: getIt<GeminiAIService>()),
-    );
+        () => GeminiPipelineService(geminiAIService: getIt<GeminiAIService>()));
+  _logger.info('Additional services registration completed');
 }
 
 void _registerBlocs() {
+  _logger.info('Registering blocs and cubits');
   getIt
-    // BLoCs and Cubits
-    ..registerFactory<AuthenticationBloc>(() {
-      try {
-        return AuthenticationBloc(
+    ..registerFactory<AuthenticationBloc>(() => AuthenticationBloc(
           getAuthStateChanges: getIt<GetAuthStateChangesUseCase>(),
           signOut: getIt<SignOutUseCase>(),
-        );
-      } catch (e) {
-        debugPrint('Error while creating AuthenticationBloc: $e');
-        debugPrint('Stack trace: ${StackTrace.current}');
-        rethrow;
-      }
-    })
-    ..registerFactory<LoginBloc>(
-      () => LoginBloc(
-        signIn: getIt<SignInUseCase>(),
-        signInWithGoogle: getIt<SignInWithGoogleUseCase>(),
-        sendPasswordResetEmail: getIt<SendPasswordResetEmailUseCase>(),
-      ),
-    )
-    ..registerFactory<SignupBloc>(
-      () => SignupBloc(signUp: getIt<SignUpUseCase>()),
-    )
-    ..registerFactory<ImageSelectionCubit>(
-      () => ImageSelectionCubit(getIt<SelectImageUseCase>()),
-    )
+        ))
+    ..registerFactory<LoginBloc>(() => LoginBloc(
+          signIn: getIt<SignInUseCase>(),
+          signInWithGoogle: getIt<SignInWithGoogleUseCase>(),
+          sendPasswordResetEmail: getIt<SendPasswordResetEmailUseCase>(),
+        ))
+    ..registerFactory<SignupBloc>(() => SignupBloc(
+          signUp: getIt<SignUpUseCase>(),
+          sendEmailVerification: getIt<SendEmailVerificationUseCase>(),
+        ))
+    ..registerFactory<ImageSelectionCubit>(() => ImageSelectionCubit(getIt<SelectImageUseCase>()))
     ..registerFactory<ImageEditorCubit>(() => ImageEditorCubit())
-    ..registerFactory<GeminiPipelineCubit>(
-      () => GeminiPipelineCubit(getIt<ProcessImageWithGeminiUseCase>()),
-    );
+    ..registerFactory<GeminiPipelineCubit>(() => GeminiPipelineCubit(getIt<ProcessImageWithGeminiUseCase>()));
+  _logger.info('Blocs and cubits registration completed');
 }

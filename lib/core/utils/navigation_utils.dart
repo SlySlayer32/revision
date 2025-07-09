@@ -2,11 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:revision/core/navigation/route_names.dart';
 import 'package:revision/core/utils/null_safety_utils.dart';
+import 'package:revision/core/utils/enhanced_logger.dart';
 
 /// Utilities for safe navigation and route handling
 class NavigationUtils {
   // Private constructor to prevent instantiation
   NavigationUtils._();
+
+  static final EnhancedLogger _logger = EnhancedLogger();
 
   /// Safely navigates to a route with null checks
   static Future<T?> safePush<T extends Object?>(
@@ -15,24 +18,31 @@ class NavigationUtils {
     String? routeName,
   }) async {
     if (!context.mounted) {
-      if (kDebugMode) {
-        debugPrint(
-          '⚠️ Context not mounted during navigation to ${routeName ?? 'unknown route'}',
-        );
-      }
+      _logger.warning(
+        'Context not mounted during navigation',
+        operation: 'SAFE_PUSH',
+        context: {'route': routeName ?? 'unknown route'},
+      );
       return null;
     }
 
     try {
       final result = await Navigator.of(context).push(route);
-      if (kDebugMode && routeName != null) {
-        debugPrint('✅ Successfully navigated to: $routeName');
+      if (routeName != null) {
+        _logger.debug(
+          'Successfully navigated to: $routeName',
+          operation: 'SAFE_PUSH',
+          context: {'route': routeName},
+        );
       }
       return result;
     } catch (e) {
-      if (kDebugMode) {
-        debugPrint('❌ Navigation error to ${routeName ?? 'unknown route'}: $e');
-      }
+      _logger.error(
+        'Navigation error to ${routeName ?? 'unknown route'}: $e',
+        operation: 'SAFE_PUSH',
+        error: e,
+        context: {'route': routeName},
+      );
       return null;
     }
   }
