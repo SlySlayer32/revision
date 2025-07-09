@@ -41,3 +41,21 @@ final class ForgotPasswordRequested extends LoginEvent {
   @override
   List<Object> get props => [email];
 }
+
+/// Event triggered when user requests biometric authentication
+final class BiometricLoginRequested extends LoginEvent {
+  /// Creates a new [BiometricLoginRequested] event
+  const BiometricLoginRequested();
+}
+
+/// Event triggered when password strength needs to be validated
+final class PasswordStrengthChecked extends LoginEvent {
+  /// Creates a new [PasswordStrengthChecked] event
+  const PasswordStrengthChecked({required this.password});
+
+  /// The password to check strength for
+  final String password;
+
+  @override
+  List<Object> get props => [password];
+}
