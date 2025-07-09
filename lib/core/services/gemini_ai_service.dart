@@ -8,10 +8,16 @@ import 'package:revision/core/config/env_config.dart';
 import 'package:revision/core/constants/gemini_constants.dart';
 import 'package:revision/core/services/ai_error_handler.dart';
 import 'package:revision/core/services/ai_service.dart';
+import 'package:revision/core/services/circuit_breaker_service.dart';
 import 'package:revision/core/services/firebase_ai_remote_config_service.dart';
 import 'package:revision/core/services/gemini_request_builder.dart';
 import 'package:revision/core/services/gemini_request_validator.dart';
 import 'package:revision/core/services/gemini_response_handler.dart';
+import 'package:revision/core/services/rate_limiting_service.dart';
+import 'package:revision/core/services/secure_api_key_manager.dart';
+import 'package:revision/core/services/secure_logger.dart';
+import 'package:revision/core/services/secure_request_handler.dart';
+import 'package:revision/core/services/security_audit_service.dart';
 import 'package:revision/features/ai_processing/domain/entities/segmentation_result.dart';
 
 /// Gemini REST API service implementation
@@ -55,45 +61,83 @@ class GeminiAIService implements AIService {
     _initializationCompleter = Completer<void>();
 
     try {
-      log('🚀 Initializing Gemini REST API service...');
+      SecureLogger.log('🚀 Initializing Gemini REST API service...', operation: 'INIT');
 
-      // Check API key
-      final apiKey = EnvConfig.geminiApiKey;
-      if (apiKey == null || apiKey.isEmpty) {
-        log('❌ Gemini API key validation failed');
-        log('🔧 Available debug info: ${EnvConfig.getDebugInfo()}');
+      // Check API key using secure manager
+      if (!SecureAPIKeyManager.isApiKeyConfigured()) {
+        SecureLogger.logError(
+          'Gemini API key validation failed',
+          operation: 'INIT',
+          context: SecureAPIKeyManager.getSecureDebugInfo(),
+        );
+        
+        SecurityAuditService.logApiKeyValidation(
+          success: false,
+          reason: 'API key not configured or invalid format',
+        );
+        
         throw StateError(
           'Gemini API key not configured. Please add GEMINI_API_KEY to your .env file or pass it via --dart-define=GEMINI_API_KEY=your_key',
         );
       }
 
-      log('✅ Gemini API key found (length: ${apiKey.length})');
+      final debugInfo = SecureAPIKeyManager.getSecureDebugInfo();
+      SecureLogger.log(
+        '✅ Gemini API key validated successfully',
+        operation: 'INIT',
+        context: debugInfo,
+      );
+
+      SecurityAuditService.logApiKeyValidation(
+        success: true,
+        metadata: debugInfo,
+      );
 
       // Initialize Remote Config for parameter management
       // Only initialize if it hasn't been initialized yet
       try {
         await _remoteConfig.initialize();
-        log('✅ Remote Config initialized successfully');
+        SecureLogger.log('✅ Remote Config initialized successfully', operation: 'INIT');
       } catch (e) {
-        log(
-          '⚠️ Remote Config initialization failed, continuing with defaults: $e',
+        SecureLogger.logError(
+          'Remote Config initialization failed, continuing with defaults',
+          operation: 'INIT',
+          error: e,
         );
         // Continue with defaults - the service should handle this gracefully
       }
 
       // Initialize the request builder now that remote config is ready
       _requestBuilder = GeminiRequestBuilder(_remoteConfig);
-      log('✅ GeminiRequestBuilder initialized');
+      SecureLogger.log('✅ GeminiRequestBuilder initialized', operation: 'INIT');
 
       // Test API connectivity
       await _testApiConnectivity();
 
       _isInitialized = true;
       _initializationCompleter!.complete();
-      log('✅ Gemini REST API service initialized successfully');
-      log('📊 Using Remote Config values: ${_remoteConfig.exportConfig()}');
+      SecureLogger.log('✅ Gemini REST API service initialized successfully', operation: 'INIT');
+      
+      SecurityAuditService.logServiceInitialization(
+        service: 'GeminiAIService',
+        success: true,
+        version: '1.0.0',
+        metadata: {'configValues': _remoteConfig.exportConfig()},
+      );
+      
     } catch (e) {
-      log('❌ Failed to initialize Gemini REST API service: $e');
+      SecureLogger.logError(
+        'Failed to initialize Gemini REST API service',
+        operation: 'INIT',
+        error: e,
+      );
+      
+      SecurityAuditService.logServiceInitialization(
+        service: 'GeminiAIService',
+        success: false,
+        metadata: {'error': e.toString()},
+      );
+      
       _initializationCompleter!.completeError(e);
       rethrow;
     }
@@ -102,7 +146,7 @@ class GeminiAIService implements AIService {
   /// Test API connectivity with a simple request
   Future<void> _testApiConnectivity() async {
     try {
-      log('🧪 Testing Gemini API connectivity...');
+      SecureLogger.log('🧪 Testing Gemini API connectivity...', operation: 'CONNECTIVITY_TEST');
 
       final response = await _makeTextOnlyRequest(
         prompt: 'Hello, are you working?',
@@ -110,12 +154,23 @@ class GeminiAIService implements AIService {
       );
 
       if (response.isNotEmpty) {
-        log('✅ Gemini API connectivity test successful');
+        SecureLogger.log('✅ Gemini API connectivity test successful', operation: 'CONNECTIVITY_TEST');
+        
+        SecurityAuditService.logApiResponse(
+          operation: 'CONNECTIVITY_TEST',
+          statusCode: 200,
+          responseSize: response.length,
+          duration: 0,
+        );
       } else {
-        log('⚠️ Gemini API test returned empty response');
+        SecureLogger.log('⚠️ Gemini API test returned empty response', operation: 'CONNECTIVITY_TEST');
       }
     } catch (e) {
-      log('🚨 Gemini API connectivity test failed: $e');
+      SecureLogger.logError(
+        'Gemini API connectivity test failed',
+        operation: 'CONNECTIVITY_TEST',
+        error: e,
+      );
       throw StateError('${GeminiConstants.connectivityTestFailedError}: $e');
     }
   }
@@ -147,7 +202,12 @@ class GeminiAIService implements AIService {
       throw ArgumentError(validationResult.errorMessage);
     }
 
-    final apiKey = EnvConfig.geminiApiKey!;
+    // Use secure API key validation
+    final apiKey = SecureAPIKeyManager.getSecureApiKey();
+    if (apiKey == null) {
+      throw SecurityException('API key not available for text request');
+    }
+
     final modelName = model ?? _remoteConfig.geminiModel;
 
     final requestBody = _requestBuilder.buildTextOnlyRequest(
@@ -155,22 +215,50 @@ class GeminiAIService implements AIService {
       model: modelName,
     );
 
-    final response = await _httpClient
-        .post(
-          Uri.parse('$_baseUrl/$modelName:generateContent?key=$apiKey'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(requestBody),
-        )
-        .timeout(_remoteConfig.requestTimeout);
+    SecureLogger.log(
+      '📝 Making text-only Gemini API request...',
+      operation: 'TEXT_ONLY',
+      context: {
+        'model': modelName,
+        'promptLength': prompt.length,
+      },
+    );
 
-    try {
-      return GeminiResponseHandler.handleTextResponse(response);
-    } catch (e) {
-      if (e is Exception) {
-        return _handleResponseError(e, 'text processing');
-      }
-      rethrow;
-    }
+    final url = '$_baseUrl/$modelName:generateContent?key=$apiKey';
+
+    // Execute with circuit breaker and rate limiting
+    return await CircuitBreakerService.geminiAI.execute(() async {
+      return await RateLimitingService.instance.executeWithRateLimit(
+        'gemini_text',
+        () async {
+          SecurityAuditService.logApiRequest(
+            operation: 'TEXT_ONLY',
+            endpoint: url,
+            method: 'POST',
+            metadata: {
+              'modelName': modelName,
+              'requestSize': jsonEncode(requestBody).length,
+            },
+          );
+
+          final response = await SecureRequestHandler.makeSecureRequest(
+            endpoint: url,
+            body: requestBody,
+            operation: 'TEXT_ONLY',
+            timeout: _remoteConfig.requestTimeout,
+          );
+
+          try {
+            return GeminiResponseHandler.handleTextResponse(response);
+          } catch (e) {
+            if (e is Exception) {
+              return _handleResponseError(e, 'text processing');
+            }
+            rethrow;
+          }
+        },
+      );
+    });
   }
 
   /// Make a multimodal request to Gemini API
@@ -191,7 +279,12 @@ class GeminiAIService implements AIService {
       throw ArgumentError(validationResult.errorMessage);
     }
 
-    final apiKey = EnvConfig.geminiApiKey!;
+    // Use secure API key validation
+    final apiKey = SecureAPIKeyManager.getSecureApiKey();
+    if (apiKey == null) {
+      throw SecurityException('API key not available for multimodal request');
+    }
+
     final modelName = model ?? _remoteConfig.geminiModel;
     final mimeType =
         imageName != null ? GeminiRequestBuilder.getMimeType(imageName) : null;
@@ -203,26 +296,52 @@ class GeminiAIService implements AIService {
       mimeType: mimeType,
     );
 
-    log('📡 Making multimodal Gemini API request...');
-    log('🔧 Model: $modelName');
-    log('📷 Image size: ${imageBytes.length} bytes');
+    SecureLogger.log(
+      '📡 Making multimodal Gemini API request...',
+      operation: 'MULTIMODAL',
+      context: {
+        'model': modelName,
+        'imageSize': imageBytes.length,
+        'mimeType': mimeType,
+      },
+    );
 
-    final response = await _httpClient
-        .post(
-          Uri.parse('$_baseUrl/$modelName:generateContent?key=$apiKey'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(requestBody),
-        )
-        .timeout(_remoteConfig.requestTimeout);
+    final url = '$_baseUrl/$modelName:generateContent?key=$apiKey';
 
-    try {
-      return GeminiResponseHandler.handleTextResponse(response);
-    } catch (e) {
-      if (e is Exception) {
-        return _handleResponseError(e, 'image analysis');
-      }
-      rethrow;
-    }
+    // Execute with circuit breaker and rate limiting
+    return await CircuitBreakerService.geminiAI.execute(() async {
+      return await RateLimitingService.instance.executeWithRateLimit(
+        'gemini_multimodal',
+        () async {
+          SecurityAuditService.logApiRequest(
+            operation: 'MULTIMODAL',
+            endpoint: url,
+            method: 'POST',
+            metadata: {
+              'modelName': modelName,
+              'requestSize': jsonEncode(requestBody).length,
+            },
+          );
+
+          final response = await SecureRequestHandler.makeSecureRequest(
+            endpoint: url,
+            body: requestBody,
+            operation: 'MULTIMODAL',
+            timeout: _remoteConfig.requestTimeout,
+          );
+
+          try {
+            return GeminiResponseHandler.handleTextResponse(response);
+          } catch (e) {
+            if (e is Exception) {
+              return _handleResponseError(e, 'image analysis');
+            }
+            rethrow;
+          }
+        },
+      );
+    });
+  }
   }
 
   /// Make an image generation request to Gemini API
@@ -230,7 +349,12 @@ class GeminiAIService implements AIService {
     required String prompt,
     Uint8List? inputImage,
   }) async {
-    final apiKey = EnvConfig.geminiApiKey!;
+    // Use secure API key validation
+    final apiKey = SecureAPIKeyManager.getSecureApiKey();
+    if (apiKey == null) {
+      throw SecurityException('API key not available for image generation request');
+    }
+
     final modelName = _remoteConfig.geminiImageModel;
 
     final requestBody = _requestBuilder.buildImageGenerationRequest(
@@ -238,27 +362,60 @@ class GeminiAIService implements AIService {
       inputImage: inputImage,
     );
 
-    log('🎨 Making image generation request...');
-    log('📡 Model: $modelName');
+    SecureLogger.log(
+      '🎨 Making image generation request...',
+      operation: 'IMAGE_GENERATION',
+      context: {
+        'model': modelName,
+        'hasInputImage': inputImage != null,
+        'inputImageSize': inputImage?.length,
+      },
+    );
 
-    final response = await _httpClient
-        .post(
-          Uri.parse('$_baseUrl/$modelName:generateContent?key=$apiKey'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(requestBody),
-        )
-        .timeout(_remoteConfig.requestTimeout);
+    final url = '$_baseUrl/$modelName:generateContent?key=$apiKey';
 
-    if (response.statusCode == GeminiConstants.httpOk) {
-      final data = jsonDecode(response.body);
-      return GeminiResponseHandler.extractImageFromResponse(data);
-    } else {
-      log('❌ Image generation API error: ${response.statusCode}');
-      log('📝 Response: ${response.body}');
-      throw Exception(
-        'Gemini API error: ${response.statusCode} - ${response.body}',
+    // Execute with circuit breaker and rate limiting
+    return await CircuitBreakerService.geminiAI.execute(() async {
+      return await RateLimitingService.instance.executeWithRateLimit(
+        'gemini_image_generation',
+        () async {
+          SecurityAuditService.logApiRequest(
+            operation: 'IMAGE_GENERATION',
+            endpoint: url,
+            method: 'POST',
+            metadata: {
+              'modelName': modelName,
+              'requestSize': jsonEncode(requestBody).length,
+            },
+          );
+
+          final response = await SecureRequestHandler.makeSecureRequest(
+            endpoint: url,
+            body: requestBody,
+            operation: 'IMAGE_GENERATION',
+            timeout: _remoteConfig.requestTimeout,
+          );
+
+          if (response.statusCode == GeminiConstants.httpOk) {
+            final data = jsonDecode(response.body);
+            return GeminiResponseHandler.extractImageFromResponse(data);
+          } else {
+            SecurityAuditService.logApiResponse(
+              operation: 'IMAGE_GENERATION',
+              statusCode: response.statusCode,
+              responseSize: response.body.length,
+              duration: 0,
+              metadata: {'error': true},
+            );
+            
+            throw Exception(
+              'Gemini API error: ${response.statusCode} - ${response.body}',
+            );
+          }
+        },
       );
-    }
+    });
+  }
   }
 
   @override
@@ -546,9 +703,9 @@ Focus on creating a clean, professional result that matches the editing intent.
   Map<String, dynamic> getConfigDebugInfo() {
     return {
       'initialized': _isInitialized,
-      'apiKeyConfigured': EnvConfig.isGeminiRestApiConfigured,
-      ...EnvConfig.getDebugInfo(),
-      ..._remoteConfig.getAllValues(),
+      'apiKeyInfo': SecureAPIKeyManager.getSecureDebugInfo(),
+      'remoteConfig': _remoteConfig.getAllValues(),
+      'circuitBreakerState': CircuitBreakerService.getState('gemini_ai')?.name,
     };
   }
 
@@ -708,80 +865,68 @@ Focus on creating a clean, professional result that matches the editing intent.
     required String prompt,
     required Uint8List imageBytes,
   }) async {
-    final apiKey = EnvConfig.geminiApiKey;
-
-    // Enhanced API key validation
-    if (apiKey == null || apiKey.isEmpty) {
-      throw Exception(
-        'Gemini API key is not configured. Please check your environment variables.',
-      );
-    }
-
-    if (apiKey.length < 30) {
-      throw Exception(
-        'Invalid Gemini API key format - too short (${apiKey.length} chars). Expected at least 30 characters.',
-      );
-    }
-
-    // Check for common API key issues
-    if (!apiKey.startsWith('AIza')) {
-      log(
-        '⚠️ API key does not start with expected prefix. Key prefix: ${apiKey.substring(0, 4)}',
-      );
+    // Use secure API key validation
+    final apiKey = SecureAPIKeyManager.getSecureApiKey();
+    if (apiKey == null) {
+      throw SecurityException('API key not available for segmentation request');
     }
 
     const modelName = GeminiConstants.gemini2_5FlashModel;
 
+    // Build request with security
     final requestBody = _requestBuilder.buildSegmentationRequest(
       prompt: prompt,
       imageBytes: imageBytes,
     );
 
-    log('🎭 Making segmentation request to Gemini 2.5...');
-    log('🔧 Model: $modelName');
-    log(
-      '📷 Image size: ${imageBytes.length} bytes (${(imageBytes.length / 1024 / 1024).toStringAsFixed(2)} MB)',
-    );
-    log('📝 Prompt length: ${prompt.length} characters');
-    log('🔍 Request structure: ${requestBody.keys.toList()}');
-    log('🔑 API key prefix: ${apiKey.substring(0, 10)}...');
-    log(
-      '📋 Request content parts: ${(requestBody['contents'] as List).first['parts'].length}',
+    // Log request details securely
+    SecureLogger.log(
+      '🎭 Making segmentation request to Gemini 2.5...',
+      operation: 'SEGMENTATION',
+      context: {
+        'model': modelName,
+        'imageSizeBytes': imageBytes.length,
+        'imageSizeMB': (imageBytes.length / 1024 / 1024).toStringAsFixed(2),
+        'promptLength': prompt.length,
+        'requestStructure': requestBody.keys.toList(),
+        'contentParts': (requestBody['contents'] as List).first['parts'].length,
+      },
     );
 
     final url = '$_baseUrl/$modelName:generateContent?key=$apiKey';
-    log('🌐 Request URL: ${url.replaceAll(apiKey, 'API_KEY_HIDDEN')}');
 
-    try {
-      final response = await _httpClient
-          .post(
-            Uri.parse(url),
-            headers: {
-              'Content-Type': 'application/json',
-              'User-Agent': 'Revision-Flutter-App/1.0',
+    // Execute with circuit breaker and rate limiting
+    return await CircuitBreakerService.geminiAI.execute(() async {
+      return await RateLimitingService.instance.executeWithRateLimit(
+        'gemini_segmentation',
+        () async {
+          SecurityAuditService.logApiRequest(
+            operation: 'SEGMENTATION',
+            endpoint: url,
+            method: 'POST',
+            metadata: {
+              'modelName': modelName,
+              'requestSize': jsonEncode(requestBody).length,
             },
-            body: jsonEncode(requestBody),
-          )
-          .timeout(_remoteConfig.requestTimeout);
+          );
 
-      log('📥 Response status: ${response.statusCode}');
-      log('📄 Response length: ${response.body.length} characters');
+          final response = await SecureRequestHandler.makeSecureRequest(
+            endpoint: url,
+            body: requestBody,
+            operation: 'SEGMENTATION',
+            timeout: _remoteConfig.requestTimeout,
+          );
 
-      // Show more of the response for debugging
-      if (response.body.length <= 1000) {
-        log('📋 Full response: ${response.body}');
-      } else {
-        log('📋 Response preview: ${response.body.substring(0, 1000)}...');
-      }
+          if (response.statusCode != 200) {
+            throw Exception(
+              'Segmentation request failed with status ${response.statusCode}: ${response.body}',
+            );
+          }
 
-      return GeminiResponseHandler.handleTextResponse(response);
-    } catch (e) {
-      log('❌ HTTP request failed: $e');
-      if (e is Exception) {
-        return _handleResponseError(e, 'segmentation');
-      }
-      rethrow;
-    }
+          return response.body;
+        },
+      );
+    });
   }
 
   /// Parse segmentation response from Gemini API
@@ -813,12 +958,20 @@ Focus on creating a clean, professional result that matches the editing intent.
           // Parse the object detection response
           final detectionData = _parseObjectDetectionResponse(response);
 
-          log('✅ Detected ${detectionData.length} objects with bounding boxes');
+          SecureLogger.log(
+            '✅ Detected ${detectionData.length} objects with bounding boxes',
+            operation: 'OBJECT_DETECTION',
+            context: {'detectedObjects': detectionData.length},
+          );
 
           return detectionData;
         }, 'detectObjectsWithBoundingBoxes')
         .catchError((e) {
-          log('❌ detectObjectsWithBoundingBoxes failed after all retries: $e');
+          SecureLogger.logError(
+            'detectObjectsWithBoundingBoxes failed after all retries',
+            operation: 'OBJECT_DETECTION',
+            error: e,
+          );
           return <Map<String, dynamic>>[];
         });
   }
@@ -828,7 +981,12 @@ Focus on creating a clean, professional result that matches the editing intent.
     required String prompt,
     required Uint8List imageBytes,
   }) async {
-    final apiKey = EnvConfig.geminiApiKey!;
+    // Use secure API key validation
+    final apiKey = SecureAPIKeyManager.getSecureApiKey();
+    if (apiKey == null) {
+      throw SecurityException('API key not available for object detection request');
+    }
+
     const modelName = 'gemini-2.0-flash-exp'; // Use 2.0+ for object detection
 
     final requestBody = _requestBuilder.buildObjectDetectionRequest(
@@ -836,25 +994,51 @@ Focus on creating a clean, professional result that matches the editing intent.
       imageBytes: imageBytes,
     );
 
-    log('🔍 Making object detection request to Gemini 2.0...');
-    log('🔧 Model: $modelName');
+    SecureLogger.log(
+      '🔍 Making object detection request to Gemini 2.0...',
+      operation: 'OBJECT_DETECTION',
+      context: {
+        'model': modelName,
+        'imageSize': imageBytes.length,
+        'promptLength': prompt.length,
+      },
+    );
 
-    final response = await _httpClient
-        .post(
-          Uri.parse('$_baseUrl/$modelName:generateContent?key=$apiKey'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(requestBody),
-        )
-        .timeout(_remoteConfig.requestTimeout);
+    final url = '$_baseUrl/$modelName:generateContent?key=$apiKey';
 
-    try {
-      return GeminiResponseHandler.handleTextResponse(response);
-    } catch (e) {
-      if (e is Exception) {
-        return _handleResponseError(e, 'object detection');
-      }
-      rethrow;
-    }
+    // Execute with circuit breaker and rate limiting
+    return await CircuitBreakerService.geminiAI.execute(() async {
+      return await RateLimitingService.instance.executeWithRateLimit(
+        'gemini_object_detection',
+        () async {
+          SecurityAuditService.logApiRequest(
+            operation: 'OBJECT_DETECTION',
+            endpoint: url,
+            method: 'POST',
+            metadata: {
+              'modelName': modelName,
+              'requestSize': jsonEncode(requestBody).length,
+            },
+          );
+
+          final response = await SecureRequestHandler.makeSecureRequest(
+            endpoint: url,
+            body: requestBody,
+            operation: 'OBJECT_DETECTION',
+            timeout: _remoteConfig.requestTimeout,
+          );
+
+          try {
+            return GeminiResponseHandler.handleTextResponse(response);
+          } catch (e) {
+            if (e is Exception) {
+              return _handleResponseError(e, 'object detection');
+            }
+            rethrow;
+          }
+        },
+      );
+    });
   }
 
   /// Parse object detection response from Gemini API
@@ -866,20 +1050,33 @@ Focus on creating a clean, professional result that matches the editing intent.
   String _handleResponseError(Exception error, String operation) {
     final errorMessage = error.toString();
 
-    log('❌ Gemini API error in $operation: $errorMessage');
+    SecureLogger.logError(
+      'Gemini API error',
+      operation: operation,
+      error: error,
+      context: {
+        'errorType': error.runtimeType.toString(),
+      },
+    );
+
+    SecurityAuditService.logSecurityException(
+      operation: operation,
+      exception: error.runtimeType.toString(),
+      message: errorMessage,
+    );
 
     // Check for specific error types and provide appropriate fallbacks
     if (errorMessage.contains('No content parts')) {
-      log('🔄 Handling "No content parts" error - likely API structure change');
+      SecureLogger.log('🔄 Handling "No content parts" error - likely API structure change', operation: operation);
       return _getFallbackResponse(operation);
     } else if (errorMessage.contains('No candidates')) {
-      log('🔄 Handling "No candidates" error - likely empty response');
+      SecureLogger.log('🔄 Handling "No candidates" error - likely empty response', operation: operation);
       return _getFallbackResponse(operation);
     } else if (errorMessage.contains('Content was filtered')) {
-      log('🔄 Handling content filtering - using safe fallback');
+      SecureLogger.log('🔄 Handling content filtering - using safe fallback', operation: operation);
       return _getSafeContentFallback(operation);
     } else if (errorMessage.contains('safety filters')) {
-      log('🔄 Handling safety filter block - using safe fallback');
+      SecureLogger.log('🔄 Handling safety filter block - using safe fallback', operation: operation);
       return _getSafeContentFallback(operation);
     } else {
       // For other errors, rethrow to maintain existing error handling
