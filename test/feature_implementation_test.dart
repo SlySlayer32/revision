@@ -61,6 +61,7 @@ void main() {
         // Arrange
         final imageBytes = kTestPng;
         const prompt = 'Test prompt';
+        const imageName = 'test_image.png';
         final expectedResult = GeminiPipelineResult(
           originalImage: imageBytes,
           generatedImage: imageBytes,
@@ -70,18 +71,18 @@ void main() {
         );
 
         when(
-          () => mockGeminiService.processImage(imageBytes, prompt),
+          () => mockGeminiService.processImage(imageBytes, prompt, imageName),
         ).thenAnswer((_) async => expectedResult);
 
         // Act
-        final result = await mockGeminiService.processImage(imageBytes, prompt);
+        final result = await mockGeminiService.processImage(imageBytes, prompt, imageName);
 
         // Assert
         expect(result.originalImage, imageBytes);
         expect(result.analysisPrompt, prompt);
         expect(result.markedAreas, isEmpty);
         verify(
-          () => mockGeminiService.processImage(imageBytes, prompt),
+          () => mockGeminiService.processImage(imageBytes, prompt, imageName),
         ).called(1);
       });
 
@@ -97,6 +98,7 @@ void main() {
             'description': 'test object',
           },
         ];
+        const imageName = 'test_image.png';
         final expectedResult = GeminiPipelineResult(
           originalImage: imageBytes,
           generatedImage: imageBytes,
@@ -109,6 +111,7 @@ void main() {
           () => mockGeminiService.processImageWithMarkedObjects(
             imageData: imageBytes,
             markedAreas: markedAreas,
+            imageName: imageName,
           ),
         ).thenAnswer((_) async => expectedResult);
 
@@ -116,6 +119,7 @@ void main() {
         final result = await mockGeminiService.processImageWithMarkedObjects(
           imageData: imageBytes,
           markedAreas: markedAreas,
+          imageName: imageName,
         );
 
         // Assert
@@ -125,6 +129,7 @@ void main() {
           () => mockGeminiService.processImageWithMarkedObjects(
             imageData: imageBytes,
             markedAreas: markedAreas,
+            imageName: imageName,
           ),
         ).called(1);
       });
@@ -143,6 +148,7 @@ void main() {
             description: 'unwanted object',
           ),
         ];
+        const imageName = 'test_image.png';
 
         final expectedResult = GeminiPipelineResult(
           originalImage: imageBytes,
@@ -156,6 +162,7 @@ void main() {
           () => mockGeminiService.processImageWithMarkedObjects(
             imageData: any(named: 'imageData'),
             markedAreas: any(named: 'markedAreas'),
+            imageName: any(named: 'imageName'),
           ),
         ).thenAnswer((_) async => expectedResult);
 
@@ -164,7 +171,7 @@ void main() {
         );
 
         // Act
-        final result = await useCase.call(imageBytes, markedAreas: markedAreas);
+        final result = await useCase.call(imageBytes, markedAreas: markedAreas, imageName: imageName);
 
         // Assert
         expect(result.isSuccess, true);
@@ -180,6 +187,7 @@ void main() {
         // Arrange
         final imageBytes = kTestPng;
         final markedAreas = <MarkedArea>[];
+        const imageName = 'test_image.png';
 
         final expectedResult = GeminiPipelineResult(
           originalImage: imageBytes,
@@ -194,6 +202,7 @@ void main() {
           () => mockGeminiService.processImage(
             any(),
             'Process and enhance this image for better quality and appearance',
+            imageName,
           ),
         ).thenAnswer((_) async => expectedResult);
 
@@ -202,7 +211,7 @@ void main() {
         );
 
         // Act
-        final result = await useCase.call(imageBytes, markedAreas: markedAreas);
+        final result = await useCase.call(imageBytes, markedAreas: markedAreas, imageName: imageName);
 
         // Assert
         expect(result.isSuccess, true);
