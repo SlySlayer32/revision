@@ -27,16 +27,17 @@ class AppBootstrapper {
       );
 
       // Step 2: Setup service locator with validation
-      await setupServiceLocator(enableValidation: true);
+      await setupServiceLocator();
+      await EnhancedServiceLocator.initialize(getIt: getIt, logger: logger);
+      final initResult = await EnhancedServiceLocator.instance.initializeWithValidation();
+
 
       // Step 3: Verify system health
-      final healthReport = await EnhancedServiceLocator.instance.getSystemHealth();
-      
-      if (!healthReport.isHealthy) {
+      if (!initResult.isSuccessful) {
         logger.warning(
           'System health check failed during initialization',
           operation: 'APP_BOOTSTRAP',
-          context: healthReport.toMap(),
+          context: initResult.getSummary(),
         );
         
         // Could show a warning to user or attempt recovery
@@ -48,9 +49,9 @@ class AppBootstrapper {
         'App initialization completed successfully',
         operation: 'APP_BOOTSTRAP',
         context: {
-          'system_health_score': healthReport.overallHealthScore,
-          'is_healthy': healthReport.isHealthy,
-          'services_count': healthReport.serviceResults.length,
+          'system_health_score': initResult.healthReport?.overallHealthScore,
+          'is_healthy': initResult.healthReport?.isHealthy,
+          'services_count': initResult.validationResult?.validationResults.length,
         },
       );
 
@@ -83,7 +84,7 @@ class AppBootstrapper {
       logger.info('Attempting system recovery', operation: 'SYSTEM_RECOVERY');
       
       // Get list of failing services
-      final failingServices = ServiceHealthMonitor.instance.getFailingServices();
+      final failingServices = EnhancedServiceLocator.instance.getStatistics()['failing_services'] as List<String>;
       
       if (failingServices.isEmpty) {
         logger.info('No failing services found', operation: 'SYSTEM_RECOVERY');
