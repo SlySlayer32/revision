@@ -12,8 +12,8 @@ class SendEmailVerificationUseCase {
   Future<Result<void>> call() async {
     final either = await _repository.sendEmailVerification();
     return either.fold(
-      (failure) => Result.failure(failure),
-      (_) => const Result.success(null),
+      (failure) => Result.error(failure),
+      (_) => Result.ok(null),
     );
   }
 }
