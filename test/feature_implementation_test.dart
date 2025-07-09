@@ -1,13 +1,14 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'helpers/test_data.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:revision/core/services/gemini_pipeline_service.dart';
 import 'package:revision/features/ai_processing/domain/usecases/process_image_with_gemini_usecase_improved.dart';
 import 'package:revision/features/ai_processing/domain/value_objects/marked_area.dart';
 import 'package:revision/features/authentication/data/datasources/firebase_auth_data_source.dart';
 import 'package:revision/features/authentication/data/repositories/firebase_authentication_repository.dart';
+
+import 'helpers/test_data.dart';
 
 // Mock classes
 class MockFirebaseAuthDataSource extends Mock
@@ -75,7 +76,8 @@ void main() {
         ).thenAnswer((_) async => expectedResult);
 
         // Act
-        final result = await mockGeminiService.processImage(imageBytes, prompt, imageName);
+        final result =
+            await mockGeminiService.processImage(imageBytes, prompt, imageName);
 
         // Assert
         expect(result.originalImage, imageBytes);

@@ -5,11 +5,11 @@ import 'package:revision/features/authentication/domain/entities/user.dart';
 void main() {
   group('SessionManager', () {
     late SessionManager sessionManager;
-    
+
     setUp(() {
       sessionManager = SessionManager.instance;
     });
-    
+
     tearDown(() {
       sessionManager.endSession();
     });
@@ -24,9 +24,9 @@ void main() {
         createdAt: '2023-01-01T00:00:00.000Z',
         customClaims: {},
       );
-      
+
       sessionManager.startSession(testUser);
-      
+
       expect(sessionManager.isSessionValid(), equals(true));
       expect(sessionManager.getRemainingSessionTime(), isNotNull);
     });
@@ -41,18 +41,18 @@ void main() {
         createdAt: '2023-01-01T00:00:00.000Z',
         customClaims: {},
       );
-      
+
       sessionManager.startSession(testUser);
-      
+
       // final beforeUpdate = sessionManager.getRemainingSessionTime();
-      
+
       // Wait a bit and update activity
       Future.delayed(const Duration(milliseconds: 100), () {
         sessionManager.updateActivity();
       });
-      
+
       final afterUpdate = sessionManager.getRemainingSessionTime();
-      
+
       expect(sessionManager.isSessionValid(), equals(true));
       expect(afterUpdate, isNotNull);
     });
@@ -67,10 +67,10 @@ void main() {
         createdAt: '2023-01-01T00:00:00.000Z',
         customClaims: {},
       );
-      
+
       sessionManager.startSession(testUser);
       expect(sessionManager.isSessionValid(), equals(true));
-      
+
       sessionManager.endSession();
       expect(sessionManager.isSessionValid(), equals(false));
       expect(sessionManager.getRemainingSessionTime(), isNull);
@@ -81,12 +81,12 @@ void main() {
         SessionState.active.message,
         equals('Session is active'),
       );
-      
+
       expect(
         SessionState.warningTimeout.message,
         equals('Your session will expire in 5 minutes'),
       );
-      
+
       expect(
         SessionState.timedOut.message,
         equals('Your session has expired. Please sign in again.'),
