@@ -162,16 +162,13 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       // Use the new authenticate() method for Google Sign-In
       final googleUser = await _googleSignIn.authenticate();
 
-      if (googleUser == null) {
-        throw const UnexpectedAuthException('Google sign in was canceled');
-      }
+      // googleUser cannot be null after authenticate(), so this check is not needed and removed.
 
       // Obtain the auth details from the request
       final googleAuth = await googleUser.authentication;
 
-      // Create a new credential
+      // Create a new credential (only idToken is available in v7+)
       final credential = firebase_auth.GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
