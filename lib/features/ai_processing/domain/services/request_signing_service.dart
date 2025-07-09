@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:revision/core/utils/security_utils.dart';
 import 'package:revision/core/config/env_config.dart';
+import 'dart:math';
 
 /// Service for signing API requests to ensure security and authenticity
 class RequestSigningService {
@@ -175,6 +176,3 @@ class RequestSigningService {
     };
   }
 }
-
-/// Import needed for Random.secure()
-import 'dart:math';
