@@ -342,7 +342,6 @@ class GeminiAIService implements AIService {
       );
     });
   }
-  }
 
   /// Make an image generation request to Gemini API
   Future<Uint8List?> _makeImageGenerationRequest({
@@ -415,7 +414,6 @@ class GeminiAIService implements AIService {
         },
       );
     });
-  }
   }
 
   @override
