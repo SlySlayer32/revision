@@ -4,17 +4,17 @@ import 'dart:developer' as developer;
 import 'package:revision/core/utils/result.dart';
 import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 
-/// Use case for sending email verification to authenticated users
+/// Use case for sending email verification to authenticated users.
 /// 
 /// This use case handles the business logic for sending email verification
-/// with proper error handling, rate limiting, and logging.
+/// with proper error handling, rate limiting, and structured logging.
 /// 
 /// Usage:
 /// ```dart
 /// final result = await sendEmailVerificationUseCase();
 /// result.fold(
-///   onSuccess: (_) => print('Verification email sent'),
-///   onFailure: (error) => print('Failed: $error'),
+///   success: (_) => print('Verification email sent'),
+///   failure: (error) => print('Failed: $error'),
 /// );
 /// ```
 class SendEmailVerificationUseCase {
@@ -33,19 +33,16 @@ class SendEmailVerificationUseCase {
   // Static variable to track last email send time for rate limiting
   static DateTime? _lastEmailSentTime;
 
-  /// Sends email verification to the currently signed-in user
-  /// 
+  /// Sends email verification to the currently signed-in user.
+  ///
   /// This method will:
   /// - Validate that a user is currently authenticated
   /// - Check rate limiting to prevent spam
+  /// - Check if the user's email is already verified
   /// - Send the verification email through the repository
   /// - Handle and log any errors that occur
-  /// 
-  /// Returns:
-  /// - [Result<void>] - Success if email was sent, failure with error message
-  /// 
-  /// Throws:
-  /// - No exceptions are thrown, all errors are wrapped in Result.failure
+  ///
+  /// @returns [Result<void>] Success if email was sent, Failure with error message otherwise.
   Future<Result<void>> call() async {
     developer.log(
       'Attempting to send email verification',
@@ -120,7 +117,10 @@ class SendEmailVerificationUseCase {
     }
   }
 
-  /// Validates that a user is currently authenticated
+  /// Validates that a user is currently authenticated.
+  ///
+  /// @returns [Result<void>] Success if a user is authenticated, Failure otherwise.
+  /// @visibleForTesting
   Future<Result<void>> _validateUserAuthentication() async {
     try {
       final either = await _repository.getCurrentUser();
@@ -158,7 +158,9 @@ class SendEmailVerificationUseCase {
     }
   }
 
-  /// Checks rate limiting to prevent spam email requests
+  /// Checks rate limiting to prevent spam email requests.
+  ///
+  /// @returns [Result<void>] Success if not rate limited, Failure otherwise.
   Result<void> _checkRateLimit() {
     if (_lastEmailSentTime != null) {
       final timeSinceLastEmail = DateTime.now().difference(_lastEmailSentTime!);
@@ -176,7 +178,9 @@ class SendEmailVerificationUseCase {
     return Success<void>(null);
   }
 
-  /// Checks if the user's email is already verified
+  /// Checks if the user's email is already verified.
+  ///
+  /// @returns [Result<void>] Success if not verified, Failure if already verified.
   Future<Result<void>> _checkEmailVerificationStatus() async {
     try {
       final either = await _repository.getCurrentUser();
@@ -224,7 +228,7 @@ class SendEmailVerificationUseCase {
     }
   }
 
-  /// Resets the rate limiting timer (useful for testing)
+  /// Resets the rate limiting timer (useful for testing).
   static void resetRateLimit() {
     _lastEmailSentTime = null;
     developer.log(
@@ -233,7 +237,9 @@ class SendEmailVerificationUseCase {
     );
   }
 
-  /// Gets the remaining time before another email can be sent
+  /// Gets the remaining time before another email can be sent.
+  ///
+  /// @returns [Duration?] The remaining cooldown duration, or null if no cooldown.
   Duration? getRemainingCooldown() {
     if (_lastEmailSentTime == null) return null;
     
