@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:revision/core/services/logging_service.dart';
+import 'package:revision/core/di/service_locator.dart';
 import 'package:revision/core/services/analytics_service.dart';
 import 'package:revision/core/navigation/route_names.dart';
 
@@ -84,7 +85,7 @@ class DeepLinkingService {
         _linkController.add(deepLinkData);
         
         // Track deep link usage
-        AnalyticsService.instance.trackUserAction(
+        getIt<AnalyticsService>().trackUserAction(
           'deep_link_opened',
           parameters: {
             'link': link,
