@@ -241,7 +241,7 @@ class ImageSecurityService {
       // Check maximum resolution
       final totalPixels = image.width * image.height;
       if (totalPixels > AppConstants.maxImageResolution) {
-        return const Failure(
+        return Failure(
           ImageSelectionException.fileTooLarge(
             'Image resolution too high: ${image.width}x${image.height} '
             '(max ${AppConstants.maxImageWidth}x${AppConstants.maxImageHeight})',
