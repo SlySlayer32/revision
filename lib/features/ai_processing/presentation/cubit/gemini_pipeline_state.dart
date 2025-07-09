@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:revision/features/ai_processing/domain/entities/processing_result.dart';
+import 'package:revision/features/ai_processing/domain/entities/processing_result.dart' hide ProcessingProgress;
 import 'package:revision/features/ai_processing/domain/entities/enhanced_processing_progress.dart';
 import 'package:revision/features/ai_processing/domain/entities/cancellation_token.dart';
 
