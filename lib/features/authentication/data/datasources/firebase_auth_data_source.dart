@@ -60,7 +60,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
     firebase_auth.FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
   }) : _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
-       _googleSignIn = googleSignIn ?? GoogleSignIn();
+       _googleSignIn = googleSignIn ?? GoogleSignIn.standard();
 
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
