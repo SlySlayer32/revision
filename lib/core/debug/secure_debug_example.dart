@@ -134,7 +134,7 @@ class SecureDebugExample extends StatelessWidget {
     if (debugPage != null) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => debugPage),
+        MaterialPageRoute(builder: (_) => debugPage!),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
