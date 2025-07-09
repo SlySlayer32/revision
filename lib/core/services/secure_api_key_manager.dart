@@ -1,3 +1,5 @@
+
+import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
 /// Provides secure API key management, validation, and masked logging.
