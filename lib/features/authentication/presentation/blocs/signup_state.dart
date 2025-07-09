@@ -7,6 +7,7 @@ class SignupState extends Equatable {
     this.status = SignupStatus.initial,
     this.user,
     this.errorMessage,
+    this.successMessage,
   });
 
   /// Creates a [SignupState] with initial status
@@ -16,8 +17,8 @@ class SignupState extends Equatable {
   const SignupState.loading() : this._(status: SignupStatus.loading);
 
   /// Creates a [SignupState] with success status
-  const SignupState.success(User user)
-    : this._(status: SignupStatus.success, user: user);
+  const SignupState.success(User user, {String? message})
+    : this._(status: SignupStatus.success, user: user, successMessage: message);
 
   /// Creates a [SignupState] with failure status
   const SignupState.failure(String message)
@@ -32,8 +33,11 @@ class SignupState extends Equatable {
   /// The error message, if signup failed
   final String? errorMessage;
 
+  /// The success message, if signup succeeded
+  final String? successMessage;
+
   @override
-  List<Object?> get props => [status, user, errorMessage];
+  List<Object?> get props => [status, user, errorMessage, successMessage];
 }
 
 /// Enum representing the possible signup statuses
