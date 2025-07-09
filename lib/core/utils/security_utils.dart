@@ -120,18 +120,6 @@ class SecurityUtils {
     }
   }
 
-  /// Masks sensitive information for logging
-  static String maskSensitiveData(String data, {int visibleChars = 4}) {
-    if (data.length <= visibleChars * 2) {
-      return '*' * data.length;
-    }
-
-    final start = data.substring(0, visibleChars);
-    final end = data.substring(data.length - visibleChars);
-    final middle = '*' * (data.length - (visibleChars * 2));
-
-    return '$start$middle$end';
-  }
 
   /// Validates file upload safety
   static bool isSafeFileUpload(String filename, List<int> bytes) {
