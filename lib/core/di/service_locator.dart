@@ -19,6 +19,7 @@ import 'package:revision/features/authentication/data/repositories/firebase_auth
 import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 import 'package:revision/features/authentication/domain/usecases/get_auth_state_changes_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/get_current_user_usecase.dart';
+import 'package:revision/features/authentication/domain/usecases/send_email_verification_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/send_password_reset_email_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_in_usecase.dart';
 import 'package:revision/features/authentication/domain/usecases/sign_in_with_google_usecase.dart';
@@ -177,6 +178,9 @@ void _registerUseCases() {
     ..registerLazySingleton<SendPasswordResetEmailUseCase>(
       () => SendPasswordResetEmailUseCase(getIt<AuthRepository>()),
     )
+    ..registerLazySingleton<SendEmailVerificationUseCase>(
+      () => SendEmailVerificationUseCase(getIt<AuthRepository>()),
+    )
     ..registerLazySingleton<GetCurrentUserUseCase>(
       () => GetCurrentUserUseCase(getIt<AuthRepository>()),
     )
@@ -232,7 +236,10 @@ void _registerBlocs() {
       ),
     )
     ..registerFactory<SignupBloc>(
-      () => SignupBloc(signUp: getIt<SignUpUseCase>()),
+      () => SignupBloc(
+        signUp: getIt<SignUpUseCase>(),
+        sendEmailVerification: getIt<SendEmailVerificationUseCase>(),
+      ),
     )
     ..registerFactory<ImageSelectionCubit>(
       () => ImageSelectionCubit(getIt<SelectImageUseCase>()),

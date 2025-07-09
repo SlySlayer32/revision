@@ -1,3 +1,5 @@
+import 'package:revision/core/utils/security_utils.dart';
+
 class Validators {
   // More comprehensive email regex that supports modern email formats
   static const String _emailPattern =
@@ -8,39 +10,24 @@ class Validators {
   static String? validateEmail(String email) {
     if (email.isEmpty) return 'Email cannot be empty';
 
-    // Additional validation for edge cases
-    if (email.startsWith('.') || email.endsWith('.')) {
-      return 'Please enter a valid email';
-    }
-    if (email.contains('..')) return 'Please enter a valid email';
-    if (email.split('@').length != 2) return 'Please enter a valid email';
-
-    final parts = email.split('@');
-    final localPart = parts[0];
-    final domainPart = parts[1];
-
-    // Local part validation
-    if (localPart.isEmpty ||
-        localPart.endsWith('.') ||
-        localPart.startsWith('.')) {
+    // Use security utils for more robust validation
+    if (!SecurityUtils.isValidEmail(email)) {
       return 'Please enter a valid email';
     }
 
-    // Domain part validation
-    if (domainPart.isEmpty ||
-        domainPart.startsWith('.') ||
-        domainPart.endsWith('.')) {
-      return 'Please enter a valid email';
-    }
-
-    if (!_emailRegExp.hasMatch(email)) return 'Please enter a valid email';
     return null;
   }
 
-  /// Validates password strength
+  /// Validates password strength using security utils
   static String? validatePassword(String password) {
     if (password.isEmpty) return 'Password cannot be empty';
-    if (password.length < 6) return 'Password must be at least 6 characters';
+    if (password.length < 8) return 'Password must be at least 8 characters';
+    
+    final strength = SecurityUtils.validatePasswordStrength(password);
+    if (strength == PasswordStrength.weak) {
+      return 'Password is too weak. Use uppercase, lowercase, numbers, and special characters';
+    }
+    
     return null;
   }
 
@@ -54,6 +41,73 @@ class Validators {
     }
     if (displayName.length > 50) {
       return 'Display name cannot exceed 50 characters';
+    }
+    return null;
+  }
+
+  /// Validates phone number format
+  static String? validatePhoneNumber(String? phoneNumber) {
+    if (phoneNumber == null || phoneNumber.isEmpty) {
+      return null; // Optional field
+    }
+    
+    // Remove all non-digit characters
+    final digits = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
+    
+    if (digits.length < 10) {
+      return 'Phone number must be at least 10 digits';
+    }
+    if (digits.length > 15) {
+      return 'Phone number cannot exceed 15 digits';
+    }
+    
+    return null;
+  }
+
+  /// Validates age verification
+  static String? validateAge(bool isAdult) {
+    if (!isAdult) {
+      return 'You must be at least 13 years old to use this service';
+    }
+    return null;
+  }
+
+  /// Validates terms acceptance
+  static String? validateTermsAcceptance(bool acceptedTerms) {
+    if (!acceptedTerms) {
+      return 'You must accept the Terms of Service to continue';
+    }
+    return null;
+  }
+
+  /// Validates privacy policy acceptance
+  static String? validatePrivacyAcceptance(bool acceptedPrivacy) {
+    if (!acceptedPrivacy) {
+      return 'You must accept the Privacy Policy to continue';
+    }
+    return null;
+  }
+
+  /// Validates security question selection
+  static String? validateSecurityQuestion(String? question, bool isRequired) {
+    if (isRequired && (question == null || question.isEmpty)) {
+      return 'Please select a security question';
+    }
+    return null;
+  }
+
+  /// Validates security answer
+  static String? validateSecurityAnswer(String? answer, bool isRequired) {
+    if (isRequired) {
+      if (answer == null || answer.isEmpty) {
+        return 'Please provide an answer to your security question';
+      }
+      if (answer.length < 3) {
+        return 'Security answer must be at least 3 characters';
+      }
+      if (answer.length > 100) {
+        return 'Security answer cannot exceed 100 characters';
+      }
     }
     return null;
   }
