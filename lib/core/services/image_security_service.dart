@@ -283,7 +283,7 @@ class ImageSecurityService {
   /// Checks for suspicious patterns in image data.
   static bool _containsSuspiciousPatterns(Uint8List imageData) {
     // Check for embedded executable patterns
-    const suspiciousPatterns = [
+    final suspiciousPatterns = [
       [0x4D, 0x5A], // MZ (DOS/Windows executable)
       [0x50, 0x4B], // PK (ZIP archive)
       [0x7F, 0x45, 0x4C, 0x46], // ELF (Linux executable)
