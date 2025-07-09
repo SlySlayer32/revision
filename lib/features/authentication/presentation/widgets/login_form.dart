@@ -1,12 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:revision/core/constants/app_constants.dart';
 import 'package:revision/core/utils/security_utils.dart';
+import 'package:revision/core/utils/validators.dart';
 import 'package:revision/features/authentication/presentation/blocs/login_bloc.dart';
 import 'package:revision/features/authentication/presentation/widgets/password_strength_indicator.dart';
 
 /// Login form widget that handles user authentication
 class LoginForm extends StatefulWidget {
-  /// Creates a new [LoginForm]
   const LoginForm({super.key});
 
   @override
@@ -19,8 +23,15 @@ class _LoginFormState extends State<LoginForm> {
   final _passwordController = TextEditingController();
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
+
   bool _rememberMe = false;
   bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(_onPasswordChanged);
+  }
 
   @override
   void dispose() {
@@ -31,18 +42,11 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    // Listen to password changes for strength checking
-    _passwordController.addListener(_onPasswordChanged);
-  }
-
   void _onPasswordChanged() {
     if (_passwordController.text.isNotEmpty) {
       context.read<LoginBloc>().add(
-        PasswordStrengthChecked(password: _passwordController.text),
-      );
+            PasswordStrengthChecked(password: _passwordController.text),
+          );
     }
   }
 
@@ -52,16 +56,15 @@ class _LoginFormState extends State<LoginForm> {
     // Hide keyboard
     FocusScope.of(context).unfocus();
 
-    // Sanitize inputs before sending
-    final sanitizedEmail = SecurityUtils.sanitizeInput(_emailController.text);
+    final sanitizedEmail = SecurityUtils.sanitizeInput(_emailController.text.trim());
     final sanitizedPassword = SecurityUtils.sanitizeInput(_passwordController.text);
 
     context.read<LoginBloc>().add(
-      LoginRequested(
-        email: sanitizedEmail,
-        password: sanitizedPassword,
-      ),
-    );
+          LoginRequested(
+            email: sanitizedEmail,
+            password: sanitizedPassword,
+          ),
+        );
   }
 
   void _onBiometricLoginPressed() {
@@ -73,7 +76,8 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   void _onForgotPasswordPressed() {
-    if (_emailController.text.isEmpty) {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter your email address first')),
       );
@@ -81,12 +85,17 @@ class _LoginFormState extends State<LoginForm> {
       return;
     }
 
-    // Sanitize email input
-    final sanitizedEmail = SecurityUtils.sanitizeInput(_emailController.text);
+    if (Validators.validateEmail(email) != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid email address')),
+      );
+      _emailFocusNode.requestFocus();
+      return;
+    }
 
     context.read<LoginBloc>().add(
-      ForgotPasswordRequested(email: sanitizedEmail),
-    );
+          ForgotPasswordRequested(email: SecurityUtils.sanitizeInput(email)),
+        );
   }
 
   @override
@@ -97,7 +106,6 @@ class _LoginFormState extends State<LoginForm> {
           previous.errorMessage != current.errorMessage,
       listener: (context, state) {
         if (state.status == LoginStatus.success) {
-          // Pop login page and any dialogs
           Navigator.of(context).pop();
 
           // Show success message if this was a password reset
@@ -108,18 +116,33 @@ class _LoginFormState extends State<LoginForm> {
           }
         }
 
-        if (state.status == LoginStatus.failure || 
-            state.status == LoginStatus.rateLimited ||
-            state.status == LoginStatus.accountLocked ||
-            state.status == LoginStatus.captchaRequired) {
-          if (state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: Theme.of(context).colorScheme.error,
-              ),
-            );
+        if (state.status == LoginStatus.failure && state.errorMessage != null) {
+          String errorMessage = state.errorMessage!;
+
+          // Provide user-friendly error messages
+          if (errorMessage.toLowerCase().contains('network') ||
+              errorMessage.toLowerCase().contains('connection')) {
+            errorMessage = AppConstants.networkErrorMessage;
+          } else if (errorMessage.toLowerCase().contains('invalid') ||
+              errorMessage.toLowerCase().contains('wrong')) {
+            errorMessage = 'Invalid email or password. Please try again.';
+          } else if (errorMessage.toLowerCase().contains('disabled') ||
+              errorMessage.toLowerCase().contains('locked')) {
+            errorMessage = 'Account is disabled. Please contact support.';
+          } else if (errorMessage.toLowerCase().contains('timeout')) {
+            errorMessage = 'Request timed out. Please try again.';
           }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Theme.of(context).colorScheme.error,
+              action: SnackBarAction(
+                label: 'Retry',
+                onPressed: _onLoginPressed,
+              ),
+            ),
+          );
         }
       },
       child: BlocBuilder<LoginBloc, LoginState>(
@@ -136,69 +159,98 @@ class _LoginFormState extends State<LoginForm> {
                   controller: _emailController,
                   focusNode: _emailFocusNode,
                   enabled: !isLoading,
+                  maxLength: 254,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  autofillHints: const [AutofillHints.email],
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                    LengthLimitingTextInputFormatter(254),
+                  ],
                   decoration: const InputDecoration(
                     labelText: 'Email',
+                    hintText: 'Enter your email address',
+                    prefixIcon: Icon(Icons.email_outlined),
                     border: OutlineInputBorder(),
+                    counterText: '',
                   ),
-                  keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
                     }
-                    if (!SecurityUtils.isValidEmail(value)) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
+                    return Validators.validateEmail(value.trim());
                   },
+                  onFieldSubmitted: (_) => _passwordFocusNode.requestFocus(),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
                   focusNode: _passwordFocusNode,
                   enabled: !isLoading,
+                  maxLength: 128,
+                  obscureText: _obscurePassword,
+                  keyboardType: TextInputType.visiblePassword,
+                  textInputAction: TextInputAction.done,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  autofillHints: const [AutofillHints.password],
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(128),
+                  ],
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    border: const OutlineInputBorder(),
+                    hintText: 'Enter your password',
+                    prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                        _obscurePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
                       ),
                       onPressed: () {
                         setState(() {
                           _obscurePassword = !_obscurePassword;
                         });
                       },
+                      tooltip: _obscurePassword ? 'Show password' : 'Hide password',
                     ),
+                    border: const OutlineInputBorder(),
+                    counterText: '',
                   ),
-                  obscureText: _obscurePassword,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
                     }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
+                    if (value.length < AppConstants.minPasswordLength) {
+                      return 'Password must be at least ${AppConstants.minPasswordLength} characters';
+                    }
+                    final strength = SecurityUtils.validatePasswordStrength(value);
+                    if (strength == PasswordStrength.weak) {
+                      return 'Password is too weak. Use uppercase, lowercase, numbers, and symbols.';
                     }
                     return null;
                   },
+                  onFieldSubmitted: (_) => _onLoginPressed(),
                 ),
                 const SizedBox(height: 8),
-                // Password strength indicator
                 PasswordStrengthIndicator(strength: state.passwordStrength),
                 const SizedBox(height: 16),
-                // Remember me checkbox
                 CheckboxListTile(
                   title: const Text('Remember me'),
                   value: _rememberMe,
-                  onChanged: isLoading ? null : (value) {
-                    setState(() {
-                      _rememberMe = value ?? false;
-                    });
-                  },
+                  onChanged: isLoading
+                      ? null
+                      : (value) {
+                          setState(() {
+                            _rememberMe = value ?? false;
+                          });
+                        },
                   controlAffinity: ListTileControlAffinity.leading,
                   contentPadding: EdgeInsets.zero,
                 ),
                 const SizedBox(height: 16),
-                // Login button
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -214,7 +266,6 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Biometric login button
                 if (state.biometricAvailable)
                   SizedBox(
                     width: double.infinity,
@@ -226,7 +277,6 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                   ),
                 if (state.biometricAvailable) const SizedBox(height: 16),
-                // Rate limit warning
                 if (state.isRateLimited)
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -253,7 +303,6 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                   ),
                 if (state.isRateLimited) const SizedBox(height: 16),
-                // CAPTCHA placeholder (would integrate with actual CAPTCHA service)
                 if (state.showCaptcha)
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -271,8 +320,6 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                   ),
                 if (state.showCaptcha) const SizedBox(height: 16),
-                const SizedBox(height: 16),
-                // Google login and forgot password buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
