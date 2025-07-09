@@ -10,10 +10,11 @@ class SendEmailVerificationUseCase {
 
   /// Sends email verification to the currently signed-in user
   Future<Result<void>> call() async {
-    final either = await _repository.sendEmailVerification();
-    return either.fold(
-      (failure) => Result.failure(failure),
-      (_) => Result.ok(null),
-    );
+
+
+
+
+
+    return await _repository.sendEmailVerification();
   }
 }
