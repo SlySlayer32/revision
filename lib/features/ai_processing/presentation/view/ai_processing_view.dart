@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:revision/features/ai_processing/domain/entities/processing_configuration.dart';
 import 'package:revision/features/ai_processing/presentation/cubit/gemini_pipeline_cubit.dart';
 import 'package:revision/features/ai_processing/presentation/widgets/ai_segmentation_widget.dart';
 import 'package:revision/features/ai_processing/presentation/widgets/processing_controls.dart';
@@ -12,6 +13,7 @@ import 'package:revision/features/image_editing/domain/entities/annotation_strok
 import 'package:revision/features/image_editing/presentation/cubit/image_editor_cubit.dart';
 import 'package:revision/features/image_editing/presentation/widgets/annotation_painter.dart';
 import 'package:revision/features/image_selection/domain/entities/selected_image.dart';
+import 'package:revision/core/utils/security_utils.dart';
 
 /// Custom exceptions for AI processing view
 abstract class AiProcessingException implements Exception {
@@ -71,9 +73,11 @@ class AiProcessingView extends StatelessWidget {
   ///
   /// The [image] parameter must not be null and should contain valid image data
   /// The [annotatedImage] parameter is optional and contains previously saved annotations
+  /// The [configuration] parameter provides flexible processing configuration
   const AiProcessingView({
     required this.image,
     this.annotatedImage,
+    this.configuration,
     super.key,
   });
 
@@ -86,6 +90,15 @@ class AiProcessingView extends StatelessWidget {
   ///
   /// If provided, existing annotations will be displayed and can be modified
   final AnnotatedImage? annotatedImage;
+
+  /// Optional processing configuration
+  ///
+  /// If not provided, default configuration will be used
+  final ProcessingConfiguration? configuration;
+
+  /// Gets the current processing configuration
+  ProcessingConfiguration get _processingConfig => 
+      configuration ?? const ProcessingConfiguration();
 
   /// Validates that the image contains valid data
   ///
@@ -115,42 +128,36 @@ class AiProcessingView extends StatelessWidget {
     }
   }
 
-  /// Validates that the image is ready for Gemini API processing
+  /// Validates that the image is ready for API processing with flexible configuration
   ///
-  /// According to Gemini API documentation:
-  /// - Supported formats: PNG, JPEG, WebP, HEIC, HEIF
-  /// - Inline data limit: 20MB total request size
-  /// - File API recommended for larger files
-  /// - Images are tokenized: 258 tokens for ≤384px, tiled for larger images
-  ///
+  /// Uses the processing configuration to determine validation rules
+  /// 
   /// @throws [InvalidImageException] when image data is invalid for API processing
-  void _validateImageForGeminiApi() {
+  void _validateImageForProcessing() {
     _validateImageData();
 
-    // Check file size for inline data limits (20MB total request)
-    if (image.sizeInBytes > 15 * 1024 * 1024) {
-      // 15MB to leave room for text prompts
-      throw const InvalidImageException(
-        'Image too large for inline processing. Consider using File API for images over 15MB.',
+    // Check file size using configuration
+    if (image.sizeInBytes > _processingConfig.maxImageSizeBytes) {
+      throw InvalidImageException(
+        'Image too large for processing. Maximum size: ${_processingConfig.maxImageSizeBytes ~/ (1024 * 1024)}MB',
         'IMAGE_TOO_LARGE',
       );
     }
 
-    // Validate image format for Gemini API
-    final validGeminiFormats = ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'];
+    // Validate image format using configuration
     final extension = image.name.toLowerCase().split('.').last;
-    if (!validGeminiFormats.contains(extension)) {
+    if (!_processingConfig.isImageFormatSupported(extension)) {
       throw InvalidImageException(
-        'Unsupported image format: $extension. Gemini API supports: ${validGeminiFormats.join(', ')}',
+        'Unsupported image format: $extension. Supported formats: ${_processingConfig.supportedImageFormats.join(', ')}',
         'UNSUPPORTED_FORMAT',
       );
     }
   }
 
-  /// Gets the appropriate MIME type for Gemini API based on file extension
+  /// Gets the appropriate MIME type for API based on file extension
   ///
-  /// Returns the correct MIME type string for the Gemini API request
-  String _getGeminiMimeType() {
+  /// Returns the correct MIME type string for the API request
+  String _getImageMimeType() {
     final extension = image.name.toLowerCase().split('.').last;
     switch (extension) {
       case 'jpg':
@@ -169,24 +176,23 @@ class AiProcessingView extends StatelessWidget {
     }
   }
 
-  /// Checks if the image is optimized for Gemini API token usage
+  /// Checks if the image is optimized for token usage
   ///
-  /// Images ≤ 384px use 258 tokens, larger images are tiled
+  /// Images within configuration limits use fewer tokens
   bool _isOptimizedForTokenUsage() {
-    // This is a simplified check - actual optimization would require image dimensions
-    return image.sizeInBytes <= 1024 * 1024; // 1MB as rough approximation
+    return image.sizeInBytes <= _processingConfig.maxImageDimension * _processingConfig.maxImageDimension * 3;
   }
 
   /// Builds the image widget with comprehensive error handling and accessibility
   ///
   /// Returns a widget that displays the image with proper error states and fallbacks
-  /// Includes accessibility features, performance optimizations, and Gemini API validation
+  /// Includes accessibility features, performance optimizations, and configuration-based validation
   ///
   /// @param context The build context for theme and localization access
   /// @returns A widget displaying the image or appropriate error state
   Widget _buildImageDisplayWidget(BuildContext context) {
     try {
-      _validateImageForGeminiApi();
+      _validateImageForProcessing();
 
       if (image.bytes != null) {
         return _buildMemoryImageWidget(context);
@@ -200,7 +206,7 @@ class AiProcessingView extends StatelessWidget {
     } catch (e) {
       return _buildErrorWidget(
         context,
-        'Unexpected error loading image: ${e.toString()}',
+        'Unexpected error loading image: ${SecurityUtils.maskSensitiveData(e.toString())}',
         Icons.error_outline,
       );
     }
@@ -426,14 +432,13 @@ class AiProcessingView extends StatelessWidget {
     );
   }
 
-  /// Builds an info widget showing Gemini API compatibility
-  Widget _buildGeminiApiInfoWidget(BuildContext context) {
+  /// Builds an info widget showing processing configuration and compatibility
+  Widget _buildProcessingInfoWidget(BuildContext context) {
     final theme = Theme.of(context);
 
     try {
-      _validateImageForGeminiApi();
-      final isOptimized = _isOptimizedForTokenUsage();
-      final mimeType = _getGeminiMimeType();
+      _validateImageForProcessing();
+      final config = _processingConfig;
 
       return Container(
         padding: const EdgeInsets.all(12),
@@ -456,7 +461,7 @@ class AiProcessingView extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Gemini API Compatible',
+                  'Processing Ready',
                   style: theme.textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.primary,
@@ -465,11 +470,15 @@ class AiProcessingView extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            _buildInfoRow(context, 'Format', mimeType),
-            _buildInfoRow(
-                context, 'Size', '${image.sizeInMB.toStringAsFixed(2)} MB'),
-            _buildInfoRow(
-                context, 'Token Usage', isOptimized ? 'Optimized' : 'Tiled'),
+            _buildInfoRow(context, 'Max Size', '${config.maxImageSizeBytes ~/ (1024 * 1024)}MB'),
+            _buildInfoRow(context, 'Current Size', '${image.sizeInMB.toStringAsFixed(2)}MB'),
+            _buildInfoRow(context, 'Format', _getImageFormat()),
+            _buildInfoRow(context, 'Preprocessing', config.enableImagePreprocessing ? 'Enabled' : 'Disabled'),
+            _buildInfoRow(context, 'Cancellation', config.enableCancellation ? 'Supported' : 'Not Supported'),
+            _buildInfoRow(context, 'Progress Tracking', config.enableProgressTracking ? 'Enabled' : 'Disabled'),
+            if (config.enableImageEncryption) ...[
+              _buildInfoRow(context, 'Encryption', 'Enabled'),
+            ],
           ],
         ),
       );
@@ -493,7 +502,7 @@ class AiProcessingView extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'API Compatibility Issue',
+                'Configuration Issue',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.error,
                 ),
@@ -503,6 +512,12 @@ class AiProcessingView extends StatelessWidget {
         ),
       );
     }
+  }
+
+  /// Gets the image format for display
+  String _getImageFormat() {
+    final extension = image.name.toLowerCase().split('.').last;
+    return extension.toUpperCase();
   }
 
   /// Builds an info row for the API compatibility widget
@@ -581,7 +596,7 @@ class AiProcessingView extends StatelessWidget {
           flex: 1,
           child: Column(
             children: [
-              _buildGeminiApiInfoWidget(context),
+              _buildProcessingInfoWidget(context),
               const SizedBox(height: 16),
               AISegmentationWidget(
                 selectedImage: image,
@@ -604,7 +619,7 @@ class AiProcessingView extends StatelessWidget {
         const SizedBox(height: 16),
         const ProcessingStatusDisplay(),
         const SizedBox(height: 16),
-        _buildGeminiApiInfoWidget(context),
+        _buildProcessingInfoWidget(context),
         const SizedBox(height: 16),
         AISegmentationWidget(
           selectedImage: image,
