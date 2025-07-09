@@ -1,15 +1,213 @@
+import 'dart:async';
+import 'dart:developer' as developer;
+
 import 'package:revision/core/utils/result.dart';
 import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 
-/// Use case for sending email verification
+/// Use case for sending email verification to authenticated users
+/// 
+/// This use case handles the business logic for sending email verification
+/// with proper error handling, rate limiting, and logging.
+/// 
+/// Usage:
+/// ```dart
+/// final result = await sendEmailVerificationUseCase();
+/// result.fold(
+///   onSuccess: (_) => print('Verification email sent'),
+///   onFailure: (error) => print('Failed: $error'),
+/// );
+/// ```
 class SendEmailVerificationUseCase {
   /// Creates a new [SendEmailVerificationUseCase]
-  const SendEmailVerificationUseCase(this._repository);
+  /// 
+  /// [_repository] - The authentication repository for email operations
+  /// [_rateLimitDuration] - Minimum time between verification email requests
+  const SendEmailVerificationUseCase(
+    this._repository, {
+    Duration rateLimitDuration = const Duration(minutes: 1),
+  }) : _rateLimitDuration = rateLimitDuration;
 
   final AuthRepository _repository;
+  final Duration _rateLimitDuration;
+  
+  // Static variable to track last email send time for rate limiting
+  static DateTime? _lastEmailSentTime;
 
   /// Sends email verification to the currently signed-in user
+  /// 
+  /// This method will:
+  /// - Validate that a user is currently authenticated
+  /// - Check rate limiting to prevent spam
+  /// - Send the verification email through the repository
+  /// - Handle and log any errors that occur
+  /// 
+  /// Returns:
+  /// - [Result<void>] - Success if email was sent, failure with error message
+  /// 
+  /// Throws:
+  /// - No exceptions are thrown, all errors are wrapped in Result.failure
   Future<Result<void>> call() async {
-    return await _repository.sendEmailVerification();
+    developer.log(
+      'Attempting to send email verification',
+      name: 'SendEmailVerificationUseCase',
+    );
+
+    try {
+      // Validate user authentication state
+      final authValidation = await _validateUserAuthentication();
+      if (authValidation.isFailure) {
+        return authValidation;
+      }
+
+      // Check rate limiting
+      final rateLimitCheck = _checkRateLimit();
+      if (rateLimitCheck.isFailure) {
+        return rateLimitCheck;
+      }
+
+      // Check if email is already verified
+      final verificationCheck = await _checkEmailVerificationStatus();
+      if (verificationCheck.isFailure) {
+        return verificationCheck;
+      }
+
+      // Send the verification email
+      final result = _repository.sendEmailVerification();
+      
+      // Update rate limiting timestamp on successful initiation
+      _lastEmailSentTime = DateTime.now();
+      
+      developer.log(
+        'Email verification request initiated successfully',
+        name: 'SendEmailVerificationUseCase',
+      );
+
+      return result;
+
+    } on TimeoutException catch (e) {
+      final errorMessage = 'Request timed out while sending verification email';
+      developer.log(
+        errorMessage,
+        name: 'SendEmailVerificationUseCase',
+        error: e,
+      );
+      return Result.failure(errorMessage);
+
+    } on FormatException catch (e) {
+      final errorMessage = 'Invalid email format detected';
+      developer.log(
+        errorMessage,
+        name: 'SendEmailVerificationUseCase',
+        error: e,
+      );
+      return Result.failure(errorMessage);
+
+    } catch (e, stackTrace) {
+      final errorMessage = 'Unexpected error occurred while sending verification email: ${e.toString()}';
+      developer.log(
+        errorMessage,
+        name: 'SendEmailVerificationUseCase',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      return Result.failure(errorMessage);
+    }
+  }
+
+  /// Validates that a user is currently authenticated
+  Future<Result<void>> _validateUserAuthentication() async {
+    try {
+      final currentUser = await _repository.getCurrentUser();
+      
+      if (currentUser == null) {
+        const errorMessage = 'No user is currently signed in';
+        developer.log(
+          errorMessage,
+          name: 'SendEmailVerificationUseCase',
+          level: 900, // Warning level
+        );
+        return const Result.failure(errorMessage);
+      }
+
+      return const Result.success(null);
+    } catch (e) {
+      final errorMessage = 'Failed to validate user authentication: ${e.toString()}';
+      developer.log(
+        errorMessage,
+        name: 'SendEmailVerificationUseCase',
+        error: e,
+      );
+      return Result.failure(errorMessage);
+    }
+  }
+
+  /// Checks rate limiting to prevent spam email requests
+  Result<void> _checkRateLimit() {
+    if (_lastEmailSentTime != null) {
+      final timeSinceLastEmail = DateTime.now().difference(_lastEmailSentTime!);
+      
+      if (timeSinceLastEmail < _rateLimitDuration) {
+        final remainingTime = _rateLimitDuration - timeSinceLastEmail;
+        final errorMessage = 'Please wait ${remainingTime.inSeconds} seconds before requesting another verification email';
+        
+        developer.log(
+          'Rate limit exceeded: $errorMessage',
+          name: 'SendEmailVerificationUseCase',
+          level: 900, // Warning level
+        );
+        
+        return Result.failure(errorMessage);
+      }
+    }
+
+    return const Result.success(null);
+  }
+
+  /// Checks if the user's email is already verified
+  Future<Result<void>> _checkEmailVerificationStatus() async {
+    try {
+      final isEmailVerified = await _repository.isEmailVerified();
+      
+      if (isEmailVerified) {
+        const errorMessage = 'Email is already verified';
+        developer.log(
+          errorMessage,
+          name: 'SendEmailVerificationUseCase',
+          level: 800, // Info level
+        );
+        return const Result.failure(errorMessage);
+      }
+
+      return const Result.success(null);
+    } catch (e) {
+      // If we can't check verification status, we'll proceed anyway
+      // This prevents blocking the user if the check fails
+      developer.log(
+        'Could not verify email verification status, proceeding anyway: ${e.toString()}',
+        name: 'SendEmailVerificationUseCase',
+        level: 900, // Warning level
+        error: e,
+      );
+      return const Result.success(null);
+    }
+  }
+
+  /// Resets the rate limiting timer (useful for testing)
+  static void resetRateLimit() {
+    _lastEmailSentTime = null;
+    developer.log(
+      'Rate limit reset',
+      name: 'SendEmailVerificationUseCase',
+    );
+  }
+
+  /// Gets the remaining time before another email can be sent
+  Duration? getRemainingCooldown() {
+    if (_lastEmailSentTime == null) return null;
+    
+    final timeSinceLastEmail = DateTime.now().difference(_lastEmailSentTime!);
+    if (timeSinceLastEmail >= _rateLimitDuration) return null;
+    
+    return _rateLimitDuration - timeSinceLastEmail;
   }
 }
