@@ -1,14 +1,45 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:revision/core/config/env_config.dart';
 import 'package:revision/core/config/environment_detector.dart';
+import 'package:revision/core/debug/debug_info_sanitizer.dart';
 import 'package:revision/firebase_options.dart';
 
 /// A quick verification page for launch configuration
+/// This page is only available in development and staging environments
 class LaunchConfigVerificationPage extends StatelessWidget {
   const LaunchConfigVerificationPage({super.key});
 
+  /// Factory method to create debug page with proper access control
+  static Widget? createIfAllowed() {
+    // Production build guard: This page should never be accessible in production
+    if (EnvironmentDetector.isProduction) {
+      return null;
+    }
+
+    // Debug mode guard: Additional protection for release builds
+    if (kReleaseMode && !kDebugMode) {
+      return null;
+    }
+
+    return const LaunchConfigVerificationPage();
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Production build guard: This page should never be accessible in production
+    if (EnvironmentDetector.isProduction) {
+      return _buildProductionBlockedPage();
+    }
+
+    // Debug mode guard: Additional protection for release builds
+    if (kReleaseMode && !kDebugMode) {
+      return _buildProductionBlockedPage();
+    }
+
+    // Log debug page access for audit purposes
+    DebugInfoSanitizer.logDebugPageAccess('LaunchConfigVerificationPage');
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Launch Config Verification'),
@@ -19,6 +50,8 @@ class LaunchConfigVerificationPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _buildSecurityWarningCard(),
+            const SizedBox(height: 16),
             _buildStatusCard(),
             const SizedBox(height: 16),
             _buildApiKeyCard(),
@@ -28,6 +61,83 @@ class LaunchConfigVerificationPage extends StatelessWidget {
             _buildFirebaseCard(),
             const SizedBox(height: 24),
             _buildLaunchInstructionsCard(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Builds a page shown when debug access is blocked in production
+  Widget _buildProductionBlockedPage() {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Access Restricted'),
+        backgroundColor: Colors.red,
+      ),
+      body: const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.security,
+                size: 64,
+                color: Colors.red,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Debug Features Not Available',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Debug pages are not available in production builds for security reasons.',
+                style: TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds a security warning card
+  Widget _buildSecurityWarningCard() {
+    return Card(
+      color: Colors.orange.withOpacity(0.1),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            const Icon(Icons.warning, color: Colors.orange),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '⚠️ Security Warning',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    'This debug page contains sensitive information and is only available in non-production environments.',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -121,6 +231,9 @@ class LaunchConfigVerificationPage extends StatelessWidget {
 
   Widget _buildEnvironmentCard() {
     final debugInfo = EnvironmentDetector.getDebugInfo();
+    // Sanitize sensitive information
+    final sanitizedDebugInfo = DebugInfoSanitizer.sanitizeDebugInfo(debugInfo);
+    
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -133,9 +246,9 @@ class LaunchConfigVerificationPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text('Current: ${EnvironmentDetector.environmentString}'),
-            Text('Is Web: ${debugInfo['isWeb']}'),
-            Text('Debug Mode: ${debugInfo['isDebugMode']}'),
-            Text('Compile-time Env: ${debugInfo['compileTimeEnv']}'),
+            Text('Is Web: ${sanitizedDebugInfo['isWeb']}'),
+            Text('Debug Mode: ${sanitizedDebugInfo['isDebugMode']}'),
+            Text('Compile-time Env: ${sanitizedDebugInfo['compileTimeEnv']}'),
           ],
         ),
       ),
@@ -144,6 +257,9 @@ class LaunchConfigVerificationPage extends StatelessWidget {
 
   Widget _buildFirebaseCard() {
     final firebaseDebug = DefaultFirebaseOptions.getDebugInfo();
+    // Sanitize sensitive Firebase information
+    final sanitizedFirebaseInfo = DebugInfoSanitizer.sanitizeFirebaseInfo(firebaseDebug);
+    
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -155,9 +271,9 @@ class LaunchConfigVerificationPage extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text('Project ID: ${firebaseDebug['projectId']}'),
-            Text('Environment: ${firebaseDebug['environment']}'),
-            Text('Platform: ${firebaseDebug['platform']}'),
+            Text('Project ID: ${sanitizedFirebaseInfo['projectId']}'),
+            Text('Environment: ${sanitizedFirebaseInfo['environment']}'),
+            Text('Platform: ${sanitizedFirebaseInfo['platform']}'),
           ],
         ),
       ),

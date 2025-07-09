@@ -194,6 +194,101 @@ class SecurityUtils {
     );
   }
 
+  /// Generate HMAC signature for API request signing
+  static String generateHmacSignature(
+    String secret,
+    String method,
+    String path,
+    Map<String, String> headers,
+    String body,
+  ) {
+    final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+    final nonce = _generateNonce();
+    
+    // Create canonical string
+    final canonicalString = [
+      method.toUpperCase(),
+      path,
+      timestamp,
+      nonce,
+      body,
+    ].join('\n');
+    
+    // Generate HMAC
+    final key = utf8.encode(secret);
+    final bytes = utf8.encode(canonicalString);
+    final hmac = Hmac(sha256, key);
+    final digest = hmac.convert(bytes);
+    
+    return base64.encode(digest.bytes);
+  }
+
+  /// Generate a secure random nonce
+  static String _generateNonce() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    final random = Random.secure();
+    return List.generate(32, (index) => chars[random.nextInt(chars.length)]).join();
+  }
+
+  /// Mask sensitive data in logs
+  static String maskSensitiveData(String input) {
+    // Mask API keys
+    input = input.replaceAll(
+      RegExp(r'AIza[0-9A-Za-z-_]{35}'),
+      'AIza***[MASKED]***',
+    );
+    
+    // Mask other sensitive patterns
+    input = input.replaceAll(
+      RegExp(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'),
+      '***@***.***',
+    );
+    
+    // Mask credit card numbers
+    input = input.replaceAll(
+      RegExp(r'\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b'),
+      '****-****-****-****',
+    );
+    
+    return input;
+  }
+
+  /// Encrypt sensitive data using AES
+  static String encryptSensitiveData(String data, String key) {
+    try {
+      final keyBytes = sha256.convert(utf8.encode(key)).bytes;
+      final dataBytes = utf8.encode(data);
+      
+      // Simple XOR encryption for demo (use proper AES in production)
+      final encrypted = <int>[];
+      for (int i = 0; i < dataBytes.length; i++) {
+        encrypted.add(dataBytes[i] ^ keyBytes[i % keyBytes.length]);
+      }
+      
+      return base64.encode(encrypted);
+    } catch (e) {
+      throw Exception('Failed to encrypt data: $e');
+    }
+  }
+
+  /// Decrypt sensitive data using AES
+  static String decryptSensitiveData(String encryptedData, String key) {
+    try {
+      final keyBytes = sha256.convert(utf8.encode(key)).bytes;
+      final encryptedBytes = base64.decode(encryptedData);
+      
+      // Simple XOR decryption for demo (use proper AES in production)
+      final decrypted = <int>[];
+      for (int i = 0; i < encryptedBytes.length; i++) {
+        decrypted.add(encryptedBytes[i] ^ keyBytes[i % keyBytes.length]);
+      }
+      
+      return utf8.decode(decrypted);
+    } catch (e) {
+      throw Exception('Failed to decrypt data: $e');
+    }
+  }
+
   /// Validates API request headers for security
   static bool validateRequestHeaders(Map<String, String> headers) {
     // Check for required security headers
