@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart' as picker;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:revision/core/constants/app_constants.dart';
 import 'package:revision/core/utils/result.dart';
 import 'package:revision/features/image_selection/data/datasources/image_picker_data_source.dart';
 import 'package:revision/features/image_selection/domain/entities/image_source.dart';
@@ -97,11 +98,13 @@ class ImageSelectionRepositoryImpl implements ImageRepository {
         );
       }
 
-      // Check file size (50MB limit for AI processing)
-      if (image.sizeInMB > 50) {
+      // Check file size (consistent with AppConstants.maxImageSize)
+      if (image.sizeInBytes > AppConstants.maxImageSize) {
+        final sizeMB = AppConstants.bytesToMB(image.sizeInBytes);
+        final maxSizeMB = AppConstants.bytesToMB(AppConstants.maxImageSize);
         return Failure(
           ImageSelectionException.fileTooLarge(
-            'Image is too large (${image.sizeInMB.toStringAsFixed(1)}MB). Maximum size is 50MB',
+            'Image is too large (${sizeMB.toStringAsFixed(1)}MB). Maximum size is ${maxSizeMB.toStringAsFixed(1)}MB',
           ),
         );
       }
@@ -156,29 +159,58 @@ class ImageSelectionRepositoryImpl implements ImageRepository {
 
     final message = exception.toString();
 
-    // Map common exception messages
+    // Map common exception messages with more specific handling
     if (message.contains('No image selected') ||
-        message.contains('User cancelled')) {
+        message.contains('User cancelled') ||
+        message.contains('cancelled')) {
       return const ImageSelectionException.cancelled(
         'Image selection was cancelled',
       );
     }
 
-    if (message.contains('permission') || message.contains('denied')) {
+    // Enhanced permission error detection
+    if (message.contains('permission') || 
+        message.contains('denied') ||
+        message.contains('access') ||
+        message.contains('authorize')) {
       return const ImageSelectionException.permissionDenied(
-        'Permission denied for image selection',
+        'Permission denied. Please allow access to your camera/gallery in device settings.',
       );
     }
 
+    // Camera-specific errors
     if (message.contains('camera') && message.contains('not available')) {
       return const ImageSelectionException.cameraUnavailable(
         'Camera is not available on this device',
       );
     }
 
-    // Default to unknown error
+    // Gallery/storage errors
+    if (message.contains('gallery') || 
+        message.contains('storage') ||
+        message.contains('media')) {
+      return const ImageSelectionException.permissionDenied(
+        'Unable to access gallery. Please check permissions in device settings.',
+      );
+    }
+
+    // Timeout errors
+    if (message.contains('timeout') || message.contains('timed out')) {
+      return const ImageSelectionException.unknown(
+        'Image selection timed out. Please try again.',
+      );
+    }
+
+    // File system errors
+    if (message.contains('file') && message.contains('not found')) {
+      return const ImageSelectionException.fileNotFound(
+        'Selected image file could not be found',
+      );
+    }
+
+    // Default to unknown error with sanitized message
     return ImageSelectionException.unknown(
-      'An unexpected error occurred: $message',
+      'An unexpected error occurred. Please try again.',
     );
   }
 }
