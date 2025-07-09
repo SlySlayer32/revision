@@ -47,7 +47,7 @@ class ImageSecurityService {
     if (formatValidation.isFailure) {
       return Failure(
         ImageSelectionException.invalidFormat(
-          formatValidation.exception.toString(),
+          formatValidation.exceptionOrNull.toString(),
         ),
       );
     }
@@ -163,7 +163,7 @@ class ImageSecurityService {
     // First validate the image
     final validation = validateImage(imageData, filename: filename);
     if (validation.isFailure) {
-      return Failure(validation.exception);
+      return Failure(validation.exceptionOrNull!);
     }
 
     Uint8List processedData = imageData;
