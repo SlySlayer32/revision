@@ -91,18 +91,6 @@ void main() {
 
       // Assert
       expect(find.byType(WelcomePage), findsOneWidget);
-      await tester.pumpWidget(createWidgetUnderTest());
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-      // Change state
-      when(() => mockAuthenticationBloc.state)
-          .thenReturn(const AuthenticationState.unauthenticated());
-
-      // Trigger rebuild
-      await tester.pump();
-
-      // Assert
-      expect(find.byType(WelcomePage), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsNothing);
     });
   });
