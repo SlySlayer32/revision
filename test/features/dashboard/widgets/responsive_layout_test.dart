@@ -100,51 +100,54 @@ void main() {
 
   group('ScreenType', () {
     testWidgets('isMobile returns true for mobile screens', (WidgetTester tester) async {
-      await tester.binding.setSurfaceSize(const Size(400, 800));
-
       await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (context) {
-              expect(ScreenType.isMobile(context), true);
-              expect(ScreenType.isTablet(context), false);
-              expect(ScreenType.isDesktop(context), false);
-              return const Scaffold();
-            },
+        MediaQuery(
+          data: const MediaQueryData(size: Size(400, 800)),
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) {
+                expect(ScreenType.isMobile(context), true);
+                expect(ScreenType.isTablet(context), false);
+                expect(ScreenType.isDesktop(context), false);
+                return const Scaffold();
+              },
+            ),
           ),
         ),
       );
     });
 
     testWidgets('isTablet returns true for tablet screens', (WidgetTester tester) async {
-      await tester.binding.setSurfaceSize(const Size(800, 600));
-
       await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (context) {
-              expect(ScreenType.isMobile(context), false);
-              expect(ScreenType.isTablet(context), true);
-              expect(ScreenType.isDesktop(context), false);
-              return const Scaffold();
-            },
+        MediaQuery(
+          data: const MediaQueryData(size: Size(800, 600)),
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) {
+                expect(ScreenType.isMobile(context), false);
+                expect(ScreenType.isTablet(context), true);
+                expect(ScreenType.isDesktop(context), false);
+                return const Scaffold();
+              },
+            ),
           ),
         ),
       );
     });
 
     testWidgets('isDesktop returns true for desktop screens', (WidgetTester tester) async {
-      await tester.binding.setSurfaceSize(const Size(1200, 800));
-
       await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (context) {
-              expect(ScreenType.isMobile(context), false);
-              expect(ScreenType.isTablet(context), false);
-              expect(ScreenType.isDesktop(context), true);
-              return const Scaffold();
-            },
+        MediaQuery(
+          data: const MediaQueryData(size: Size(1200, 800)),
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) {
+                expect(ScreenType.isMobile(context), false);
+                expect(ScreenType.isTablet(context), false);
+                expect(ScreenType.isDesktop(context), true);
+                return const Scaffold();
+              },
+            ),
           ),
         ),
       );
