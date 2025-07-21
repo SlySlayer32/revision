@@ -49,7 +49,7 @@ void main() {
         final result = ImageSecurityService.validateImage(invalidData);
 
         expect(result.isFailure, true);
-        expect(result.exception, isA<ImageSelectionException>());
+        expect(result.tryGetError(), isA<ImageSelectionException>());
       });
 
       test('should validate filename when provided', () {
