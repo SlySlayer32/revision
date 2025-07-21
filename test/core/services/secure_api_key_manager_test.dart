@@ -100,16 +100,13 @@ void main() {
     });
   });
 }
-
-// Extension to EnvConfig for testing
-extension EnvConfigTesting on EnvConfig {
-  static void setGeminiApiKeyForTesting(String key) {
-    // This would need to be implemented in the actual EnvConfig class.
-    // For now, we'll assume this functionality exists for testing.
-  }
-
-  static void clearForTesting() {
-    // This would need to be implemented in the actual EnvConfig class.
-    // For now, we'll assume this functionality exists for testing.
-  }
+        expect(info['length'], equals(validKey.length));
+        expect(info['hasValidPrefix'], isTrue);
+        expect(info['meetsMinLength'], isTrue);
+        expect(info['keyHash'], isNotNull);
+        expect(info['maskedKey'], isNotNull);
+        expect(info['maskedKey'], contains('*'));
+      });
+    });
+  });
 }
