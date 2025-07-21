@@ -45,7 +45,7 @@ void main() {
       displayName: 'Test User',
       photoUrl: '',
       isEmailVerified: true,
-      createdAt: DateTime.now(),
+      createdAt: DateTime.now().toIso8601String(),
       customClaims: const {},
     );
 
