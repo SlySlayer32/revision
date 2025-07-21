@@ -152,40 +152,46 @@ void main() {
 
     testWidgets('getCrossAxisCount returns correct values', (WidgetTester tester) async {
       // Test mobile
-      await tester.binding.setSurfaceSize(const Size(400, 800));
       await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (context) {
-              expect(ScreenType.getCrossAxisCount(context), 2);
-              return const Scaffold();
-            },
+        MediaQuery(
+          data: const MediaQueryData(size: Size(400, 800)),
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) {
+                expect(ScreenType.getCrossAxisCount(context), 2);
+                return const Scaffold();
+              },
+            ),
           ),
         ),
       );
 
       // Test tablet
-      await tester.binding.setSurfaceSize(const Size(800, 600));
       await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (context) {
-              expect(ScreenType.getCrossAxisCount(context), 3);
-              return const Scaffold();
-            },
+        MediaQuery(
+          data: const MediaQueryData(size: Size(800, 600)),
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) {
+                expect(ScreenType.getCrossAxisCount(context), 3);
+                return const Scaffold();
+              },
+            ),
           ),
         ),
       );
 
       // Test desktop
-      await tester.binding.setSurfaceSize(const Size(1200, 800));
       await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (context) {
-              expect(ScreenType.getCrossAxisCount(context), 4);
-              return const Scaffold();
-            },
+        MediaQuery(
+          data: const MediaQueryData(size: Size(1200, 800)),
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) {
+                expect(ScreenType.getCrossAxisCount(context), 4);
+                return const Scaffold();
+              },
+            ),
           ),
         ),
       );
