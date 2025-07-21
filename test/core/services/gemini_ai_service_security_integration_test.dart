@@ -28,7 +28,7 @@ void main() {
       when(() => mockRemoteConfig.initialize()).thenAnswer((_) async {});
       when(() => mockRemoteConfig.geminiModel).thenReturn('gemini-pro');
       when(() => mockRemoteConfig.requestTimeout).thenReturn(const Duration(seconds: 30));
-      when(() => mockRemoteConfig.exportConfig()).thenReturn({'model': 'gemini-pro'});
+      // when(() => mockRemoteConfig.exportConfig()).thenReturn({'model': 'gemini-pro'});
       when(() => mockRemoteConfig.getAllValues()).thenReturn({'model': 'gemini-pro'});
       
       // Set up mock validator
