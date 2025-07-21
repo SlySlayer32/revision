@@ -76,10 +76,10 @@ void main() {
     // testWidgets('should show error message when user is null but authenticated', (tester) async {
     //   // Arrange
     //   when(() => mockAuthenticationBloc.state)
-          .thenReturn(const AuthenticationState.authenticated(null));
+    //       .thenReturn(const AuthenticationState.authenticated(null));
 
-      // Act
-      await tester.pumpWidget(createWidgetUnderTest());
+    //   // Act
+    //   await tester.pumpWidget(createWidgetUnderTest());
 
       // Assert
       expect(find.text('Authentication error: User is null'), findsOneWidget);
