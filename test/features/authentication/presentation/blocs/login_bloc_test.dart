@@ -88,6 +88,8 @@ void main() {
         setUp: () {
           when(() => mockSignInUseCase(any()))
               .thenAnswer((_) async => const Left(ServerFailure('Login failed')));
+        },
+        build: () => loginBloc,
         act: (bloc) => bloc.add(
           const LoginRequested(email: testEmail, password: testPassword),
         ),
