@@ -93,7 +93,7 @@ void main() {
         );
 
         expect(result.isFailure, true);
-        expect(result.exception.toString(), contains('Unsupported image format'));
+        expect(result.tryGetError().toString(), contains('Unsupported image format'));
       });
     });
 
@@ -140,7 +140,7 @@ void main() {
         final result = ImageSecurityService.processImageSecurely(invalidData);
 
         expect(result.isFailure, true);
-        expect(result.exception, isA<ImageSelectionException>());
+        expect(result.tryGetError(), isA<ImageSelectionException>());
       });
 
       test('should process valid image successfully', () {
@@ -162,7 +162,6 @@ void main() {
 
         final result = ImageSecurityService.processImageSecurely(
           validJpeg,
-          compressImage: false,
         );
 
         expect(result.isSuccess, true);
@@ -194,7 +193,7 @@ void main() {
         final result = ImageSecurityService.validateImage(suspiciousData);
 
         expect(result.isFailure, true);
-        expect(result.exception.toString(), contains('suspicious patterns'));
+        expect(result.tryGetError().toString(), contains('suspicious patterns'));
       });
 
       test('should detect ZIP archive patterns', () {
@@ -207,7 +206,7 @@ void main() {
         final result = ImageSecurityService.validateImage(suspiciousData);
 
         expect(result.isFailure, true);
-        expect(result.exception.toString(), contains('suspicious patterns'));
+        expect(result.tryGetError().toString(), contains('suspicious patterns'));
       });
 
       test('should detect ELF executable patterns', () {
@@ -220,7 +219,8 @@ void main() {
         final result = ImageSecurityService.validateImage(suspiciousData);
 
         expect(result.isFailure, true);
-        expect(result.exception.toString(), contains('suspicious patterns'));
+        expect(result.tryGetError().toString(), contains('suspicious patterns'));
+      });
       });
     });
 
