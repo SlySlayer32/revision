@@ -39,14 +39,14 @@ void main() {
   group('LoginBloc', () {
     const testEmail = 'test@example.com';
     const testPassword = 'password123';
-    const testUser = User(
+    final testUser = User(
       id: '1',
       email: testEmail,
       displayName: 'Test User',
-      photoUrl: null,
+      photoUrl: '',
       isEmailVerified: true,
-      createdAt: null,
-      customClaims: {},
+      createdAt: DateTime.now(),
+      customClaims: const {},
     );
 
     group('LoginRequested', () {
