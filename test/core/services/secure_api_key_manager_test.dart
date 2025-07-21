@@ -4,28 +4,10 @@ import 'package:revision/core/config/env_config.dart';
 
 void main() {
   group('SecureAPIKeyManager', () {
-    // setUp(() {
-    //   EnvConfig.clearForTesting();
-    // });
-
     group('getSecureApiKey', () {
       test('returns null when API key is not configured', () {
         expect(SecureAPIKeyManager.getSecureApiKey(), isNull);
       });
-
-      // test('throws SecurityException when API key format is invalid', () {
-      //   EnvConfig.setGeminiApiKeyForTesting('invalid-key');
-      //   expect(
-      //     () => SecureAPIKeyManager.getSecureApiKey(),
-      //     throwsA(isA<SecurityException>()),
-      //   );
-      // });
-
-      // test('returns API key when format is valid', () {
-      //   const validKey = 'AIzaSyDummyKeyFor32CharactersLong12345';
-      //   EnvConfig.setGeminiApiKeyForTesting(validKey);
-      //   expect(SecureAPIKeyManager.getSecureApiKey(), equals(validKey));
-      // });
     });
 
     group('getMaskedApiKey', () {
@@ -55,6 +37,24 @@ void main() {
       test('generates different hash for different keys', () {
         const key1 = 'AIzaSyDummyKeyFor32CharactersLong12345';
         const key2 = 'AIzaSyAnotherKeyFor32CharactersLong678';
+        final hash1 = SecureAPIKeyManager.generateApiKeyHash(key1);
+        final hash2 = SecureAPIKeyManager.generateApiKeyHash(key2);
+        expect(hash1, isNot(equals(hash2)));
+      });
+    });
+
+    group('isApiKeyConfigured', () {
+      test('returns false when no API key is set', () {
+        expect(SecureAPIKeyManager.isApiKeyConfigured(), isFalse);
+      });
+    });
+
+    group('getSecureDebugInfo', () {
+      test('returns error info when API key is not configured', () {
+        final info = SecureAPIKeyManager.getSecureDebugInfo();
+        expect(info['configured'], isFalse);
+        expect(info['error'], isNotNull);
+      });
         final hash1 = SecureAPIKeyManager.generateApiKeyHash(key1);
         final hash2 = SecureAPIKeyManager.generateApiKeyHash(key2);
         expect(hash1, isNot(equals(hash2)));
