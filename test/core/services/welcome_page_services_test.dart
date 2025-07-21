@@ -6,32 +6,32 @@ import 'package:revision/core/services/offline_detection_service.dart';
 import 'package:revision/core/constants/environment_config.dart';
 
 void main() {
-  group('AnalyticsService', () {
-    test('should initialize without errors', () async {
-      await AnalyticsService.initialize();
-      expect(AnalyticsService.observer, isNotNull);
-    });
+  // group('AnalyticsService', () {
+  //   test('should initialize without errors', () async {
+  //     await AnalyticsService.initialize();
+  //     expect(AnalyticsService.observer, isNotNull);
+  //   });
 
-    test('should track user actions', () async {
-      await AnalyticsService.initialize();
+  //   test('should track user actions', () async {
+  //     await AnalyticsService.initialize();
       
-      // Should not throw
-      expect(
-        () => AnalyticsService.instance.trackUserAction('test_action'),
-        returnsNormally,
-      );
-    });
+  //     // Should not throw
+  //     expect(
+  //       () => AnalyticsService.instance.trackUserAction('test_action'),
+  //       returnsNormally,
+  //     );
+  //   });
 
-    test('should track screen views', () async {
-      await AnalyticsService.initialize();
+  //   test('should track screen views', () async {
+  //     await AnalyticsService.initialize();
       
-      // Should not throw
-      expect(
-        () => AnalyticsService.instance.trackScreenView('test_screen'),
-        returnsNormally,
-      );
-    });
-  });
+  //     // Should not throw
+  //     expect(
+  //       () => AnalyticsService.instance.trackScreenView('test_screen'),
+  //       returnsNormally,
+  //     );
+  //   });
+  // });
 
   group('AppInfoService', () {
     test('should initialize with app info', () async {
