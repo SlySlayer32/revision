@@ -25,7 +25,7 @@ void main() {
         final result = ImageSecurityService.validateImage(emptyData);
 
         expect(result.isFailure, true);
-        expect(result.tryGetError(), isA<ImageSelectionException>());
+        expect(result.exceptionOrNull, isA<ImageSelectionException>());
       });
 
       test('should return failure for oversized image', () {
