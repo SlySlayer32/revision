@@ -78,7 +78,7 @@ void main() {
         );
 
         expect(result.isFailure, true);
-        expect(result.exception.toString(), contains('dangerous path traversal'));
+        expect(result.tryGetError().toString(), contains('dangerous path traversal'));
       });
 
       test('should reject unsupported file extensions', () {
