@@ -5,10 +5,10 @@ import 'package:revision/core/utils/result.dart';
 import 'package:revision/features/authentication/domain/repositories/auth_repository.dart';
 
 /// Use case for sending email verification to authenticated users.
-/// 
+///
 /// This use case handles the business logic for sending email verification
 /// with proper error handling, rate limiting, and structured logging.
-/// 
+///
 /// Usage:
 /// ```dart
 /// final result = await sendEmailVerificationUseCase();
@@ -19,7 +19,7 @@ import 'package:revision/features/authentication/domain/repositories/auth_reposi
 /// ```
 class SendEmailVerificationUseCase {
   /// Creates a new [SendEmailVerificationUseCase]
-  /// 
+  ///
   /// [_repository] - The authentication repository for email operations
   /// [_rateLimitDuration] - Minimum time between verification email requests
   const SendEmailVerificationUseCase(
@@ -29,7 +29,7 @@ class SendEmailVerificationUseCase {
 
   final AuthRepository _repository;
   final Duration _rateLimitDuration;
-  
+
   // Static variable to track last email send time for rate limiting
   static DateTime? _lastEmailSentTime;
 
@@ -85,7 +85,7 @@ class SendEmailVerificationUseCase {
             'Email verification request initiated successfully',
             name: 'SendEmailVerificationUseCase',
           );
-          return Success<void>(null);
+          return const Success<void>(null);
         },
       );
       return result;
@@ -106,7 +106,8 @@ class SendEmailVerificationUseCase {
       );
       return Failure<void>(Exception(errorMessage));
     } catch (e, stackTrace) {
-      final errorMessage = 'Unexpected error occurred while sending verification email: e.toString()}';
+      final errorMessage =
+          'Unexpected error occurred while sending verification email: e.toString()}';
       developer.log(
         errorMessage,
         name: 'SendEmailVerificationUseCase',
@@ -126,7 +127,8 @@ class SendEmailVerificationUseCase {
       final either = await _repository.getCurrentUser();
       return either.fold(
         (failure) {
-          final errorMessage = 'Failed to validate user authentication: ${failure.message}';
+          final errorMessage =
+              'Failed to validate user authentication: ${failure.message}';
           developer.log(
             errorMessage,
             name: 'SendEmailVerificationUseCase',
@@ -144,11 +146,12 @@ class SendEmailVerificationUseCase {
             );
             return Failure<void>(Exception(errorMessage));
           }
-          return Success<void>(null);
+          return const Success<void>(null);
         },
       );
     } catch (e) {
-      final errorMessage = 'Failed to validate user authentication: ${e.toString()}';
+      final errorMessage =
+          'Failed to validate user authentication: ${e.toString()}';
       developer.log(
         errorMessage,
         name: 'SendEmailVerificationUseCase',
@@ -166,7 +169,8 @@ class SendEmailVerificationUseCase {
       final timeSinceLastEmail = DateTime.now().difference(_lastEmailSentTime!);
       if (timeSinceLastEmail < _rateLimitDuration) {
         final remainingTime = _rateLimitDuration - timeSinceLastEmail;
-        final errorMessage = 'Please wait ${remainingTime.inSeconds} seconds before requesting another verification email';
+        final errorMessage =
+            'Please wait ${remainingTime.inSeconds} seconds before requesting another verification email';
         developer.log(
           'Rate limit exceeded: $errorMessage',
           name: 'SendEmailVerificationUseCase',
@@ -175,7 +179,7 @@ class SendEmailVerificationUseCase {
         return Failure<void>(Exception(errorMessage));
       }
     }
-    return Success<void>(null);
+    return const Success<void>(null);
   }
 
   /// Checks if the user's email is already verified.
@@ -192,7 +196,7 @@ class SendEmailVerificationUseCase {
             name: 'SendEmailVerificationUseCase',
             level: 900, // Warning level
           );
-          return Success<void>(null);
+          return const Success<void>(null);
         },
         (user) {
           if (user == null) {
@@ -202,7 +206,7 @@ class SendEmailVerificationUseCase {
               name: 'SendEmailVerificationUseCase',
               level: 900, // Warning level
             );
-            return Success<void>(null);
+            return const Success<void>(null);
           }
           if (user.isEmailVerified) {
             final errorMessage = 'Email is already verified';
@@ -213,7 +217,7 @@ class SendEmailVerificationUseCase {
             );
             return Failure<void>(Exception(errorMessage));
           }
-          return Success<void>(null);
+          return const Success<void>(null);
         },
       );
     } catch (e) {
@@ -224,7 +228,7 @@ class SendEmailVerificationUseCase {
         level: 900, // Warning level
         error: e,
       );
-      return Success<void>(null);
+      return const Success<void>(null);
     }
   }
 
@@ -242,10 +246,10 @@ class SendEmailVerificationUseCase {
   /// @returns [Duration?] The remaining cooldown duration, or null if no cooldown.
   Duration? getRemainingCooldown() {
     if (_lastEmailSentTime == null) return null;
-    
+
     final timeSinceLastEmail = DateTime.now().difference(_lastEmailSentTime!);
     if (timeSinceLastEmail >= _rateLimitDuration) return null;
-    
+
     return _rateLimitDuration - timeSinceLastEmail;
   }
 }
