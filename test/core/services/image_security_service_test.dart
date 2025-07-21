@@ -35,8 +35,8 @@ void main() {
         final result = ImageSecurityService.validateImage(oversizedData);
 
         expect(result.isFailure, true);
-        expect(result.tryGetError(), isA<ImageSelectionException>());
-        expect(result.tryGetError().toString(), contains('too large'));
+        expect(result.exceptionOrNull, isA<ImageSelectionException>());
+        expect(result.exceptionOrNull.toString(), contains('too large'));
       });
 
       test('should return failure for invalid format', () {
@@ -49,7 +49,7 @@ void main() {
         final result = ImageSecurityService.validateImage(invalidData);
 
         expect(result.isFailure, true);
-        expect(result.tryGetError(), isA<ImageSelectionException>());
+        expect(result.exceptionOrNull, isA<ImageSelectionException>());
       });
 
       test('should validate filename when provided', () {
