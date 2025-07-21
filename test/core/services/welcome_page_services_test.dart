@@ -6,33 +6,6 @@ import 'package:revision/core/services/offline_detection_service.dart';
 import 'package:revision/core/constants/environment_config.dart';
 
 void main() {
-  // group('AnalyticsService', () {
-  //   test('should initialize without errors', () async {
-  //     await AnalyticsService.initialize();
-  //     expect(AnalyticsService.observer, isNotNull);
-  //   });
-
-  //   test('should track user actions', () async {
-  //     await AnalyticsService.initialize();
-      
-  //     // Should not throw
-  //     expect(
-  //       () => AnalyticsService.instance.trackUserAction('test_action'),
-  //       returnsNormally,
-  //     );
-  //   });
-
-  //   test('should track screen views', () async {
-  //     await AnalyticsService.initialize();
-      
-  //     // Should not throw
-  //     expect(
-  //       () => AnalyticsService.instance.trackScreenView('test_screen'),
-  //       returnsNormally,
-  //     );
-  //   });
-  // });
-
   group('AppInfoService', () {
     test('should initialize with app info', () async {
       await AppInfoService.initialize();
@@ -71,7 +44,34 @@ void main() {
     });
   });
 
-  group('OfflineDetectionService', () {
+  group('DeepLinkData', () {
+    test('should create deep link data correctly', () {
+      const data = DeepLinkData(
+        originalLink: 'https://revision.app/welcome',
+        route: '/welcome',
+        parameters: {'param': 'value'},
+      );
+      
+      expect(data.originalLink, equals('https://revision.app/welcome'));
+      expect(data.route, equals('/welcome'));
+      expect(data.parameters, equals({'param': 'value'}));
+    });
+
+    test('should have proper toString implementation', () {
+      const data = DeepLinkData(
+        originalLink: 'https://revision.app/welcome',
+        route: '/welcome',
+        parameters: {'param': 'value'},
+      );
+      
+      final string = data.toString();
+      expect(string, contains('DeepLinkData'));
+      expect(string, contains('originalLink'));
+      expect(string, contains('route'));
+      expect(string, contains('parameters'));
+    });
+  });
+}
     // test('should initialize connectivity monitoring', () async {
     //   await OfflineDetectionService.initialize();
       
