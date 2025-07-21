@@ -179,28 +179,7 @@ void main() {
     //       headers: any(named: 'headers'),
     //       body: any(named: 'body'),
     //     )).called(greaterThan(0));
-        )).called(greaterThan(0));
-      });
-    });
-  });
-}
-
-// Extension for testing
-extension EnvConfigTesting on EnvConfig {
-  static void setGeminiApiKeyForTesting(String key) {
-    // This would need to be implemented in the actual EnvConfig class
-    // For integration testing, we might need to use environment variables
-    // or modify the EnvConfig class to support testing
-  }
-}
-
-/// Mock validation result for testing
-class ValidationResult {
-  final bool isValid;
-  final String? errorMessage;
-  
-  const ValidationResult({
-    required this.isValid,
-    this.errorMessage,
+    //   });
+    // });
   });
 }
