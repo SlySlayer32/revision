@@ -220,6 +220,7 @@ void main() {
         final result = ImageSecurityService.validateImage(suspiciousData);
 
         expect(result.isFailure, true);
+        expect(result.exceptionOrNull.toString(), contains('suspicious patterns'));
       });
     });
 
