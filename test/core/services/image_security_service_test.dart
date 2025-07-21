@@ -221,7 +221,6 @@ void main() {
         expect(result.isFailure, true);
         expect(result.tryGetError().toString(), contains('suspicious patterns'));
       });
-      });
     });
 
     group('dimension validation', () {
