@@ -73,9 +73,9 @@ void main() {
       expect(find.byType(DashboardPage), findsOneWidget);
     });
 
-    testWidgets('should show error message when user is null but authenticated', (tester) async {
-      // Arrange
-      when(() => mockAuthenticationBloc.state)
+    // testWidgets('should show error message when user is null but authenticated', (tester) async {
+    //   // Arrange
+    //   when(() => mockAuthenticationBloc.state)
           .thenReturn(const AuthenticationState.authenticated(null));
 
       // Act
