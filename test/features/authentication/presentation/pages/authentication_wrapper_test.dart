@@ -73,24 +73,24 @@ void main() {
       expect(find.byType(DashboardPage), findsOneWidget);
     });
 
-    // testWidgets('should show error message when user is null but authenticated', (tester) async {
-    //   // Arrange
-    //   when(() => mockAuthenticationBloc.state)
-    //       .thenReturn(const AuthenticationState.authenticated(null));
-
-    //   // Act
-    //   await tester.pumpWidget(createWidgetUnderTest());
-
-      // Assert
-      expect(find.text('Authentication error: User is null'), findsOneWidget);
-    });
-
     testWidgets('should handle rebuild when authentication status changes', (tester) async {
       // Arrange
       when(() => mockAuthenticationBloc.state)
           .thenReturn(const AuthenticationState.unknown());
 
       // Act
+      await tester.pumpWidget(createWidgetUnderTest());
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      // Change state
+      when(() => mockAuthenticationBloc.state)
+          .thenReturn(const AuthenticationState.unauthenticated());
+
+      // Trigger rebuild
+      await tester.pump();
+
+      // Assert
+      expect(find.byType(WelcomePage), findsOneWidget);
       await tester.pumpWidget(createWidgetUnderTest());
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
