@@ -55,58 +55,6 @@ void main() {
         expect(info['configured'], isFalse);
         expect(info['error'], isNotNull);
       });
-        final hash1 = SecureAPIKeyManager.generateApiKeyHash(key1);
-        final hash2 = SecureAPIKeyManager.generateApiKeyHash(key2);
-        expect(hash1, isNot(equals(hash2)));
-      });
-    });
-
-    group('isApiKeyConfigured', () {
-      test('returns false when no API key is set', () {
-        expect(SecureAPIKeyManager.isApiKeyConfigured(), isFalse);
-      });
-
-      // test('returns false when API key is invalid', () {
-      //   EnvConfig.setGeminiApiKeyForTesting('invalid-key');
-      //   expect(SecureAPIKeyManager.isApiKeyConfigured(), isFalse);
-      // });
-
-      // test('returns true when API key is valid', () {
-      //   EnvConfig.setGeminiApiKeyForTesting('AIzaSyDummyKeyFor32CharactersLong12345');
-      //   expect(SecureAPIKeyManager.isApiKeyConfigured(), isTrue);
-      // });
-    });
-
-    group('getSecureDebugInfo', () {
-      test('returns error info when API key is not configured', () {
-        final info = SecureAPIKeyManager.getSecureDebugInfo();
-        expect(info['configured'], isFalse);
-        expect(info['error'], isNotNull);
-      });
-
-      test('returns secure debug info when API key is configured', () {
-        // const validKey = 'AIzaSyDummyKeyFor32CharactersLong12345';
-        // EnvConfig.setGeminiApiKeyForTesting(validKey);
-
-        // final info = SecureAPIKeyManager.getSecureDebugInfo();
-        // expect(info['configured'], isTrue);
-        // expect(info['length'], equals(validKey.length));
-        // expect(info['hasValidPrefix'], isTrue);
-        // expect(info['meetsMinLength'], isTrue);
-        // expect(info['keyHash'], isNotNull);
-        // expect(info['maskedKey'], isNotNull);
-        // expect(info['maskedKey'], contains('*'));
-      });
-    });
-  });
-}
-        expect(info['length'], equals(validKey.length));
-        expect(info['hasValidPrefix'], isTrue);
-        expect(info['meetsMinLength'], isTrue);
-        expect(info['keyHash'], isNotNull);
-        expect(info['maskedKey'], isNotNull);
-        expect(info['maskedKey'], contains('*'));
-      });
     });
   });
 }
