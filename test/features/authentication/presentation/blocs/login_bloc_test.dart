@@ -43,8 +43,10 @@ void main() {
       id: '1',
       email: testEmail,
       displayName: 'Test User',
-      photoURL: null,
-      emailVerified: true,
+      photoUrl: null,
+      isEmailVerified: true,
+      createdAt: null,
+      customClaims: {},
     );
 
     group('LoginRequested', () {
@@ -86,8 +88,6 @@ void main() {
         setUp: () {
           when(() => mockSignInUseCase(any()))
               .thenAnswer((_) async => const Left(ServerFailure('Login failed')));
-        },
-        build: () => loginBloc,
         act: (bloc) => bloc.add(
           const LoginRequested(email: testEmail, password: testPassword),
         ),
