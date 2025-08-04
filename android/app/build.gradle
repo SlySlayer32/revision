@@ -161,7 +161,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     
     // Use a stable Firebase BoM version compatible with SDK 35
-    implementation platform('com.google.firebase:firebase-bom:33.16.0')
+    implementation platform('com.google.firebase:firebase-bom:34.0.0')
 
     // Add Analytics
     implementation 'com.google.firebase:firebase-analytics'
