@@ -15,7 +15,7 @@ dependencies:
   firebase_auth: ^5.6.2
   cloud_firestore: ^5.4.3
   crypto: ^3.0.5
-  firebase_analytics: ^11.5.2
+  firebase_analytics: ^11.6.0
   # firebase_ai: ^2.2.0  # Removed - using direct REST API instead since Firebase AI Logic doesn't support image input
   firebase_crashlytics: ^4.3.9
   firebase_remote_config: ^5.1.3
