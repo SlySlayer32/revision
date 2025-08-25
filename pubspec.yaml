@@ -23,7 +23,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
-  flutter_dotenv: ^5.1.0
+  flutter_dotenv: ^6.0.0
   flutter_localizations:
     sdk: flutter
   freezed_annotation: ^3.1.0
