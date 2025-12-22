@@ -31,7 +31,7 @@ dependencies:
   google_generative_ai: ^0.4.6
   google_sign_in: ^7.1.0
   http: ^1.4.0
-  image: ^4.5.4
+  image: ^4.7.2
   image_gallery_saver: ^2.0.3
   image_picker: ^1.1.2
   intl: ^0.20.2
